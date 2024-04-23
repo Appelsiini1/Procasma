@@ -29,7 +29,7 @@
     "eslint": "^8.57.0",
     "eslint-plugin-import": "^2.29.1",
     "ts-node": "^10.9.2",
-    "typescript": "~4.5.4",
+    "typescript": "^4.5.4",
     "vite": "^5.2.9"
   },
   "keywords": [],
@@ -37,7 +37,7 @@
     "name": "Rami Saarivuori",
     "email": "37345715+Appelsiini1@users.noreply.github.com"
   },
-  "license": "MIT",
+  "license": "UNLICENSED",
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0",
     "react": "^18.2.0",
