@@ -39,8 +39,14 @@
   },
   "license": "UNLICENSED",
   "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@fontsource/inter": "^5.0.18",
+    "@mui/joy": "^5.0.0-beta.36",
     "electron-squirrel-startup": "^1.0.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.23.0",
+    "sqlite3": "^5.1.7"
   }
 }
