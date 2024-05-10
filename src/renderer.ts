@@ -26,6 +26,11 @@
  * ```
  */
 
-import './index.css';
+import "./index.css";
 
-console.log('👋 This message is being logged by "renderer.ts", included via Vite');
+// Loads the app UI entrypoint
+import "./index";
+
+console.log(
+  '👋 This message is being logged by "renderer.ts", included via Vite'
+);
