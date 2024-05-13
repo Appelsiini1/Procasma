@@ -3,6 +3,7 @@ import ButtonComp from "./components/Button";
 import NumberInput from "./components/NumberInput";
 import InputField from "./components/InputField";
 import Dropdown from "./components/Dropdown";
+import SwitchComp from "./components/Switch";
 
 function App() {
   function onClick() {
@@ -13,6 +14,7 @@ function App() {
     { name: "dog", age: 5 },
     { name: "cat", age: 6 },
   ];
+  const [checked, setChecked] = useState<boolean>(false);
   return (
     <div>
       <h1>💖 Hello World!</h1>
@@ -70,6 +72,8 @@ function App() {
         placeholder="Select..."
         name="dropdown"
       />
+      <p></p>
+      <SwitchComp checked={checked} setChecked={setChecked} />
     </div>
   );
 }
