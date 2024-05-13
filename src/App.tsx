@@ -1,11 +1,20 @@
-import React from "react";
+import { useState } from "react";
 import ButtonComp from "./components/Button";
-import CounterButtons from "./components/CounterButtons";
+import NumberInput from "./components/NumberInput";
+import InputField from "./components/InputField";
+import Dropdown from "./components/Dropdown";
+import SwitchComp from "./components/Switch";
 
 function App() {
   function onClick() {
     console.log("Button clicked!");
   }
+  const [value, setValue] = useState("1");
+  const options = [
+    { name: "dog", age: 5 },
+    { name: "cat", age: 6 },
+  ];
+  const [checked, setChecked] = useState<boolean>(false);
   return (
     <div>
       <h1>💖 Hello World!</h1>
@@ -45,13 +54,26 @@ function App() {
         </ButtonComp>
       </div>
       <p></p>
-      <CounterButtons onDecrement={onClick} onIncrement={onClick} />
       <ButtonComp buttonType="settings" onClick={onClick} margin={true}>
         Asetukset
       </ButtonComp>
       <ButtonComp buttonType="setManage" onClick={onClick} margin={true}>
         Tehtäväsarjat
       </ButtonComp>
+      <p></p>
+      <NumberInput min={1} max={100} value={value} setValue={setValue} />
+      <p></p>
+      <InputField isLarge={true} placeholder="Text here..." />
+      <InputField isLarge={false} placeholder="Text here..." />
+      <p></p>
+      <Dropdown
+        options={options}
+        labelKey="name"
+        placeholder="Select..."
+        name="dropdown"
+      />
+      <p></p>
+      <SwitchComp checked={checked} setChecked={setChecked} />
     </div>
   );
 }
