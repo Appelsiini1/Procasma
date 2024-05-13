@@ -51,7 +51,7 @@ export default function NumberInput({
             step: 1,
           },
         }}
-        sx={{ maxWidth: "5em" }}
+        sx={{ maxWidth: "5em", minWidth: "2em" }}
         onChange={handleChange}
         value={value}
       ></Input>
