@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ButtonComp from "./components/Button";
 import NumberInput from "./components/NumberInput";
+import InputField from "./components/InputField";
 
 function App() {
   function onClick() {
@@ -54,6 +55,9 @@ function App() {
       </ButtonComp>
       <p></p>
       <NumberInput min={1} max={100} value={value} setValue={setValue} />
+      <p></p>
+      <InputField isLarge={true} placeholder="Text here..." />
+      <InputField isLarge={false} placeholder="Text here..." />
     </div>
   );
 }
