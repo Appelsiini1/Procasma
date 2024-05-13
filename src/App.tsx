@@ -2,12 +2,17 @@ import { useState } from "react";
 import ButtonComp from "./components/Button";
 import NumberInput from "./components/NumberInput";
 import InputField from "./components/InputField";
+import Dropdown from "./components/Dropdown";
 
 function App() {
   function onClick() {
     console.log("Button clicked!");
   }
   const [value, setValue] = useState("1");
+  const options = [
+    { name: "dog", age: 5 },
+    { name: "cat", age: 6 },
+  ];
   return (
     <div>
       <h1>💖 Hello World!</h1>
@@ -58,6 +63,13 @@ function App() {
       <p></p>
       <InputField isLarge={true} placeholder="Text here..." />
       <InputField isLarge={false} placeholder="Text here..." />
+      <p></p>
+      <Dropdown
+        options={options}
+        labelKey="name"
+        placeholder="Select..."
+        name="dropdown"
+      />
     </div>
   );
 }
