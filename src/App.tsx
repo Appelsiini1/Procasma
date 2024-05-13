@@ -1,11 +1,12 @@
-import React from "react";
+import { useState } from "react";
 import ButtonComp from "./components/Button";
-import CounterButtons from "./components/CounterButtons";
+import NumberInput from "./components/NumberInput";
 
 function App() {
   function onClick() {
     console.log("Button clicked!");
   }
+  const [value, setValue] = useState("1");
   return (
     <div>
       <h1>💖 Hello World!</h1>
@@ -45,13 +46,14 @@ function App() {
         </ButtonComp>
       </div>
       <p></p>
-      <CounterButtons onDecrement={onClick} onIncrement={onClick} />
       <ButtonComp buttonType="settings" onClick={onClick} margin={true}>
         Asetukset
       </ButtonComp>
       <ButtonComp buttonType="setManage" onClick={onClick} margin={true}>
         Tehtäväsarjat
       </ButtonComp>
+      <p></p>
+      <NumberInput min={1} max={100} value={value} setValue={setValue} />
     </div>
   );
 }
