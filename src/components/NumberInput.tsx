@@ -44,13 +44,6 @@ export default function NumberInput({
     >
       <Input
         type="text"
-        slotProps={{
-          input: {
-            min: min,
-            max: max,
-            step: 1,
-          },
-        }}
         sx={{ maxWidth: "5em", minWidth: "2em" }}
         onChange={handleChange}
         value={value}
