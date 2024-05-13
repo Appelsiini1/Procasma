@@ -6,6 +6,7 @@ import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 import IosShareIcon from "@mui/icons-material/IosShare";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
+import React from "react";
 
 const largeNormal = {
   color: "#00000",
@@ -49,7 +50,7 @@ export default function ButtonComp({
   margin = false,
 }: ButtonProps) {
   let style: object = null;
-  let decor: JSX.Element = null;
+  let decor: React.JSX.Element = null;
 
   switch (buttonType) {
     case "largeAdd":

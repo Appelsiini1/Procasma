@@ -1,9 +1,10 @@
 import { Input, Textarea } from "@mui/joy";
+import React from "react";
 
 type ButtonProps = { isLarge: boolean; placeholder: string };
 
 export default function InputField({ isLarge, placeholder }: ButtonProps) {
-  let component: JSX.Element = null;
+  let component: React.JSX.Element = null;
   if (isLarge) {
     component = (
       <Textarea
