@@ -4,6 +4,7 @@ import NumberInput from "./components/NumberInput";
 import InputField from "./components/InputField";
 import Dropdown from "./components/Dropdown";
 import SwitchComp from "./components/Switch";
+import HelpText from "./components/HelpText";
 
 function App() {
   function onClick() {
@@ -74,6 +75,7 @@ function App() {
       />
       <p></p>
       <SwitchComp checked={checked} setChecked={setChecked} />
+      <HelpText text="Help text..." />
     </div>
   );
 }
