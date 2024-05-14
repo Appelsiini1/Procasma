@@ -20,7 +20,10 @@ export default function Dropdown({
   for (let index = 0; index < options.length; index++) {
     const element: any = options[index];
     formattedOptions.push(
-      <Option value={index.toString()}> {element[labelKey]}</Option>
+      <Option key={element[labelKey]} value={index.toString()}>
+        {" "}
+        {element[labelKey]}
+      </Option>
     );
   }
 
