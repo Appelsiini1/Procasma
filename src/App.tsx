@@ -5,6 +5,7 @@ import InputField from "./components/InputField";
 import Dropdown from "./components/Dropdown";
 import SwitchComp from "./components/Switch";
 import HelpText from "./components/HelpText";
+import SelectedHeader from "./components/SelectedHeader";
 
 function App() {
   function onClick() {
@@ -16,6 +17,7 @@ function App() {
     { name: "cat", age: 6 },
   ];
   const [checked, setChecked] = useState<boolean>(false);
+  const selected = 6;
   return (
     <div>
       <h1>💖 Hello World!</h1>
@@ -76,6 +78,8 @@ function App() {
       <p></p>
       <SwitchComp checked={checked} setChecked={setChecked} />
       <HelpText text="Help text..." />
+      <p></p>
+      <SelectedHeader selected={6} language="FI" />
     </div>
   );
 }
