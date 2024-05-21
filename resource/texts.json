@@ -11,7 +11,7 @@
         "FI" : "Esimerkkiajo",
         "ENG" : "Example run"
     },
-    "tex_ex_solution" : {
+    "ex_solution" : {
         "FI" : "Malliratkaisu",
         "ENG" : "Example solution"
     },
@@ -685,5 +685,21 @@
     "tex_fig" : {
         "FI" : "Kuva",
         "ENG" : "Figure"
+    },
+    "ui_type": {
+        "FI" : "Tyyppi",
+        "ENG" : "Type"
+    },
+    "ui_resultfile" : {
+        "FI" : "Tulostiedosto",
+        "ENG" : "Result file"
+    },
+    "ui_show_to_student" : {
+        "FI" :"Näytä opiskelijalle",
+        "ENG" :"Show to student"
+    },
+    "ui_actions" :{
+        "FI" : "Toiminnot",
+        "ENG" : "Actions"
     }
 }
