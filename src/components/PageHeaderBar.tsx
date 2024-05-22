@@ -33,10 +33,10 @@ export default function PageHeaderBar({ pageName, courseName }: ButtonProps) {
         container
         spacing={3}
         sx={{ flexGrow: 1 }}
-        justifyContent="center"
-        alignItems="center"
+        justifyContent="space-around"
+        alignItems="stretch"
       >
-        <Grid xs>
+        <Grid xs={5}>
           <Stack
             direction="row"
             justifyContent="center"
@@ -45,7 +45,7 @@ export default function PageHeaderBar({ pageName, courseName }: ButtonProps) {
             sx={{
               marginLeft: "1em",
               justifyContent: "left",
-              marginTop: "auto",
+              marginTop: ".4em",
               marginBottom: "auto",
             }}
           >
@@ -80,15 +80,15 @@ export default function PageHeaderBar({ pageName, courseName }: ButtonProps) {
               />
             </Box>
             <Box />
-            <Typography level="h3">{pageName}</Typography>
+            <Typography level="h3" noWrap>{pageName}</Typography>
           </Stack>
         </Grid>
-        <Grid xs={1} display="flex">
+        <Grid xs={2} display="flex" justifyContent="center">
           <Box
             sx={{
               bgcolor: "#FFFFF",
-              maxHeight: "1em",
-              marginTop: "0%",
+              marginTop: "auto",
+              marginBottom: "auto",
             }}
           >
             <img
@@ -100,14 +100,15 @@ export default function PageHeaderBar({ pageName, courseName }: ButtonProps) {
           </Box>
         </Grid>
 
-        <Grid xs display="flex" justifyItems="right">
+        <Grid xs={5}>
           <Typography
             level="h4"
+            noWrap
             sx={{
-              marginRight: "0.8em",
-              justifyContent: "right",
-              marginTop: "auto",
+              marginTop: ".5em",
               marginBottom: "auto",
+              marginRight:"1em",
+              textAlign:"right"
             }}
           >
             {courseName}

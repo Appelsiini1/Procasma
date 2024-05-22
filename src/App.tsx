@@ -21,7 +21,7 @@ function App() {
   const selected = 6;
   return (
     <div>
-      <PageHeaderBar pageName="Main Menu" courseName="No course" />
+      <PageHeaderBar pageName="Main Menu" courseName="CT00A0000 jtoantiantaontao" />
       <div className="content">
         <h1>💖 Hello World!</h1>
         <p>Welcome to your Electron application.</p>
