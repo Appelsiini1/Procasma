@@ -1,8 +1,8 @@
 import { Checkbox, Sheet, Table } from "@mui/joy";
 import { ui_select, ui_type, ui_show_to_student, ui_resultfile, ui_name, ex_solution, ui_actions } from "../../resource/texts.json";
-import { AssignmentData } from "src/types";
+import { AssignmentData, FileData } from "src/types";
 
-export default function ItemList({language, rows}:{language:keyof typeof ui_select, rows:Array<AssignmentData>}) {
+export default function FileList({language, rows}:{language:keyof typeof ui_select, rows:Array<FileData>}) {
     return <Sheet>
         <Table borderAxis='xBetween' hoverRow>
         <thead>
@@ -18,10 +18,10 @@ export default function ItemList({language, rows}:{language:keyof typeof ui_sele
         </thead>
         <tbody>
             {rows.map((row) => (
-                <tr key={row.assignment_id}>
+                <tr key={row.fileName}>
                     <td><Checkbox></Checkbox></td>
-                    <th scope="row">{row.assignment.title}</th>
-                    <td>{}</td>
+                    <th scope="row">{row.fileName}</th>
+                    <td>{row.fileType}</td>
                 </tr>
             ))}
         </tbody>
