@@ -7,6 +7,7 @@ import SwitchComp from "./components/Switch";
 import HelpText from "./components/HelpText";
 import SelectedHeader from "./components/SelectedHeader";
 import PageHeaderBar from "./components/PageHeaderBar";
+import ItemList from "./components/ItemList";
 
 function App() {
   function onClick() {
@@ -84,6 +85,8 @@ function App() {
         <p></p>
         <SelectedHeader selected={selected} language="FI" />
       </div>
+      <p></p>
+      {/* <ItemList language="FI" /> */}
     </div>
   );
 }
