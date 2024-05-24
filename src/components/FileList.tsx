@@ -44,6 +44,7 @@ export default function FileList({
                 <Checkbox checked={row.solution}></Checkbox>
               </td>
               <td>
+                {/*Replace checkbox with a dropdown? to select between resultfile, codefile, datafile... */}
                 <Checkbox checked={row.resultFile}></Checkbox>
               </td>
               <td>

@@ -7,7 +7,7 @@ import SwitchComp from "./components/Switch";
 import HelpText from "./components/HelpText";
 import SelectedHeader from "./components/SelectedHeader";
 import PageHeaderBar from "./components/PageHeaderBar";
-import ItemList from "./components/ItemList";
+import ItemList from "./components/FileList";
 
 function App() {
   function onClick() {
