@@ -26,8 +26,6 @@
  * ```
  */
 
-import "./index.css";
-
 // Loads the app UI entrypoint
 import "./index";
 
