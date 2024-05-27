@@ -9,6 +9,8 @@ import SelectedHeader from "./components/SelectedHeader";
 import PageHeaderBar from "./components/PageHeaderBar";
 import ModalAlertDelete from "./components/ModalAlertDelete";
 import ModalConfirm from "./components/ModalConfirm";
+import ModalPopup from "./components/ModalPopup";
+import Button from "@mui/joy/Button";
 
 function App() {
   function onClick() {
@@ -21,6 +23,7 @@ function App() {
   ];
   const [checked, setChecked] = useState<boolean>(false);
   const selected = 6;
+  const [open, setOpen] = useState<boolean>(false);
   return (
     <div>
       <PageHeaderBar
@@ -91,6 +94,27 @@ function App() {
         <p></p>
         <ModalAlertDelete button="normal" language="FI" />
         <ModalConfirm language="FI" />
+        <Button
+          variant="solid"
+          sx={{
+            color: "#00000",
+            backgroundColor: "#F8A866",
+            "&:hover": { backgroundColor: "#F68C35" },
+            padding: "0.1em 1.2em",
+            fontSize: "1em",
+            minWidth: "7rem",
+          }}
+          onClick={() => setOpen(true)}
+        >
+          Avaa popup
+        </Button>
+        <ModalPopup
+          open={open}
+          setOpen={setOpen}
+          header="Testi"
+          content="Testi-ilmoitus"
+          language="FI"
+        />
       </div>
     </div>
   );
