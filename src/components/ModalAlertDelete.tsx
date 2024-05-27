@@ -10,7 +10,7 @@ import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import { useState } from "react";
 import { IconButton } from "@mui/joy";
 import { ui_delete, ui_confirm, ui_cancel } from "../../resource/texts.json";
-import { buttonMinWidth } from "../constants";
+import { buttonMinWidth } from "../constantsUI";
 
 export default function ModalAlertDelete({
   button,

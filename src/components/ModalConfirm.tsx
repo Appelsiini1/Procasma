@@ -13,7 +13,7 @@ import {
   ui_cancel,
   ui_confirm_header,
 } from "../../resource/texts.json";
-import { buttonMinWidth } from "../constants";
+import { buttonMinWidth } from "../constantsUI";
 
 export default function ModalConfirm({
   language,

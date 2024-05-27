@@ -8,7 +8,7 @@ import ModalDialog from "@mui/joy/ModalDialog";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useState } from "react";
 import { ui_ok } from "../../resource/texts.json";
-import { buttonMinWidth } from "../constants";
+import { buttonMinWidth } from "../constantsUI";
 
 export default function ModalPopup({
   open,
