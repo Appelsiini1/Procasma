@@ -706,5 +706,13 @@
   "ui_confirm_header": {
     "FI": "Vahvistus",
     "ENG": "Confirmation"
+  },
+  "error_occured_header": {
+    "FI": "Tapahtui virhe...",
+    "ENG": "An error occured..."
+  },
+  "error_occured": {
+    "FI": "Pahoittelut, tapahtui odottamaton virhe.",
+    "ENG": "Sorry, an unexpected error has occured."
   }
 }
