@@ -1,1 +1,1 @@
-export const buttonMinWidth = "7rem";
+export const version = "0.0.1";

@@ -6,22 +6,19 @@ import DialogActions from "@mui/joy/DialogActions";
 import Modal from "@mui/joy/Modal";
 import ModalDialog from "@mui/joy/ModalDialog";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import { useState } from "react";
 import { ui_ok } from "../../resource/texts.json";
-import { buttonMinWidth } from "../constants";
+import { language } from "../constantsUI";
 
 export default function ModalPopup({
   open,
   setOpen,
   header,
   content,
-  language,
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   header: string;
   content: string;
-  language: keyof typeof ui_ok;
 }) {
   return (
     <>
@@ -43,7 +40,7 @@ export default function ModalPopup({
               }}
               onClick={() => setOpen(false)}
             >
-              {ui_ok[language]}
+              {ui_ok[language.current]}
             </Button>
           </DialogActions>
         </ModalDialog>

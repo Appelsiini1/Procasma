@@ -11,7 +11,7 @@ const IconSX = {
   "&:hover": { backgroundColor: "#F68C35" },
 };
 
-const imageSize = "40em";
+const imageSize = "38em";
 
 type ButtonProps = {
   pageName: string;

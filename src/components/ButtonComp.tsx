@@ -7,7 +7,7 @@ import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 import IosShareIcon from "@mui/icons-material/IosShare";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import React from "react";
-import { buttonMinWidth } from "../constants";
+import { buttonMinWidth } from "../constantsUI";
 
 const largeNormal = {
   color: "#00000",
