@@ -51,7 +51,7 @@
     "FI": "Tiedosto",
     "ENG": "File"
   },
-  "menu_open": {
+  "course_open": {
     "FI": "Avaa kurssi",
     "ENG": "Open course"
   },
@@ -63,7 +63,7 @@
     "FI": "Poistu",
     "ENG": "Exit"
   },
-  "menu_create": {
+  "course_create": {
     "FI": "Luo kurssi",
     "ENG": "Create course"
   },
@@ -73,7 +73,7 @@
   },
   "ui_info": {
     "FI": "Tietoa kurssista",
-    "ENG": "Course infomation"
+    "ENG": "Course information"
   },
   "ui_course_id": {
     "FI": "Kurssin tunniste",
@@ -100,6 +100,10 @@
     "ENG": "Cancel"
   },
   "ui_assignment_set": {
+    "FI": "Tehtäväsarja",
+    "ENG": "Assignment set"
+  },
+  "ui_assignment_sets": {
     "FI": "Tehtäväsarjat",
     "ENG": "Assignment sets"
   },
@@ -714,5 +718,25 @@
   "error_occured": {
     "FI": "Pahoittelut, tapahtui odottamaton virhe.",
     "ENG": "Sorry, an unexpected error has occured."
+  },
+  "course_manage": {
+    "FI": "Kurssin hallinta",
+    "ENG": "Course management"
+  },
+  "ui_assignment": {
+    "FI": "Tehtävä",
+    "ENG": "Assignment"
+  },
+  "ui_module": {
+    "FI": "Moduuli",
+    "ENG": "Module"
+  },
+  "ui_module_management": {
+    "FI": "Moduulien hallinta",
+    "ENG": "Module managment"
+  },
+  "ui_export_project": {
+    "FI": "Vie harjoitustyö",
+    "ENG": "Export project work"
   }
 }

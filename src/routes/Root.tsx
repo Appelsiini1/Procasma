@@ -1,15 +1,149 @@
 import PageHeaderBar from "../components/PageHeaderBar";
-import { ui_main } from "../../resource/texts.json";
-import { language } from "../constantsUI";
+import texts from "../../resource/texts.json";
+import { language, dividerColor } from "../constantsUI";
 import LogoText from "../../resource/LogoText.png";
+import { Box, Divider, Grid, Typography } from "@mui/joy";
+import ButtonComp from "../components/ButtonComp";
+
+const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 
 export default function Root() {
-  const pageName = ui_main[language.current];
+  const pageName = texts.ui_main[language.current];
+  let noInIndex = NaN; //make dynamic later
   return (
     <>
       <PageHeaderBar pageName={pageName} courseName="Test course" />
       <div className="content">
         <img src={LogoText} className="textLogo" />
+        <Typography level="h4" sx={{ paddingBottom: "2rem" }}>
+          {texts.ui_no_assignments_index[language.current] +
+            ": " +
+            noInIndex.toString()}
+        </Typography>
+
+        <Box>
+          <Grid
+            container
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="center"
+            spacing={3}
+          >
+            <Grid>
+              <ButtonComp
+                buttonType="largeAdd"
+                onClick={() => console.log("Add Course")}
+              >
+                {texts.course_create[language.current]}
+              </ButtonComp>
+            </Grid>
+            <Grid>
+              <ButtonComp
+                buttonType="openCourse"
+                onClick={() => console.log("Open Course")}
+              >
+                {texts.course_open[language.current]}
+              </ButtonComp>
+            </Grid>
+            <Grid>
+              <ButtonComp
+                buttonType="settings"
+                onClick={() => console.log("Manage Course")}
+              >
+                {texts.course_manage[language.current]}
+              </ButtonComp>
+            </Grid>
+          </Grid>
+
+          <Divider sx={dividerSX} role="presentation" />
+
+          <Grid
+            container
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="center"
+            spacing={3}
+          >
+            <Grid>
+              <ButtonComp
+                buttonType="largeAdd"
+                onClick={() => console.log("Add Assignment")}
+              >
+                {texts.ui_assignment[language.current]}
+              </ButtonComp>
+            </Grid>
+            <Grid>
+              <ButtonComp
+                buttonType="settings"
+                onClick={() => console.log("Manage Assignments")}
+              >
+                {texts.ui_assignment_management[language.current]}
+              </ButtonComp>
+            </Grid>
+          </Grid>
+
+          <Divider sx={dividerSX} role="presentation" />
+
+          <Grid
+            container
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="center"
+            spacing={3}
+          >
+            <Grid>
+              <ButtonComp
+                buttonType="largeAdd"
+                onClick={() => console.log("Add Module")}
+              >
+                {texts.ui_module[language.current]}
+              </ButtonComp>
+            </Grid>
+            <Grid>
+              <ButtonComp
+                buttonType="settings"
+                onClick={() => console.log("Manage Modules")}
+              >
+                {texts.ui_module_management[language.current]}
+              </ButtonComp>
+            </Grid>
+          </Grid>
+
+          <Divider sx={dividerSX} role="presentation" />
+
+          <Grid
+            container
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="center"
+            spacing={3}
+          >
+            <Grid>
+              <ButtonComp
+                buttonType="largeAdd"
+                onClick={() => console.log("Add assignment set")}
+              >
+                {texts.ui_assignment_set[language.current]}
+              </ButtonComp>
+            </Grid>
+            <Grid>
+              <ButtonComp
+                buttonType="openCourse"
+                onClick={() => console.log("Open assignment set management")}
+              >
+                {texts.ui_assignment_sets[language.current]}
+              </ButtonComp>
+            </Grid>
+            <Grid>
+              <ButtonComp
+                buttonType="export"
+                onClick={() => console.log("Export project work")}
+              >
+                {texts.ui_export_project[language.current]}
+              </ButtonComp>
+            </Grid>
+          </Grid>
+        </Box>
       </div>
     </>
   );
