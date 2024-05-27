@@ -13,13 +13,9 @@ import {
   ui_cancel,
   ui_confirm_header,
 } from "../../resource/texts.json";
-import { buttonMinWidth } from "../constantsUI";
+import { buttonMinWidth, language } from "../constantsUI";
 
-export default function ModalConfirm({
-  language,
-}: {
-  language: keyof typeof ui_ok;
-}) {
+export default function ModalConfirm() {
   const [open, setOpen] = useState<boolean>(false);
   return (
     <>
@@ -35,16 +31,16 @@ export default function ModalConfirm({
         }}
         onClick={() => setOpen(true)}
       >
-        {ui_ok[language]}
+        {ui_ok[language.current]}
       </Button>
       <Modal open={open} onClose={() => setOpen(false)}>
         <ModalDialog variant="outlined" role="alertdialog">
           <DialogTitle>
             <ThumbsUpDownIcon />
-            {ui_confirm_header[language]}
+            {ui_confirm_header[language.current]}
           </DialogTitle>
           <Divider />
-          <DialogContent>{ui_confirm[language]}</DialogContent>
+          <DialogContent>{ui_confirm[language.current]}</DialogContent>
           <DialogActions>
             <Button
               variant="solid"
@@ -52,7 +48,7 @@ export default function ModalConfirm({
               sx={{ minWidth: buttonMinWidth }}
               onClick={() => setOpen(false)}
             >
-              {ui_ok[language]}
+              {ui_ok[language.current]}
             </Button>
             <Button
               variant="plain"
@@ -60,7 +56,7 @@ export default function ModalConfirm({
               sx={{ minWidth: buttonMinWidth }}
               onClick={() => setOpen(false)}
             >
-              {ui_cancel[language]}
+              {ui_cancel[language.current]}
             </Button>
           </DialogActions>
         </ModalDialog>

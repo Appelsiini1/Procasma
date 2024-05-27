@@ -1,16 +1,11 @@
 import { Typography } from "@mui/joy";
-import { ui_selected} from "../../resource/texts.json";
+import { ui_selected } from "../../resource/texts.json";
+import { language } from "../constantsUI";
 
-export default function SelectedHeader({
-  selected,
-  language,
-}: {
-  selected: number;
-  language: keyof typeof ui_selected;
-}) {
+export default function SelectedHeader({ selected }: { selected: number }) {
   return (
     <Typography level="h2">
-      ({selected}) {ui_selected[language]}
+      ({selected}) {ui_selected[language.current]}
     </Typography>
   );
 }

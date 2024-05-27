@@ -10,14 +10,12 @@ import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import { useState } from "react";
 import { IconButton } from "@mui/joy";
 import { ui_delete, ui_confirm, ui_cancel } from "../../resource/texts.json";
-import { buttonMinWidth } from "../constantsUI";
+import { buttonMinWidth, language } from "../constantsUI";
 
 export default function ModalAlertDelete({
   button,
-  language,
 }: {
   button: "icon" | "normal";
-  language: keyof typeof ui_delete;
 }) {
   const [open, setOpen] = useState<boolean>(false);
   let buttonComponent: JSX.Element = null;
@@ -34,7 +32,7 @@ export default function ModalAlertDelete({
           minWidth: buttonMinWidth,
         }}
       >
-        {ui_delete[language]}
+        {ui_delete[language.current]}
       </Button>
     );
   } else {
@@ -55,24 +53,24 @@ export default function ModalAlertDelete({
         <ModalDialog variant="outlined" role="alertdialog">
           <DialogTitle>
             <WarningRoundedIcon />
-            {ui_delete[language]}
+            {ui_delete[language.current]}
           </DialogTitle>
           <Divider />
-          <DialogContent>{ui_confirm[language]}</DialogContent>
+          <DialogContent>{ui_confirm[language.current]}</DialogContent>
           <DialogActions>
             <Button
               variant="solid"
               color="danger"
               onClick={() => setOpen(false)}
             >
-              {ui_delete[language]}
+              {ui_delete[language.current]}
             </Button>
             <Button
               variant="plain"
               color="neutral"
               onClick={() => setOpen(false)}
             >
-              {ui_cancel[language]}
+              {ui_cancel[language.current]}
             </Button>
           </DialogActions>
         </ModalDialog>
