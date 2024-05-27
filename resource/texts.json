@@ -1,705 +1,710 @@
 {
-    "ui_main": {
-        "FI": "Päävalikko",
-        "ENG" : "Main"
-    },
-    "assignments" : {
-        "FI" : "Tehtävät",
-        "ENG" : "Assignments"
-    },
-    "ex_run" : {
-        "FI" : "Esimerkkiajo",
-        "ENG" : "Example run"
-    },
-    "ex_solution" : {
-        "FI" : "Malliratkaisu",
-        "ENG" : "Example solution"
-    },
-    "ex_input" : {
-        "FI" : "Syötteet",
-        "ENG" : "Inputs"
-    },
-    "cmd_input" : {
-        "FI" : "Komentoriviparametrit",
-        "ENG" : "Commandline arguments"
-    },
-    "tex_ex_input_datafile" : {
-        "FI" : "Esimerkki syötetiedostosta",
-        "ENG" : "Example from input file"
-    },
-    "tex_ex_resultfile" : {
-        "FI" : "Esimerkki tulostiedostosta",
-        "ENG" : "Example from output file"
-    },
-    "ex_output" : {
-        "FI" : "Tuloste",
-        "ENG" : "Output"
-    },
-    "tex_assignment_letter" : {
-        "FI" : "T",
-        "ENG" : "A"
-    },
-    "tex_lecture_letter" : {
-        "FI" : "L",
-        "ENG" : "L"
-    },
-    "ui_general" : {
-        "FI" : "Yleinen",
-        "ENG" : "General"
-    },
-    "menu_file" : {
-        "FI" : "Tiedosto",
-        "ENG" : "File"
-    },
-    "menu_open" : {
-        "FI" : "Avaa kurssi",
-        "ENG" : "Open course"
-    },
-    "menu_open_recent" : {
-        "FI" : "Avaa edellinen",
-        "ENG" : "Open recent"
-    },"menu_exit" : {
-        "FI" : "Poistu",
-        "ENG" : "Exit"
-    },
-    "menu_create" : {
-        "FI" : "Luo kurssi",
-        "ENG" : "Create course"
-    },
-    "menu_update" : {
-        "FI" : "Päivitä tehtäväindeksi",
-        "ENG" : "Update assignment index"
-    },
-    "ui_info" : {
-        "FI" : "Tietoa kurssista",
-        "ENG" : "Course infomation"
-    },
-    "ui_course_id" : {
-        "FI" : "Kurssin tunniste",
-        "ENG" : "Course identifier"
-    },
-    "ui_course_name" : {
-        "FI" : "Kurssin nimi",
-        "ENG" : "Course name"
-    },
-    "ui_no_assignments_index" : {
-        "FI" : "Tehtäviä indeksissä",
-        "ENG" : "Assignments in index"
-    },
-    "ui_no_weeks" : {
-        "FI" : "Viikkoja kurssilla",
-        "ENG" : "Number of weeks on course"
-    },
-    "ui_save" : {
-        "FI" : "Tallenna",
-        "ENG" : "Save"
-    },
-    "ui_cancel" : {
-        "FI" : "Peruuta",
-        "ENG" : "Cancel"
-    },
-    "ui_assignment_set" : {
-        "FI" : "Tehtäväsarjat",
-        "ENG" : "Assignment sets"
-    },
-    "ui_assignment_management" : {
-        "FI" : "Tehtävien hallinta",
-        "ENG" : "Assignment management"
-    },
-    "ui_create_new_set" : {
-        "FI" : "Luo uusi tehtäväsarja",
-        "ENG" : "Create new assigment set"
-    },
-    "ui_full_course" : {
-        "FI" : "Koko toteutus",
-        "ENG" : "Full course"
-    },
-    "ui_one_week" : {
-        "FI" : "Yksi viikko",
-        "ENG" : "One week"
-    },
-    "ui_prev_gen" : {
-        "FI" : "Aiemmin luodut",
-        "ENG" : "Previously generated"
-    },
-    "ui_week" : {
-        "FI" : "Viikko",
-        "ENG" : "Week"
-    },
-    "ui_show_edit" : {
-        "FI" : "Näytä / Muokkaa",
-        "ENG" : "Show / Edit"
-    },
-    "ui_add_assignment" : {
-        "FI" : "Lisää tehtävä",
-        "ENG" : "Add assignment"
-    },
-    "ui_tags" : {
-        "FI" : "Tunnisteet",
-        "ENG" : "Tags"
-    },
-    "ui_variations" : {
-        "FI" : "Variaatiot",
-        "ENG" : "Variations"
-    },
-    "ui_selected" : {
-        "FI" : "Valittu",
-        "ENG" : "Selected"
-    },
-    "ui_full_course_setup" : {
-        "FI" : "Koko toteutuksen luonti",
-        "ENG" : "Full Course Setup"
-    },
-    "ui_start_date" : {
-        "FI" : "Aloituspäivämäärä",
-        "ENG" : "Start date"
-    },
-    "ui_start_time" : {
-        "FI" : "Aloitusaika",
-        "ENG" : "Start time"
-    },
-    "ui_no_lecture" : {
-        "FI" : "Luentojen lukumäärä",
-        "ENG" : "Number of lectures"
-    },
-    "ui_days_between" : {
-        "FI" : "Päiviä luentojen välillä",
-        "ENG" : "Days between lectures"
-    },
-    "ui_results" : {
-        "FI" : "Tulokset",
-        "ENG" : "Results"
-    },
-    "ui_total assignments" : {
-        "FI" : "Tehtäviä yhteensä",
-        "ENG" : "Total assignments"
-    },
-    "ui_end_date" : {
-        "FI" : "Päättymispäivä",
-        "ENG" : "End date"
-    },
-    "ui_lecture_week" : {
-        "FI" : "Luentoviikko",
-        "ENG" : "Lecture week"
-    },
-    "ui_no_assignments" : {
-        "FI" : "Tehtävien määrä",
-        "ENG" : "Number of assigments"
-    },
-    "ui_create" : {
-        "FI" : "Luo",
-        "ENG" : "Create"
-    },
-    "ui_assignment_title" : {
-        "FI" : "Tehtävän otsikko",
-        "ENG" : "Assingment title"
-    },
-    "ui_assignment_no" : {
-        "FI" : "Tehtävän numero(t)",
-        "ENG" : "Assignment number(s)"
-    },
-    "ui_assignment_tags" : {
-        "FI" : "Tehtävän tunnisteet",
-        "ENG" : "Assignment tags"
-    },
-    "ui_exp_assignment" : {
-        "FI" : "Laajeneva tehtävä",
-        "ENG" : "Expanding assignment"
-    },
-    "ui_prev_part" : {
-        "FI" : "Edellinen osa",
-        "ENG" : "Previous part"
-    },
-    "ui_first_part" : {
-        "FI" : "Ensimmäinen osa",
-        "ENG" : "First part"
-    },
-    "ui_code_lang" : {
-        "FI" : "Koodikieli",
-        "ENG" : "Code language"
-    },
-    "ui_inst_lang" : {
-        "FI" : "Ohjeiden kieli",
-        "ENG" : "Instruction language"
-    },
-    "ui_variation" : {
-        "FI" : "Variaatio",
-        "ENG" : "Variation"
-    },
-    "ui_add_variation" : {
-        "FI" : "Lisää variaatio",
-        "ENG" : "Add variation"
-    },
-    "ui_inst" : {
-        "FI" : "Ohjeet",
-        "ENG" : "Instructions"
-    },
-    "ui_gen_ex_checkbox" : {
-        "FI" : "Generoi esimerkkituloste automaattisesti",
-        "ENG" : "Generate example output automatically"
-    },
-    "ui_import_datafiles" : {
-        "FI" : "Tuo datatiedostot",
-        "ENG" : "Import datafiles"
-    },
-    "ui_remove_selected" : {
-        "FI" : "Poista valittu",
-        "ENG" : "Remove selected"
-    },
-    "ui_output_filename" : {
-        "FI" : "Tulostiedostojen nimet",
-        "ENG" : "Output filenames"
-    },
-    "ui_used_in" : {
-        "FI" : "Aiemmin käytetty",
-        "ENG" : "Used in"
-    },
-    "ui_add_ex_run" : {
-        "FI" : "Lisää esimerkkiajo",
-        "ENG" : "Add example run"
-    },
-    "ui_import_codefiles" : {
-        "FI" : "Tuo kooditiedostot",
-        "ENG" : "Import code files"
-    },
-    "ui_delete" : {
-        "FI" : "Poista",
-        "ENG" : "Delete"
-    },
-    "help_assignment_no" : {
-        "FI" : "Syötä kaikki tehtäväpositiot joihin tämä tehtävä sopii.\nErota positiot pilkulla.",
-        "ENG" : "Input all positions where this assingment fits here.\nSeparate positions with a comma."
-    },
-    "help_assignment_tags" : {
-        "FI" : "Syötä tehtävän tunnisteet tähän pilkuilla erotettuna",
-        "ENG" : "Input all assingment tags here, separated by a comma." 
-    },
-    "help_inst" : {
-        "FI" : "Täytä tähän tehtävän variaation tehtävänanto. Tämä syötelaatikko tukee LaTeX komentoja.",
-        "ENG" : "Fill here the assignment variation instructions. This input box supports LaTeX commands."
-    },
-    "help_inputs" : {
-        "FI" : "Syötä testiajon syötteet. Erota syötteet rivinvaihdolla.",
-        "ENG" : "Input the inputs used in the example run. Separate inputs with a line break."
-    },
-    "help_cmd_inputs" : {
-        "FI" : "Syötä testiajon komentoriviparametrit. Erota parametrit pilkulla.",
-        "ENG" : "Input the commandline arguments here. Separate inputs with a comma."
-    },
-    "help_gen_ex_checkbox" : {
-        "FI" : "Jos tämä on valittuna, ohjelma yrittää suorittaa tehtävän syötteiden perusteella ja kopioi tulokset ohjeisiin.",
-        "ENG" : "If this is selected, the program will try to run the assignment based on the inputs and copies the output to the briefing."
-    },
-    "help_ex_output" : {
-        "FI" : "Kopioi tähän tehtävän esimerkkituloste. Jos esimerkkitulosteen generointi on päällä, tämä kenttä ohitetaan.",
-        "ENG" : "Copy the example output of the assignment here. If the example output generation is on, this field will be ignored."
-    },
-    "help_output_filename" : {
-        "FI" : "Klikkaa 'Tuo tulostiedostot' nappia tuodaksesi tehtävän esimerkkitulostiedostot",
-        "ENG" : "Click 'Import output files' to import the assignment example output files."
-    },
-    "help_used_in" : {
-        "FI" : "Syötä tähän setit joissa tehtävää on aiemmin käytetty. Oletusformaatti on '[vuosi]/[periodi]', esim. 2023/1",
-        "ENG" : "Input the sets where this assignment has been used before. Default format is '[year]/[period]', ex. 2023/1"
-    },
-    "ui_assig_man_warning_popup" : {
-        "FI" : "'Lisää tehtävä' ikkuna on jo avattuna.",
-        "ENG" : "The 'Add assingment' window is already open."
-    },
-    "ui_ok" : {
-        "FI" : "OK",
-        "ENG" : "OK"
-    },
-    "file_c" : {
-        "FI" : "C-tiedostot",
-        "ENG" : "C-files"
-    },
-    "file_text" : {
-        "FI" : "Tekstitiedostot",
-        "ENG" : "Text files"
-    },
-    "file_any" : {
-        "FI" : "Kaikki tiedostot",
-        "ENG" : "All files"
-    },
-    "file_json" : {
-        "FI" : "Metadatatiedostot",
-        "ENG" : "Metadata files"
-    },
-    "tex_toc" : {
-        "FI" : "Sisällysluettelo",
-        "ENG" : "Contents"
-    },
-    "tex_page" : {
-        "FI" : "Sivu",
-        "ENG" : "Page"
-    },
-    "language_FI" : {
-        "FI" : "Suomi",
-        "ENG": "Finnish"
-    },
-    "language_ENG" : {
-        "FI" : "Englanti",
-        "ENG" : "English"
-    },
-    "ui_codefiles" : {
-        "FI" : "Kooditiedostot",
-        "ENG" : "Code files"
-    },
-    "ui_datafiles" : {
-        "FI" : "Datatiedostot",
-        "ENG" : "Data files"
-    },
-    "ui_ex_runs" : {
-        "FI" : "Esimerkkiajot",
-        "ENG" : "Example runs"
-    },
-    "ui_import_outputfiles" : {
-        "FI" : "Tuo tulostiedostot",
-        "ENG" : "Import output files"
-    },
-    "ui_coursedir" : {
-        "FI" : "Avaa kurssikansio",
-        "ENG" : "Open course directory"
-    },
-    "popup_nocourse" : {
-        "FI" : "Mitään kurssia ei ole avattuna.",
-        "ENG" : "No course has been opened."
-    },
-    "popup_courseinfo_missing" : {
-        "FI" : "Kurssitietoja puuttuu, lisää tiedot pääsivulle ja paina 'Tallenna'.",
-        "ENG" : "Some course information seems to be missing, please add them on the main window and press 'Save'."
-    },
-    "ui_add_week" : {
-        "FI" : "Lisää viikkotiedot",
-        "ENG" : "Add week info"
-    },
-    "ui_week_management" : {
-        "FI" : "Viikkojen hallinta",
-        "ENG" : "Week management"
-    },
-    "ui_week_title" : {
-        "FI" : "Viikon otsikko",
-        "ENG" : "Week title"
-    },
-    "ui_week_no" : {
-        "FI" : "Viikon numero",
-        "ENG" : "Week number"
-    },
-    "ui_week_topics" : {
-        "FI" : "Aiheet",
-        "ENG" : "Topics"
-    },
-    "ui_week_tags" : {
-        "FI" : "Viikon tunnisteet",
-        "ENG" : "Week tags"
-    },
-    "help_week_title" : {
-        "FI" : "Syötä viikon otsikko. Jos kenttä jätetään tyhjäksi, käytetään oletusta.",
-        "ENG" : "Input the week a title. If left empty, the default will be used."
-    },
-    "help_week_topics" : {
-        "FI" : "Lisää tähän viikolla/luennolla käsiteltävät aiheet. Erottele aiheet rivinvaihdolla. \nTukee LaTeX komentoja, mutta huomaa että listaus tehdään automaattisesti.",
-        "ENG" : "Add the topics that are covered on this week/lecture. Separate topics with a new line. \nSupports LaTeX commands, but note that the listing will be done automatically."
-    },
-    "help_week_tags" : {
-        "FI" : "Syötä viikon aihetunnisteet. Erote aihetunnisteet pilkulla.",
-        "ENG" : "Input the tags for the week here. Separate each of them with a comma."
-    },
-    "help_week_inst" : {
-        "FI" : "Syötä viikon erikoisohjeet. Nämä tulostuvat aihelistan perään. Tukee LaTeX komentoja.",
-        "ENG" : "Input any special instructions for the week. These will be printed after the topic list. Supports LaTeX commands."
-    },
-    "ui_assignment_browse" : {
-        "FI" : "Tehtävien selaus",
-        "ENG" : "Assignment Browse"
-    },
-    "ui_search_hint" : {
-        "FI" : "Hae...",
-        "ENG" : "Search..."
-    },
-    "ui_search_button" : {
-        "FI" : "Hae",
-        "ENG" : "Search"
-    },
-    "ui_clear_search" : {
-        "FI" : "Tyhjennä haku",
-        "ENG" : "Clear search"
-    },
-    "ui_next" : {
-        "FI" : "Seuraava",
-        "ENG" : "Next"
-    },
-    "ui_previous" : {
-        "FI" : "Edellinen",
-        "ENG" : "Previous"
-    },
-    "ui_select" : {
-        "FI" : "Valitse",
-        "ENG" : "Select"
-    },
-    "ui_close" : {
-        "FI" : "Sulje",
-        "ENG" : "Close"
-    },
-    "ui_assignment_browser" : {
-        "FI" : "Tehtäväselain",
-        "ENG" : "Assignment browser"
-    },
-    "ui_assignments_in_index" : {
-        "FI" : "Tallennettuna olevat tehtävät",
-        "ENG" : "Saved assignments"
-    },
-    "ui_week_browse" : {
-        "FI" : "Viikkoselain",
-        "ENG" : "Week browser"
-    },
-    "ui_weeks_saved" : {
-        "FI" : "Tallennettuna olevat viikot",
-        "ENG" : "Saved weeks"
-    },
-    "ui_show" : {
-        "FI" : "Näytä",
-        "ENG" : "Show"
-    },
-    "ui_show_week" : {
-        "FI" : "Näytä viikko",
-        "ENG" : "Show week"
-    },
-    "ui_show_assignment" : {
-        "FI" : "Näytä tehtävä",
-        "ENG" : "Show assignment"
-    },
-    "ui_add" : {
-        "FI" : "Lisää",
-        "ENG" : "Add"
-    },
-    "ui_excl_exp" : {
-        "FI" : "Ohita jatkuvat tehtävät",
-        "ENG" : "Exclude expanding assignments"
-    },
-    "ui_assig_set_creation" : {
-        "FI" : "Tehtäväsarjojen luonti",
-        "ENG" : "Assignment set creation"
-    },
-    "ui_move_up" : {
-        "FI" : "Siirrä ylös",
-        "ENG" : "Move up"
-    },
-    "ui_move_down" : {
-        "FI" : "Siirrä alas",
-        "ENG" : "Move down"
-    },
-    "ui_accept" : {
-        "FI" : "Hyväksy",
-        "ENG" : "Accept"
-    },
-    "ui_change" : {
-        "FI" : "Muuta",
-        "ENG"  : "Change"
-    },
-    "ui_current_assig" : {
-        "FI" : "Nykyinen tehtävä",
-        "ENG" : "Current assignment"
-    },
-    "ui_choose_output_folder" : {
-        "FI" : "Valitse tulosten tallennuskansio",
-        "ENG" : "Choose result output folder"
-    },
-    "tex_answers" : {
-        "FI" : "Vastaukset",
-        "ENG" : "Answers"
-    },
-    "ui_pdf_success" : {
-        "FI" : "Tehtäväpaperit luotu onnistuneesti kansioon:",
-        "ENG" : "Assignment instruction papers succesfully created to folder:"
-    },
-    "ui_pdf_error" : {
-        "FI" : "Virhe PDF tiedoston luonnissa. Lisätietoja lokissa:",
-        "ENG" : "Error in PDF generation. Details in log:"
-    },
-    "ui_del_error_disk" : {
-        "FI" : "Virhe tehtävän poistamisessa levyltä! Lisätietoja lokissa.",
-        "ENG" : "Error deleting assignment files from disk! See log for details."
-    },
-    "ui_del_error_index" : {
-        "FI" : "Virhe poistettaessa tehtävää indeksistä. Lisätietoja lokissa.",
-        "ENG" : "Error deleting assignment from index. See log for details."
-    },
-    "ui_del_ok" : {
-        "FI" : "Tehtävä poistettu onnistuneesti.",
-        "ENG" : "Assignment deleted succesfully."
-    },
-    "ui_confirm" : {
-        "FI" : "Oletko varma?",
-        "ENG" : "Are you sure?"
-    },
-    "ui_generating_tex" : {
-        "FI" : "Luodaan TeX-tiedostoa...",
-        "ENG" : "Generating TeX-file..."
-    },
-    "ui_creating_pdf" : {
-        "FI" : "Luodaan PDF-tiedostoja...",
-        "ENG" : "Generating PDF-files..."
-    },
-    "ui_copying" : {
-        "FI" : "Kopioidaan tulostiedostoja...",
-        "ENG" : "Copying files..."
-    },
-    "ui_copy_error" : {
-        "FI" : "Virhe PDF tiedostojen siirrossa. Lisätietoja lokissa:",
-        "ENG" : "Error moving PDF files. Details in log:"
-    },
-    "ui_menu_language" : {
-        "FI" : "Kieli",
-        "ENG" : "Language"
-    },
-    "languages" : {
-        "FI" : "Suomi",
-        "ENG" : "English"
-    },
-    "ui_assignment_level" : {
-        "FI" : "Tehtävän taso",
-        "ENG" : "Assignment level"
-    },
-    "ui_course_levels" : {
-        "FI" : "Kurssitehtävien tasot",
-        "ENG" : "Course assignment levels"
-    },
-    "help_course_levels" : {
-        "FI" : "Syötä tähän kurssin tehtävien tasot. Erota tason numero, nimi ja lyhenne kaksoispisteellä, ja tasot toisistaan rivinvaihdolla. Lyhenne on valinnainen.\nEsimerkiksi: '1:Helppo:H'",
-        "ENG" : "Input the levels of course assignments here. Separate level number, name and abbreviation with a colon and levels with new line. Abbreviation is optional.\nFor example: '1:Easy:E'"
-    },
-    "ui_level_error" : {
-        "FI" : "Virhe tasojen muotoilussa. Tarkista oikea muotoilu (?)-merkistä.",
-        "ENG" : "Error in level formatting Check correct formatin from (?)"
-    },
-    "tex_level_subheader" : {
-        "FI" : "Tehtävän taso",
-        "ENG" : "Assignment level"
-    },
-    "ui_no_week_data" : {
-        "FI" : "Syöttämäsi viikon ohjeita ei löydy. Lisää viikon tiedot ennen tehtäväsarjan luontia.",
-        "ENG" : "No instructions found for inputted week. Please add week data before creating assignment set."
-    },
-    "ui_no_weeks_data" :{
-        "FI" : "Viikkojen ohjeita ei löydy. Lisää viikkojen ohjeet ennen tehtäväsarjojen luontia.",
-        "ENG" : "No week instructions found. Please add week data before creating assignment sets."
-    },
-    "ui_index_open_error" : {
-        "FI" : "Tehtäväindeksiä ei voitu avata. Lisätietoa lokitiedostossa.",
-        "ENG" : "Assignment index could not be opened. More details in the log file."
-    },
-    "ui_error_save_course" : {
-        "FI" : "Virhe kurssin tietojen tallennuksessa. Lisätietoja lokitiedostossa.",
-        "ENG" : "Error saving course information. More details in the log file."
-    },
-    "ui_project_work" : {
-        "FI" : "Harjoitustyö",
-        "ENG" : "Project work"
-    },
-    "ui_no_assig_selected" : {
-        "FI" : "Mitään tehtävää ei ole valittuna.",
-        "ENG" : "No assignment has been selected."
-    },
-    "period_default_1" : {
-        "FI" : "Kevät",
-        "ENG" : "Spring"
-    },
-    "period_default_2" : {
-        "FI" : "Kesä",
-        "ENG" : "Summer"
-    },
-    "period_default_3" : {
-        "FI" : "Syksy",
-        "ENG" : "Autumn"
-    },
-    "ui_study_period" : {
-        "FI" : "Periodi",
-        "ENG" : "Study period"
-    },
-    "ui_year" : {
-        "FI" : "Vuosi",
-        "ENG" : "Year"
-    },
-    "ui_set_id" : {
-        "FI" : "Tehtäväsarjan tunniste",
-        "ENG" : "Assingment set identification"
-    },
-    "ui_name" : {
-        "FI" : "Nimi",
-        "ENG" : "Name"
-    },
-    "ui_error_load_set" : {
-        "FI" : "Virhe aiempien tehtäväsarjojen latauksessa. Katso lisätietoja lokista.",
-        "ENG" : "Error in loading assignment sets. See log for details."
-    },
-    "ui_error_save_set" : {
-        "FI" : "Virhe aiempien tehtäväsarjojen tallennuksessa. Katso lisätietoja lokista.",
-        "ENG" : "Error in saving assignment sets. See log for details."
-    },
-    "ui_set_save_success" : {
-        "FI" : "Tehtäväsarja tallennettu.",
-        "ENG" : "Assignment set saved."
-    },
-    "ui_create_pdf" : {
-        "FI" : "Luo PDF",
-        "ENG" : "Create PDF"
-    },
-    "ui_no_name" : {
-        "FI" : "Ei nimeä",
-        "ENG" : "No name"
-    },
-    "ui_saved_sets" : {
-        "FI" : "Tallennetut tehtäväsarjat",
-        "ENG" : "Saved assignment sets"
-    },
-    "ui_full" : {
-        "FI" : "Täysi",
-        "ENG" : "Full"
-    },
-    "ui_set_browser" : {
-        "FI" : "Sarjaselain",
-        "ENG" : "Set browser"
-    },
-    "ui_error_delete" : {
-        "FI" : "Kohteen poistaminen epäonnistui, katso lisätietoja lokista.",
-        "ENG" : "Target removal failed. Check log for more information."
-    },
-    "ui_error_week_exists" : {
-        "FI" : "Viikon tiedot on jo olemassa!",
-        "ENG" : "This week's info already exists!"
-    },
-    "ui_error_open_course" : {
-        "FI" : "Virhe avattaessa kurssia!",
-        "ENG" : "Error opening course!"
-    },
-    "ui_images" : {
-        "FI" : "Kuvat",
-        "ENG" : "Images"
-    },
-    "ui_import_images" : {
-        "FI" : "Tuo kuvat",
-        "ENG" : "Import images"
-    },
-    "tex_fig" : {
-        "FI" : "Kuva",
-        "ENG" : "Figure"
-    },
-    "ui_type": {
-        "FI" : "Tyyppi",
-        "ENG" : "Type"
-    },
-    "ui_resultfile" : {
-        "FI" : "Tulostiedosto",
-        "ENG" : "Result file"
-    },
-    "ui_show_to_student" : {
-        "FI" :"Näytä opiskelijalle",
-        "ENG" :"Show to student"
-    },
-    "ui_actions" :{
-        "FI" : "Toiminnot",
-        "ENG" : "Actions"
-    }
+  "ui_main": {
+    "FI": "Päävalikko",
+    "ENG": "Main"
+  },
+  "assignments": {
+    "FI": "Tehtävät",
+    "ENG": "Assignments"
+  },
+  "ex_run": {
+    "FI": "Esimerkkiajo",
+    "ENG": "Example run"
+  },
+  "ex_solution": {
+    "FI": "Malliratkaisu",
+    "ENG": "Example solution"
+  },
+  "ex_input": {
+    "FI": "Syötteet",
+    "ENG": "Inputs"
+  },
+  "cmd_input": {
+    "FI": "Komentoriviparametrit",
+    "ENG": "Commandline arguments"
+  },
+  "tex_ex_input_datafile": {
+    "FI": "Esimerkki syötetiedostosta",
+    "ENG": "Example from input file"
+  },
+  "tex_ex_resultfile": {
+    "FI": "Esimerkki tulostiedostosta",
+    "ENG": "Example from output file"
+  },
+  "ex_output": {
+    "FI": "Tuloste",
+    "ENG": "Output"
+  },
+  "tex_assignment_letter": {
+    "FI": "T",
+    "ENG": "A"
+  },
+  "tex_lecture_letter": {
+    "FI": "L",
+    "ENG": "L"
+  },
+  "ui_general": {
+    "FI": "Yleinen",
+    "ENG": "General"
+  },
+  "menu_file": {
+    "FI": "Tiedosto",
+    "ENG": "File"
+  },
+  "menu_open": {
+    "FI": "Avaa kurssi",
+    "ENG": "Open course"
+  },
+  "menu_open_recent": {
+    "FI": "Avaa edellinen",
+    "ENG": "Open recent"
+  },
+  "menu_exit": {
+    "FI": "Poistu",
+    "ENG": "Exit"
+  },
+  "menu_create": {
+    "FI": "Luo kurssi",
+    "ENG": "Create course"
+  },
+  "menu_update": {
+    "FI": "Päivitä tehtäväindeksi",
+    "ENG": "Update assignment index"
+  },
+  "ui_info": {
+    "FI": "Tietoa kurssista",
+    "ENG": "Course infomation"
+  },
+  "ui_course_id": {
+    "FI": "Kurssin tunniste",
+    "ENG": "Course identifier"
+  },
+  "ui_course_name": {
+    "FI": "Kurssin nimi",
+    "ENG": "Course name"
+  },
+  "ui_no_assignments_index": {
+    "FI": "Tehtäviä indeksissä",
+    "ENG": "Assignments in index"
+  },
+  "ui_no_weeks": {
+    "FI": "Viikkoja kurssilla",
+    "ENG": "Number of weeks on course"
+  },
+  "ui_save": {
+    "FI": "Tallenna",
+    "ENG": "Save"
+  },
+  "ui_cancel": {
+    "FI": "Peruuta",
+    "ENG": "Cancel"
+  },
+  "ui_assignment_set": {
+    "FI": "Tehtäväsarjat",
+    "ENG": "Assignment sets"
+  },
+  "ui_assignment_management": {
+    "FI": "Tehtävien hallinta",
+    "ENG": "Assignment management"
+  },
+  "ui_create_new_set": {
+    "FI": "Luo uusi tehtäväsarja",
+    "ENG": "Create new assigment set"
+  },
+  "ui_full_course": {
+    "FI": "Koko toteutus",
+    "ENG": "Full course"
+  },
+  "ui_one_week": {
+    "FI": "Yksi viikko",
+    "ENG": "One week"
+  },
+  "ui_prev_gen": {
+    "FI": "Aiemmin luodut",
+    "ENG": "Previously generated"
+  },
+  "ui_week": {
+    "FI": "Viikko",
+    "ENG": "Week"
+  },
+  "ui_show_edit": {
+    "FI": "Näytä / Muokkaa",
+    "ENG": "Show / Edit"
+  },
+  "ui_add_assignment": {
+    "FI": "Lisää tehtävä",
+    "ENG": "Add assignment"
+  },
+  "ui_tags": {
+    "FI": "Tunnisteet",
+    "ENG": "Tags"
+  },
+  "ui_variations": {
+    "FI": "Variaatiot",
+    "ENG": "Variations"
+  },
+  "ui_selected": {
+    "FI": "Valittu",
+    "ENG": "Selected"
+  },
+  "ui_full_course_setup": {
+    "FI": "Koko toteutuksen luonti",
+    "ENG": "Full Course Setup"
+  },
+  "ui_start_date": {
+    "FI": "Aloituspäivämäärä",
+    "ENG": "Start date"
+  },
+  "ui_start_time": {
+    "FI": "Aloitusaika",
+    "ENG": "Start time"
+  },
+  "ui_no_lecture": {
+    "FI": "Luentojen lukumäärä",
+    "ENG": "Number of lectures"
+  },
+  "ui_days_between": {
+    "FI": "Päiviä luentojen välillä",
+    "ENG": "Days between lectures"
+  },
+  "ui_results": {
+    "FI": "Tulokset",
+    "ENG": "Results"
+  },
+  "ui_total assignments": {
+    "FI": "Tehtäviä yhteensä",
+    "ENG": "Total assignments"
+  },
+  "ui_end_date": {
+    "FI": "Päättymispäivä",
+    "ENG": "End date"
+  },
+  "ui_lecture_week": {
+    "FI": "Luentoviikko",
+    "ENG": "Lecture week"
+  },
+  "ui_no_assignments": {
+    "FI": "Tehtävien määrä",
+    "ENG": "Number of assigments"
+  },
+  "ui_create": {
+    "FI": "Luo",
+    "ENG": "Create"
+  },
+  "ui_assignment_title": {
+    "FI": "Tehtävän otsikko",
+    "ENG": "Assingment title"
+  },
+  "ui_assignment_no": {
+    "FI": "Tehtävän numero(t)",
+    "ENG": "Assignment number(s)"
+  },
+  "ui_assignment_tags": {
+    "FI": "Tehtävän tunnisteet",
+    "ENG": "Assignment tags"
+  },
+  "ui_exp_assignment": {
+    "FI": "Laajeneva tehtävä",
+    "ENG": "Expanding assignment"
+  },
+  "ui_prev_part": {
+    "FI": "Edellinen osa",
+    "ENG": "Previous part"
+  },
+  "ui_first_part": {
+    "FI": "Ensimmäinen osa",
+    "ENG": "First part"
+  },
+  "ui_code_lang": {
+    "FI": "Koodikieli",
+    "ENG": "Code language"
+  },
+  "ui_inst_lang": {
+    "FI": "Ohjeiden kieli",
+    "ENG": "Instruction language"
+  },
+  "ui_variation": {
+    "FI": "Variaatio",
+    "ENG": "Variation"
+  },
+  "ui_add_variation": {
+    "FI": "Lisää variaatio",
+    "ENG": "Add variation"
+  },
+  "ui_inst": {
+    "FI": "Ohjeet",
+    "ENG": "Instructions"
+  },
+  "ui_gen_ex_checkbox": {
+    "FI": "Generoi esimerkkituloste automaattisesti",
+    "ENG": "Generate example output automatically"
+  },
+  "ui_import_datafiles": {
+    "FI": "Tuo datatiedostot",
+    "ENG": "Import datafiles"
+  },
+  "ui_remove_selected": {
+    "FI": "Poista valittu",
+    "ENG": "Remove selected"
+  },
+  "ui_output_filename": {
+    "FI": "Tulostiedostojen nimet",
+    "ENG": "Output filenames"
+  },
+  "ui_used_in": {
+    "FI": "Aiemmin käytetty",
+    "ENG": "Used in"
+  },
+  "ui_add_ex_run": {
+    "FI": "Lisää esimerkkiajo",
+    "ENG": "Add example run"
+  },
+  "ui_import_codefiles": {
+    "FI": "Tuo kooditiedostot",
+    "ENG": "Import code files"
+  },
+  "ui_delete": {
+    "FI": "Poista",
+    "ENG": "Delete"
+  },
+  "help_assignment_no": {
+    "FI": "Syötä kaikki tehtäväpositiot joihin tämä tehtävä sopii.\nErota positiot pilkulla.",
+    "ENG": "Input all positions where this assingment fits here.\nSeparate positions with a comma."
+  },
+  "help_assignment_tags": {
+    "FI": "Syötä tehtävän tunnisteet tähän pilkuilla erotettuna",
+    "ENG": "Input all assingment tags here, separated by a comma."
+  },
+  "help_inst": {
+    "FI": "Täytä tähän tehtävän variaation tehtävänanto. Tämä syötelaatikko tukee LaTeX komentoja.",
+    "ENG": "Fill here the assignment variation instructions. This input box supports LaTeX commands."
+  },
+  "help_inputs": {
+    "FI": "Syötä testiajon syötteet. Erota syötteet rivinvaihdolla.",
+    "ENG": "Input the inputs used in the example run. Separate inputs with a line break."
+  },
+  "help_cmd_inputs": {
+    "FI": "Syötä testiajon komentoriviparametrit. Erota parametrit pilkulla.",
+    "ENG": "Input the commandline arguments here. Separate inputs with a comma."
+  },
+  "help_gen_ex_checkbox": {
+    "FI": "Jos tämä on valittuna, ohjelma yrittää suorittaa tehtävän syötteiden perusteella ja kopioi tulokset ohjeisiin.",
+    "ENG": "If this is selected, the program will try to run the assignment based on the inputs and copies the output to the briefing."
+  },
+  "help_ex_output": {
+    "FI": "Kopioi tähän tehtävän esimerkkituloste. Jos esimerkkitulosteen generointi on päällä, tämä kenttä ohitetaan.",
+    "ENG": "Copy the example output of the assignment here. If the example output generation is on, this field will be ignored."
+  },
+  "help_output_filename": {
+    "FI": "Klikkaa 'Tuo tulostiedostot' nappia tuodaksesi tehtävän esimerkkitulostiedostot",
+    "ENG": "Click 'Import output files' to import the assignment example output files."
+  },
+  "help_used_in": {
+    "FI": "Syötä tähän setit joissa tehtävää on aiemmin käytetty. Oletusformaatti on '[vuosi]/[periodi]', esim. 2023/1",
+    "ENG": "Input the sets where this assignment has been used before. Default format is '[year]/[period]', ex. 2023/1"
+  },
+  "ui_assig_man_warning_popup": {
+    "FI": "'Lisää tehtävä' ikkuna on jo avattuna.",
+    "ENG": "The 'Add assingment' window is already open."
+  },
+  "ui_ok": {
+    "FI": "OK",
+    "ENG": "OK"
+  },
+  "file_c": {
+    "FI": "C-tiedostot",
+    "ENG": "C-files"
+  },
+  "file_text": {
+    "FI": "Tekstitiedostot",
+    "ENG": "Text files"
+  },
+  "file_any": {
+    "FI": "Kaikki tiedostot",
+    "ENG": "All files"
+  },
+  "file_json": {
+    "FI": "Metadatatiedostot",
+    "ENG": "Metadata files"
+  },
+  "tex_toc": {
+    "FI": "Sisällysluettelo",
+    "ENG": "Contents"
+  },
+  "tex_page": {
+    "FI": "Sivu",
+    "ENG": "Page"
+  },
+  "language_FI": {
+    "FI": "Suomi",
+    "ENG": "Finnish"
+  },
+  "language_ENG": {
+    "FI": "Englanti",
+    "ENG": "English"
+  },
+  "ui_codefiles": {
+    "FI": "Kooditiedostot",
+    "ENG": "Code files"
+  },
+  "ui_datafiles": {
+    "FI": "Datatiedostot",
+    "ENG": "Data files"
+  },
+  "ui_ex_runs": {
+    "FI": "Esimerkkiajot",
+    "ENG": "Example runs"
+  },
+  "ui_import_outputfiles": {
+    "FI": "Tuo tulostiedostot",
+    "ENG": "Import output files"
+  },
+  "ui_coursedir": {
+    "FI": "Avaa kurssikansio",
+    "ENG": "Open course directory"
+  },
+  "popup_nocourse": {
+    "FI": "Mitään kurssia ei ole avattuna.",
+    "ENG": "No course has been opened."
+  },
+  "popup_courseinfo_missing": {
+    "FI": "Kurssitietoja puuttuu, lisää tiedot pääsivulle ja paina 'Tallenna'.",
+    "ENG": "Some course information seems to be missing, please add them on the main window and press 'Save'."
+  },
+  "ui_add_week": {
+    "FI": "Lisää viikkotiedot",
+    "ENG": "Add week info"
+  },
+  "ui_week_management": {
+    "FI": "Viikkojen hallinta",
+    "ENG": "Week management"
+  },
+  "ui_week_title": {
+    "FI": "Viikon otsikko",
+    "ENG": "Week title"
+  },
+  "ui_week_no": {
+    "FI": "Viikon numero",
+    "ENG": "Week number"
+  },
+  "ui_week_topics": {
+    "FI": "Aiheet",
+    "ENG": "Topics"
+  },
+  "ui_week_tags": {
+    "FI": "Viikon tunnisteet",
+    "ENG": "Week tags"
+  },
+  "help_week_title": {
+    "FI": "Syötä viikon otsikko. Jos kenttä jätetään tyhjäksi, käytetään oletusta.",
+    "ENG": "Input the week a title. If left empty, the default will be used."
+  },
+  "help_week_topics": {
+    "FI": "Lisää tähän viikolla/luennolla käsiteltävät aiheet. Erottele aiheet rivinvaihdolla. \nTukee LaTeX komentoja, mutta huomaa että listaus tehdään automaattisesti.",
+    "ENG": "Add the topics that are covered on this week/lecture. Separate topics with a new line. \nSupports LaTeX commands, but note that the listing will be done automatically."
+  },
+  "help_week_tags": {
+    "FI": "Syötä viikon aihetunnisteet. Erote aihetunnisteet pilkulla.",
+    "ENG": "Input the tags for the week here. Separate each of them with a comma."
+  },
+  "help_week_inst": {
+    "FI": "Syötä viikon erikoisohjeet. Nämä tulostuvat aihelistan perään. Tukee LaTeX komentoja.",
+    "ENG": "Input any special instructions for the week. These will be printed after the topic list. Supports LaTeX commands."
+  },
+  "ui_assignment_browse": {
+    "FI": "Tehtävien selaus",
+    "ENG": "Assignment Browse"
+  },
+  "ui_search_hint": {
+    "FI": "Hae...",
+    "ENG": "Search..."
+  },
+  "ui_search_button": {
+    "FI": "Hae",
+    "ENG": "Search"
+  },
+  "ui_clear_search": {
+    "FI": "Tyhjennä haku",
+    "ENG": "Clear search"
+  },
+  "ui_next": {
+    "FI": "Seuraava",
+    "ENG": "Next"
+  },
+  "ui_previous": {
+    "FI": "Edellinen",
+    "ENG": "Previous"
+  },
+  "ui_select": {
+    "FI": "Valitse",
+    "ENG": "Select"
+  },
+  "ui_close": {
+    "FI": "Sulje",
+    "ENG": "Close"
+  },
+  "ui_assignment_browser": {
+    "FI": "Tehtäväselain",
+    "ENG": "Assignment browser"
+  },
+  "ui_assignments_in_index": {
+    "FI": "Tallennettuna olevat tehtävät",
+    "ENG": "Saved assignments"
+  },
+  "ui_week_browse": {
+    "FI": "Viikkoselain",
+    "ENG": "Week browser"
+  },
+  "ui_weeks_saved": {
+    "FI": "Tallennettuna olevat viikot",
+    "ENG": "Saved weeks"
+  },
+  "ui_show": {
+    "FI": "Näytä",
+    "ENG": "Show"
+  },
+  "ui_show_week": {
+    "FI": "Näytä viikko",
+    "ENG": "Show week"
+  },
+  "ui_show_assignment": {
+    "FI": "Näytä tehtävä",
+    "ENG": "Show assignment"
+  },
+  "ui_add": {
+    "FI": "Lisää",
+    "ENG": "Add"
+  },
+  "ui_excl_exp": {
+    "FI": "Ohita jatkuvat tehtävät",
+    "ENG": "Exclude expanding assignments"
+  },
+  "ui_assig_set_creation": {
+    "FI": "Tehtäväsarjojen luonti",
+    "ENG": "Assignment set creation"
+  },
+  "ui_move_up": {
+    "FI": "Siirrä ylös",
+    "ENG": "Move up"
+  },
+  "ui_move_down": {
+    "FI": "Siirrä alas",
+    "ENG": "Move down"
+  },
+  "ui_accept": {
+    "FI": "Hyväksy",
+    "ENG": "Accept"
+  },
+  "ui_change": {
+    "FI": "Muuta",
+    "ENG": "Change"
+  },
+  "ui_current_assig": {
+    "FI": "Nykyinen tehtävä",
+    "ENG": "Current assignment"
+  },
+  "ui_choose_output_folder": {
+    "FI": "Valitse tulosten tallennuskansio",
+    "ENG": "Choose result output folder"
+  },
+  "tex_answers": {
+    "FI": "Vastaukset",
+    "ENG": "Answers"
+  },
+  "ui_pdf_success": {
+    "FI": "Tehtäväpaperit luotu onnistuneesti kansioon:",
+    "ENG": "Assignment instruction papers succesfully created to folder:"
+  },
+  "ui_pdf_error": {
+    "FI": "Virhe PDF tiedoston luonnissa. Lisätietoja lokissa:",
+    "ENG": "Error in PDF generation. Details in log:"
+  },
+  "ui_del_error_disk": {
+    "FI": "Virhe tehtävän poistamisessa levyltä! Lisätietoja lokissa.",
+    "ENG": "Error deleting assignment files from disk! See log for details."
+  },
+  "ui_del_error_index": {
+    "FI": "Virhe poistettaessa tehtävää indeksistä. Lisätietoja lokissa.",
+    "ENG": "Error deleting assignment from index. See log for details."
+  },
+  "ui_del_ok": {
+    "FI": "Tehtävä poistettu onnistuneesti.",
+    "ENG": "Assignment deleted succesfully."
+  },
+  "ui_confirm": {
+    "FI": "Oletko varma?",
+    "ENG": "Are you sure?"
+  },
+  "ui_generating_tex": {
+    "FI": "Luodaan TeX-tiedostoa...",
+    "ENG": "Generating TeX-file..."
+  },
+  "ui_creating_pdf": {
+    "FI": "Luodaan PDF-tiedostoja...",
+    "ENG": "Generating PDF-files..."
+  },
+  "ui_copying": {
+    "FI": "Kopioidaan tulostiedostoja...",
+    "ENG": "Copying files..."
+  },
+  "ui_copy_error": {
+    "FI": "Virhe PDF tiedostojen siirrossa. Lisätietoja lokissa:",
+    "ENG": "Error moving PDF files. Details in log:"
+  },
+  "ui_menu_language": {
+    "FI": "Kieli",
+    "ENG": "Language"
+  },
+  "languages": {
+    "FI": "Suomi",
+    "ENG": "English"
+  },
+  "ui_assignment_level": {
+    "FI": "Tehtävän taso",
+    "ENG": "Assignment level"
+  },
+  "ui_course_levels": {
+    "FI": "Kurssitehtävien tasot",
+    "ENG": "Course assignment levels"
+  },
+  "help_course_levels": {
+    "FI": "Syötä tähän kurssin tehtävien tasot. Erota tason numero, nimi ja lyhenne kaksoispisteellä, ja tasot toisistaan rivinvaihdolla. Lyhenne on valinnainen.\nEsimerkiksi: '1:Helppo:H'",
+    "ENG": "Input the levels of course assignments here. Separate level number, name and abbreviation with a colon and levels with new line. Abbreviation is optional.\nFor example: '1:Easy:E'"
+  },
+  "ui_level_error": {
+    "FI": "Virhe tasojen muotoilussa. Tarkista oikea muotoilu (?)-merkistä.",
+    "ENG": "Error in level formatting Check correct formatin from (?)"
+  },
+  "tex_level_subheader": {
+    "FI": "Tehtävän taso",
+    "ENG": "Assignment level"
+  },
+  "ui_no_week_data": {
+    "FI": "Syöttämäsi viikon ohjeita ei löydy. Lisää viikon tiedot ennen tehtäväsarjan luontia.",
+    "ENG": "No instructions found for inputted week. Please add week data before creating assignment set."
+  },
+  "ui_no_weeks_data": {
+    "FI": "Viikkojen ohjeita ei löydy. Lisää viikkojen ohjeet ennen tehtäväsarjojen luontia.",
+    "ENG": "No week instructions found. Please add week data before creating assignment sets."
+  },
+  "ui_index_open_error": {
+    "FI": "Tehtäväindeksiä ei voitu avata. Lisätietoa lokitiedostossa.",
+    "ENG": "Assignment index could not be opened. More details in the log file."
+  },
+  "ui_error_save_course": {
+    "FI": "Virhe kurssin tietojen tallennuksessa. Lisätietoja lokitiedostossa.",
+    "ENG": "Error saving course information. More details in the log file."
+  },
+  "ui_project_work": {
+    "FI": "Harjoitustyö",
+    "ENG": "Project work"
+  },
+  "ui_no_assig_selected": {
+    "FI": "Mitään tehtävää ei ole valittuna.",
+    "ENG": "No assignment has been selected."
+  },
+  "period_default_1": {
+    "FI": "Kevät",
+    "ENG": "Spring"
+  },
+  "period_default_2": {
+    "FI": "Kesä",
+    "ENG": "Summer"
+  },
+  "period_default_3": {
+    "FI": "Syksy",
+    "ENG": "Autumn"
+  },
+  "ui_study_period": {
+    "FI": "Periodi",
+    "ENG": "Study period"
+  },
+  "ui_year": {
+    "FI": "Vuosi",
+    "ENG": "Year"
+  },
+  "ui_set_id": {
+    "FI": "Tehtäväsarjan tunniste",
+    "ENG": "Assingment set identification"
+  },
+  "ui_name": {
+    "FI": "Nimi",
+    "ENG": "Name"
+  },
+  "ui_error_load_set": {
+    "FI": "Virhe aiempien tehtäväsarjojen latauksessa. Katso lisätietoja lokista.",
+    "ENG": "Error in loading assignment sets. See log for details."
+  },
+  "ui_error_save_set": {
+    "FI": "Virhe aiempien tehtäväsarjojen tallennuksessa. Katso lisätietoja lokista.",
+    "ENG": "Error in saving assignment sets. See log for details."
+  },
+  "ui_set_save_success": {
+    "FI": "Tehtäväsarja tallennettu.",
+    "ENG": "Assignment set saved."
+  },
+  "ui_create_pdf": {
+    "FI": "Luo PDF",
+    "ENG": "Create PDF"
+  },
+  "ui_no_name": {
+    "FI": "Ei nimeä",
+    "ENG": "No name"
+  },
+  "ui_saved_sets": {
+    "FI": "Tallennetut tehtäväsarjat",
+    "ENG": "Saved assignment sets"
+  },
+  "ui_full": {
+    "FI": "Täysi",
+    "ENG": "Full"
+  },
+  "ui_set_browser": {
+    "FI": "Sarjaselain",
+    "ENG": "Set browser"
+  },
+  "ui_error_delete": {
+    "FI": "Kohteen poistaminen epäonnistui, katso lisätietoja lokista.",
+    "ENG": "Target removal failed. Check log for more information."
+  },
+  "ui_error_week_exists": {
+    "FI": "Viikon tiedot on jo olemassa!",
+    "ENG": "This week's info already exists!"
+  },
+  "ui_error_open_course": {
+    "FI": "Virhe avattaessa kurssia!",
+    "ENG": "Error opening course!"
+  },
+  "ui_images": {
+    "FI": "Kuvat",
+    "ENG": "Images"
+  },
+  "ui_import_images": {
+    "FI": "Tuo kuvat",
+    "ENG": "Import images"
+  },
+  "tex_fig": {
+    "FI": "Kuva",
+    "ENG": "Figure"
+  },
+  "ui_type": {
+    "FI": "Tyyppi",
+    "ENG": "Type"
+  },
+  "ui_resultfile": {
+    "FI": "Tulostiedosto",
+    "ENG": "Result file"
+  },
+  "ui_show_to_student": {
+    "FI": "Näytä opiskelijalle",
+    "ENG": "Show to student"
+  },
+  "ui_actions": {
+    "FI": "Toiminnot",
+    "ENG": "Actions"
+  },
+  "ui_confirm_header": {
+    "FI": "Vahvistus",
+    "ENG": "Confirmation"
+  }
 }

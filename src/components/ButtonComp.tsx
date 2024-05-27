@@ -7,6 +7,7 @@ import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 import IosShareIcon from "@mui/icons-material/IosShare";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import React from "react";
+import { buttonMinWidth } from "../constants";
 
 const largeNormal = {
   color: "#00000",
@@ -14,6 +15,7 @@ const largeNormal = {
   "&:hover": { backgroundColor: "#F68C35" },
   padding: "0.7em 1.1em",
   fontSize: "1.4em",
+  minWidth: buttonMinWidth,
 } as const;
 
 const largeAlt = {
@@ -22,6 +24,7 @@ const largeAlt = {
   "&:hover": { backgroundColor: "#359FF6" },
   padding: "0.4em 1.1em",
   fontSize: "1.2em",
+  minWidth: buttonMinWidth,
 } as const;
 
 const decorStyle = { fontSize: "1.4em" };
@@ -88,6 +91,7 @@ export default function ButtonComp({
         "&:hover": { backgroundColor: "#F68C35" },
         padding: "0.1em 1.2em",
         fontSize: "1em",
+        minWidth: buttonMinWidth,
       };
       decor = null;
       break;
@@ -98,6 +102,7 @@ export default function ButtonComp({
         "&:hover": { backgroundColor: "#359FF6" },
         padding: "0.1em 1.2em",
         fontSize: "1em",
+        minWidth: buttonMinWidth,
       };
       decor = null;
       break;

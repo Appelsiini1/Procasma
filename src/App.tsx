@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ButtonComp from "./components/Button";
+import ButtonComp from "./components/ButtonComp";
 import NumberInput from "./components/NumberInput";
 import InputField from "./components/InputField";
 import Dropdown from "./components/Dropdown";
@@ -7,7 +7,10 @@ import SwitchComp from "./components/Switch";
 import HelpText from "./components/HelpText";
 import SelectedHeader from "./components/SelectedHeader";
 import PageHeaderBar from "./components/PageHeaderBar";
-import ItemList from "./components/ItemList";
+import ModalAlertDelete from "./components/ModalAlertDelete";
+import ModalConfirm from "./components/ModalConfirm";
+import ModalPopup from "./components/ModalPopup";
+import Button from "@mui/joy/Button";
 
 function App() {
   function onClick() {
@@ -20,9 +23,13 @@ function App() {
   ];
   const [checked, setChecked] = useState<boolean>(false);
   const selected = 6;
+  const [open, setOpen] = useState<boolean>(false);
   return (
     <div>
-      <PageHeaderBar pageName="Main Menu" courseName="CT00A0000 jtoantiantaontao" />
+      <PageHeaderBar
+        pageName="Main Menu"
+        courseName="CT00A0000 jtoantiantaontao"
+      />
       <div className="content">
         <h1>💖 Hello World!</h1>
         <p>Welcome to your Electron application.</p>
@@ -84,9 +91,31 @@ function App() {
         <HelpText text="Help text..." />
         <p></p>
         <SelectedHeader selected={selected} language="FI" />
+        <p></p>
+        <ModalAlertDelete button="normal" language="FI" />
+        <ModalConfirm language="FI" />
+        <Button
+          variant="solid"
+          sx={{
+            color: "#00000",
+            backgroundColor: "#F8A866",
+            "&:hover": { backgroundColor: "#F68C35" },
+            padding: "0.1em 1.2em",
+            fontSize: "1em",
+            minWidth: "7rem",
+          }}
+          onClick={() => setOpen(true)}
+        >
+          Avaa popup
+        </Button>
+        <ModalPopup
+          open={open}
+          setOpen={setOpen}
+          header="Testi"
+          content="Testi-ilmoitus"
+          language="FI"
+        />
       </div>
-      <p></p>
-      {/* <ItemList language="FI" /> */}
     </div>
   );
 }
