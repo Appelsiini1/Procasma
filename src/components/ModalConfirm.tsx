@@ -13,6 +13,7 @@ import {
   ui_cancel,
   ui_confirm_header,
 } from "../../resource/texts.json";
+import { buttonMinWidth } from "../constants";
 
 export default function ModalConfirm({
   language,
@@ -28,6 +29,9 @@ export default function ModalConfirm({
           color: "#00000",
           backgroundColor: "#F8A866",
           "&:hover": { backgroundColor: "#F68C35" },
+          padding: "0.1em 1.2em",
+          fontSize: "1em",
+          minWidth: buttonMinWidth,
         }}
         onClick={() => setOpen(true)}
       >
@@ -45,6 +49,7 @@ export default function ModalConfirm({
             <Button
               variant="solid"
               color="success"
+              sx={{ minWidth: buttonMinWidth }}
               onClick={() => setOpen(false)}
             >
               {ui_ok[language]}
@@ -52,6 +57,7 @@ export default function ModalConfirm({
             <Button
               variant="plain"
               color="neutral"
+              sx={{ minWidth: buttonMinWidth }}
               onClick={() => setOpen(false)}
             >
               {ui_cancel[language]}
