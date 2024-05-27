@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ButtonComp from "./components/Button";
+import ButtonComp from "./components/ButtonComp";
 import NumberInput from "./components/NumberInput";
 import InputField from "./components/InputField";
 import Dropdown from "./components/Dropdown";
@@ -7,7 +7,8 @@ import SwitchComp from "./components/Switch";
 import HelpText from "./components/HelpText";
 import SelectedHeader from "./components/SelectedHeader";
 import PageHeaderBar from "./components/PageHeaderBar";
-import ItemList from "./components/FileList";
+import ModalAlertDelete from "./components/ModalAlertDelete";
+import ModalConfirm from "./components/ModalConfirm";
 
 function App() {
   function onClick() {
@@ -22,7 +23,10 @@ function App() {
   const selected = 6;
   return (
     <div>
-      <PageHeaderBar pageName="Main Menu" courseName="CT00A0000 jtoantiantaontao" />
+      <PageHeaderBar
+        pageName="Main Menu"
+        courseName="CT00A0000 jtoantiantaontao"
+      />
       <div className="content">
         <h1>💖 Hello World!</h1>
         <p>Welcome to your Electron application.</p>
@@ -84,9 +88,10 @@ function App() {
         <HelpText text="Help text..." />
         <p></p>
         <SelectedHeader selected={selected} language="FI" />
+        <p></p>
+        <ModalAlertDelete button="normal" language="FI" />
+        <ModalConfirm language="FI" />
       </div>
-      <p></p>
-      {/* <ItemList language="FI" /> */}
     </div>
   );
 }
