@@ -738,5 +738,9 @@
   "ui_export_project": {
     "FI": "Vie harjoitustyö",
     "ENG": "Export project work"
+  },
+  "ui_settings": {
+    "FI": "Asetukset",
+    "ENG": "Settings"
   }
 }

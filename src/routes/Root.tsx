@@ -143,6 +143,25 @@ export default function Root() {
               </ButtonComp>
             </Grid>
           </Grid>
+
+          <Divider sx={dividerSX} role="presentation" />
+
+          <Grid
+            container
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="center"
+            spacing={3}
+          >
+            <Grid>
+              <ButtonComp
+                buttonType="settings"
+                onClick={() => console.log("Settings")}
+              >
+                {texts.ui_settings[language.current]}
+              </ButtonComp>
+            </Grid>
+          </Grid>
         </Box>
       </div>
     </>
