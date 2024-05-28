@@ -742,5 +742,13 @@
   "ui_settings": {
     "FI": "Asetukset",
     "ENG": "Settings"
+  },
+  "ui_course_folder": {
+    "FI": "Kurssin kansio",
+    "ENG": "Course folder"
+  },
+  "ui_module_type": {
+    "FI": "Moduulin tyyppi",
+    "ENG": "Module type"
   }
 }
