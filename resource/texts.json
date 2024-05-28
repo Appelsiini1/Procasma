@@ -716,8 +716,8 @@
     "ENG": "An error occured..."
   },
   "error_occured": {
-    "FI": "Pahoittelut, tapahtui odottamaton virhe.",
-    "ENG": "Sorry, an unexpected error has occured."
+    "FI": "Pahoittelut, tapahtui odottamaton virhe. Paina yllä olevaa nappia palataksesi päävalikkoon.",
+    "ENG": "Sorry, an unexpected error has occured. Press the button above to return to main menu."
   },
   "course_manage": {
     "FI": "Kurssin hallinta",
