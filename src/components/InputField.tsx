@@ -1,9 +1,21 @@
 import { Input, Textarea } from "@mui/joy";
 import React from "react";
 
-type ButtonProps = { isLarge: boolean; placeholder: string };
+type ButtonProps = {
+  isLarge?: boolean;
+  placeholder?: string;
+  defaultValue?: string;
+  disabled?: boolean;
+  fieldKey: string;
+};
 
-export default function InputField({ isLarge, placeholder }: ButtonProps) {
+export default function InputField({
+  isLarge = false,
+  placeholder = "...",
+  defaultValue = null,
+  disabled = false,
+  fieldKey,
+}: ButtonProps) {
   let component: React.JSX.Element = null;
   if (isLarge) {
     component = (
@@ -12,6 +24,8 @@ export default function InputField({ isLarge, placeholder }: ButtonProps) {
         minRows={5}
         maxRows={5}
         placeholder={placeholder}
+        key={fieldKey}
+        disabled={disabled}
       />
     );
   } else {
@@ -19,6 +33,9 @@ export default function InputField({ isLarge, placeholder }: ButtonProps) {
       <Input
         sx={{ maxWidth: "30em", minWidth: "10em" }}
         placeholder={placeholder}
+        defaultValue={defaultValue}
+        key={fieldKey}
+        disabled={disabled}
       />
     );
   }
