@@ -1,19 +1,21 @@
 import PageHeaderBar from "../components/PageHeaderBar";
 import texts from "../../resource/texts.json";
-import { language, dividerColor } from "../constantsUI";
+import { language, dividerColor, currentCourse } from "../constantsUI";
 import LogoText from "../../resource/LogoText.png";
 import { Box, Divider, Grid, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
+import { useNavigate } from "react-router-dom";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 
 export default function Root() {
   const pageName = texts.ui_main[language.current];
   let noInIndex = NaN; //make dynamic later
+  const navigate = useNavigate();
   return (
     <>
-      <PageHeaderBar pageName={pageName} courseName="Test course" />
-      <div className="content">
+      <PageHeaderBar pageName={pageName} />
+      <div className="menuContent">
         <img src={LogoText} className="textLogo" />
         <Typography level="h4" sx={{ paddingBottom: "2rem" }}>
           {texts.ui_no_assignments_index[language.current] +
@@ -32,7 +34,10 @@ export default function Root() {
             <Grid>
               <ButtonComp
                 buttonType="largeAdd"
-                onClick={() => console.log("Add Course")}
+                onClick={() => {
+                  console.log("Add Course");
+                  navigate("createCourse");
+                }}
               >
                 {texts.course_create[language.current]}
               </ButtonComp>
@@ -48,7 +53,10 @@ export default function Root() {
             <Grid>
               <ButtonComp
                 buttonType="settings"
-                onClick={() => console.log("Manage Course")}
+                onClick={() => {
+                  console.log("Manage Course");
+                  navigate("manageCourse");
+                }}
               >
                 {texts.course_manage[language.current]}
               </ButtonComp>
