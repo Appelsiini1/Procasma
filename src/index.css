@@ -6,6 +6,10 @@ body {
 
 .content {
   padding: 0.5em 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .logoImage {
@@ -15,4 +19,12 @@ body {
   padding: 12%;
   background-color: white;
   border-radius: 50%;
+}
+
+.textLogo {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 2rem;
+  width: 30rem;
 }

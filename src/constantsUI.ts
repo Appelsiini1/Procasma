@@ -18,4 +18,6 @@ class CurrentLanguage {
 
 // UI constants
 export const buttonMinWidth = "7rem";
+export const largeButtonMinWidth = "18rem";
 export const language = new CurrentLanguage();
+export const dividerColor = "#BEBEBE";
