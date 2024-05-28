@@ -19,7 +19,7 @@ type ButtonProps = {
 };
 
 export default function PageHeaderBar({ pageName, courseName }: ButtonProps) {
-  //const navigate = useNavigate();
+  const navigate = useNavigate();
   return (
     <Box
       sx={{
@@ -52,7 +52,7 @@ export default function PageHeaderBar({ pageName, courseName }: ButtonProps) {
               size="lg"
               sx={IconSX}
               onClick={() => {
-                //navigate(-1);
+                navigate(-1);
               }}
             >
               <ArrowBackIcon fontSize="large" />
@@ -61,7 +61,7 @@ export default function PageHeaderBar({ pageName, courseName }: ButtonProps) {
               size="lg"
               sx={IconSX}
               onClick={() => {
-                //navigate('/');
+                navigate("/");
               }}
             >
               <HomeIcon fontSize="large" />
