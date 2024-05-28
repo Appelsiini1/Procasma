@@ -1,6 +1,5 @@
 import { app, BrowserWindow, Menu } from "electron";
 import path from "path";
-import { version } from "./constants";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -16,8 +15,6 @@ const createWindow = () => {
       preload: path.join(__dirname, "preload.js"),
     },
   });
-  let windowTitle = "Procasma " + version;
-  mainWindow.setTitle(windowTitle);
 
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
