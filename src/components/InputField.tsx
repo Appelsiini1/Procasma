@@ -20,7 +20,7 @@ export default function InputField({
   if (isLarge) {
     component = (
       <Textarea
-        sx={{ maxWidth: "40em", minWidth: "10em" }}
+        sx={{ maxWidth: "100%", minWidth: "10em" }}
         minRows={5}
         maxRows={5}
         placeholder={placeholder}
@@ -31,7 +31,7 @@ export default function InputField({
   } else {
     component = (
       <Input
-        sx={{ maxWidth: "30em", minWidth: "10em" }}
+        sx={{ maxWidth: "100%", minWidth: "10em" }}
         placeholder={placeholder}
         defaultValue={defaultValue}
         key={fieldKey}
