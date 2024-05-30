@@ -1,6 +1,6 @@
 import PageHeaderBar from "../components/PageHeaderBar";
 import texts from "../../resource/texts.json";
-import { language, dividerColor, currentCourse } from "../constantsUI";
+import { language, dividerColor } from "../constantsUI";
 import LogoText from "../../resource/LogoText.png";
 import { Box, Divider, Grid, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
@@ -170,6 +170,7 @@ export default function Root() {
               </ButtonComp>
             </Grid>
           </Grid>
+          <div className="emptySpace3" />
         </Box>
       </div>
     </>
