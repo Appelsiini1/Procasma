@@ -6,21 +6,26 @@ import Option from "@mui/joy/Option";
 type ButtonProps = {
   options: Array<object>;
   labelKey: string;
-  placeholder: string;
+  placeholder?: string;
   name: string;
+  onChange?: (
+    event: React.SyntheticEvent | null,
+    newValue: string | null
+  ) => void;
 };
 
 export default function Dropdown({
   options,
   labelKey,
-  placeholder,
+  placeholder = "",
   name,
+  onChange,
 }: ButtonProps) {
   let formattedOptions: Array<React.JSX.Element> = [];
   for (let index = 0; index < options.length; index++) {
     const element: any = options[index];
     formattedOptions.push(
-      <Option key={element[labelKey]} value={index.toString()}>
+      <Option key={index.toString()} value={element[labelKey]}>
         {" "}
         {element[labelKey]}
       </Option>
@@ -32,9 +37,10 @@ export default function Dropdown({
       name={name}
       placeholder={placeholder}
       indicator={<KeyboardArrowDown />}
+      onChange={onChange}
       sx={{
         minWidth: "10em",
-        maxWidth: "30em",
+        maxWidth: "100%",
         [`& .${selectClasses.indicator}`]: {
           transition: "0.2s",
           [`&.${selectClasses.expanded}`]: {
