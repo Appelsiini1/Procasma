@@ -4,10 +4,11 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 
 type ButtonProps = {
-  min: number;
-  max: number;
+  min?: number;
+  max?: number;
   value: string;
   setValue: React.Dispatch<React.SetStateAction<string>>;
+  disabled?: boolean;
 };
 
 export default function NumberInput({
@@ -15,7 +16,14 @@ export default function NumberInput({
   max,
   value,
   setValue,
+  disabled,
 }: ButtonProps) {
+  if (!min) {
+    min = Number.MIN_SAFE_INTEGER;
+  }
+  if (!max) {
+    max = Number.MAX_SAFE_INTEGER;
+  }
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const result = event.target.value.replace(/^(-)|[^0-9]+/g, "$1");
 
@@ -47,6 +55,7 @@ export default function NumberInput({
         sx={{ maxWidth: "5em", minWidth: "2em" }}
         onChange={handleChange}
         value={value}
+        disabled={disabled}
       ></Input>
       <IconButton
         variant="solid"
@@ -58,6 +67,7 @@ export default function NumberInput({
           //padding: "0em 0.8em",
         }}
         onClick={handleIncrement}
+        disabled={disabled}
       >
         <AddIcon />
       </IconButton>
@@ -71,6 +81,7 @@ export default function NumberInput({
           //padding: "0em 0.8em",
         }}
         onClick={handleDecrement}
+        disabled={disabled}
       >
         <RemoveIcon />
       </IconButton>

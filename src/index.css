@@ -4,10 +4,18 @@ body {
   margin: auto;
 }
 
-.content {
+.menuContent {
   padding: 0.5em 2em;
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.content {
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: flex-start;
   justify-content: center;
   flex-direction: column;
 }
@@ -27,4 +35,19 @@ body {
   margin-right: auto;
   padding: 2rem;
   width: 30rem;
+}
+
+.emptySpace1 {
+  width: 100%;
+  height: 1rem;
+}
+
+.emptySpace2 {
+  width: 100%;
+  height: 2rem;
+}
+
+.emptySpace3 {
+  width: 100%;
+  height: 3rem;
 }

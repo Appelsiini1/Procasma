@@ -1,3 +1,11 @@
 {
-  "languages": ["FI", "ENG"]
+  "codeLanguages": [
+    {
+      "name": "Python",
+      "fileExtensions": [".py"]
+    },
+    { "name": "C", "fileExtensions": [".c", ".h"] },
+    { "name": "JavaScript", "fileExtensions": [".js", ".jsx"] },
+    { "name": "TypeScript", "fileExtensions": [".ts", ".tsx"] }
+  ]
 }

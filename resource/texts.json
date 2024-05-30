@@ -1,4 +1,16 @@
 {
+  "languages": [
+    {
+      "FI": "Suomi",
+      "ENG": "Finnish",
+      "abbreviation": "FI"
+    },
+    {
+      "FI": "Englanti",
+      "ENG": "English",
+      "abbreviation": "ENG"
+    }
+  ],
   "ui_main": {
     "FI": "Päävalikko",
     "ENG": "Main Menu"
@@ -339,14 +351,6 @@
     "FI": "Sivu",
     "ENG": "Page"
   },
-  "language_FI": {
-    "FI": "Suomi",
-    "ENG": "Finnish"
-  },
-  "language_ENG": {
-    "FI": "Englanti",
-    "ENG": "English"
-  },
   "ui_codefiles": {
     "FI": "Kooditiedostot",
     "ENG": "Code files"
@@ -559,10 +563,6 @@
     "FI": "Kieli",
     "ENG": "Language"
   },
-  "languages": {
-    "FI": "Suomi",
-    "ENG": "English"
-  },
   "ui_assignment_level": {
     "FI": "Tehtävän taso",
     "ENG": "Assignment level"
@@ -716,8 +716,8 @@
     "ENG": "An error occured..."
   },
   "error_occured": {
-    "FI": "Pahoittelut, tapahtui odottamaton virhe.",
-    "ENG": "Sorry, an unexpected error has occured."
+    "FI": "Pahoittelut, tapahtui odottamaton virhe. Paina yllä olevaa nappia palataksesi päävalikkoon.",
+    "ENG": "Sorry, an unexpected error has occured. Press the button above to return to main menu."
   },
   "course_manage": {
     "FI": "Kurssin hallinta",
@@ -742,5 +742,29 @@
   "ui_settings": {
     "FI": "Asetukset",
     "ENG": "Settings"
+  },
+  "ui_course_folder": {
+    "FI": "Kurssin kansio",
+    "ENG": "Course folder"
+  },
+  "ui_module_type": {
+    "FI": "Moduulin tyyppi",
+    "ENG": "Module type"
+  },
+  "ui_no_module": {
+    "FI": "Ei moduuleja",
+    "ENG": "No modules"
+  },
+  "ui_course_language": {
+    "FI": "Kurssin kieli",
+    "ENG": "Course language"
+  },
+  "ui_course_code_language": {
+    "FI": "Kurssin koodikieli",
+    "ENG": "Course code language"
+  },
+  "ui_module_amount": {
+    "FI": "Moduulien määrä",
+    "ENG": "Module amount"
   }
 }
