@@ -1,4 +1,10 @@
 import { SupportedLanguages, CourseData } from "./types";
+import {
+  ui_week,
+  ui_module,
+  ui_no_module,
+  languages,
+} from "../resource/texts.json";
 
 // Class constants
 class CurrentLanguage {
@@ -97,3 +103,11 @@ export const largeButtonMinWidth = "18rem";
 export const language = new CurrentLanguage();
 export const dividerColor = "#BEBEBE";
 export const currentCourse = new CurrentCourse();
+export const supportedModuleTypes = [ui_week, ui_module, ui_no_module].map(
+  (value) => {
+    if (value === ui_no_module) {
+      return { typeName: value[language.current], isNull: true };
+    }
+    return { typeName: value[language.current], isNull: false };
+  }
+);
