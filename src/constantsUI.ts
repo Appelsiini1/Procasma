@@ -111,3 +111,4 @@ export const supportedModuleTypes = [ui_week, ui_module, ui_no_module].map(
     return { typeName: value[language.current], isNull: false };
   }
 );
+export const buttonShadow = "1px 1px 3px 1px rgb(0 0 0 / 20%)";

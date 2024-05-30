@@ -7,7 +7,11 @@ import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 import IosShareIcon from "@mui/icons-material/IosShare";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import React from "react";
-import { buttonMinWidth, largeButtonMinWidth } from "../constantsUI";
+import {
+  buttonMinWidth,
+  largeButtonMinWidth,
+  buttonShadow,
+} from "../constantsUI";
 
 const largeNormal = {
   color: "#00000",
@@ -16,6 +20,7 @@ const largeNormal = {
   padding: "0.7em 1.1em",
   fontSize: "1.4em",
   minWidth: largeButtonMinWidth,
+  boxShadow: buttonShadow,
 } as const;
 
 const largeAlt = {
@@ -25,6 +30,7 @@ const largeAlt = {
   padding: "0.4em 1.1em",
   fontSize: "1.2em",
   minWidth: largeButtonMinWidth,
+  boxShadow: buttonShadow,
 } as const;
 
 const decorStyle = { fontSize: "1.4em" };
@@ -92,6 +98,7 @@ export default function ButtonComp({
         padding: "0.1em 1.2em",
         fontSize: "1em",
         minWidth: buttonMinWidth,
+        boxShadow: buttonShadow,
       };
       decor = null;
       break;
@@ -103,6 +110,7 @@ export default function ButtonComp({
         padding: "0.1em 1.2em",
         fontSize: "1em",
         minWidth: buttonMinWidth,
+        boxShadow: buttonShadow,
       };
       decor = null;
       break;
