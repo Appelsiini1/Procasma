@@ -16,35 +16,41 @@ export interface CGData {
   atv2: object;
 }
 
-export interface AssignmentData {
+export interface CommonAssignmentData {
   assignmentID: string;
+  title: string;
+  tags: Array<string>;
+  module: number | null;
+}
+
+export interface CodeAssignmentData extends CommonAssignmentData {
   assignmentType: "assignment";
-  assignment: {
-    title: string;
-    tags: Array<string>;
-    module: number | null;
-    assignmentNo: Array<number>;
-    level: number | null;
-    next: Array<string> | null;
-    previous: Array<string> | null;
-    codeLanguage: string;
-    variations: {
-      [key: string]: {
-        instructions: string;
-        exampleRuns: {
-          [key: string]: {
-            generate: boolean;
-            inputs: Array<string | number>;
-            cmdInputs: Array<string | number>;
-            output: string;
-          };
+  assignmentNo: Array<number>;
+  level: number | null;
+  next: Array<string> | null;
+  previous: Array<string> | null;
+  codeLanguage: string;
+  variations: {
+    [key: string]: {
+      instructions: string;
+      exampleRuns: {
+        [key: string]: {
+          generate: boolean;
+          inputs: Array<string | number>;
+          cmdInputs: Array<string | number>;
+          output: string;
         };
-        files: Array<FileData>;
-        usedIn: Array<string>;
-        cgConfig: CGData;
       };
+      files: Array<FileData>;
+      usedIn: Array<string>;
+      cgConfig: CGData;
     };
   };
+}
+
+export interface CodeLanguage {
+  name: string;
+  fileExtensions: Array<string>;
 }
 
 export interface CourseData {
@@ -53,7 +59,7 @@ export interface CourseData {
   modules?: number;
   moduleType?: "week" | "module" | null;
   language?: SupportedLanguages;
-  codeLanguage?: string | null;
+  codeLanguage?: CodeLanguage | null;
   CodeGradeID?: number;
   minLevel?: number;
   maxLevel?: number;
@@ -62,7 +68,7 @@ export interface CourseData {
       fullName: string;
       abbreviation: string;
     };
-  };
+  } | null;
 }
 
 export type CourseLoaderData = "create" | "manage";
