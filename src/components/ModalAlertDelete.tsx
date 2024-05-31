@@ -14,8 +14,10 @@ import { buttonMinWidth, language } from "../constantsUI";
 
 export default function ModalAlertDelete({
   button,
+  deleteFunction,
 }: {
   button: "icon" | "normal";
+  deleteFunction: () => void;
 }) {
   const [open, setOpen] = useState<boolean>(false);
   let buttonComponent: JSX.Element = null;
@@ -46,6 +48,11 @@ export default function ModalAlertDelete({
       </IconButton>
     );
   }
+
+  function handleDelete() {
+    setOpen(false);
+    deleteFunction();
+  }
   return (
     <>
       {buttonComponent}
@@ -58,11 +65,7 @@ export default function ModalAlertDelete({
           <Divider />
           <DialogContent>{ui_confirm[language.current]}</DialogContent>
           <DialogActions>
-            <Button
-              variant="solid"
-              color="danger"
-              onClick={() => setOpen(false)}
-            >
+            <Button variant="solid" color="danger" onClick={handleDelete}>
               {ui_delete[language.current]}
             </Button>
             <Button
