@@ -20,7 +20,7 @@ import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import SwitchComp from "../components/SwitchComp";
-import { VariationAccordion } from "../helpers/variationHelpers";
+import { addVariation } from "../helpers/variationHelpers";
 
 export default function AssignmentInput() {
   const pageType = useLoaderData();
@@ -34,11 +34,7 @@ export default function AssignmentInput() {
   const [variationAccordion, setVariationAccordion] =
     useState<Array<React.JSX.Element>>(null);
   const codeLanguageOptions = defaults.codeLanguages; //get these from settings file later
-  const variations = new VariationAccordion(
-    variationAccordion,
-    setVariationAccordion,
-    pageType
-  );
+  const varID = "A";
 
   if (pageType === "new") {
   }
@@ -185,14 +181,16 @@ export default function AssignmentInput() {
         />
         <div className="emptySpace2" />
 
-        <div style={{ marginLeft: "0.9rem" }}>
+        <div style={{ marginLeft: "0.9rem", width: "100%" }}>
           <Typography level="h3">
             {texts.ui_variations[language.current]}
           </Typography>
           <div className="emptySpace1" />
           <ButtonComp
             buttonType="normal"
-            onClick={() => variations.addVariation()}
+            onClick={() =>
+              addVariation(variationAccordion, setVariationAccordion)
+            }
           >
             {texts.ui_add_variation[language.current]}
           </ButtonComp>
@@ -201,13 +199,13 @@ export default function AssignmentInput() {
             sx={{
               maxHeight: "35rem",
               overflowY: "auto",
-              maxWidth: "100%",
+              width: "100%",
               overflowX: "hidden",
             }}
           >
             <AccordionGroup
               size="lg"
-              sx={{ width: "100%", marginRight: "10%" }}
+              sx={{ width: "100%", marginRight: "2rem" }}
             >
               {variationAccordion}
             </AccordionGroup>
