@@ -3,25 +3,24 @@ import {
   AccordionDetails,
   AccordionSummary,
   Avatar,
+  Box,
   ListItemContent,
+  Stack,
   Typography,
 } from "@mui/joy";
 import texts from "../../resource/texts.json";
 import { language, currentCourse, dividerColor } from "../constantsUI";
-import ModalAlertDelete from "./ModalAlertDelete";
+import HelpText from "./HelpText";
+import InputField from "./InputField";
 
-export default function VariationComponent({
-  varID,
-  self,
-}: {
+type ComponentProps = {
   varID: string;
-  self: any;
-}) {
-  console.log(self);
-  console.log(self.prototype);
+};
+
+export default function VariationComponent({ varID }: ComponentProps) {
   return (
     <Accordion>
-      <AccordionSummary>
+      <AccordionSummary sx={{ backgroundColor: "#D9D9D9" }}>
         <Avatar color="primary">{varID}</Avatar>
         <ListItemContent>
           <Typography level="title-md">
@@ -30,12 +29,21 @@ export default function VariationComponent({
         </ListItemContent>
       </AccordionSummary>
       <AccordionDetails>
-        <ModalAlertDelete
-          button="normal"
-          deleteFunction={() => {
-            self.prototype.deleteVariation(varID);
-          }}
-        />
+        <Box sx={{ marginLeft: "4rem", marginTop: "1rem" }}>
+          <Stack
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="center"
+            spacing={2}
+          >
+            <Typography level="h4">
+              {texts.ui_inst[language.current]}
+            </Typography>
+            <HelpText text={texts.help_inst[language.current]} />
+          </Stack>
+          <div className="emptySpace1" />
+          <InputField fieldKey={varID + "vInstInput"} isLarge />
+        </Box>
       </AccordionDetails>
     </Accordion>
   );
