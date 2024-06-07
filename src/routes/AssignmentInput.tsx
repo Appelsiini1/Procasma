@@ -34,7 +34,6 @@ export default function AssignmentInput() {
   const [variationAccordion, setVariationAccordion] =
     useState<Array<React.JSX.Element>>(null);
   const codeLanguageOptions = defaults.codeLanguages; //get these from settings file later
-  const varID = "A";
 
   if (pageType === "new") {
   }
@@ -166,6 +165,30 @@ export default function AssignmentInput() {
                 <SwitchComp checked={expanding} setChecked={setExpanding} />
               </td>
             </tr>
+
+            <tr key="caUsedIn">
+              <td>
+                <Grid
+                  container
+                  direction="row"
+                  justifyContent="flex-start"
+                  alignItems="center"
+                  spacing={1}
+                >
+                  <Grid xs={10}>
+                    <Typography level="h4">
+                      {texts.ui_used_in[language.current]}
+                    </Typography>
+                  </Grid>
+                  <Grid xs={2}>
+                    <HelpText text={texts.help_used_in[language.current]} />
+                  </Grid>
+                </Grid>
+              </td>
+              <td>
+                <InputField fieldKey="caUsedInInput" />
+              </td>
+            </tr>
           </tbody>
         </Table>
 
@@ -197,7 +220,7 @@ export default function AssignmentInput() {
           <div className="emptySpace2" />
           <Box
             sx={{
-              maxHeight: "35rem",
+              maxHeight: "40rem",
               overflowY: "auto",
               width: "100%",
               overflowX: "hidden",
