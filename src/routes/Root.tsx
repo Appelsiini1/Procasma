@@ -105,7 +105,10 @@ export default function Root() {
             <Grid>
               <ButtonComp
                 buttonType="largeAdd"
-                onClick={() => console.log("Add Module")}
+                onClick={() => {
+                  console.log("Add Module");
+                  navigate("newModule");
+                }}
               >
                 {texts.ui_module[language.current]}
               </ButtonComp>

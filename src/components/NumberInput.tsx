@@ -19,10 +19,10 @@ export default function NumberInput({
   setValue,
   disabled,
 }: ButtonProps) {
-  if (!min) {
+  if (!min && min !== 0) {
     min = Number.MIN_SAFE_INTEGER;
   }
-  if (!max) {
+  if (!max && max !== 0) {
     max = Number.MAX_SAFE_INTEGER;
   }
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
