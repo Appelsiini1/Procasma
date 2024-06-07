@@ -12,7 +12,6 @@ import {
 } from "@mui/joy";
 import PageHeaderBar from "../components/PageHeaderBar";
 import InputField from "../components/InputField";
-import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import Dropdown from "../components/Dropdown";
 import { useState } from "react";
 import NumberInput from "../components/NumberInput";
