@@ -1,6 +1,11 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
 import texts from "../../resource/texts.json";
-import { language, currentCourse, supportedModuleTypes } from "../constantsUI";
+import {
+  language,
+  currentCourse,
+  supportedModuleTypes,
+  buttonShadow,
+} from "../constantsUI";
 import { Grid, IconButton, Stack, Table, Typography } from "@mui/joy";
 import PageHeaderBar from "../components/PageHeaderBar";
 import InputField from "../components/InputField";
@@ -98,6 +103,7 @@ export default function Course() {
                   sx={{
                     backgroundColor: "#F8A866",
                     "&:hover": { backgroundColor: "#F68C35" },
+                    boxShadow: buttonShadow,
                   }}
                   onClick={() => handleFolderOpen()}
                 >

@@ -2,6 +2,7 @@ import { Input, Stack, IconButton } from "@mui/joy";
 import React from "react";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
+import { buttonShadow } from "../constantsUI";
 
 type ButtonProps = {
   min?: number;
@@ -63,6 +64,7 @@ export default function NumberInput({
           color: "#00000",
           backgroundColor: "#F8A866",
           "&:hover": { backgroundColor: "#F68C35" },
+          boxShadow: buttonShadow,
           //marginLeft: "1rem",
           //padding: "0em 0.8em",
         }}
@@ -77,6 +79,7 @@ export default function NumberInput({
           color: "#00000",
           backgroundColor: "#66B6F8",
           "&:hover": { backgroundColor: "#359FF6" },
+          boxShadow: buttonShadow,
           //marginLeft: ".5rem",
           //padding: "0em 0.8em",
         }}

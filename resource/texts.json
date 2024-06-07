@@ -766,5 +766,13 @@
   "ui_module_amount": {
     "FI": "Moduulien määrä",
     "ENG": "Module amount"
+  },
+  "help_clang_assignment": {
+    "FI": "Valitse jos koodikieli on eri kuin kurssiasetuksissa määritetty",
+    "ENG": "Choose if different from the code language set in course settings"
+  },
+  "ui_cg_config": {
+    "FI": "CodeGrade konfiguraatio",
+    "ENG": "CodeGrade configuration"
   }
 }

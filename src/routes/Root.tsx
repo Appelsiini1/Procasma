@@ -75,7 +75,10 @@ export default function Root() {
             <Grid>
               <ButtonComp
                 buttonType="largeAdd"
-                onClick={() => console.log("Add Assignment")}
+                onClick={() => {
+                  console.log("Add Assignment");
+                  navigate("inputCodeAssignment");
+                }}
               >
                 {texts.ui_assignment[language.current]}
               </ButtonComp>

@@ -1,10 +1,6 @@
-import { SupportedLanguages, CourseData } from "./types";
-import {
-  ui_week,
-  ui_module,
-  ui_no_module,
-  languages,
-} from "../resource/texts.json";
+import { SupportedLanguages, CourseData, CodeLanguage } from "./types";
+import { ui_week, ui_module, ui_no_module } from "../resource/texts.json";
+import { codeLanguages } from "../resource/defaults.json";
 
 // Class constants
 class CurrentLanguage {
@@ -28,7 +24,7 @@ class CurrentCourse {
   private _modules: number;
   private _moduleType: "week" | "module" | null;
   private _language: SupportedLanguages;
-  private _codeLanguage: string | null;
+  private _codeLanguage: CodeLanguage | null;
   private _CodeGradeID: number;
   private _minLevel: number;
   private _maxLevel: number;
@@ -37,7 +33,7 @@ class CurrentCourse {
       fullName: string;
       abbreviation: string;
     };
-  };
+  } | null;
 
   get title() {
     return this._title;
@@ -76,11 +72,11 @@ class CurrentCourse {
     this._modules = 0;
     this._moduleType = null;
     this._language = "FI";
-    this._codeLanguage = null;
+    this._codeLanguage = codeLanguages[0];
     this._CodeGradeID = 0;
     this._minLevel = 0;
     this._maxLevel = 0;
-    this._levels = {};
+    this._levels = null;
   }
 
   set values(data: CourseData) {
@@ -111,3 +107,5 @@ export const supportedModuleTypes = [ui_week, ui_module, ui_no_module].map(
     return { typeName: value[language.current], isNull: false };
   }
 );
+export const buttonShadow = "1px 1px 3px 1px rgb(0 0 0 / 20%)";
+export const spacingSX = { marginBottom: "1rem" };

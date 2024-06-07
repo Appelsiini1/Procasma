@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ErrorPage from "./routes/ErrorPage";
 import Root from "./routes/Root";
 import Course from "./routes/Course";
+import AssignmentInput from "./routes/AssignmentInput";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const router = createBrowserRouter([
@@ -21,6 +22,13 @@ const router = createBrowserRouter([
     element: <Course />,
     loader: async () => {
       return "manage";
+    },
+  },
+  {
+    path: "inputCodeAssignment",
+    element: <AssignmentInput />,
+    loader: async () => {
+      return "new";
     },
   },
 ]);
