@@ -7,6 +7,7 @@ import Root from "./routes/Root";
 import Course from "./routes/Course";
 import AssignmentInput from "./routes/AssignmentInput";
 import ModuleAdd from "./routes/ModuleAdd";
+import AssignmentBrowse from "./routes/AssignmentBrowse";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const router = createBrowserRouter([
@@ -37,6 +38,13 @@ const router = createBrowserRouter([
     element: <ModuleAdd />,
     loader: async () => {
       return "new";
+    },
+  },
+  {
+    path: "AssignmentBrowse",
+    element: <AssignmentBrowse />,
+    loader: async () => {
+      return "browse";
     },
   },
 ]);
