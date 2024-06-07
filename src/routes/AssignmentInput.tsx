@@ -36,6 +36,7 @@ export default function AssignmentInput() {
   const codeLanguageOptions = defaults.codeLanguages; //get these from settings file later
 
   if (pageType === "new") {
+    pageTitle = texts.ui_new_assignment[language.current];
   }
   return (
     <>
