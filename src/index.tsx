@@ -6,6 +6,7 @@ import ErrorPage from "./routes/ErrorPage";
 import Root from "./routes/Root";
 import Course from "./routes/Course";
 import AssignmentInput from "./routes/AssignmentInput";
+import ModuleAdd from "./routes/ModuleAdd";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const router = createBrowserRouter([
@@ -27,6 +28,13 @@ const router = createBrowserRouter([
   {
     path: "inputCodeAssignment",
     element: <AssignmentInput />,
+    loader: async () => {
+      return "new";
+    },
+  },
+  {
+    path: "newModule",
+    element: <ModuleAdd />,
     loader: async () => {
       return "new";
     },

@@ -774,5 +774,21 @@
   "ui_cg_config": {
     "FI": "CodeGrade konfiguraatio",
     "ENG": "CodeGrade configuration"
+  },
+  "ui_new_assignment": {
+    "FI": "Uusi tehtävä",
+    "ENG": "New assignment"
+  },
+  "ui_new_module": {
+    "FI": "Uusi moduuli",
+    "ENG": "New module"
+  },
+  "ui_module_title": {
+    "FI": "Moduulin otsikko",
+    "ENG": "Module title"
+  },
+  "ui_module_number": {
+    "FI": "Moduulin numero",
+    "ENG": "Module number"
   }
 }
