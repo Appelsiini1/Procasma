@@ -156,10 +156,10 @@ export default function Root() {
                 buttonType="largeAdd"
                 onClick={() => {
                   console.log("Add project work");
-                  navigate("inputCodeFinalWork");
+                  navigate("inputCodeProjectWork");
                 }}
               >
-                {texts.ui_add_final_work[language.current]}
+                {texts.ui_add_project_work[language.current]}
               </ButtonComp>
             </Grid>
             <Grid>

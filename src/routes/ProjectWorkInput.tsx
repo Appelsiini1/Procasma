@@ -18,28 +18,24 @@ import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
-//import SwitchComp from "../components/SwitchComp";
 import { addLevel } from "../helpers/levelHelpers";
 
-export default function FinalWorkInput() {
+export default function ProjectWorkInput() {
   const pageType = useLoaderData();
   const navigate = useNavigate();
   let pageTitle: string = null;
   const moduleDisable = currentCourse.moduleType !== null ? false : true;
-  //const levelsDisable = currentCourse.levels !== null ? false : true;
-  //const [assingmentLevel, setAssignmentLevel] = useState("0");
   const [moduleNo, setModuleNo] = useState("0");
-  //const [expanding, setExpanding] = useState(false);
   const [levelAccordion, setLevelAccordion] =
     useState<Array<React.JSX.Element>>(null);
   const codeLanguageOptions = defaults.codeLanguages; //get these from settings file later
 
   if (pageType === "new") {
-    pageTitle = texts.ui_new_final_work[language.current];
+    pageTitle = texts.ui_new_project_work[language.current];
   }
   return (
     <>
-      <PageHeaderBar pageName={texts.ui_add_final_work[language.current]} />
+      <PageHeaderBar pageName={texts.ui_add_project_work[language.current]} />
       <div className="content">
         <Typography level="h1">{pageTitle}</Typography>
         <Table borderAxis="none">

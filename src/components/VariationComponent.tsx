@@ -72,7 +72,7 @@ export default function VariationComponent({ varID }: ComponentProps) {
             {texts.ui_ex_runs[language.current]}
           </Typography>
           <ButtonComp buttonType="normal" onClick={() => addExampleRun()}>
-            {texts.ui_add_variation[language.current]}
+            {texts.ui_add_ex_run[language.current]}
           </ButtonComp>
           <div className="emptySpace2" />
           <AccordionGroup size="lg" sx={{ width: "100%", marginRight: "2rem" }}>

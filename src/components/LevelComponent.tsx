@@ -61,8 +61,8 @@ export default function LevelComponent({ levelID }: ComponentProps) {
             <HelpText text={texts.help_inst[language.current]} />
           </Stack>
           <InputField fieldKey={levelID + "vLevelTitleInput"} />
-          <div className="emptySpace1" />
 
+          <div className="emptySpace1" />
           <Stack
             direction="row"
             justifyContent="flex-start"
@@ -81,14 +81,26 @@ export default function LevelComponent({ levelID }: ComponentProps) {
           <ButtonComp buttonType="normalAlt" onClick={null}>
             {texts.ui_cg_config[language.current]}
           </ButtonComp>
-          <div className="emptySpace1" />
 
+          <div className="emptySpace1" />
           <Typography level="h4" sx={spacingSX}>
             {texts.ui_files[language.current]}
           </Typography>
-          <ButtonComp buttonType="normal" onClick={() => importFile()}>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => console.log("addFiles()")}
+          >
             {texts.ui_import_files[language.current]}
           </ButtonComp>
+
+          <div className="emptySpace1" />
+          <Typography level="h4" sx={spacingSX}>
+            {texts.ui_ex_runs[language.current]}
+          </Typography>
+          <ButtonComp buttonType="normal" onClick={() => addExampleRun()}>
+            {texts.ui_add_ex_run[language.current]}
+          </ButtonComp>
+
           <div className="emptySpace2" />
           <AccordionGroup size="lg" sx={{ width: "100%", marginRight: "2rem" }}>
             {exampleAccordion}

@@ -8,7 +8,7 @@ import Course from "./routes/Course";
 import AssignmentInput from "./routes/AssignmentInput";
 import ModuleAdd from "./routes/ModuleAdd";
 import AssignmentBrowse from "./routes/AssignmentBrowse";
-import FinalWorkInput from "./routes/FinalWorkInput";
+import ProjectWorkInput from "./routes/ProjectWorkInput";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const router = createBrowserRouter([
@@ -49,8 +49,8 @@ const router = createBrowserRouter([
     },
   },
   {
-    path: "inputCodeFinalWork",
-    element: <FinalWorkInput />,
+    path: "inputCodeProjectWork",
+    element: <ProjectWorkInput />,
     loader: async () => {
       return "new";
     },

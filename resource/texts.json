@@ -151,9 +151,9 @@
     "FI": "Lisää tehtävä",
     "ENG": "Add assignment"
   },
-  "ui_add_final_work": {
+  "ui_add_project_work": {
     "FI": "Lisää harjoitustyö",
-    "ENG": "Add final work"
+    "ENG": "Add project work"
   },
   "ui_tags": {
     "FI": "Tunnisteet",
@@ -815,9 +815,9 @@
     "FI": "Uusi tehtävä",
     "ENG": "New assignment"
   },
-  "ui_new_final_work": {
+  "ui_new_project_work": {
     "FI": "Uusi harjoitustyö",
-    "ENG": "New final work"
+    "ENG": "New project work"
   },
   "ui_new_module": {
     "FI": "Uusi moduuli",
