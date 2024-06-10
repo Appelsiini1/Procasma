@@ -153,6 +153,17 @@ export default function Root() {
             </Grid>
             <Grid>
               <ButtonComp
+                buttonType="largeAdd"
+                onClick={() => {
+                  console.log("Add project work");
+                  navigate("inputCodeProjectWork");
+                }}
+              >
+                {texts.ui_add_project_work[language.current]}
+              </ButtonComp>
+            </Grid>
+            <Grid>
+              <ButtonComp
                 buttonType="export"
                 onClick={() => console.log("Export project work")}
               >

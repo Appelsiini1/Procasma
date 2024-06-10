@@ -151,6 +151,10 @@
     "FI": "Lisää tehtävä",
     "ENG": "Add assignment"
   },
+  "ui_add_project_work": {
+    "FI": "Lisää harjoitustyö",
+    "ENG": "Add project work"
+  },
   "ui_tags": {
     "FI": "Tunnisteet",
     "ENG": "Tags"
@@ -158,6 +162,10 @@
   "ui_variations": {
     "FI": "Variaatiot",
     "ENG": "Variations"
+  },
+  "ui_levels": {
+    "FI": "Tasot",
+    "ENG": "Levels"
   },
   "ui_selected": {
     "FI": "Valittu",
@@ -211,6 +219,10 @@
     "FI": "Tehtävän otsikko",
     "ENG": "Assingment title"
   },
+  "ui_title": {
+    "FI": "Otsikko",
+    "ENG": "Title"
+  },
   "ui_assignment_no": {
     "FI": "Tehtävän numero(t)",
     "ENG": "Assignment number(s)"
@@ -243,9 +255,21 @@
     "FI": "Variaatio",
     "ENG": "Variation"
   },
+  "ui_level": {
+    "FI": "Taso",
+    "ENG": "Level"
+  },
+  "ui_level_title": {
+    "FI": "Tason otsikko",
+    "ENG": "Level title"
+  },
   "ui_add_variation": {
     "FI": "Lisää variaatio",
     "ENG": "Add variation"
+  },
+  "ui_add_level": {
+    "FI": "Lisää taso",
+    "ENG": "Add level"
   },
   "ui_inst": {
     "FI": "Ohjeet",
@@ -289,7 +313,11 @@
   },
   "help_assignment_tags": {
     "FI": "Syötä tehtävän tunnisteet tähän pilkuilla erotettuna",
-    "ENG": "Input all assingment tags here, separated by a comma."
+    "ENG": "Input all assignment tags here, separated by a comma."
+  },
+  "help_tags": {
+    "FI": "Syötä tunnisteet tähän pilkuilla erotettuna",
+    "ENG": "Input all tags here, separated by a comma."
   },
   "help_inst": {
     "FI": "Täytä tähän tehtävän variaation tehtävänanto. Tämä syötelaatikko tukee LaTeX komentoja.",
@@ -363,9 +391,17 @@
     "FI": "Esimerkkiajot",
     "ENG": "Example runs"
   },
+  "ui_files": {
+    "FI": "Tiedostot",
+    "ENG": "Files"
+  },
   "ui_import_outputfiles": {
     "FI": "Tuo tulostiedostot",
     "ENG": "Import output files"
+  },
+  "ui_import_files": {
+    "FI": "Tuo tiedostot",
+    "ENG": "Import files"
   },
   "ui_coursedir": {
     "FI": "Avaa kurssikansio",
@@ -778,6 +814,10 @@
   "ui_new_assignment": {
     "FI": "Uusi tehtävä",
     "ENG": "New assignment"
+  },
+  "ui_new_project_work": {
+    "FI": "Uusi harjoitustyö",
+    "ENG": "New project work"
   },
   "ui_new_module": {
     "FI": "Uusi moduuli",
