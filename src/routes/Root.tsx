@@ -119,7 +119,10 @@ export default function Root() {
             <Grid>
               <ButtonComp
                 buttonType="settings"
-                onClick={() => console.log("Manage Modules")}
+                onClick={() => {
+                  console.log("Manage Modules");
+                  navigate("moduleBrowse");
+                }}
               >
                 {texts.ui_module_management[language.current]}
               </ButtonComp>

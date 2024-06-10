@@ -9,6 +9,7 @@ import AssignmentInput from "./routes/AssignmentInput";
 import ModuleAdd from "./routes/ModuleAdd";
 import AssignmentBrowse from "./routes/AssignmentBrowse";
 import ProjectWorkInput from "./routes/ProjectWorkInput";
+import ModuleBrowse from "./routes/ModuleBrowse";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const router = createBrowserRouter([
@@ -54,6 +55,10 @@ const router = createBrowserRouter([
     loader: async () => {
       return "new";
     },
+  },
+  {
+    path: "moduleBrowse",
+    element: <ModuleBrowse />,
   },
 ]);
 root.render(
