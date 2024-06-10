@@ -790,5 +790,13 @@
   "ui_module_number": {
     "FI": "Moduulin numero",
     "ENG": "Module number"
+  },
+  "ui_modules": {
+    "FI": "Moduulit",
+    "ENG": "Modules"
+  },
+  "ui_filter": {
+    "FI": "Suodata",
+    "ENG": "Filter"
   }
 }

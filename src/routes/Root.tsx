@@ -86,7 +86,10 @@ export default function Root() {
             <Grid>
               <ButtonComp
                 buttonType="settings"
-                onClick={() => console.log("Manage Assignments")}
+                onClick={() => {
+                  console.log("Manage Assignments");
+                  navigate("AssignmentBrowse");
+                }}
               >
                 {texts.ui_assignment_management[language.current]}
               </ButtonComp>
