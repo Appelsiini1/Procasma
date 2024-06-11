@@ -735,6 +735,26 @@
     "FI": "Tulostiedosto",
     "ENG": "Result file"
   },
+  "ui_fileContent": {
+    "FI": "Sisältö",
+    "ENG": "Content"
+  },
+  "ui_result": {
+    "FI": "Tulos",
+    "ENG": "Result"
+  },
+  "ui_instruction": {
+    "FI": "Ohje",
+    "ENG": "Instruction"
+  },
+  "ui_code": {
+    "FI": "Koodi",
+    "ENG": "Code"
+  },
+  "ui_data": {
+    "FI": "Data",
+    "ENG": "Data"
+  },
   "ui_show_to_student": {
     "FI": "Näytä opiskelijalle",
     "ENG": "Show to student"

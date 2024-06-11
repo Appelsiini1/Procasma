@@ -16,6 +16,8 @@ import InputField from "./InputField";
 import ButtonComp from "./ButtonComp";
 import { useState } from "react";
 import ExampleRun from "./ExampleRun";
+import FileList from "./FileList";
+import { dummyFileRows } from "../testData";
 
 type ComponentProps = {
   varID: string;
@@ -66,7 +68,20 @@ export default function VariationComponent({ varID }: ComponentProps) {
           <ButtonComp buttonType="normalAlt" onClick={null}>
             {texts.ui_cg_config[language.current]}
           </ButtonComp>
+
           <div className="emptySpace1" />
+          <Typography level="h4" sx={spacingSX}>
+            {texts.ui_files[language.current]}
+          </Typography>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => console.log("addFiles()")}
+          >
+            {texts.ui_import_files[language.current]}
+          </ButtonComp>
+
+          <div className="emptySpace1" />
+          <FileList rows={dummyFileRows}></FileList>
 
           <Typography level="h4" sx={spacingSX}>
             {texts.ui_ex_runs[language.current]}
