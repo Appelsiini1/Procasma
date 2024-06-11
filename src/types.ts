@@ -6,8 +6,8 @@ export interface FileData {
   fileName: string;
   path: string;
   solution: boolean;
-  resultFile: boolean;
-  show_student: boolean;
+  fileContent: "instruction" | "result" | "code" | "data";
+  showStudent: boolean;
   fileType: FileTypes;
 }
 

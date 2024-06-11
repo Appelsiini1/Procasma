@@ -16,6 +16,8 @@ import InputField from "./InputField";
 import ButtonComp from "./ButtonComp";
 import { useState } from "react";
 import ExampleRun from "./ExampleRun";
+import FileList from "./FileList";
+import { dummyFileRows } from "../testData";
 
 type ComponentProps = {
   levelID: string;
@@ -92,6 +94,9 @@ export default function LevelComponent({ levelID }: ComponentProps) {
           >
             {texts.ui_import_files[language.current]}
           </ButtonComp>
+
+          <div className="emptySpace1" />
+          <FileList rows={dummyFileRows}></FileList>
 
           <div className="emptySpace1" />
           <Typography level="h4" sx={spacingSX}>
