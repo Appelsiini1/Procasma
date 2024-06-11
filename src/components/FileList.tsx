@@ -71,7 +71,6 @@ export default function FileList({ rows }: { rows: Array<FileData> }) {
       <Table borderAxis="xBetween" hoverRow>
         <thead>
           <tr>
-            <th>{texts.ui_select[language.current]}</th>
             <th>{texts.ui_name[language.current]}</th>
             <th>{texts.ui_type[language.current]}</th>
             <th>{texts.ui_fileContent[language.current]}</th>
@@ -83,10 +82,8 @@ export default function FileList({ rows }: { rows: Array<FileData> }) {
         <tbody>
           {fileRows.map((row) => (
             <tr key={row.fileName}>
-              <td>
-                <Checkbox></Checkbox>
-              </td>
-              <th scope="row">{row.fileName}</th>
+              {/*<th scope="row">{row.fileName}</th>*/}
+              <td>{row.fileName}</td>
               <td>{row.fileType}</td>
               <td>
                 <FileContentSelect
