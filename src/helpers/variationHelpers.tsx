@@ -1,5 +1,6 @@
 import React from "react";
 import VariationComponent from "../components/VariationComponent";
+import { getNextID } from "../helpers/getNextID";
 
 export function deleteVariation(
   variations: Array<React.JSX.Element>,
@@ -10,8 +11,8 @@ export function deleteVariation(
   if (pageType !== "new") {
     // call some function through IPC that deletes it from disk
   } else {
-    setVariations(
-      variations.filter((element) => (element.key === varID ? false : true))
+    setVariations((prevVariations) =>
+      prevVariations.filter((variation) => variation.key !== varID)
     );
   }
 }
@@ -20,10 +21,17 @@ export function addVariation(
   variations: Array<React.JSX.Element> | null,
   setVariations: React.Dispatch<React.SetStateAction<React.JSX.Element[]>>
 ) {
-  if (!variations) {
+  if (!variations || variations.length < 1) {
     setVariations([<VariationComponent varID="A" key="A" />]);
   } else {
+    // list the existing ids
+    const varIDs = variations.map((variation) => variation.key);
+
     // function to get next available varID
-    setVariations([...variations, <VariationComponent varID="B" key="B" />]);
+    const nextVarID = getNextID(varIDs);
+    setVariations([
+      ...variations,
+      <VariationComponent varID={nextVarID} key={nextVarID} />,
+    ]);
   }
 }

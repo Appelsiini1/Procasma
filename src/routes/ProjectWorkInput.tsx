@@ -18,7 +18,7 @@ import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
-import { addLevel } from "../helpers/levelHelpers";
+import { addLevel, deleteLevel } from "../helpers/levelHelpers";
 
 export default function ProjectWorkInput() {
   const pageType = useLoaderData();
@@ -146,7 +146,34 @@ export default function ProjectWorkInput() {
               size="lg"
               sx={{ width: "100%", marginRight: "2rem" }}
             >
-              {levelAccordion}
+              {levelAccordion
+                ? levelAccordion.map((level) => (
+                    <Stack
+                      key={level.key}
+                      direction="column"
+                      justifyContent="flex-start"
+                      alignItems="start"
+                      spacing={0.5}
+                    >
+                      <div>{level}</div>
+
+                      <ButtonComp
+                        buttonType="delete"
+                        onClick={() =>
+                          deleteLevel(
+                            levelAccordion,
+                            setLevelAccordion,
+                            level.key,
+                            "new"
+                          )
+                        }
+                      >
+                        {`${texts.ui_delete[language.current]} ${level.key}`}
+                      </ButtonComp>
+                      <div className="emptySpace1" />
+                    </Stack>
+                  ))
+                : ""}
             </AccordionGroup>
           </Box>
         </div>

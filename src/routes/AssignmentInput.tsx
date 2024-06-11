@@ -19,7 +19,7 @@ import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import SwitchComp from "../components/SwitchComp";
-import { addVariation } from "../helpers/variationHelpers";
+import { addVariation, deleteVariation } from "../helpers/variationHelpers";
 
 export default function AssignmentInput() {
   const pageType = useLoaderData();
@@ -202,8 +202,8 @@ export default function AssignmentInput() {
           }}
           role="presentation"
         />
-        <div className="emptySpace2" />
 
+        <div className="emptySpace2" />
         <div style={{ marginLeft: "0.9rem", width: "100%" }}>
           <Typography level="h3">
             {texts.ui_variations[language.current]}
@@ -217,6 +217,7 @@ export default function AssignmentInput() {
           >
             {texts.ui_add_variation[language.current]}
           </ButtonComp>
+
           <div className="emptySpace2" />
           <Box
             sx={{
@@ -230,8 +231,38 @@ export default function AssignmentInput() {
               size="lg"
               sx={{ width: "100%", marginRight: "2rem" }}
             >
-              {variationAccordion}
+              {variationAccordion
+                ? variationAccordion.map((variation) => (
+                    <Stack
+                      key={variation.key}
+                      direction="column"
+                      justifyContent="flex-start"
+                      alignItems="start"
+                      spacing={0.5}
+                    >
+                      <div>{variation}</div>
+
+                      <ButtonComp
+                        buttonType="delete"
+                        onClick={() =>
+                          deleteVariation(
+                            variationAccordion,
+                            setVariationAccordion,
+                            variation.key,
+                            "new"
+                          )
+                        }
+                      >
+                        {`${texts.ui_delete[language.current]} ${
+                          variation.key
+                        }`}
+                      </ButtonComp>
+                      <div className="emptySpace1" />
+                    </Stack>
+                  ))
+                : ""}
             </AccordionGroup>
+            <div className="emptySpace1" />
           </Box>
         </div>
 

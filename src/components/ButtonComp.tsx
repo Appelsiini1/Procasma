@@ -6,6 +6,7 @@ import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 import IosShareIcon from "@mui/icons-material/IosShare";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
+import DeleteIcon from "@mui/icons-material/Delete";
 import React from "react";
 import {
   buttonMinWidth,
@@ -33,6 +34,16 @@ const largeAlt = {
   boxShadow: buttonShadow,
 } as const;
 
+const smallWarning = {
+  color: "#00000",
+  backgroundColor: "#F97583",
+  "&:hover": { backgroundColor: "#f7283d" },
+  padding: "0.1em 1.2em",
+  fontSize: "1em",
+  minWidth: buttonMinWidth,
+  boxShadow: buttonShadow,
+} as const;
+
 const decorStyle = { fontSize: "1.4em" };
 
 type ButtonProps = {
@@ -47,7 +58,8 @@ type ButtonProps = {
     | "addAssignment"
     | "normal"
     | "normalAlt"
-    | "export";
+    | "export"
+    | "delete";
   onClick: () => void;
   margin?: boolean;
 };
@@ -89,6 +101,10 @@ export default function ButtonComp({
     case "addAssignment":
       style = largeAlt;
       decor = <AddIcon sx={decorStyle} />;
+      break;
+    case "delete":
+      style = smallWarning;
+      decor = <DeleteIcon sx={decorStyle} />;
       break;
     case "normal":
       style = {
