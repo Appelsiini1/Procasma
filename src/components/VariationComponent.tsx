@@ -15,9 +15,11 @@ import HelpText from "./HelpText";
 import InputField from "./InputField";
 import ButtonComp from "./ButtonComp";
 import { useState } from "react";
-import ExampleRun from "./ExampleRun";
 import FileList from "./FileList";
 import { dummyFileRows } from "../testData";
+import { addVariation, deleteVariation } from "../helpers/variationHelpers";
+import ExampleRun from "./ExampleRun";
+import { getNextIDNumeric } from "../helpers/getNextID";
 
 type ComponentProps = {
   varID: string;
@@ -27,19 +29,8 @@ export default function VariationComponent({ varID }: ComponentProps) {
   const [exampleAccordion, setExampleAccordion] =
     useState<Array<React.JSX.Element>>(null);
 
-  function addExampleRun() {
-    if (!exampleAccordion) {
-      setExampleAccordion([<ExampleRun runID="1" key="1" />]);
-    } else {
-      // function to get next available varID
-      setExampleAccordion([
-        ...exampleAccordion,
-        <ExampleRun runID="2" key="2" />,
-      ]);
-    }
-  }
   return (
-    <Accordion>
+    <Accordion sx={{ backgroundColor: "#FaFaFa" }}>
       <AccordionSummary sx={{ backgroundColor: "#D9D9D9" }}>
         <Avatar color="primary">{varID}</Avatar>
         <ListItemContent>
@@ -69,7 +60,7 @@ export default function VariationComponent({ varID }: ComponentProps) {
             {texts.ui_cg_config[language.current]}
           </ButtonComp>
 
-          <div className="emptySpace1" />
+          <div className="emptySpace2" />
           <Typography level="h4" sx={spacingSX}>
             {texts.ui_files[language.current]}
           </Typography>
@@ -83,15 +74,57 @@ export default function VariationComponent({ varID }: ComponentProps) {
           <div className="emptySpace1" />
           <FileList rows={dummyFileRows}></FileList>
 
+          <div className="emptySpace2" />
           <Typography level="h4" sx={spacingSX}>
             {texts.ui_ex_runs[language.current]}
           </Typography>
-          <ButtonComp buttonType="normal" onClick={() => addExampleRun()}>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() =>
+              addVariation(
+                ExampleRun,
+                getNextIDNumeric,
+                exampleAccordion,
+                setExampleAccordion
+              )
+            }
+          >
             {texts.ui_add_ex_run[language.current]}
           </ButtonComp>
-          <div className="emptySpace2" />
+          <div className="emptySpace1" />
           <AccordionGroup size="lg" sx={{ width: "100%", marginRight: "2rem" }}>
-            {exampleAccordion}
+            {exampleAccordion
+              ? exampleAccordion.map((example) => (
+                  <Stack
+                    key={example.key}
+                    direction="column"
+                    justifyContent="flex-start"
+                    alignItems="start"
+                    spacing={0.5}
+                  >
+                    <div style={{ width: "100%" }}>{example}</div>
+
+                    <ButtonComp
+                      confirmationModal={true}
+                      modalText={`${texts.ui_delete[language.current]} 
+                      ${texts.ex_run[language.current]} 
+                      ${example.key}`}
+                      buttonType="delete"
+                      onClick={() =>
+                        deleteVariation(
+                          exampleAccordion,
+                          setExampleAccordion,
+                          example.key,
+                          "new"
+                        )
+                      }
+                    >
+                      {`${texts.ui_delete[language.current]} ${example.key}`}
+                    </ButtonComp>
+                    <div className="emptySpace1" />
+                  </Stack>
+                ))
+              : ""}
           </AccordionGroup>
         </Box>
       </AccordionDetails>

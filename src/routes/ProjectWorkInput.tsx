@@ -18,7 +18,9 @@ import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
-import { addLevel } from "../helpers/levelHelpers";
+import { addVariation, deleteVariation } from "../helpers/variationHelpers";
+import LevelComponent from "../components/LevelComponent";
+import { getNextID } from "../helpers/getNextID";
 
 export default function ProjectWorkInput() {
   const pageType = useLoaderData();
@@ -129,7 +131,14 @@ export default function ProjectWorkInput() {
           <div className="emptySpace1" />
           <ButtonComp
             buttonType="normal"
-            onClick={() => addLevel(levelAccordion, setLevelAccordion)}
+            onClick={() =>
+              addVariation(
+                LevelComponent,
+                getNextID,
+                levelAccordion,
+                setLevelAccordion
+              )
+            }
           >
             {texts.ui_add_level[language.current]}
           </ButtonComp>
@@ -146,7 +155,37 @@ export default function ProjectWorkInput() {
               size="lg"
               sx={{ width: "100%", marginRight: "2rem" }}
             >
-              {levelAccordion}
+              {levelAccordion
+                ? levelAccordion.map((level) => (
+                    <Stack
+                      key={level.key}
+                      direction="column"
+                      justifyContent="flex-start"
+                      alignItems="start"
+                      spacing={0.5}
+                    >
+                      <div>{level}</div>
+
+                      <ButtonComp
+                        confirmationModal={true}
+                        modalText={`${texts.ui_delete[language.current]} 
+                        ${texts.ui_level[language.current]} ${level.key}`}
+                        buttonType="delete"
+                        onClick={() =>
+                          deleteVariation(
+                            levelAccordion,
+                            setLevelAccordion,
+                            level.key,
+                            "new"
+                          )
+                        }
+                      >
+                        {`${texts.ui_delete[language.current]} ${level.key}`}
+                      </ButtonComp>
+                      <div className="emptySpace1" />
+                    </Stack>
+                  ))
+                : ""}
             </AccordionGroup>
           </Box>
         </div>

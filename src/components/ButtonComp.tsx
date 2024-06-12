@@ -6,12 +6,14 @@ import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 import IosShareIcon from "@mui/icons-material/IosShare";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
-import React from "react";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { useState } from "react";
 import {
   buttonMinWidth,
   largeButtonMinWidth,
   buttonShadow,
 } from "../constantsUI";
+import ModalConfirmation from "./ModalConfirmation";
 
 const largeNormal = {
   color: "#00000",
@@ -33,6 +35,16 @@ const largeAlt = {
   boxShadow: buttonShadow,
 } as const;
 
+const smallWarning = {
+  color: "#00000",
+  backgroundColor: "#F97583",
+  "&:hover": { backgroundColor: "#f7283d" },
+  padding: "0.1em 1.2em",
+  fontSize: "1em",
+  minWidth: buttonMinWidth,
+  boxShadow: buttonShadow,
+} as const;
+
 const decorStyle = { fontSize: "1.4em" };
 
 type ButtonProps = {
@@ -47,9 +59,12 @@ type ButtonProps = {
     | "addAssignment"
     | "normal"
     | "normalAlt"
-    | "export";
+    | "export"
+    | "delete";
   onClick: () => void;
   margin?: boolean;
+  confirmationModal?: boolean;
+  modalText?: string;
 };
 
 export default function ButtonComp({
@@ -57,7 +72,10 @@ export default function ButtonComp({
   buttonType,
   onClick,
   margin = false,
+  confirmationModal = false,
+  modalText = "",
 }: ButtonProps) {
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
   let style: object = null;
   let decor: React.JSX.Element = null;
 
@@ -89,6 +107,10 @@ export default function ButtonComp({
     case "addAssignment":
       style = largeAlt;
       decor = <AddIcon sx={decorStyle} />;
+      break;
+    case "delete":
+      style = smallWarning;
+      decor = <DeleteIcon sx={decorStyle} />;
       break;
     case "normal":
       style = {
@@ -129,8 +151,28 @@ export default function ButtonComp({
   }
 
   return (
-    <Button sx={style} startDecorator={decor} onClick={onClick}>
-      {children}
-    </Button>
+    <>
+      {!confirmationModal ? (
+        <Button sx={style} startDecorator={decor} onClick={onClick}>
+          {children}
+        </Button>
+      ) : (
+        <>
+          <Button
+            sx={style}
+            startDecorator={decor}
+            onClick={() => setModalOpen(true)}
+          >
+            {children}
+          </Button>
+          <ModalConfirmation
+            open={modalOpen}
+            close={() => setModalOpen(false)}
+            confirmFunction={onClick}
+            text={modalText}
+          ></ModalConfirmation>
+        </>
+      )}
+    </>
   );
 }
