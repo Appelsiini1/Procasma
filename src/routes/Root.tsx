@@ -152,7 +152,7 @@ export default function Root() {
             <Grid>
               <ButtonComp
                 buttonType="openCourse"
-                onClick={() => console.log("Open assignment set management")}
+                onClick={() => navigate("SetBrowse")}
               >
                 {texts.ui_assignment_sets[language.current]}
               </ButtonComp>

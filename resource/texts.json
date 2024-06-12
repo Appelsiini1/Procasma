@@ -467,6 +467,10 @@
     "FI": "Hae",
     "ENG": "Search"
   },
+  "ui_search": {
+    "FI": "Haku",
+    "ENG": "Search"
+  },
   "ui_clear_search": {
     "FI": "Tyhjennä haku",
     "ENG": "Clear search"
@@ -818,6 +822,10 @@
   "ui_export": {
     "FI": "Vie",
     "ENG": "Export"
+  },
+  "ui_modify": {
+    "FI": "Muokkaa",
+    "ENG": "Modify"
   },
   "ui_export_codegrade_config": {
     "FI": "Vie CodeGrade konfiguraatiot",
