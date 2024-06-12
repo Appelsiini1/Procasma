@@ -93,9 +93,13 @@ export default function VariationComponent({ varID }: ComponentProps) {
                     alignItems="start"
                     spacing={0.5}
                   >
-                    <div>{example}</div>
+                    <div style={{ width: "100%" }}>{example}</div>
 
                     <ButtonComp
+                      confirmationModal={true}
+                      modalText={`${texts.ui_delete[language.current]} 
+                      ${texts.ex_run[language.current]} 
+                      ${example.key}`}
                       buttonType="delete"
                       onClick={() =>
                         deleteExampleRun(setExampleAccordion, example.key)

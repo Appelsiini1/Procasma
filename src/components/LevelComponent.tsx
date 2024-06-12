@@ -20,20 +20,20 @@ import { dummyFileRows } from "../testData";
 import { addExampleRun, deleteExampleRun } from "../helpers/exampleHelpers";
 
 type ComponentProps = {
-  levelID: string;
+  varID: string;
 };
 
-export default function LevelComponent({ levelID }: ComponentProps) {
+export default function LevelComponent({ varID }: ComponentProps) {
   const [exampleAccordion, setExampleAccordion] =
     useState<Array<React.JSX.Element>>(null);
 
   return (
     <Accordion>
       <AccordionSummary sx={{ backgroundColor: "#D9D9D9" }}>
-        <Avatar color="primary">{levelID}</Avatar>
+        <Avatar color="primary">{varID}</Avatar>
         <ListItemContent>
           <Typography level="title-md">
-            {texts.ui_level[language.current] + " " + levelID}
+            {texts.ui_level[language.current] + " " + varID}
           </Typography>
         </ListItemContent>
       </AccordionSummary>
@@ -51,7 +51,7 @@ export default function LevelComponent({ levelID }: ComponentProps) {
             </Typography>
             <HelpText text={texts.help_inst[language.current]} />
           </Stack>
-          <InputField fieldKey={levelID + "vLevelTitleInput"} />
+          <InputField fieldKey={varID + "vLevelTitleInput"} />
 
           <div className="emptySpace1" />
           <Stack
@@ -66,7 +66,7 @@ export default function LevelComponent({ levelID }: ComponentProps) {
             </Typography>
             <HelpText text={texts.help_inst[language.current]} />
           </Stack>
-          <InputField fieldKey={levelID + "vInstInput"} isLarge />
+          <InputField fieldKey={varID + "vInstInput"} isLarge />
 
           <div className="emptySpace1" />
           <ButtonComp buttonType="normalAlt" onClick={null}>
@@ -112,6 +112,10 @@ export default function LevelComponent({ levelID }: ComponentProps) {
                     <div>{example}</div>
 
                     <ButtonComp
+                      confirmationModal={true}
+                      modalText={`${texts.ui_delete[language.current]} 
+                      ${texts.ex_run[language.current]} 
+                      ${example.key}`}
                       buttonType="delete"
                       onClick={() =>
                         deleteExampleRun(setExampleAccordion, example.key)

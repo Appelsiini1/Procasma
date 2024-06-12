@@ -12,7 +12,6 @@ import texts from "../../resource/texts.json";
 import { language, spacingSX } from "../constantsUI";
 import HelpText from "./HelpText";
 import InputField from "./InputField";
-import ButtonComp from "./ButtonComp";
 import SwitchComp from "./SwitchComp";
 import { useState } from "react";
 

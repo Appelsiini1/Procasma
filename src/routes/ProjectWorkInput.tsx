@@ -18,7 +18,8 @@ import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
-import { addLevel, deleteLevel } from "../helpers/levelHelpers";
+import { addVariation, deleteVariation } from "../helpers/variationHelpers";
+import LevelComponent from "../components/LevelComponent";
 
 export default function ProjectWorkInput() {
   const pageType = useLoaderData();
@@ -129,7 +130,9 @@ export default function ProjectWorkInput() {
           <div className="emptySpace1" />
           <ButtonComp
             buttonType="normal"
-            onClick={() => addLevel(levelAccordion, setLevelAccordion)}
+            onClick={() =>
+              addVariation(LevelComponent, levelAccordion, setLevelAccordion)
+            }
           >
             {texts.ui_add_level[language.current]}
           </ButtonComp>
@@ -158,9 +161,12 @@ export default function ProjectWorkInput() {
                       <div>{level}</div>
 
                       <ButtonComp
+                        confirmationModal={true}
+                        modalText={`${texts.ui_delete[language.current]} 
+                        ${texts.ui_level[language.current]} ${level.key}`}
                         buttonType="delete"
                         onClick={() =>
-                          deleteLevel(
+                          deleteVariation(
                             levelAccordion,
                             setLevelAccordion,
                             level.key,

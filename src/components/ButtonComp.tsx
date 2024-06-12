@@ -7,12 +7,13 @@ import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 import IosShareIcon from "@mui/icons-material/IosShare";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import DeleteIcon from "@mui/icons-material/Delete";
-import React from "react";
+import { useState } from "react";
 import {
   buttonMinWidth,
   largeButtonMinWidth,
   buttonShadow,
 } from "../constantsUI";
+import ModalConfirmation from "./ModalConfirmation";
 
 const largeNormal = {
   color: "#00000",
@@ -62,6 +63,8 @@ type ButtonProps = {
     | "delete";
   onClick: () => void;
   margin?: boolean;
+  confirmationModal?: boolean;
+  modalText?: string;
 };
 
 export default function ButtonComp({
@@ -69,7 +72,10 @@ export default function ButtonComp({
   buttonType,
   onClick,
   margin = false,
+  confirmationModal = false,
+  modalText = "",
 }: ButtonProps) {
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
   let style: object = null;
   let decor: React.JSX.Element = null;
 
@@ -145,8 +151,28 @@ export default function ButtonComp({
   }
 
   return (
-    <Button sx={style} startDecorator={decor} onClick={onClick}>
-      {children}
-    </Button>
+    <>
+      {!confirmationModal ? (
+        <Button sx={style} startDecorator={decor} onClick={onClick}>
+          {children}
+        </Button>
+      ) : (
+        <>
+          <Button
+            sx={style}
+            startDecorator={decor}
+            onClick={() => setModalOpen(true)}
+          >
+            {children}
+          </Button>
+          <ModalConfirmation
+            open={modalOpen}
+            close={() => setModalOpen(false)}
+            confirmFunction={onClick}
+            text={modalText}
+          ></ModalConfirmation>
+        </>
+      )}
+    </>
   );
 }

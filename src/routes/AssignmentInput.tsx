@@ -20,6 +20,7 @@ import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import SwitchComp from "../components/SwitchComp";
 import { addVariation, deleteVariation } from "../helpers/variationHelpers";
+import VariationComponent from "../components/VariationComponent";
 
 export default function AssignmentInput() {
   const pageType = useLoaderData();
@@ -212,7 +213,11 @@ export default function AssignmentInput() {
           <ButtonComp
             buttonType="normal"
             onClick={() =>
-              addVariation(variationAccordion, setVariationAccordion)
+              addVariation(
+                VariationComponent,
+                variationAccordion,
+                setVariationAccordion
+              )
             }
           >
             {texts.ui_add_variation[language.current]}
@@ -243,6 +248,11 @@ export default function AssignmentInput() {
                       <div>{variation}</div>
 
                       <ButtonComp
+                        confirmationModal={true}
+                        modalText={`${texts.ui_delete[language.current]} 
+                        ${texts.ui_variation[language.current]} ${
+                          variation.key
+                        }`}
                         buttonType="delete"
                         onClick={() =>
                           deleteVariation(
@@ -257,6 +267,7 @@ export default function AssignmentInput() {
                           variation.key
                         }`}
                       </ButtonComp>
+
                       <div className="emptySpace1" />
                     </Stack>
                   ))
