@@ -599,6 +599,10 @@
     "FI": "Kieli",
     "ENG": "Language"
   },
+  "ui_ids": {
+    "FI": "IDt",
+    "ENG": "IDs"
+  },
   "ui_assignment_level": {
     "FI": "Tehtävän taso",
     "ENG": "Assignment level"
@@ -666,6 +670,18 @@
   "ui_set_id": {
     "FI": "Tehtäväsarjan tunniste",
     "ENG": "Assingment set identification"
+  },
+  "ui_set_details": {
+    "FI": "Sarjan tiedot",
+    "ENG": "Set details"
+  },
+  "ui_set_name": {
+    "FI": "Sarjan nimi",
+    "ENG": "Set name"
+  },
+  "ui_choose_tasks": {
+    "FI": "Tehtävien valinta",
+    "ENG": "Choose tasks"
   },
   "ui_name": {
     "FI": "Nimi",
@@ -795,9 +811,29 @@
     "FI": "Vie harjoitustyö",
     "ENG": "Export project work"
   },
+  "ui_export_set": {
+    "FI": "Vie sarja",
+    "ENG": "Export set"
+  },
+  "ui_export": {
+    "FI": "Vie",
+    "ENG": "Export"
+  },
+  "ui_export_codegrade_config": {
+    "FI": "Vie CodeGrade konfiguraatiot",
+    "ENG": "Export CodeGrade configurations"
+  },
+  "ui_codegrade_autotest": {
+    "FI": "CodeGrade AutoTest v2 konfiguraation vienti",
+    "ENG": "CodeGrade AutoTest v2 configuration export"
+  },
   "ui_settings": {
     "FI": "Asetukset",
     "ENG": "Settings"
+  },
+  "ui_format": {
+    "FI": "Formaatti",
+    "ENG": "Format"
   },
   "ui_course_folder": {
     "FI": "Kurssin kansio",
@@ -806,6 +842,10 @@
   "ui_module_type": {
     "FI": "Moduulin tyyppi",
     "ENG": "Module type"
+  },
+  "ui_module_selection": {
+    "FI": "Moduulin valinta",
+    "ENG": "Module selection"
   },
   "ui_no_module": {
     "FI": "Ei moduuleja",
