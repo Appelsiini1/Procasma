@@ -141,7 +141,10 @@ export default function Root() {
             <Grid>
               <ButtonComp
                 buttonType="largeAdd"
-                onClick={() => console.log("Add assignment set")}
+                onClick={() => {
+                  console.log("Add assignment set");
+                  navigate("setCreator");
+                }}
               >
                 {texts.ui_assignment_set[language.current]}
               </ButtonComp>

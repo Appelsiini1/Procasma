@@ -10,6 +10,7 @@ import ModuleAdd from "./routes/ModuleAdd";
 import AssignmentBrowse from "./routes/AssignmentBrowse";
 import ProjectWorkInput from "./routes/ProjectWorkInput";
 import ModuleBrowse from "./routes/ModuleBrowse";
+import SetCreator from "./routes/SetCreator";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const router = createBrowserRouter([
@@ -59,6 +60,13 @@ const router = createBrowserRouter([
   {
     path: "moduleBrowse",
     element: <ModuleBrowse />,
+  },
+  {
+    path: "setCreator",
+    element: <SetCreator />,
+    loader: async () => {
+      return "new";
+    },
   },
 ]);
 root.render(
