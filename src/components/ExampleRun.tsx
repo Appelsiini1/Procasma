@@ -15,15 +15,15 @@ import InputField from "./InputField";
 import SwitchComp from "./SwitchComp";
 import { useState } from "react";
 
-export default function ExampleRun({ runID }: { runID: string }) {
+export default function ExampleRun({ varID }: { varID: string }) {
   const [checked, setChecked] = useState(false);
   return (
     <Accordion>
       <AccordionSummary sx={{ backgroundColor: "#D9D9D9" }}>
-        <Avatar color="primary">{runID}</Avatar>
+        <Avatar color="primary">{varID}</Avatar>
         <ListItemContent>
           <Typography level="title-md">
-            {texts.ex_run[language.current] + " " + runID}
+            {texts.ex_run[language.current] + " " + varID}
           </Typography>
         </ListItemContent>
       </AccordionSummary>
@@ -41,7 +41,7 @@ export default function ExampleRun({ runID }: { runID: string }) {
             </Typography>
             <HelpText text={texts.help_inputs[language.current]} />
           </Stack>
-          <InputField fieldKey={runID + "eInputsInput"} isLarge />
+          <InputField fieldKey={varID + "eInputsInput"} isLarge />
           <div className="emptySpace1" />
 
           <Stack
@@ -56,7 +56,7 @@ export default function ExampleRun({ runID }: { runID: string }) {
             </Typography>
             <HelpText text={texts.help_cmd_inputs[language.current]} />
           </Stack>
-          <InputField fieldKey={runID + "eCMDInput"} />
+          <InputField fieldKey={varID + "eCMDInput"} />
           <div className="emptySpace1" />
 
           <Stack
@@ -87,7 +87,7 @@ export default function ExampleRun({ runID }: { runID: string }) {
             <HelpText text={texts.help_ex_output[language.current]} />
           </Stack>
           <InputField
-            fieldKey={runID + "eOutputInput"}
+            fieldKey={varID + "eOutputInput"}
             isLarge
             disabled={checked}
           />

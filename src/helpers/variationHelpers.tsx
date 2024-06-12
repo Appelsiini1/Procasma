@@ -1,9 +1,3 @@
-import { getNextID } from "../helpers/getNextID";
-
-/**
- * TODO: dependency injection of component to join this
- * helper with "variationHelpers.tsx"
- */
 export function deleteVariation(
   variations: Array<React.JSX.Element>,
   setVariations: React.Dispatch<React.SetStateAction<React.JSX.Element[]>>,
@@ -25,21 +19,24 @@ interface AccordionComponentProps {
 
 /**
  * Takes in any AccordionComponent (most likely
- * VariationComponent or LevelComponent) as dependency injection.
+ * VariationComponent, LevelComponent, or ExampleRun) as a
+ * dependency injection.
  */
 export function addVariation(
   AccordionComponent: React.ComponentType<AccordionComponentProps>,
+  getNextIDfunction: (IDs: string[]) => string,
   variations: Array<React.JSX.Element> | null,
   setVariations: React.Dispatch<React.SetStateAction<React.JSX.Element[]>>
 ) {
   if (!variations || variations.length < 1) {
-    setVariations([<AccordionComponent varID="A" key="A" />]);
+    const nextID = getNextIDfunction([]);
+    setVariations([<AccordionComponent varID={nextID} key={nextID} />]);
   } else {
     // list the existing ids
     const varIDs = variations.map((variation) => variation.key);
 
     // function to get next available varID
-    const nextID = getNextID(varIDs);
+    const nextID = getNextIDfunction(varIDs);
     setVariations([
       ...variations,
       <AccordionComponent varID={nextID} key={nextID} />,

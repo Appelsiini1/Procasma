@@ -52,7 +52,6 @@ export default function FileList({ rows }: { rows: Array<FileData> }) {
     attribute: keyof FileData,
     value: string | boolean | FileTypes
   ) => {
-    console.log(fileRows);
     setFileRows((prevRows) =>
       prevRows.map((row) =>
         row.fileName === fileName ? { ...row, [attribute]: value } : row

@@ -17,7 +17,9 @@ import ButtonComp from "./ButtonComp";
 import { useState } from "react";
 import FileList from "./FileList";
 import { dummyFileRows } from "../testData";
-import { addExampleRun, deleteExampleRun } from "../helpers/exampleHelpers";
+import { addVariation, deleteVariation } from "../helpers/variationHelpers";
+import ExampleRun from "./ExampleRun";
+import { getNextIDNumeric } from "../helpers/getNextID";
 
 type ComponentProps = {
   varID: string;
@@ -93,7 +95,14 @@ export default function LevelComponent({ varID }: ComponentProps) {
           </Typography>
           <ButtonComp
             buttonType="normal"
-            onClick={() => addExampleRun(exampleAccordion, setExampleAccordion)}
+            onClick={() =>
+              addVariation(
+                ExampleRun,
+                getNextIDNumeric,
+                exampleAccordion,
+                setExampleAccordion
+              )
+            }
           >
             {texts.ui_add_ex_run[language.current]}
           </ButtonComp>
@@ -109,7 +118,7 @@ export default function LevelComponent({ varID }: ComponentProps) {
                     alignItems="start"
                     spacing={0.5}
                   >
-                    <div>{example}</div>
+                    <div style={{ width: "100%" }}>{example}</div>
 
                     <ButtonComp
                       confirmationModal={true}
@@ -118,7 +127,12 @@ export default function LevelComponent({ varID }: ComponentProps) {
                       ${example.key}`}
                       buttonType="delete"
                       onClick={() =>
-                        deleteExampleRun(setExampleAccordion, example.key)
+                        deleteVariation(
+                          exampleAccordion,
+                          setExampleAccordion,
+                          example.key,
+                          "new"
+                        )
                       }
                     >
                       {`${texts.ui_delete[language.current]} ${example.key}`}

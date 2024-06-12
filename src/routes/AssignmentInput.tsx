@@ -21,6 +21,7 @@ import ButtonComp from "../components/ButtonComp";
 import SwitchComp from "../components/SwitchComp";
 import { addVariation, deleteVariation } from "../helpers/variationHelpers";
 import VariationComponent from "../components/VariationComponent";
+import { getNextID } from "../helpers/getNextID";
 
 export default function AssignmentInput() {
   const pageType = useLoaderData();
@@ -215,6 +216,7 @@ export default function AssignmentInput() {
             onClick={() =>
               addVariation(
                 VariationComponent,
+                getNextID,
                 variationAccordion,
                 setVariationAccordion
               )
