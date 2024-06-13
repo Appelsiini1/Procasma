@@ -85,6 +85,10 @@ const router = createBrowserRouter([
     },
   },
 ]);
+
+const title = "Procasma v0.0.4";
+window.api.setTitle(title);
+
 root.render(
   <React.StrictMode>
     <RouterProvider router={router} />
