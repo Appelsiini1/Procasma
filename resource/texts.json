@@ -127,6 +127,26 @@
     "FI": "Luo uusi tehtäväsarja",
     "ENG": "Create new assigment set"
   },
+  "ui_username": {
+    "FI": "käyttäjätunnus",
+    "ENG": "username"
+  },
+  "ui_password": {
+    "FI": "salasana",
+    "ENG": "password"
+  },
+  "ui_organisation": {
+    "FI": "organisaatio",
+    "ENG": "organisation"
+  },
+  "ui_interface_language": {
+    "FI": "Käyttöliittymän kieli",
+    "ENG": "Interface language"
+  },
+  "ui_sign_in": {
+    "FI": "Kirjaudu",
+    "ENG": "Sign in"
+  },
   "ui_full_course": {
     "FI": "Koko toteutus",
     "ENG": "Full course"

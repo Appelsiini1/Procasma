@@ -190,7 +190,7 @@ export default function Root() {
             <Grid>
               <ButtonComp
                 buttonType="settings"
-                onClick={() => console.log("Settings")}
+                onClick={() => navigate("settings")}
               >
                 {texts.ui_settings[language.current]}
               </ButtonComp>
