@@ -191,6 +191,10 @@
     "FI": "Näytä ja muokkaa valittuja",
     "ENG": "Show and edit the selected"
   },
+  "ui_aria_choose_project": {
+    "FI": "Valitse harjoitustyö vientiä varten",
+    "ENG": "Choose a project to export"
+  },
   "ui_aria_show_assignment": {
     "FI": "Näytä valitut tehtävät",
     "ENG": "Show the selected assignments"
@@ -875,6 +879,10 @@
     "FI": "Tehtävien valinta",
     "ENG": "Choose tasks"
   },
+  "ui_choose_project": {
+    "FI": "Harjoitustyön valinta",
+    "ENG": "Choose a project"
+  },
   "ui_name": {
     "FI": "Nimi",
     "ENG": "Name"
@@ -1030,6 +1038,10 @@
   "ui_format": {
     "FI": "Formaatti",
     "ENG": "Format"
+  },
+  "ui_split_levels": {
+    "FI": "Erottele tasot",
+    "ENG": "Split levels"
   },
   "ui_course_folder": {
     "FI": "Kurssin kansio",
