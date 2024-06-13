@@ -5,4 +5,6 @@ import { contextBridge, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld("api", {
   setTitle: (title: string) => ipcRenderer.send("set-title", title),
+  openFile: () => ipcRenderer.invoke("dialog:openFile"),
+  getAppVersion: () => ipcRenderer.invoke("getAppVersion"),
 });
