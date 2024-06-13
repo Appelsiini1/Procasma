@@ -24,7 +24,11 @@ export default function ModalConfirmation({
           <Typography id="modal-title">
             {texts.ui_confirm[language.current]}
           </Typography>
-          <ButtonComp buttonType="delete" onClick={() => confirmFunction()}>
+          <ButtonComp
+            buttonType="delete"
+            onClick={() => confirmFunction()}
+            ariaLabel={texts.ui_confirm[language.current]}
+          >
             {text}
           </ButtonComp>
         </ModalDialog>

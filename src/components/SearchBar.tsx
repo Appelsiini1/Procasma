@@ -4,7 +4,7 @@ import { Autocomplete, Stack, Typography } from "@mui/joy";
 import ButtonComp from "./ButtonComp";
 
 type OptionType = {
-  [key: string]: any;
+  [key: string]: string;
 };
 
 /**
@@ -41,7 +41,11 @@ export default function SearchBar({
             getOptionLabel={(option: OptionType) => option[optionLabel]}
           />
         </div>
-        <ButtonComp buttonType="normal" onClick={searchFunction}>
+        <ButtonComp
+          buttonType="normal"
+          onClick={searchFunction}
+          ariaLabel={texts.ui_aria_search[language.current]}
+        >
           {texts.ui_search_button[language.current]}
         </ButtonComp>
       </Stack>

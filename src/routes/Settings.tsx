@@ -56,7 +56,11 @@ export default function Settings() {
 
             <tr key="caSignIn">
               <td style={{ width: "25%" }}>
-                <ButtonComp buttonType="normalAlt" onClick={null}>
+                <ButtonComp
+                  buttonType="normalAlt"
+                  onClick={null}
+                  ariaLabel={texts.ui_aria_cg_sign_in[language.current]}
+                >
                   {texts.ui_sign_in[language.current]}
                 </ButtonComp>
               </td>
@@ -87,10 +91,18 @@ export default function Settings() {
           alignItems="flex-start"
           spacing={2}
         >
-          <ButtonComp buttonType="normal" onClick={() => console.log("save")}>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => console.log("save")}
+            ariaLabel={texts.ui_aria_save[language.current]}
+          >
             {texts.ui_save[language.current]}
           </ButtonComp>
-          <ButtonComp buttonType="normal" onClick={() => navigate(-1)}>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => navigate(-1)}
+            ariaLabel={texts.ui_aria_cancel[language.current]}
+          >
             {texts.ui_cancel[language.current]}
           </ButtonComp>
         </Stack>

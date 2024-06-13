@@ -106,6 +106,9 @@ export default function Course() {
                     boxShadow: buttonShadow,
                   }}
                   onClick={() => handleFolderOpen()}
+                  aria-label={
+                    texts.ui_aria_open_course_folder[language.current]
+                  }
                 >
                   <FolderOpenIcon />
                 </IconButton>
@@ -216,10 +219,18 @@ export default function Course() {
           alignItems="center"
           spacing={2}
         >
-          <ButtonComp buttonType="normal" onClick={null}>
+          <ButtonComp
+            buttonType="normal"
+            onClick={null}
+            ariaLabel={texts.ui_aria_save[language.current]}
+          >
             {texts.ui_save[language.current]}
           </ButtonComp>
-          <ButtonComp buttonType="normal" onClick={() => navigate(-1)}>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => navigate(-1)}
+            ariaLabel={texts.ui_aria_cancel[language.current]}
+          >
             {texts.ui_cancel[language.current]}
           </ButtonComp>
         </Stack>

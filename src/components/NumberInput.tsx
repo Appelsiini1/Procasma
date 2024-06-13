@@ -2,7 +2,8 @@ import { Input, Stack, IconButton } from "@mui/joy";
 import React from "react";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
-import { buttonShadow } from "../constantsUI";
+import { buttonShadow, language } from "../constantsUI";
+import texts from "../../resource/texts.json";
 
 type ButtonProps = {
   min?: number;
@@ -70,6 +71,7 @@ export default function NumberInput({
         }}
         onClick={handleIncrement}
         disabled={disabled}
+        aria-label={texts.ui_aria_increment[language.current]}
       >
         <AddIcon />
       </IconButton>
@@ -85,6 +87,7 @@ export default function NumberInput({
         }}
         onClick={handleDecrement}
         disabled={disabled}
+        aria-label={texts.ui_aria_decrement[language.current]}
       >
         <RemoveIcon />
       </IconButton>

@@ -56,7 +56,11 @@ export default function VariationComponent({ varID }: ComponentProps) {
           <InputField fieldKey={varID + "vInstInput"} isLarge />
 
           <div className="emptySpace1" />
-          <ButtonComp buttonType="normalAlt" onClick={null}>
+          <ButtonComp
+            buttonType="normalAlt"
+            onClick={null}
+            ariaLabel={texts.ui_aria_cg_config[language.current]}
+          >
             {texts.ui_cg_config[language.current]}
           </ButtonComp>
 
@@ -67,6 +71,7 @@ export default function VariationComponent({ varID }: ComponentProps) {
           <ButtonComp
             buttonType="normal"
             onClick={() => console.log("addFiles()")}
+            ariaLabel={texts.ui_aria_import_files[language.current]}
           >
             {texts.ui_import_files[language.current]}
           </ButtonComp>
@@ -88,6 +93,7 @@ export default function VariationComponent({ varID }: ComponentProps) {
                 setExampleAccordion
               )
             }
+            ariaLabel={texts.ui_aria_add_ex_run[language.current]}
           >
             {texts.ui_add_ex_run[language.current]}
           </ButtonComp>
@@ -118,6 +124,7 @@ export default function VariationComponent({ varID }: ComponentProps) {
                           "new"
                         )
                       }
+                      ariaLabel={texts.ui_aria_delete_ex_run[language.current]}
                     >
                       {`${texts.ui_delete[language.current]} ${example.key}`}
                     </ButtonComp>

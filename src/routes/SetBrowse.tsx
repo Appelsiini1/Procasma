@@ -28,8 +28,8 @@ const testTags = ["print", "try...except"];
 export default function SetBrowse() {
   const navigate = useNavigate();
   const [noSelected, setNoSelected] = useState(0);
-  const [selectedModules, setSelectedModules] = useState<Array<String>>([]);
-  const [selectedTags, setSelectedTags] = useState<Array<String>>([]);
+  const [selectedModules, setSelectedModules] = useState<Array<string>>([]);
+  const [selectedTags, setSelectedTags] = useState<Array<string>>([]);
   let modules: Array<React.JSX.Element> = null;
   let tags: Array<React.JSX.Element> = null;
 
@@ -133,13 +133,25 @@ export default function SetBrowse() {
           alignItems="center"
           spacing={2}
         >
-          <ButtonComp buttonType="normal" onClick={null}>
+          <ButtonComp
+            buttonType="normal"
+            onClick={null}
+            ariaLabel={texts.ui_aria_export_sets[language.current]}
+          >
             {texts.ui_export[language.current]}
           </ButtonComp>
-          <ButtonComp buttonType="normal" onClick={null}>
+          <ButtonComp
+            buttonType="normal"
+            onClick={null}
+            ariaLabel={texts.ui_aria_delete_sets[language.current]}
+          >
             {texts.ui_delete[language.current]}
           </ButtonComp>
-          <ButtonComp buttonType="normal" onClick={null}>
+          <ButtonComp
+            buttonType="normal"
+            onClick={null}
+            ariaLabel={texts.ui_aria_modify_sets[language.current]}
+          >
             {texts.ui_modify[language.current]}
           </ButtonComp>
         </Stack>
@@ -170,7 +182,11 @@ export default function SetBrowse() {
         </Stack>
 
         <div className="emptySpace1" />
-        <ButtonComp buttonType="normal" onClick={() => navigate(-1)}>
+        <ButtonComp
+          buttonType="normal"
+          onClick={() => navigate(-1)}
+          ariaLabel={texts.ui_aria_cancel[language.current]}
+        >
           {texts.ui_close[language.current]}
         </ButtonComp>
       </div>

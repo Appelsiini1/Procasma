@@ -221,6 +221,7 @@ export default function AssignmentInput() {
                 setVariationAccordion
               )
             }
+            ariaLabel={texts.ui_aria_add_variation[language.current]}
           >
             {texts.ui_add_variation[language.current]}
           </ButtonComp>
@@ -264,6 +265,9 @@ export default function AssignmentInput() {
                             "new"
                           )
                         }
+                        ariaLabel={
+                          texts.ui_aria_delete_variation[language.current]
+                        }
                       >
                         {`${texts.ui_delete[language.current]} ${
                           variation.key
@@ -286,10 +290,18 @@ export default function AssignmentInput() {
           alignItems="center"
           spacing={2}
         >
-          <ButtonComp buttonType="normal" onClick={null}>
+          <ButtonComp
+            buttonType="normal"
+            onClick={null}
+            ariaLabel={texts.ui_aria_save[language.current]}
+          >
             {texts.ui_save[language.current]}
           </ButtonComp>
-          <ButtonComp buttonType="normal" onClick={() => navigate(-1)}>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => navigate(-1)}
+            ariaLabel={texts.ui_aria_cancel[language.current]}
+          >
             {texts.ui_cancel[language.current]}
           </ButtonComp>
         </Stack>

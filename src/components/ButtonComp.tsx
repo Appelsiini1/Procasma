@@ -65,6 +65,7 @@ type ButtonProps = {
   margin?: boolean;
   confirmationModal?: boolean;
   modalText?: string;
+  ariaLabel: string;
 };
 
 export default function ButtonComp({
@@ -74,6 +75,7 @@ export default function ButtonComp({
   margin = false,
   confirmationModal = false,
   modalText = "",
+  ariaLabel,
 }: ButtonProps) {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   let style: object = null;
@@ -153,7 +155,12 @@ export default function ButtonComp({
   return (
     <>
       {!confirmationModal ? (
-        <Button sx={style} startDecorator={decor} onClick={onClick}>
+        <Button
+          sx={style}
+          startDecorator={decor}
+          onClick={onClick}
+          aria-label={ariaLabel}
+        >
           {children}
         </Button>
       ) : (
@@ -162,6 +169,7 @@ export default function ButtonComp({
             sx={style}
             startDecorator={decor}
             onClick={() => setModalOpen(true)}
+            aria-label={ariaLabel}
           >
             {children}
           </Button>

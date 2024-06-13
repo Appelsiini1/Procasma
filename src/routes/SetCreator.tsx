@@ -42,7 +42,7 @@ export default function SetCreator() {
   const [studyPeriod, setStudyPeriod] = useState("1");
   const [exportSet, setExportSet] = useState(true);
   const [exportCGConfigs, setExportCGConfigs] = useState(true);
-  const [selectedAssignments, setSelectedAssignments] = useState<Array<String>>(
+  const [selectedAssignments, setSelectedAssignments] = useState<Array<string>>(
     []
   );
   const stepHeadings: string[] = [
@@ -302,16 +302,40 @@ export default function SetCreator() {
                       alignItems="flex-start"
                       spacing={2}
                     >
-                      <ButtonComp buttonType="normal" onClick={null}>
+                      <ButtonComp
+                        buttonType="normal"
+                        onClick={null}
+                        ariaLabel={
+                          texts.ui_aria_show_assignment[language.current]
+                        }
+                      >
                         {texts.ui_show[language.current]}
                       </ButtonComp>
-                      <ButtonComp buttonType="normal" onClick={null}>
+                      <ButtonComp
+                        buttonType="normal"
+                        onClick={null}
+                        ariaLabel={
+                          texts.ui_aria_delete_assignment[language.current]
+                        }
+                      >
                         {texts.ui_delete[language.current]}
                       </ButtonComp>
-                      <ButtonComp buttonType="normal" onClick={null}>
+                      <ButtonComp
+                        buttonType="normal"
+                        onClick={null}
+                        ariaLabel={
+                          texts.ui_aria_add_assignment[language.current]
+                        }
+                      >
                         {texts.ui_add[language.current]}
                       </ButtonComp>
-                      <ButtonComp buttonType="normal" onClick={null}>
+                      <ButtonComp
+                        buttonType="normal"
+                        onClick={null}
+                        ariaLabel={
+                          texts.ui_aria_change_assignment[language.current]
+                        }
+                      >
                         {texts.ui_change[language.current]}
                       </ButtonComp>
                     </Stack>
@@ -375,7 +399,11 @@ export default function SetCreator() {
           spacing={2}
         >
           {stepperState === 3 && exportCGConfigs ? (
-            <ButtonComp buttonType="normal" onClick={null}>
+            <ButtonComp
+              buttonType="normal"
+              onClick={null}
+              ariaLabel={texts.ui_aria_export_cg_configs[language.current]}
+            >
               {texts.ui_export[language.current]}
             </ButtonComp>
           ) : (
@@ -385,6 +413,7 @@ export default function SetCreator() {
             <ButtonComp
               buttonType="normal"
               onClick={() => handleStepperState(1)}
+              ariaLabel={texts.ui_aria_nav_next[language.current]}
             >
               {texts.ui_next[language.current]}
             </ButtonComp>
@@ -392,7 +421,11 @@ export default function SetCreator() {
             ""
           )}
 
-          <ButtonComp buttonType="normal" onClick={() => navigate(-1)}>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => navigate(-1)}
+            ariaLabel={texts.ui_aria_close[language.current]}
+          >
             {texts.ui_close[language.current]}
           </ButtonComp>
 
@@ -400,6 +433,7 @@ export default function SetCreator() {
             <ButtonComp
               buttonType="normal"
               onClick={() => handleStepperState(-1)}
+              ariaLabel={texts.ui_aria_nav_previous[language.current]}
             >
               {texts.ui_previous[language.current]}
             </ButtonComp>

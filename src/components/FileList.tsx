@@ -1,6 +1,6 @@
 import { Checkbox, IconButton, Sheet, Table, Select, Option } from "@mui/joy";
 import texts from "../../resource/texts.json";
-import { FileData, FileTypes } from "src/types";
+import { FileData, FileTypes } from "../types";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { language } from "../constantsUI";
 import { useState } from "react";

@@ -201,12 +201,17 @@ export default function AssignmentBrowse() {
           alignItems="center"
           spacing={2}
         >
-          <ButtonComp buttonType="normal" onClick={null}>
+          <ButtonComp
+            buttonType="normal"
+            onClick={null}
+            ariaLabel={texts.ui_aria_remove_selected[language.current]}
+          >
             {texts.ui_remove_selected[language.current]}
           </ButtonComp>
           <ButtonComp
             buttonType="normal"
             onClick={() => console.log(selectedList)}
+            ariaLabel={texts.ui_aria_show_edit[language.current]}
           >
             {texts.ui_show_edit[language.current]}
           </ButtonComp>
@@ -215,10 +220,18 @@ export default function AssignmentBrowse() {
     );
     pageButtons = (
       <>
-        <ButtonComp buttonType="normal" onClick={null}>
+        <ButtonComp
+          buttonType="normal"
+          onClick={null}
+          ariaLabel={texts.ui_aria_save[language.current]}
+        >
           {texts.ui_save[language.current]}
         </ButtonComp>
-        <ButtonComp buttonType="normal" onClick={() => navigate(-1)}>
+        <ButtonComp
+          buttonType="normal"
+          onClick={() => navigate(-1)}
+          ariaLabel={texts.ui_aria_cancel[language.current]}
+        >
           {texts.ui_cancel[language.current]}
         </ButtonComp>
       </>
