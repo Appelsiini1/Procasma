@@ -38,6 +38,7 @@ export default function Root() {
                   console.log("Add Course");
                   navigate("createCourse");
                 }}
+                ariaLabel={texts.ui_aria_nav_course_create[language.current]}
               >
                 {texts.course_create[language.current]}
               </ButtonComp>
@@ -46,6 +47,7 @@ export default function Root() {
               <ButtonComp
                 buttonType="openCourse"
                 onClick={() => console.log("Open Course")}
+                ariaLabel={texts.ui_aria_nav_open_course[language.current]}
               >
                 {texts.course_open[language.current]}
               </ButtonComp>
@@ -57,6 +59,7 @@ export default function Root() {
                   console.log("Manage Course");
                   navigate("manageCourse");
                 }}
+                ariaLabel={texts.ui_aria_nav_manage_course[language.current]}
               >
                 {texts.course_manage[language.current]}
               </ButtonComp>
@@ -79,6 +82,7 @@ export default function Root() {
                   console.log("Add Assignment");
                   navigate("inputCodeAssignment");
                 }}
+                ariaLabel={texts.ui_aria_nav_add_assignment[language.current]}
               >
                 {texts.ui_assignment[language.current]}
               </ButtonComp>
@@ -90,6 +94,9 @@ export default function Root() {
                   console.log("Manage Assignments");
                   navigate("AssignmentBrowse");
                 }}
+                ariaLabel={
+                  texts.ui_aria_nav_browse_assignments[language.current]
+                }
               >
                 {texts.ui_assignment_management[language.current]}
               </ButtonComp>
@@ -112,6 +119,7 @@ export default function Root() {
                   console.log("Add Module");
                   navigate("newModule");
                 }}
+                ariaLabel={texts.ui_aria_nav_add_module[language.current]}
               >
                 {texts.ui_module[language.current]}
               </ButtonComp>
@@ -123,6 +131,7 @@ export default function Root() {
                   console.log("Manage Modules");
                   navigate("moduleBrowse");
                 }}
+                ariaLabel={texts.ui_aria_nav_browse_modules[language.current]}
               >
                 {texts.ui_module_management[language.current]}
               </ButtonComp>
@@ -145,6 +154,7 @@ export default function Root() {
                   console.log("Add assignment set");
                   navigate("setCreator");
                 }}
+                ariaLabel={texts.ui_aria_nav_add_set[language.current]}
               >
                 {texts.ui_assignment_set[language.current]}
               </ButtonComp>
@@ -153,6 +163,7 @@ export default function Root() {
               <ButtonComp
                 buttonType="openCourse"
                 onClick={() => navigate("SetBrowse")}
+                ariaLabel={texts.ui_aria_nav_browse_sets[language.current]}
               >
                 {texts.ui_assignment_sets[language.current]}
               </ButtonComp>
@@ -164,6 +175,7 @@ export default function Root() {
                   console.log("Add project work");
                   navigate("inputCodeProjectWork");
                 }}
+                ariaLabel={texts.ui_aria_nav_add_project[language.current]}
               >
                 {texts.ui_add_project_work[language.current]}
               </ButtonComp>
@@ -172,6 +184,7 @@ export default function Root() {
               <ButtonComp
                 buttonType="export"
                 onClick={() => console.log("Export project work")}
+                ariaLabel={texts.ui_aria_nav_export_project[language.current]}
               >
                 {texts.ui_export_project[language.current]}
               </ButtonComp>
@@ -191,6 +204,7 @@ export default function Root() {
               <ButtonComp
                 buttonType="settings"
                 onClick={() => navigate("settings")}
+                ariaLabel={texts.ui_delete[language.current]}
               >
                 {texts.ui_settings[language.current]}
               </ButtonComp>

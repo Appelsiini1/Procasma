@@ -112,7 +112,7 @@ export default function AssignmentBrowse() {
 
   return (
     <>
-      <PageHeaderBar pageName={texts.ui_assignment_browser[language.current]} />
+      <PageHeaderBar pageName={texts.ui_module_browser[language.current]} />
       <div className="content">
         <SelectedHeader selected={noSelected} />
         <div className="emptySpace1" />
@@ -122,12 +122,17 @@ export default function AssignmentBrowse() {
           alignItems="center"
           spacing={2}
         >
-          <ButtonComp buttonType="normal" onClick={null}>
+          <ButtonComp
+            buttonType="normal"
+            onClick={null}
+            ariaLabel={texts.ui_remove_selected_modules[language.current]}
+          >
             {texts.ui_remove_selected[language.current]}
           </ButtonComp>
           <ButtonComp
             buttonType="normal"
             onClick={() => console.log(selectedModules)}
+            ariaLabel={texts.ui_aria_show_edit[language.current]}
           >
             {texts.ui_show_edit[language.current]}
           </ButtonComp>
@@ -158,7 +163,7 @@ export default function AssignmentBrowse() {
                 width="100%"
                 sx={{
                   border: "2px solid lightgrey",
-                  borderRadius: "1.5%",
+                  borderRadius: "0.5rem",
                 }}
               >
                 <List>{modules}</List>
@@ -181,7 +186,7 @@ export default function AssignmentBrowse() {
                 width="100%"
                 sx={{
                   border: "2px solid lightgrey",
-                  borderRadius: "1.5%",
+                  borderRadius: "0.5rem",
                 }}
               >
                 <List>{tags}</List>
@@ -191,7 +196,11 @@ export default function AssignmentBrowse() {
         </Grid>
 
         <div className="emptySpace1" />
-        <ButtonComp buttonType="normal" onClick={() => navigate(-1)}>
+        <ButtonComp
+          buttonType="normal"
+          onClick={() => navigate(-1)}
+          ariaLabel={texts.ui_aria_cancel[language.current]}
+        >
           {texts.ui_cancel[language.current]}
         </ButtonComp>
       </div>

@@ -139,6 +139,7 @@ export default function ProjectWorkInput() {
                 setLevelAccordion
               )
             }
+            ariaLabel={texts.ui_aria_add_level[language.current]}
           >
             {texts.ui_add_level[language.current]}
           </ButtonComp>
@@ -179,6 +180,7 @@ export default function ProjectWorkInput() {
                             "new"
                           )
                         }
+                        ariaLabel={texts.ui_aria_delete_level[language.current]}
                       >
                         {`${texts.ui_delete[language.current]} ${level.key}`}
                       </ButtonComp>
@@ -197,10 +199,18 @@ export default function ProjectWorkInput() {
           alignItems="center"
           spacing={2}
         >
-          <ButtonComp buttonType="normal" onClick={null}>
+          <ButtonComp
+            buttonType="normal"
+            onClick={null}
+            ariaLabel={texts.ui_aria_save[language.current]}
+          >
             {texts.ui_save[language.current]}
           </ButtonComp>
-          <ButtonComp buttonType="normal" onClick={() => navigate(-1)}>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => navigate(-1)}
+            ariaLabel={texts.ui_aria_cancel[language.current]}
+          >
             {texts.ui_cancel[language.current]}
           </ButtonComp>
         </Stack>
