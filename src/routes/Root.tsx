@@ -5,6 +5,7 @@ import LogoText from "../../resource/LogoText.png";
 import { Box, Divider, Grid, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
 import { useNavigate } from "react-router-dom";
+import FadeInImage from "../components/FadeInImage";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 
@@ -16,7 +17,10 @@ export default function Root() {
     <>
       <PageHeaderBar pageName={pageName} />
       <div className="menuContent">
-        <img src={LogoText} className="textLogo" />
+        <div style={{ height: "10rem" }}>
+          <FadeInImage src={LogoText} className="textLogo" alt="main logo" />
+        </div>
+
         <Typography level="h4" sx={{ paddingBottom: "2rem" }}>
           {texts.ui_no_assignments_index[language.current] +
             ": " +
@@ -183,7 +187,7 @@ export default function Root() {
             <Grid>
               <ButtonComp
                 buttonType="export"
-                onClick={() => console.log("Export project work")}
+                onClick={() => navigate("exportProject")}
                 ariaLabel={texts.ui_aria_nav_export_project[language.current]}
               >
                 {texts.ui_export_project[language.current]}

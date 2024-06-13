@@ -43,6 +43,7 @@ const smallWarning = {
   fontSize: "1em",
   minWidth: buttonMinWidth,
   boxShadow: buttonShadow,
+  height: "100%",
 } as const;
 
 const decorStyle = { fontSize: "1.4em" };

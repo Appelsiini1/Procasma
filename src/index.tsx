@@ -13,6 +13,7 @@ import ModuleBrowse from "./routes/ModuleBrowse";
 import SetCreator from "./routes/SetCreator";
 import SetBrowse from "./routes/SetBrowse";
 import Settings from "./routes/Settings";
+import ExportProject from "./routes/ExportProject";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const router = createBrowserRouter([
@@ -55,6 +56,13 @@ const router = createBrowserRouter([
   {
     path: "inputCodeProjectWork",
     element: <ProjectWorkInput />,
+    loader: async () => {
+      return "new";
+    },
+  },
+  {
+    path: "exportProject",
+    element: <ExportProject />,
     loader: async () => {
       return "new";
     },
