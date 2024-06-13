@@ -15,7 +15,7 @@ import {
 import SelectedHeader from "../components/SelectedHeader";
 import { useState } from "react";
 import ButtonComp from "../components/ButtonComp";
-import InputField from "../components/InputField";
+import SearchBar from "../components/SearchBar";
 
 // Get list of modules via IPC later
 const testSets = [
@@ -116,23 +116,12 @@ export default function SetBrowse() {
     <>
       <PageHeaderBar pageName={texts.ui_set_browser[language.current]} />
       <div className="content">
-        <Stack
-          direction="row"
-          justifyContent="flex-start"
-          alignItems="center"
-          spacing={2}
-          sx={{ width: "100%" }}
-        >
-          <Typography level="h4">
-            {texts.ui_search[language.current]}
-          </Typography>
-          <div style={{ width: "100%" }}>
-            <InputField fieldKey="caSearch" />
-          </div>
-          <ButtonComp buttonType="normal" onClick={null}>
-            {texts.ui_search_button[language.current]}
-          </ButtonComp>
-        </Stack>
+        <div className="emptySpace1" />
+        <SearchBar
+          autoFillOptions={testSets}
+          optionLabel={"name"}
+          searchFunction={() => console.log("search")}
+        ></SearchBar>
 
         <div className="emptySpace1" />
         <SelectedHeader selected={noSelected} />
