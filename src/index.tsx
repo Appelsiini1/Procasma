@@ -86,7 +86,8 @@ const router = createBrowserRouter([
   },
 ]);
 
-const title = "Procasma v0.0.4";
+const vers = await window.api.getAppVersion();
+const title = "Procasma " + vers;
 window.api.setTitle(title);
 
 root.render(
