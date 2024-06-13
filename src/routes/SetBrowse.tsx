@@ -28,8 +28,8 @@ const testTags = ["print", "try...except"];
 export default function SetBrowse() {
   const navigate = useNavigate();
   const [noSelected, setNoSelected] = useState(0);
-  const [selectedModules, setSelectedModules] = useState<Array<String>>([]);
-  const [selectedTags, setSelectedTags] = useState<Array<String>>([]);
+  const [selectedModules, setSelectedModules] = useState<Array<string>>([]);
+  const [selectedTags, setSelectedTags] = useState<Array<string>>([]);
   let modules: Array<React.JSX.Element> = null;
   let tags: Array<React.JSX.Element> = null;
 

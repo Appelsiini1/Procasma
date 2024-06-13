@@ -111,6 +111,10 @@
     "FI": "Tallenna nykyiset valinnat",
     "ENG": "Save your current choices"
   },
+  "ui_aria_search": {
+    "FI": "Suorita haku kentässä olevalla arvolla",
+    "ENG": "Complete search with the value in the field"
+  },
   "ui_cancel": {
     "FI": "Peruuta",
     "ENG": "Cancel"
@@ -118,6 +122,14 @@
   "ui_aria_cancel": {
     "FI": "Peruuta takaisin edelliseen näkymään",
     "ENG": "Return to the previous view"
+  },
+  "ui_aria_close": {
+    "FI": "Poistu edelliseen toimintoon",
+    "ENG": "Return to the previous action"
+  },
+  "ui_aria_cg_sign_in": {
+    "FI": "Kirjaudu syötetyillä CodeGrade tunnuksilla",
+    "ENG": "Sign in with the chosen CodeGrade credentials"
   },
   "ui_assignment_set": {
     "FI": "Tehtäväsarja",
@@ -178,6 +190,34 @@
   "ui_aria_show_edit": {
     "FI": "Näytä ja muokkaa valittuja",
     "ENG": "Show and edit the selected"
+  },
+  "ui_aria_show_assignment": {
+    "FI": "Näytä valitut tehtävät",
+    "ENG": "Show the selected assignments"
+  },
+  "ui_aria_delete_assignment": {
+    "FI": "Poista valitut tehtävät",
+    "ENG": "Delete the selected assignments"
+  },
+  "ui_aria_add_assignment": {
+    "FI": "Lisää valitut tehtävät",
+    "ENG": "Add the selected assignments"
+  },
+  "ui_aria_change_assignment": {
+    "FI": "Muuta valitut tehtävät",
+    "ENG": "Change the selected assignments"
+  },
+  "ui_aria_export_cg_configs": {
+    "FI": "Vie luodut CodeGrade AutoTest v2 konfiguraatiot",
+    "ENG": "Export the created CodeGrade AutoTest v2 configurations"
+  },
+  "ui_aria_nav_next": {
+    "FI": "Siirry seuraavaan vaiheeseen",
+    "ENG": "Navigate to the next step"
+  },
+  "ui_aria_nav_previous": {
+    "FI": "Siirry edelliseen vaiheeseen",
+    "ENG": "Navigate to the previous step"
   },
   "ui_add_assignment": {
     "FI": "Lisää tehtävä",
@@ -415,6 +455,22 @@
     "FI": "Poista harjoitustyön taso haitarista",
     "ENG": "Delete the project level from the accordion"
   },
+  "ui_aria_delete_ex_run": {
+    "FI": "Poista esimerkkiajo haitarista",
+    "ENG": "Delete the example run from the accordion"
+  },
+  "ui_aria_add_ex_run": {
+    "FI": "Lisää esimerkkiajo haitariin",
+    "ENG": "Add an example run into the accordion"
+  },
+  "ui_aria_increment": {
+    "FI": "Kasvata lukua yhdellä",
+    "ENG": "Increment the value by one"
+  },
+  "ui_aria_decrement": {
+    "FI": "Vähennä lukua yhdellä",
+    "ENG": "Decrement the value by one"
+  },
   "ui_aria_export_sets": {
     "FI": "Vie valitut tehtäväsarjat",
     "ENG": "Export the selected assignment sets"
@@ -522,6 +578,14 @@
   "ui_import_files": {
     "FI": "Tuo tiedostot",
     "ENG": "Import files"
+  },
+  "ui_aria_import_files": {
+    "FI": "Tuo tiedostoja variaatioon tai tasoon",
+    "ENG": "Import files into the variation or level"
+  },
+  "ui_aria_cg_config": {
+    "FI": "Avaa CodeGrade konfiguraatio",
+    "ENG": "Open the CodeGrade configuration"
   },
   "ui_coursedir": {
     "FI": "Avaa kurssikansio",
