@@ -16,6 +16,7 @@ import {
 import SelectedHeader from "../components/SelectedHeader";
 import { useState } from "react";
 import ButtonComp from "../components/ButtonComp";
+import SearchBar from "../components/SearchBar";
 
 // Get list of assignments via IPC later
 const testAssignments = [
@@ -183,7 +184,16 @@ export default function AssignmentBrowse() {
   if (pageType === "browse") {
     selectFragment = (
       <>
+        <div className="emptySpace1" />
+        <SearchBar
+          autoFillOptions={testAssignments}
+          optionLabel={"title"}
+          searchFunction={() => console.log("search")}
+        ></SearchBar>
+
+        <div className="emptySpace1" />
         <SelectedHeader selected={noSelected} />
+
         <div className="emptySpace1" />
         <Stack
           direction="row"
