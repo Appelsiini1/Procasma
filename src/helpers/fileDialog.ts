@@ -1,0 +1,7 @@
+import { dialog } from "electron";
+
+export async function handleFileOpen() {
+  // see https://www.electronjs.org/docs/latest/api/dialog for dialog options
+  const { canceled, filePaths } = await dialog.showOpenDialog({});
+  return !canceled ? filePaths[0] : null;
+}

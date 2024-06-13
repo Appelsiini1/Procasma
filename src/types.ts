@@ -72,3 +72,9 @@ export interface CourseData {
 }
 
 export type CourseLoaderData = "create" | "manage";
+
+export type ContextBridgeAPI = {
+  setTitle: (title: string) => void;
+  openFile: () => string;
+  getAppVersion: () => string;
+};
