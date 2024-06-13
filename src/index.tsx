@@ -12,6 +12,7 @@ import ProjectWorkInput from "./routes/ProjectWorkInput";
 import ModuleBrowse from "./routes/ModuleBrowse";
 import SetCreator from "./routes/SetCreator";
 import SetBrowse from "./routes/SetBrowse";
+import Settings from "./routes/Settings";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const router = createBrowserRouter([
@@ -72,6 +73,13 @@ const router = createBrowserRouter([
   {
     path: "setBrowse",
     element: <SetBrowse />,
+    loader: async () => {
+      return "new";
+    },
+  },
+  {
+    path: "settings",
+    element: <Settings />,
     loader: async () => {
       return "new";
     },
