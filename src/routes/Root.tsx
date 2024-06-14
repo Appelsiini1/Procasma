@@ -6,10 +6,25 @@ import { Box, Divider, Grid, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
 import { useNavigate } from "react-router-dom";
 import FadeInImage from "../components/FadeInImage";
+import { useEffect } from "react";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 
 export default function Root() {
+  useEffect(() => {
+    const getVersion = async () => {
+      try {
+        const vers = await window.api.getAppVersion();
+        const title = "Procasma " + vers;
+        window.api.setTitle(title);
+        console.log(title);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getVersion();
+  }, []);
+
   const pageName = texts.ui_main[language.current];
   let noInIndex = NaN; //make dynamic later
   const navigate = useNavigate();
