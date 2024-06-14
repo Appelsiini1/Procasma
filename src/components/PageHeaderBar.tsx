@@ -29,6 +29,9 @@ export default function PageHeaderBar({ pageName }: ButtonProps) {
         backgroundColor: "#F8A866",
         minHeight: "3.5rem",
         boxShadow: "0px 1px 3px 3px rgb(0 0 0 / 20%)",
+        position: "sticky",
+        top: "0",
+        zIndex: "999",
       }}
     >
       <Grid
