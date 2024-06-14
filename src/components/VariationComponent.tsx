@@ -14,21 +14,29 @@ import { language, currentCourse, spacingSX } from "../constantsUI";
 import HelpText from "./HelpText";
 import InputField from "./InputField";
 import ButtonComp from "./ButtonComp";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FileList from "./FileList";
 import { dummyFileRows } from "../testData";
 import { addVariation, deleteVariation } from "../helpers/variationHelpers";
 import ExampleRun from "./ExampleRun";
 import { getNextIDNumeric } from "../helpers/getNextID";
+import { Variation } from "../types";
+import { HandleAssignmentFn } from "../routes/AssignmentInput";
 
 type ComponentProps = {
   varID: string;
+  variation: Variation;
+  handleAssignment: HandleAssignmentFn;
 };
 
-export default function VariationComponent({ varID }: ComponentProps) {
+export default function VariationComponent({
+  varID,
+  variation,
+  handleAssignment,
+}: ComponentProps) {
   const [exampleAccordion, setExampleAccordion] =
     useState<Array<React.JSX.Element>>(null);
-
+  //useEffect(() => console.log(variation), []);
   return (
     <Accordion sx={{ backgroundColor: "#FaFaFa" }}>
       <AccordionSummary sx={{ backgroundColor: "#D9D9D9" }}>
@@ -53,7 +61,14 @@ export default function VariationComponent({ varID }: ComponentProps) {
             </Typography>
             <HelpText text={texts.help_inst[language.current]} />
           </Stack>
-          <InputField fieldKey={varID + "vInstInput"} isLarge />
+          <InputField
+            fieldKey={varID + "vInstInput"}
+            isLarge
+            defaultValue={variation.instructions}
+            onChange={(value: string) =>
+              handleAssignment(`variations.${varID}.instructions`, value)
+            }
+          />
 
           <div className="emptySpace1" />
           <ButtonComp

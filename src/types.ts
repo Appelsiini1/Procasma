@@ -23,6 +23,23 @@ export interface CommonAssignmentData {
   module: number | null;
 }
 
+export interface ExampleRun {
+  generate: boolean;
+  inputs: Array<string | number>;
+  cmdInputs: Array<string | number>;
+  output: string;
+}
+
+export interface Variation {
+  instructions: string;
+  exampleRuns: {
+    [key: string]: ExampleRun;
+  };
+  files: Array<FileData>;
+  usedIn: Array<string>;
+  cgConfig: CGData;
+}
+
 export interface CodeAssignmentData extends CommonAssignmentData {
   assignmentType: "assignment";
   assignmentNo: Array<number>;
@@ -31,20 +48,7 @@ export interface CodeAssignmentData extends CommonAssignmentData {
   previous: Array<string> | null;
   codeLanguage: string;
   variations: {
-    [key: string]: {
-      instructions: string;
-      exampleRuns: {
-        [key: string]: {
-          generate: boolean;
-          inputs: Array<string | number>;
-          cmdInputs: Array<string | number>;
-          output: string;
-        };
-      };
-      files: Array<FileData>;
-      usedIn: Array<string>;
-      cgConfig: CGData;
-    };
+    [key: string]: Variation;
   };
 }
 

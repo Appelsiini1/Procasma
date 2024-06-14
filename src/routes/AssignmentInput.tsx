@@ -22,15 +22,29 @@ import SwitchComp from "../components/SwitchComp";
 import { addVariation, deleteVariation } from "../helpers/variationHelpers";
 import VariationComponent from "../components/VariationComponent";
 import { getNextID } from "../helpers/getNextID";
+import { testCurrentAssignment } from "../myTestGlobals";
+import { CodeAssignmentData, Variation } from "../types";
+import {
+  splitStringToArray,
+  splitStringToNumberArray,
+} from "../helpers/converters";
+
+// For using the handleAssignment function
+export interface HandleAssignmentFn {
+  (key: string, value: any): void;
+}
 
 export default function AssignmentInput() {
+  const [assignment, setAssignment] = useState<CodeAssignmentData>(
+    testCurrentAssignment
+  );
+  const variations: { [key: string]: Variation } = assignment.variations;
+
   const pageType = useLoaderData();
   const navigate = useNavigate();
   let pageTitle: string = null;
   const moduleDisable = currentCourse.moduleType !== null ? false : true;
   const levelsDisable = currentCourse.levels !== null ? false : true;
-  const [assingmentLevel, setAssignmentLevel] = useState("0");
-  const [moduleNo, setModuleNo] = useState("0");
   const [expanding, setExpanding] = useState(false);
   const [variationAccordion, setVariationAccordion] =
     useState<Array<React.JSX.Element>>(null);
@@ -39,6 +53,37 @@ export default function AssignmentInput() {
   if (pageType === "new") {
     pageTitle = texts.ui_new_assignment[language.current];
   }
+
+  // Modify the assignment currently loaded in state through keys
+  const handleAssignment: HandleAssignmentFn = (key, value) => {
+    /* 
+    // For non-nested keys
+    setAssignment((prevAssignment) => ({
+      ...prevAssignment,
+      [key]: value,
+    }));
+    */
+
+    // For nested keys
+    setAssignment((prevAssignment) => {
+      const updatedAssignment: CodeAssignmentData = { ...prevAssignment };
+      // split the key with delimiter "."
+      console.log(key);
+      const keys = key.split(".");
+      let nestedObj: any = updatedAssignment;
+
+      // traverse into the nested assignment state using the split keys
+      for (let i = 0; i < keys.length - 1; i++) {
+        nestedObj = nestedObj[keys[i]] as any;
+      }
+
+      // Update the nested property with the new value
+      nestedObj[keys[keys.length - 1]] = value;
+      console.log(value);
+      return updatedAssignment;
+    });
+  };
+
   return (
     <>
       <PageHeaderBar pageName={texts.ui_add_assignment[language.current]} />
@@ -53,7 +98,11 @@ export default function AssignmentInput() {
                 </Typography>
               </td>
               <td>
-                <InputField fieldKey="caTitleInput" />
+                <InputField
+                  fieldKey="caTitleInput"
+                  defaultValue={assignment.title}
+                  onChange={(value: string) => handleAssignment("title", value)}
+                />
               </td>
             </tr>
 
@@ -66,8 +115,8 @@ export default function AssignmentInput() {
               <td>
                 <NumberInput
                   disabled={levelsDisable}
-                  value={assingmentLevel}
-                  setValue={setAssignmentLevel}
+                  value={assignment.level}
+                  onChange={(value: number) => handleAssignment("level", value)}
                 ></NumberInput>
               </td>
             </tr>
@@ -81,8 +130,10 @@ export default function AssignmentInput() {
               <td>
                 <NumberInput
                   disabled={moduleDisable}
-                  value={moduleNo}
-                  setValue={setModuleNo}
+                  value={assignment.module}
+                  onChange={(value: number) =>
+                    handleAssignment("module", value)
+                  }
                 ></NumberInput>
               </td>
             </tr>
@@ -109,7 +160,16 @@ export default function AssignmentInput() {
                 </Grid>
               </td>
               <td>
-                <InputField fieldKey="caPositionsInput" />
+                <InputField
+                  fieldKey="caPositionsInput"
+                  defaultValue={assignment.assignmentNo.toString()}
+                  onChange={(value: string) =>
+                    handleAssignment(
+                      "assignmentNo",
+                      splitStringToNumberArray(value)
+                    )
+                  }
+                />
               </td>
             </tr>
 
@@ -135,7 +195,13 @@ export default function AssignmentInput() {
                 </Grid>
               </td>
               <td>
-                <InputField fieldKey="caTagsInput" />
+                <InputField
+                  fieldKey="caTagsInput"
+                  defaultValue={assignment.tags.toString()}
+                  onChange={(value: string) =>
+                    handleAssignment("tags", splitStringToArray(value))
+                  }
+                />
               </td>
             </tr>
 
@@ -152,6 +218,9 @@ export default function AssignmentInput() {
                   labelKey="name"
                   placeholder={
                     texts.help_clang_assignment[language.current] + "..."
+                  }
+                  onChange={(value: string) =>
+                    handleAssignment("codeLanguage", value)
                   }
                 ></Dropdown>
               </td>
@@ -188,7 +257,13 @@ export default function AssignmentInput() {
                 </Grid>
               </td>
               <td>
-                <InputField fieldKey="caUsedInInput" />
+                <InputField
+                  fieldKey="caUsedInInput"
+                  defaultValue={assignment.previous.toString()}
+                  onChange={(value: string) =>
+                    handleAssignment("previous", splitStringToArray(value))
+                  }
+                />
               </td>
             </tr>
           </tbody>
@@ -211,6 +286,7 @@ export default function AssignmentInput() {
             {texts.ui_variations[language.current]}
           </Typography>
           <div className="emptySpace1" />
+          {/*
           <ButtonComp
             buttonType="normal"
             onClick={() =>
@@ -224,7 +300,7 @@ export default function AssignmentInput() {
             ariaLabel={texts.ui_aria_add_variation[language.current]}
           >
             {texts.ui_add_variation[language.current]}
-          </ButtonComp>
+          </ButtonComp>*/}
 
           <div className="emptySpace2" />
           <Box
@@ -239,29 +315,31 @@ export default function AssignmentInput() {
               size="lg"
               sx={{ width: "100%", marginRight: "2rem" }}
             >
-              {variationAccordion
-                ? variationAccordion.map((variation) => (
+              {variations
+                ? Object.keys(variations).map((varID) => (
                     <Stack
-                      key={variation.key}
+                      key={varID}
                       direction="column"
                       justifyContent="flex-start"
                       alignItems="start"
                       spacing={0.5}
                     >
-                      <div>{variation}</div>
+                      <VariationComponent
+                        varID={varID}
+                        variation={variations[varID]}
+                        handleAssignment={handleAssignment}
+                      ></VariationComponent>
 
                       <ButtonComp
                         confirmationModal={true}
                         modalText={`${texts.ui_delete[language.current]} 
-                        ${texts.ui_variation[language.current]} ${
-                          variation.key
-                        }`}
+                        ${texts.ui_variation[language.current]} ${varID}`}
                         buttonType="delete"
                         onClick={() =>
                           deleteVariation(
                             variationAccordion,
                             setVariationAccordion,
-                            variation.key,
+                            varID,
                             "new"
                           )
                         }
@@ -269,9 +347,7 @@ export default function AssignmentInput() {
                           texts.ui_aria_delete_variation[language.current]
                         }
                       >
-                        {`${texts.ui_delete[language.current]} ${
-                          variation.key
-                        }`}
+                        {`${texts.ui_delete[language.current]} ${varID}`}
                       </ButtonComp>
 
                       <div className="emptySpace1" />
@@ -296,6 +372,13 @@ export default function AssignmentInput() {
             ariaLabel={texts.ui_aria_save[language.current]}
           >
             {texts.ui_save[language.current]}
+          </ButtonComp>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => console.log(assignment)}
+            ariaLabel={texts.ui_aria_save[language.current]}
+          >
+            log assignment state
           </ButtonComp>
           <ButtonComp
             buttonType="normal"

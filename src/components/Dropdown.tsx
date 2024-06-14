@@ -8,10 +8,11 @@ type ButtonProps = {
   labelKey: string;
   placeholder?: string;
   name: string;
-  onChange?: (
+  /*onChange?: (
     event: React.SyntheticEvent | null,
     newValue: string | null
-  ) => void;
+  ) => void;*/
+  onChange: (value: string | number) => void;
 };
 
 export default function Dropdown({
@@ -32,12 +33,19 @@ export default function Dropdown({
     );
   }
 
+  const handleChange = (
+    event: React.SyntheticEvent | null,
+    newValue: string | null
+  ) => {
+    onChange(newValue);
+  };
+
   return (
     <Select
       name={name}
       placeholder={placeholder}
       indicator={<KeyboardArrowDown />}
-      onChange={onChange}
+      onChange={handleChange}
       sx={{
         minWidth: "10em",
         maxWidth: "100%",

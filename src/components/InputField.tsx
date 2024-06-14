@@ -7,6 +7,7 @@ type ButtonProps = {
   defaultValue?: string;
   disabled?: boolean;
   fieldKey: string;
+  onChange: (value: string | number) => void;
 };
 
 export default function InputField({
@@ -15,8 +16,18 @@ export default function InputField({
   defaultValue = null,
   disabled = false,
   fieldKey,
+  onChange,
 }: ButtonProps) {
   let component: React.JSX.Element = null;
+
+  const handleChangeTextArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onChange(e.target.value);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(e.target.value);
+  };
+
   if (isLarge) {
     component = (
       <Textarea
@@ -26,6 +37,8 @@ export default function InputField({
         placeholder={placeholder}
         key={fieldKey}
         disabled={disabled}
+        defaultValue={defaultValue}
+        onChange={handleChangeTextArea}
       />
     );
   } else {
@@ -36,6 +49,7 @@ export default function InputField({
         defaultValue={defaultValue}
         key={fieldKey}
         disabled={disabled}
+        onChange={handleChange}
       />
     );
   }
