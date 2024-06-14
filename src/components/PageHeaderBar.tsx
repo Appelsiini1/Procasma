@@ -31,6 +31,7 @@ export default function PageHeaderBar({ pageName }: ButtonProps) {
         boxShadow: "0px 1px 3px 3px rgb(0 0 0 / 20%)",
         position: "sticky",
         top: "0",
+        zIndex: "999",
       }}
     >
       <Grid
