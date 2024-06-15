@@ -15,7 +15,7 @@ import InputField from "./InputField";
 import ButtonComp from "./ButtonComp";
 import FileList from "./FileList";
 import { ExampleRunType, Variation } from "../types";
-import { HandleAssignmentFn } from "../routes/AssignmentInput";
+import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
 import ExampleRunsGroup from "./ExampleRunsGroup";
 
 type ComponentProps = {

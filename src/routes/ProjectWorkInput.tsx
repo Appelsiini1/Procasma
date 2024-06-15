@@ -1,35 +1,22 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
 import texts from "../../resource/texts.json";
 import { language, currentCourse, dividerColor } from "../constantsUI";
-import {
-  AccordionGroup,
-  Box,
-  Divider,
-  Grid,
-  Stack,
-  Table,
-  Typography,
-} from "@mui/joy";
+import { Divider, Grid, Stack, Table, Typography } from "@mui/joy";
 import PageHeaderBar from "../components/PageHeaderBar";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
-import { useState } from "react";
 import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
-import { addVariation, removeVariation } from "../helpers/variationHelpers";
-import LevelComponent from "../components/LevelComponent";
-import { getNextID } from "../helpers/getNextID";
 import { useAssignment } from "../helpers/assignmentHelpers";
 import { testCurrentAssignment } from "../myTestGlobals";
 import { Variation } from "../types";
 import { splitStringToArray } from "../helpers/converters";
-import { defaultVariation } from "../testData";
+import VariationsGroup from "../components/VariationsGroup";
 
 export default function ProjectWorkInput() {
   const [assignment, handleAssignment] = useAssignment(testCurrentAssignment);
-
   const variations: { [key: string]: Variation } = assignment.variations;
 
   const pageType = useLoaderData();
@@ -149,73 +136,11 @@ export default function ProjectWorkInput() {
             {texts.ui_levels[language.current]}
           </Typography>
           <div className="emptySpace1" />
-          <ButtonComp
-            buttonType="normal"
-            onClick={() =>
-              addVariation(
-                defaultVariation,
-                variations,
-                getNextID,
-                "variations",
-                handleAssignment
-              )
-            }
-            ariaLabel={texts.ui_aria_add_level[language.current]}
-          >
-            {texts.ui_add_level[language.current]}
-          </ButtonComp>
-          <div className="emptySpace2" />
-          <Box
-            sx={{
-              maxHeight: "40rem",
-              overflowY: "auto",
-              width: "100%",
-              overflowX: "hidden",
-            }}
-          >
-            <AccordionGroup
-              size="lg"
-              sx={{ width: "100%", marginRight: "2rem" }}
-            >
-              {variations
-                ? Object.keys(variations).map((varID) => (
-                    <Stack
-                      key={varID}
-                      direction="column"
-                      justifyContent="flex-start"
-                      alignItems="start"
-                      spacing={0.5}
-                    >
-                      <LevelComponent
-                        varID={varID}
-                        variation={variations[varID]}
-                        handleAssignment={handleAssignment}
-                        pathInAssignment={`variations.${varID}`}
-                      ></LevelComponent>
 
-                      <ButtonComp
-                        confirmationModal={true}
-                        modalText={`${texts.ui_delete[language.current]} 
-                        ${texts.ui_level[language.current]} ${varID}`}
-                        buttonType="delete"
-                        onClick={() =>
-                          removeVariation(
-                            varID,
-                            variations,
-                            "variations",
-                            handleAssignment
-                          )
-                        }
-                        ariaLabel={texts.ui_aria_delete_level[language.current]}
-                      >
-                        {`${texts.ui_delete[language.current]} ${varID}`}
-                      </ButtonComp>
-                      <div className="emptySpace1" />
-                    </Stack>
-                  ))
-                : ""}
-            </AccordionGroup>
-          </Box>
+          <VariationsGroup
+            variations={variations}
+            handleAssignment={handleAssignment}
+          ></VariationsGroup>
         </div>
 
         <div className="emptySpace1" />
