@@ -25,10 +25,10 @@ export const testCurrentAssignment: CodeAssignmentData = {
   previous: ["previousAssignment1", "previousAssignment2"],
   codeLanguage: "typescript",
   variations: {
-    variation1: {
+    A: {
       instructions: "Complete the following tasks.",
       exampleRuns: {
-        run1: {
+        1: {
           generate: true,
           inputs: [1, 2, 3],
           cmdInputs: ["npm", "start"],
@@ -40,7 +40,7 @@ export const testCurrentAssignment: CodeAssignmentData = {
           fileName: "example1.txt",
           path: "/path/to/example1.txt",
           solution: true,
-          fileContent: "instruction",
+          fileContent: "data",
           showStudent: true,
           fileType: "text",
         },
@@ -51,16 +51,16 @@ export const testCurrentAssignment: CodeAssignmentData = {
         atv2: {},
       },
     },
-    variation2: {
+    B: {
       instructions: "Solve the problems below.",
       exampleRuns: {
-        run1: {
+        1: {
           generate: true,
           inputs: [4, 5, 6],
           cmdInputs: ["python", "script.py"],
           output: "Output for run 1 in variation 2",
         },
-        run2: {
+        2: {
           generate: false,
           inputs: [7, 8, 9],
           cmdInputs: ["node", "app.js"],

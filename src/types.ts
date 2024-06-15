@@ -23,7 +23,7 @@ export interface CommonAssignmentData {
   module: number | null;
 }
 
-export interface ExampleRun {
+export interface ExampleRunType {
   generate: boolean;
   inputs: Array<string | number>;
   cmdInputs: Array<string | number>;
@@ -33,7 +33,7 @@ export interface ExampleRun {
 export interface Variation {
   instructions: string;
   exampleRuns: {
-    [key: string]: ExampleRun;
+    [key: string]: ExampleRunType;
   };
   files: Array<FileData>;
   usedIn: Array<string>;

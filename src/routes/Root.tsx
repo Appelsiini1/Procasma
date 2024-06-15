@@ -39,7 +39,6 @@ export default function Root() {
               <ButtonComp
                 buttonType="largeAdd"
                 onClick={() => {
-                  console.log("Add Course");
                   navigate("createCourse");
                 }}
                 ariaLabel={texts.ui_aria_nav_course_create[language.current]}
@@ -60,7 +59,6 @@ export default function Root() {
               <ButtonComp
                 buttonType="settings"
                 onClick={() => {
-                  console.log("Manage Course");
                   navigate("manageCourse");
                 }}
                 ariaLabel={texts.ui_aria_nav_manage_course[language.current]}
@@ -83,7 +81,6 @@ export default function Root() {
               <ButtonComp
                 buttonType="largeAdd"
                 onClick={() => {
-                  console.log("Add Assignment");
                   navigate("inputCodeAssignment");
                 }}
                 ariaLabel={texts.ui_aria_nav_add_assignment[language.current]}
@@ -95,7 +92,6 @@ export default function Root() {
               <ButtonComp
                 buttonType="settings"
                 onClick={() => {
-                  console.log("Manage Assignments");
                   navigate("AssignmentBrowse");
                 }}
                 ariaLabel={
@@ -120,7 +116,6 @@ export default function Root() {
               <ButtonComp
                 buttonType="largeAdd"
                 onClick={() => {
-                  console.log("Add Module");
                   navigate("newModule");
                 }}
                 ariaLabel={texts.ui_aria_nav_add_module[language.current]}
@@ -132,7 +127,6 @@ export default function Root() {
               <ButtonComp
                 buttonType="settings"
                 onClick={() => {
-                  console.log("Manage Modules");
                   navigate("moduleBrowse");
                 }}
                 ariaLabel={texts.ui_aria_nav_browse_modules[language.current]}
@@ -155,7 +149,6 @@ export default function Root() {
               <ButtonComp
                 buttonType="largeAdd"
                 onClick={() => {
-                  console.log("Add assignment set");
                   navigate("setCreator");
                 }}
                 ariaLabel={texts.ui_aria_nav_add_set[language.current]}
@@ -176,7 +169,6 @@ export default function Root() {
               <ButtonComp
                 buttonType="largeAdd"
                 onClick={() => {
-                  console.log("Add project work");
                   navigate("inputCodeProjectWork");
                 }}
                 ariaLabel={texts.ui_aria_nav_add_project[language.current]}

@@ -4,32 +4,37 @@ import { FileData, FileTypes } from "../types";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { language } from "../constantsUI";
 import { useState } from "react";
+import { HandleAssignmentFn } from "src/routes/AssignmentInput";
+import ButtonComp from "./ButtonComp";
+import { dummyFileRows } from "../testData";
 
 interface FileContentSelectProps {
-  fileName: string;
+  fileIndex: number;
   handleAttributeChange: (
-    fileName: string,
+    fileIndex: number,
     attribute: keyof FileData,
     value: string | boolean | FileTypes
   ) => void;
+  defaultValue: string;
 }
 
 /**
  * A drop-down selection window for the 'fileContent' attribute
  */
 const FileContentSelect = ({
-  fileName,
+  fileIndex,
   handleAttributeChange,
+  defaultValue,
 }: FileContentSelectProps) => {
   const handleChange = (
     event: React.SyntheticEvent | null,
     newValue: string | null
   ) => {
-    handleAttributeChange(fileName, "fileContent", newValue);
+    handleAttributeChange(fileIndex, "fileContent", newValue);
   };
 
   return (
-    <Select defaultValue="instruction" onChange={handleChange}>
+    <Select defaultValue={defaultValue} onChange={handleChange}>
       <Option value="instruction">
         {texts.ui_instruction[language.current]}
       </Option>
@@ -40,89 +45,124 @@ const FileContentSelect = ({
   );
 };
 
-/**
- * Currently sets 'rows' prop as the default state, then handles the state
- * within the FileList component.
- */
-export default function FileList({ rows }: { rows: Array<FileData> }) {
-  const [fileRows, setFileRows] = useState<Array<FileData>>(rows);
+interface FileListProps {
+  files: Array<FileData>;
+  handleAssignment: HandleAssignmentFn;
+  pathInAssignment: string;
+}
 
+export default function FileList({
+  files,
+  handleAssignment,
+  pathInAssignment,
+}: FileListProps) {
+  /**
+   * Modify a file in the files list (in the assignment).
+   */
   const handleAttributeChange = (
-    fileName: string,
+    fileIndex: number,
     attribute: keyof FileData,
     value: string | boolean | FileTypes
   ) => {
+    /*
     setFileRows((prevRows) =>
       prevRows.map((row) =>
         row.fileName === fileName ? { ...row, [attribute]: value } : row
       )
     );
+    */
+    const newFiles = [...files];
+    newFiles[fileIndex] = { ...newFiles[fileIndex], [attribute]: value };
+
+    handleAssignment(`${pathInAssignment}`, newFiles);
   };
 
-  const handleRemoveFile = (fileName: string) => {
-    setFileRows((prevRows) =>
-      prevRows.filter((row) => row.fileName !== fileName)
-    );
+  /**
+   * TODO: file add dialogue
+   */
+  const handleAddFile = () => {
+    const newFile = dummyFileRows[0];
+    const newFiles = [...files, newFile];
+
+    handleAssignment(`${pathInAssignment}`, newFiles);
+  };
+
+  const handleRemoveFile = (fileIndex: number) => {
+    const newFiles = files.filter((_, i) => i !== fileIndex);
+
+    handleAssignment(`${pathInAssignment}`, newFiles);
   };
 
   return (
-    <Sheet>
-      <Table borderAxis="xBetween" hoverRow>
-        <thead>
-          <tr>
-            <th>{texts.ui_name[language.current]}</th>
-            <th>{texts.ui_type[language.current]}</th>
-            <th>{texts.ui_fileContent[language.current]}</th>
-            <th>{texts.ex_solution[language.current]}</th>
-            <th>{texts.ui_show_to_student[language.current]}</th>
-            <th>{texts.ui_actions[language.current]}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {fileRows.map((row) => (
-            <tr key={row.fileName}>
-              {/*<th scope="row">{row.fileName}</th>*/}
-              <td>{row.fileName}</td>
-              <td>{row.fileType}</td>
-              <td>
-                <FileContentSelect
-                  fileName={row.fileName}
-                  handleAttributeChange={handleAttributeChange}
-                ></FileContentSelect>
-              </td>
-              <td>
-                <Checkbox
-                  checked={row.solution}
-                  onChange={() =>
-                    handleAttributeChange(
-                      row.fileName,
-                      "solution",
-                      !row.solution
-                    )
-                  }
-                ></Checkbox>
-              </td>
-              <td>
-                <Checkbox
-                  checked={row.showStudent}
-                  onChange={() =>
-                    handleAttributeChange(
-                      row.fileName,
-                      "showStudent",
-                      !row.showStudent
-                    )
-                  }
-                ></Checkbox>
-              </td>
-              <td>
-                <IconButton onClick={() => handleRemoveFile(row.fileName)}>
-                  <DeleteIcon />
-                </IconButton>
-              </td>
+    <>
+      <ButtonComp
+        buttonType="normal"
+        onClick={() => handleAddFile()}
+        ariaLabel={texts.ui_aria_import_files[language.current]}
+      >
+        {texts.ui_import_files[language.current]}
+      </ButtonComp>
+
+      <div className="emptySpace1" />
+      <Sheet>
+        <Table borderAxis="xBetween" hoverRow>
+          <thead>
+            <tr>
+              <th>{texts.ui_name[language.current]}</th>
+              <th>{texts.ui_type[language.current]}</th>
+              <th>{texts.ui_fileContent[language.current]}</th>
+              <th>{texts.ex_solution[language.current]}</th>
+              <th>{texts.ui_show_to_student[language.current]}</th>
+              <th>{texts.ui_actions[language.current]}</th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
-    </Sheet>
+          </thead>
+          <tbody>
+            {files.map((file, fileIndex) => (
+              <tr key={file.fileName}>
+                {/*<th scope="file">{file.fileName}</th>*/}
+                <td>{file.fileName}</td>
+                <td>{file.fileType}</td>
+                <td>
+                  <FileContentSelect
+                    fileIndex={fileIndex}
+                    handleAttributeChange={handleAttributeChange}
+                    defaultValue={file.fileContent}
+                  ></FileContentSelect>
+                </td>
+                <td>
+                  <Checkbox
+                    checked={file.solution}
+                    onChange={() =>
+                      handleAttributeChange(
+                        fileIndex,
+                        "solution",
+                        !file.solution
+                      )
+                    }
+                  ></Checkbox>
+                </td>
+                <td>
+                  <Checkbox
+                    checked={file.showStudent}
+                    onChange={() =>
+                      handleAttributeChange(
+                        fileIndex,
+                        "showStudent",
+                        !file.showStudent
+                      )
+                    }
+                  ></Checkbox>
+                </td>
+                <td>
+                  <IconButton onClick={() => handleRemoveFile(fileIndex)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </Sheet>
+    </>
   );
 }

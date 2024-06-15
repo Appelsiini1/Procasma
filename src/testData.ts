@@ -1,4 +1,4 @@
-import { FileData } from "src/types";
+import { ExampleRunType, FileData, Variation } from "src/types";
 
 export const dummyFileRows: FileData[] = [
   {
@@ -26,3 +26,21 @@ export const dummyFileRows: FileData[] = [
     fileType: "code",
   },
 ];
+
+export const defaultVariation: Variation = {
+  instructions: "Complete the following tasks.",
+  exampleRuns: {},
+  files: [],
+  usedIn: [],
+  cgConfig: {
+    id: "",
+    atv2: {},
+  },
+};
+
+export const defaultExampleRun: ExampleRunType = {
+  generate: true,
+  inputs: [],
+  cmdInputs: [],
+  output: "",
+};

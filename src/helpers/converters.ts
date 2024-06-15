@@ -11,3 +11,7 @@ export function splitStringToNumberArray(input: string): number[] {
 
   return array;
 }
+
+export function arrayToString(arr: Array<string | number>): string {
+  return arr.join(",");
+}

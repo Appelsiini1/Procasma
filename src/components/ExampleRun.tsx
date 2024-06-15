@@ -14,16 +14,30 @@ import HelpText from "./HelpText";
 import InputField from "./InputField";
 import SwitchComp from "./SwitchComp";
 import { useState } from "react";
+import { HandleAssignmentFn } from "../routes/AssignmentInput";
+import { ExampleRunType } from "src/types";
+import { splitStringToArray, arrayToString } from "../helpers/converters";
 
-export default function ExampleRun({ varID }: { varID: string }) {
-  const [checked, setChecked] = useState(false);
+interface ExampleRunProps {
+  exRunID: string;
+  exampleRun: ExampleRunType;
+  handleAssignment: HandleAssignmentFn;
+  pathInAssignment: string;
+}
+
+export default function ExampleRun({
+  exRunID,
+  exampleRun,
+  handleAssignment,
+  pathInAssignment,
+}: ExampleRunProps) {
   return (
     <Accordion>
       <AccordionSummary sx={{ backgroundColor: "#D9D9D9" }}>
-        <Avatar color="primary">{varID}</Avatar>
+        <Avatar color="primary">{exRunID}</Avatar>
         <ListItemContent>
           <Typography level="title-md">
-            {texts.ex_run[language.current] + " " + varID}
+            {texts.ex_run[language.current] + " " + exRunID}
           </Typography>
         </ListItemContent>
       </AccordionSummary>
@@ -41,7 +55,17 @@ export default function ExampleRun({ varID }: { varID: string }) {
             </Typography>
             <HelpText text={texts.help_inputs[language.current]} />
           </Stack>
-          <InputField fieldKey={varID + "eInputsInput"} isLarge />
+          <InputField
+            fieldKey={exRunID + "eInputsInput"}
+            isLarge
+            defaultValue={arrayToString(exampleRun.inputs)}
+            onChange={(value: string) =>
+              handleAssignment(
+                `${pathInAssignment}.inputs`,
+                splitStringToArray(value)
+              )
+            }
+          />
           <div className="emptySpace1" />
 
           <Stack
@@ -56,7 +80,16 @@ export default function ExampleRun({ varID }: { varID: string }) {
             </Typography>
             <HelpText text={texts.help_cmd_inputs[language.current]} />
           </Stack>
-          <InputField fieldKey={varID + "eCMDInput"} />
+          <InputField
+            fieldKey={exRunID + "eCMDInput"}
+            defaultValue={arrayToString(exampleRun.cmdInputs)}
+            onChange={(value: string) =>
+              handleAssignment(
+                `${pathInAssignment}.cmdInputs`,
+                splitStringToArray(value)
+              )
+            }
+          />
           <div className="emptySpace1" />
 
           <Stack
@@ -71,7 +104,12 @@ export default function ExampleRun({ varID }: { varID: string }) {
             </Typography>
             <HelpText text={texts.help_gen_ex_checkbox[language.current]} />
             <Box sx={{ width: "2rem" }} />
-            <SwitchComp checked={checked} setChecked={setChecked} />
+            <SwitchComp
+              checked={exampleRun.generate}
+              setChecked={(value: boolean) =>
+                handleAssignment(`${pathInAssignment}.generate`, value)
+              }
+            />
           </Stack>
 
           <Stack
@@ -87,9 +125,13 @@ export default function ExampleRun({ varID }: { varID: string }) {
             <HelpText text={texts.help_ex_output[language.current]} />
           </Stack>
           <InputField
-            fieldKey={varID + "eOutputInput"}
+            fieldKey={exRunID + "eOutputInput"}
             isLarge
-            disabled={checked}
+            disabled={exampleRun.generate}
+            defaultValue={exampleRun.output}
+            onChange={(value: string) =>
+              handleAssignment(`${pathInAssignment}.output`, value)
+            }
           />
           <div className="emptySpace1" />
         </Box>

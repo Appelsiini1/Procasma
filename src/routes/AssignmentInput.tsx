@@ -19,7 +19,7 @@ import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import SwitchComp from "../components/SwitchComp";
-import { addVariation, deleteVariation } from "../helpers/variationHelpers";
+import { addVariation, removeVariation } from "../helpers/variationHelpers";
 import VariationComponent from "../components/VariationComponent";
 import { getNextID } from "../helpers/getNextID";
 import { testCurrentAssignment } from "../myTestGlobals";
@@ -28,6 +28,8 @@ import {
   splitStringToArray,
   splitStringToNumberArray,
 } from "../helpers/converters";
+import { defaultVariation } from "../testData";
+import { useAssignment } from "../helpers/assignmentHelpers";
 
 // For using the handleAssignment function
 export interface HandleAssignmentFn {
@@ -35,9 +37,11 @@ export interface HandleAssignmentFn {
 }
 
 export default function AssignmentInput() {
-  const [assignment, setAssignment] = useState<CodeAssignmentData>(
+  /*const [assignment, setAssignment] = useState<CodeAssignmentData>(
     testCurrentAssignment
-  );
+  );*/
+  const [assignment, handleAssignment] = useAssignment(testCurrentAssignment);
+
   const variations: { [key: string]: Variation } = assignment.variations;
 
   const pageType = useLoaderData();
@@ -46,43 +50,11 @@ export default function AssignmentInput() {
   const moduleDisable = currentCourse.moduleType !== null ? false : true;
   const levelsDisable = currentCourse.levels !== null ? false : true;
   const [expanding, setExpanding] = useState(false);
-  const [variationAccordion, setVariationAccordion] =
-    useState<Array<React.JSX.Element>>(null);
   const codeLanguageOptions = defaults.codeLanguages; //get these from settings file later
 
   if (pageType === "new") {
     pageTitle = texts.ui_new_assignment[language.current];
   }
-
-  // Modify the assignment currently loaded in state through keys
-  const handleAssignment: HandleAssignmentFn = (key, value) => {
-    /* 
-    // For non-nested keys
-    setAssignment((prevAssignment) => ({
-      ...prevAssignment,
-      [key]: value,
-    }));
-    */
-
-    // For nested keys
-    setAssignment((prevAssignment) => {
-      const updatedAssignment: CodeAssignmentData = { ...prevAssignment };
-      // split the key with delimiter "."
-      console.log(key);
-      const keys = key.split(".");
-      let nestedObj: any = updatedAssignment;
-
-      // traverse into the nested assignment state using the split keys
-      for (let i = 0; i < keys.length - 1; i++) {
-        nestedObj = nestedObj[keys[i]] as any;
-      }
-
-      // Update the nested property with the new value
-      nestedObj[keys[keys.length - 1]] = value;
-      console.log(value);
-      return updatedAssignment;
-    });
-  };
 
   return (
     <>
@@ -286,21 +258,22 @@ export default function AssignmentInput() {
             {texts.ui_variations[language.current]}
           </Typography>
           <div className="emptySpace1" />
-          {/*
+
           <ButtonComp
             buttonType="normal"
             onClick={() =>
               addVariation(
-                VariationComponent,
+                defaultVariation,
+                variations,
                 getNextID,
-                variationAccordion,
-                setVariationAccordion
+                "variations",
+                handleAssignment
               )
             }
             ariaLabel={texts.ui_aria_add_variation[language.current]}
           >
             {texts.ui_add_variation[language.current]}
-          </ButtonComp>*/}
+          </ButtonComp>
 
           <div className="emptySpace2" />
           <Box
@@ -328,6 +301,7 @@ export default function AssignmentInput() {
                         varID={varID}
                         variation={variations[varID]}
                         handleAssignment={handleAssignment}
+                        pathInAssignment={`variations.${varID}`}
                       ></VariationComponent>
 
                       <ButtonComp
@@ -336,11 +310,11 @@ export default function AssignmentInput() {
                         ${texts.ui_variation[language.current]} ${varID}`}
                         buttonType="delete"
                         onClick={() =>
-                          deleteVariation(
-                            variationAccordion,
-                            setVariationAccordion,
+                          removeVariation(
                             varID,
-                            "new"
+                            variations,
+                            "variations",
+                            handleAssignment
                           )
                         }
                         ariaLabel={
