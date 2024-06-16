@@ -57,6 +57,13 @@ export interface CodeLanguage {
   fileExtensions: Array<string>;
 }
 
+export interface LevelsType {
+  [key: number]: {
+    fullName: string;
+    abbreviation: string;
+  };
+}
+
 export interface CourseData {
   title?: string;
   ID?: string;
@@ -67,12 +74,7 @@ export interface CourseData {
   CodeGradeID?: number;
   minLevel?: number;
   maxLevel?: number;
-  levels?: {
-    [key: number]: {
-      fullName: string;
-      abbreviation: string;
-    };
-  } | null;
+  levels?: LevelsType | null;
 }
 
 export type CourseLoaderData = "create" | "manage";
@@ -82,3 +84,5 @@ export type ContextBridgeAPI = {
   openFile: () => string;
   getAppVersion: () => string;
 };
+
+export type SupportedModuleType = "week" | "module" | null;

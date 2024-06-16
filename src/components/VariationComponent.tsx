@@ -62,7 +62,7 @@ export default function VariationComponent({
             isLarge
             defaultValue={variation.instructions}
             onChange={(value: string) =>
-              handleAssignment(`${pathInAssignment}.instructions`, value)
+              handleAssignment(`${pathInAssignment}.instructions`, value, true)
             }
           />
 

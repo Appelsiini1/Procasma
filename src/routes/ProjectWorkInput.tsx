@@ -46,7 +46,9 @@ export default function ProjectWorkInput() {
                 <InputField
                   fieldKey="caTitleInput"
                   defaultValue={assignment.title}
-                  onChange={(value: string) => handleAssignment("title", value)}
+                  onChange={(value: string) =>
+                    handleAssignment("title", value, true)
+                  }
                 />
               </td>
             </tr>
@@ -90,7 +92,7 @@ export default function ProjectWorkInput() {
                   fieldKey="caTagsInput"
                   defaultValue={assignment.tags.toString()}
                   onChange={(value: string) =>
-                    handleAssignment("tags", splitStringToArray(value))
+                    handleAssignment("tags", splitStringToArray(value), true)
                   }
                 />
               </td>

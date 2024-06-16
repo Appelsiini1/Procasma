@@ -1,4 +1,4 @@
-import { HandleAssignmentFn } from "src/routes/AssignmentInput";
+import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
 
 /**
  * Takes in any variation object (most likely

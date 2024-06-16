@@ -13,8 +13,7 @@ import { language, spacingSX } from "../constantsUI";
 import HelpText from "./HelpText";
 import InputField from "./InputField";
 import SwitchComp from "./SwitchComp";
-import { useState } from "react";
-import { HandleAssignmentFn } from "../routes/AssignmentInput";
+import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
 import { ExampleRunType } from "src/types";
 import { splitStringToArray, arrayToString } from "../helpers/converters";
 
@@ -32,7 +31,7 @@ export default function ExampleRun({
   pathInAssignment,
 }: ExampleRunProps) {
   return (
-    <Accordion>
+    <Accordion sx={{ width: "100%" }}>
       <AccordionSummary sx={{ backgroundColor: "#D9D9D9" }}>
         <Avatar color="primary">{exRunID}</Avatar>
         <ListItemContent>
@@ -62,7 +61,8 @@ export default function ExampleRun({
             onChange={(value: string) =>
               handleAssignment(
                 `${pathInAssignment}.inputs`,
-                splitStringToArray(value)
+                splitStringToArray(value),
+                true
               )
             }
           />
@@ -86,7 +86,8 @@ export default function ExampleRun({
             onChange={(value: string) =>
               handleAssignment(
                 `${pathInAssignment}.cmdInputs`,
-                splitStringToArray(value)
+                splitStringToArray(value),
+                true
               )
             }
           />
@@ -130,7 +131,7 @@ export default function ExampleRun({
             disabled={exampleRun.generate}
             defaultValue={exampleRun.output}
             onChange={(value: string) =>
-              handleAssignment(`${pathInAssignment}.output`, value)
+              handleAssignment(`${pathInAssignment}.output`, value, true)
             }
           />
           <div className="emptySpace1" />

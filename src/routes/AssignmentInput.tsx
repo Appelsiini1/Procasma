@@ -53,7 +53,9 @@ export default function AssignmentInput() {
                 <InputField
                   fieldKey="caTitleInput"
                   defaultValue={assignment.title}
-                  onChange={(value: string) => handleAssignment("title", value)}
+                  onChange={(value: string) =>
+                    handleAssignment("title", value, true)
+                  }
                 />
               </td>
             </tr>
@@ -118,7 +120,8 @@ export default function AssignmentInput() {
                   onChange={(value: string) =>
                     handleAssignment(
                       "assignmentNo",
-                      splitStringToNumberArray(value)
+                      splitStringToNumberArray(value),
+                      true
                     )
                   }
                 />
@@ -151,7 +154,7 @@ export default function AssignmentInput() {
                   fieldKey="caTagsInput"
                   defaultValue={assignment.tags.toString()}
                   onChange={(value: string) =>
-                    handleAssignment("tags", splitStringToArray(value))
+                    handleAssignment("tags", splitStringToArray(value), true)
                   }
                 />
               </td>
@@ -168,9 +171,7 @@ export default function AssignmentInput() {
                   name="caCodeLanguageInput"
                   options={codeLanguageOptions}
                   labelKey="name"
-                  placeholder={
-                    texts.help_clang_assignment[language.current] + "..."
-                  }
+                  defaultValue={assignment.codeLanguage}
                   onChange={(value: string) =>
                     handleAssignment("codeLanguage", value)
                   }
@@ -213,7 +214,11 @@ export default function AssignmentInput() {
                   fieldKey="caUsedInInput"
                   defaultValue={assignment.previous.toString()}
                   onChange={(value: string) =>
-                    handleAssignment("previous", splitStringToArray(value))
+                    handleAssignment(
+                      "previous",
+                      splitStringToArray(value),
+                      true
+                    )
                   }
                 />
               </td>

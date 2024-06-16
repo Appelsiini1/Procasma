@@ -76,7 +76,7 @@ export default function LevelComponent({
             isLarge
             defaultValue={variation.instructions}
             onChange={(value: string) =>
-              handleAssignment(`${pathInAssignment}.instructions`, value)
+              handleAssignment(`${pathInAssignment}.instructions`, value, true)
             }
           />
 

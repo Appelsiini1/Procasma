@@ -1,6 +1,6 @@
 import { CodeAssignmentData, CourseData } from "./types";
 
-export const currentCourse: CourseData = {
+export const testCurrentCourse: CourseData = {
   title: "Ohjelmoinnin Perusteet",
   ID: "CT60A0203",
   modules: 2,
@@ -10,7 +10,16 @@ export const currentCourse: CourseData = {
   CodeGradeID: 12345,
   minLevel: 1,
   maxLevel: 3,
-  levels: null,
+  levels: {
+    1: {
+      fullName: "Helppo",
+      abbreviation: "H",
+    },
+    2: {
+      fullName: "Vaikea",
+      abbreviation: "V",
+    },
+  },
 };
 
 export const testCurrentAssignment: CodeAssignmentData = {
@@ -23,7 +32,7 @@ export const testCurrentAssignment: CodeAssignmentData = {
   level: 5,
   next: ["nextAssignment1", "nextAssignment2"],
   previous: ["previousAssignment1", "previousAssignment2"],
-  codeLanguage: "typescript",
+  codeLanguage: "TypeScript",
   variations: {
     A: {
       instructions: "Complete the following tasks.",
