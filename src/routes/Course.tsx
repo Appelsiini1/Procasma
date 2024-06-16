@@ -18,19 +18,12 @@ import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import { useCourse } from "../helpers/assignmentHelpers";
 import { testCurrentCourse } from "../myTestGlobals";
-import {
-  courseLevelsToString,
-  splitCourseLevels,
-  splitStringToArray,
-} from "../helpers/converters";
-import {
-  CodeLanguage,
-  SupportedLanguages,
-  SupportedModuleType,
-} from "../types";
+import { courseLevelsToString, splitCourseLevels } from "../helpers/converters";
+import { SupportedLanguages } from "../types";
 
 export default function Course() {
   const [course, handleCourse] = useCourse(testCurrentCourse);
+  const [path, setPath] = useState("");
 
   let pageType = useLoaderData();
   let pageTitle: string = null;
@@ -54,6 +47,10 @@ export default function Course() {
   function handleFolderOpen() {
     console.log("Folder open");
   }
+
+  const handlePath = (value: string) => {
+    setPath(value);
+  };
 
   const handleCodeLangChange = (selectedName: string) => {
     const selectedCodeLanguage = codeLanguageOptions.find(
@@ -95,6 +92,14 @@ export default function Course() {
         } else {
           handleCourse("moduleType", translationObj["ENG"].toLowerCase());
         }
+      }
+    });
+  };
+
+  const handleSetLanguage = (value: string) => {
+    languageOptions.map((option) => {
+      if (option?.languageName === value) {
+        handleCourse("language", option.abbreviation);
       }
     });
   };
@@ -149,8 +154,8 @@ export default function Course() {
                 <InputField
                   fieldKey="cFolderInput"
                   disabled={disableCourseFolderSelect}
-                  defaultValue={"not supported atm"}
-                  onChange={null}
+                  defaultValue={path}
+                  onChange={handlePath}
                 />
               </td>
               <td>
@@ -252,9 +257,7 @@ export default function Course() {
                       (elem) => elem.abbreviation === course.language
                     )?.languageName
                   }
-                  onChange={(value: SupportedLanguages) =>
-                    handleCourse("language", value)
-                  }
+                  onChange={(value: string) => handleSetLanguage(value)}
                 ></Dropdown>
               </td>
             </tr>
@@ -301,7 +304,7 @@ export default function Course() {
         >
           <ButtonComp
             buttonType="normal"
-            onClick={null}
+            onClick={() => console.log(languageOptions)} //window.api.saveCourse(course, path)}
             ariaLabel={texts.ui_aria_save[language.current]}
           >
             {texts.ui_save[language.current]}

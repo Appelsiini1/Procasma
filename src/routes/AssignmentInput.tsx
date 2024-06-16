@@ -259,7 +259,12 @@ export default function AssignmentInput() {
         >
           <ButtonComp
             buttonType="normal"
-            onClick={null}
+            onClick={() =>
+              window.api.saveAssignment(
+                assignment,
+                "get path from global state?"
+              )
+            }
             ariaLabel={texts.ui_aria_save[language.current]}
           >
             {texts.ui_save[language.current]}

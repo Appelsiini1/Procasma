@@ -16,13 +16,6 @@ export interface CGData {
   atv2: object;
 }
 
-export interface CommonAssignmentData {
-  assignmentID: string;
-  title: string;
-  tags: Array<string>;
-  module: number | null;
-}
-
 export interface ExampleRunType {
   generate: boolean;
   inputs: Array<string | number>;
@@ -38,6 +31,13 @@ export interface Variation {
   files: Array<FileData>;
   usedIn: Array<string>;
   cgConfig: CGData;
+}
+
+export interface CommonAssignmentData {
+  assignmentID: string;
+  title: string;
+  tags: Array<string>;
+  module: number | null;
 }
 
 export interface CodeAssignmentData extends CommonAssignmentData {
@@ -83,6 +83,9 @@ export type ContextBridgeAPI = {
   setTitle: (title: string) => void;
   openFile: () => string;
   getAppVersion: () => string;
+  saveCourse: (course: CourseData, path: string) => void;
+  saveAssignment: (assignment: CodeAssignmentData, path: string) => void;
+  saveProject: (assignment: CodeAssignmentData, path: string) => void;
 };
 
 export type SupportedModuleType = "week" | "module" | null;

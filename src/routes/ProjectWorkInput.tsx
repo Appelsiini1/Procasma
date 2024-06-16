@@ -10,13 +10,13 @@ import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import { useAssignment } from "../helpers/assignmentHelpers";
-import { testCurrentAssignment } from "../myTestGlobals";
+import { testCurrentProject } from "../myTestGlobals";
 import { Variation } from "../types";
 import { splitStringToArray } from "../helpers/converters";
 import VariationsGroup from "../components/VariationsGroup";
 
 export default function ProjectWorkInput() {
-  const [assignment, handleAssignment] = useAssignment(testCurrentAssignment);
+  const [assignment, handleAssignment] = useAssignment(testCurrentProject);
   const variations: { [key: string]: Variation } = assignment.variations;
 
   const pageType = useLoaderData();
@@ -62,8 +62,10 @@ export default function ProjectWorkInput() {
               <td>
                 <NumberInput
                   disabled={moduleDisable}
-                  value={assignment.level}
-                  onChange={(value: number) => handleAssignment("level", value)}
+                  value={assignment.module}
+                  onChange={(value: number) =>
+                    handleAssignment("module", value)
+                  }
                 ></NumberInput>
               </td>
             </tr>
@@ -109,9 +111,7 @@ export default function ProjectWorkInput() {
                   name="caCodeLanguageInput"
                   options={codeLanguageOptions}
                   labelKey="name"
-                  placeholder={
-                    texts.help_clang_assignment[language.current] + "..."
-                  }
+                  defaultValue={assignment.codeLanguage}
                   onChange={(value: string) =>
                     handleAssignment("codeLanguage", value)
                   }
@@ -154,7 +154,9 @@ export default function ProjectWorkInput() {
         >
           <ButtonComp
             buttonType="normal"
-            onClick={null}
+            onClick={() =>
+              window.api.saveProject(assignment, "get path from global state?")
+            }
             ariaLabel={texts.ui_aria_save[language.current]}
           >
             {texts.ui_save[language.current]}
