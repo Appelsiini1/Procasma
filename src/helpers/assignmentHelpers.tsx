@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { CodeAssignmentData, CourseData } from "src/types";
+import { CodeAssignmentData, CourseData } from "../types";
 import { debounceCheckKey } from "./debounce";
 
 export interface HandleAssignmentFn {

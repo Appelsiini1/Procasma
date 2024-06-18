@@ -86,6 +86,7 @@ export type ContextBridgeAPI = {
   saveCourse: (course: CourseData, path: string) => void;
   saveAssignment: (assignment: CodeAssignmentData, path: string) => void;
   saveProject: (assignment: CodeAssignmentData, path: string) => void;
+  selectDir: () => string;
 };
 
 export type SupportedModuleType = "week" | "module" | null;

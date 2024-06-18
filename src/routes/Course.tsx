@@ -19,7 +19,6 @@ import ButtonComp from "../components/ButtonComp";
 import { useCourse } from "../helpers/assignmentHelpers";
 import { testCurrentCourse } from "../myTestGlobals";
 import { courseLevelsToString, splitCourseLevels } from "../helpers/converters";
-import { SupportedLanguages } from "../types";
 
 export default function Course() {
   const [course, handleCourse] = useCourse(testCurrentCourse);
@@ -44,8 +43,14 @@ export default function Course() {
   }
   const navigate = useNavigate();
 
-  function handleFolderOpen() {
-    console.log("Folder open");
+  async function handleFolderOpen() {
+    const folderPath: string = await window.api.selectDir();
+    if (folderPath) {
+      handlePath(folderPath);
+    } else {
+      // @TODO show an error
+      console.log(folderPath);
+    }
   }
 
   const handlePath = (value: string) => {
@@ -153,9 +158,10 @@ export default function Course() {
               <td>
                 <InputField
                   fieldKey="cFolderInput"
-                  disabled={disableCourseFolderSelect}
+                  disabled={true}
                   defaultValue={path}
-                  onChange={handlePath}
+                  placeholder={path}
+                  onChange={null}
                 />
               </td>
               <td>
@@ -304,7 +310,7 @@ export default function Course() {
         >
           <ButtonComp
             buttonType="normal"
-            onClick={() => console.log(languageOptions)} //window.api.saveCourse(course, path)}
+            onClick={() => window.api.saveCourse(course, path)}
             ariaLabel={texts.ui_aria_save[language.current]}
           >
             {texts.ui_save[language.current]}

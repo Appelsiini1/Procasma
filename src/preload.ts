@@ -9,9 +9,10 @@ contextBridge.exposeInMainWorld("api", {
   openFile: () => ipcRenderer.invoke("dialog:openFile"),
   getAppVersion: () => ipcRenderer.invoke("getAppVersion"),
   saveCourse: (course: CourseData, path: string) =>
-    ipcRenderer.send("saveCourse", course, path),
+    ipcRenderer.invoke("saveCourse", course, path),
   saveAssignment: (assignment: CodeAssignmentData, path: string) =>
     ipcRenderer.send("saveAssignment", assignment, path),
   saveProject: (assignment: CodeAssignmentData, path: string) =>
     ipcRenderer.send("saveProject", assignment, path),
+  selectDir: () => ipcRenderer.invoke("selectDir"),
 });

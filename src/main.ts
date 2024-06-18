@@ -1,7 +1,9 @@
-import { app, BrowserWindow, Menu, ipcMain } from "electron";
+import { app, BrowserWindow, Menu, ipcMain, dialog } from "electron";
 import path from "path";
-import { handleFileOpen } from "./helpers/fileDialog";
+import { handleDirectorySelect, handleFileOpen } from "./helpers/fileDialog";
 import { version } from "./constants";
+import { handleSaveCourse, writeToFile } from "./helpers/fileOperations";
+import { CodeAssignmentData, CourseData } from "./types";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -15,8 +17,8 @@ const getVersion = () => {
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 800,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -29,6 +31,11 @@ const createWindow = () => {
     const win = BrowserWindow.fromWebContents(webContents);
     win.setTitle(title);
   });
+
+  ipcMain.handle("selectDir", handleDirectorySelect);
+  ipcMain.handle("saveCourse", (event, course, path) =>
+    handleSaveCourse(course, path)
+  );
 
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -76,17 +83,18 @@ app.on("activate", () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
-ipcMain.on("saveCourse", (event, course, path) => {
-  console.log(`main: save course to path: ${path}`);
-  console.log(course);
-});
+ipcMain.on(
+  "saveAssignment",
+  (event, assignment: CodeAssignmentData, path: string) => {
+    console.log(`main: save assignment to path: ${path}`);
+    console.log(assignment);
+  }
+);
 
-ipcMain.on("saveAssignment", (event, assignment, path) => {
-  console.log(`main: save assignment to path: ${path}`);
-  console.log(assignment);
-});
-
-ipcMain.on("saveProject", (event, assignment, path) => {
-  console.log(`main: save project to path: ${path}`);
-  console.log(assignment);
-});
+ipcMain.on(
+  "saveProject",
+  (event, assignment: CodeAssignmentData, path: string) => {
+    console.log(`main: save project to path: ${path}`);
+    console.log(assignment);
+  }
+);
