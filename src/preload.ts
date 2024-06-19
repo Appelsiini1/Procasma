@@ -9,11 +9,12 @@ contextBridge.exposeInMainWorld("api", {
   getAppVersion: () => ipcRenderer.invoke("getAppVersion"),
   saveCourse: (course: CourseData, path: string) =>
     ipcRenderer.invoke("saveCourse", course, path),
+  updateCourse: (course: CourseData, path: string) =>
+    ipcRenderer.invoke("updateCourse", course, path),
   saveAssignment: (assignment: CodeAssignmentData, path: string) =>
     ipcRenderer.send("saveAssignment", assignment, path),
   saveProject: (assignment: CodeAssignmentData, path: string) =>
     ipcRenderer.send("saveProject", assignment, path),
   selectDir: () => ipcRenderer.invoke("selectDir"),
-  readCourse: (fileName: string, path: string) =>
-    ipcRenderer.invoke("readCourse", fileName, path),
+  readCourse: (path: string) => ipcRenderer.invoke("readCourse", path),
 });

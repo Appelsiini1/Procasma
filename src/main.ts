@@ -6,6 +6,7 @@ import {
   handleReadCourse,
   handleReadFile,
   handleSaveCourse,
+  handleUpdateCourse,
   writeToFile,
 } from "./helpers/fileOperations";
 import { CodeAssignmentData, CourseData } from "./types";
@@ -41,8 +42,9 @@ const createWindow = () => {
   ipcMain.handle("saveCourse", (event, course, path) =>
     handleSaveCourse(course, path)
   );
-  ipcMain.handle("readCourse", (event, fileName, path) =>
-    handleReadCourse(fileName, path)
+  ipcMain.handle("readCourse", (event, path) => handleReadCourse(path));
+  ipcMain.handle("updateCourse", (event, fileName, path) =>
+    handleUpdateCourse(fileName, path)
   );
 
   // and load the index.html of the app.

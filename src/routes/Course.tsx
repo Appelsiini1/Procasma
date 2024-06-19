@@ -16,7 +16,15 @@ import { newCourse } from "../myTestGlobals";
 import { courseLevelsToString, splitCourseLevels } from "../helpers/converters";
 import { CourseData } from "../types";
 
-export default function Course({ activeCourse }: { activeCourse: CourseData }) {
+export default function Course({
+  activeCourse,
+  activePath,
+  handleActiveCourse,
+}: {
+  activeCourse: CourseData;
+  activePath?: string;
+  handleActiveCourse?: React.Dispatch<React.SetStateAction<CourseData>>;
+}) {
   let pageType = useLoaderData();
 
   // if somehow navigates to manage course without activeCourse
@@ -26,7 +34,7 @@ export default function Course({ activeCourse }: { activeCourse: CourseData }) {
 
   const initialCourseState = pageType == "create" ? newCourse : activeCourse;
   const [course, handleCourse] = useCourse(initialCourseState);
-  const [path, setPath] = useState("");
+  const [path, setPath] = useState(activePath ? activePath : "");
 
   let pageTitle: string = null;
   let disableCourseFolderSelect = false;
@@ -321,7 +329,16 @@ export default function Course({ activeCourse }: { activeCourse: CourseData }) {
             buttonType="normal"
             onClick={() => {
               if (path && path.length > 1) {
-                window.api.saveCourse(course, path);
+                if (pageType == "create") {
+                  window.api.saveCourse(course, path);
+                } else {
+                  window.api.updateCourse(course, path);
+
+                  //@TODO updating course state will have to
+                  // work differently if done with async in the
+                  // near future
+                  handleActiveCourse(course);
+                }
               } else {
                 console.log("choose a folder path");
               }

@@ -61,12 +61,14 @@ type ButtonProps = {
     | "normal"
     | "normalAlt"
     | "export"
-    | "delete";
+    | "delete"
+    | "largeAddAlt";
   onClick: () => void;
   margin?: boolean;
   confirmationModal?: boolean;
   modalText?: string;
   ariaLabel: string;
+  disabled?: boolean;
 };
 
 export default function ButtonComp({
@@ -77,6 +79,7 @@ export default function ButtonComp({
   confirmationModal = false,
   modalText = "",
   ariaLabel,
+  disabled = false,
 }: ButtonProps) {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   let style: object = null;
@@ -142,6 +145,11 @@ export default function ButtonComp({
     case "export":
       style = largeNormal;
       decor = <IosShareIcon sx={decorStyle} />;
+      break;
+    case "largeAddAlt":
+      style = largeAlt;
+      decor = <AddIcon sx={decorStyle} />;
+      break;
     default:
       break;
   }
@@ -161,6 +169,7 @@ export default function ButtonComp({
           startDecorator={decor}
           onClick={onClick}
           aria-label={ariaLabel}
+          disabled={disabled}
         >
           {children}
         </Button>
@@ -171,6 +180,7 @@ export default function ButtonComp({
             startDecorator={decor}
             onClick={() => setModalOpen(true)}
             aria-label={ariaLabel}
+            disabled={disabled}
           >
             {children}
           </Button>

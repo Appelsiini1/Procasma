@@ -2,14 +2,29 @@ import PageHeaderBar from "../components/PageHeaderBar";
 import texts from "../../resource/texts.json";
 import { language, dividerColor } from "../constantsUI";
 import LogoText from "../../resource/LogoText.png";
-import { Box, Divider, Grid, Typography } from "@mui/joy";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionGroup,
+  Box,
+  Divider,
+  Grid,
+  Typography,
+} from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
 import { useNavigate } from "react-router-dom";
 import FadeInImage from "../components/FadeInImage";
 import { CourseData } from "../types";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
+const smallDividerSX = {
+  padding: ".1rem",
+  margin: "2rem",
+  bgcolor: dividerColor,
+  marginLeft: "7rem",
+  marginRight: "7rem",
+};
 
 export default function Root({
   activeCourse,
@@ -20,7 +35,8 @@ export default function Root({
   handleActiveCourse: React.Dispatch<React.SetStateAction<CourseData>>;
   handleActivePath: React.Dispatch<React.SetStateAction<string>>;
 }) {
-  
+  const [addingAssignment, setAddingAssignment] = useState(false);
+
   useEffect(() => {
     const getVersion = async () => {
       try {
@@ -36,14 +52,14 @@ export default function Root({
   }, []);
 
   const pageName = texts.ui_main[language.current];
-  let noInIndex = NaN; //make dynamic later
+  const noInIndex = NaN; //make dynamic later
   const navigate = useNavigate();
 
   async function handleSelectCourseFolder() {
     try {
       const coursePath: string = await window.api.selectDir();
 
-      const course = await window.api.readCourse("metadata.json", coursePath);
+      const course = await window.api.readCourse(coursePath);
 
       if (course) {
         handleActiveCourse(course);
@@ -115,6 +131,7 @@ export default function Root({
                   }
                 }}
                 ariaLabel={texts.ui_aria_nav_manage_course[language.current]}
+                disabled={activeCourse ? false : true}
               >
                 {texts.course_manage[language.current]}
               </ButtonComp>
@@ -134,9 +151,10 @@ export default function Root({
               <ButtonComp
                 buttonType="largeAdd"
                 onClick={() => {
-                  navigate("inputCodeAssignment");
+                  setAddingAssignment(!addingAssignment);
                 }}
                 ariaLabel={texts.ui_aria_nav_add_assignment[language.current]}
+                disabled={activeCourse ? false : true}
               >
                 {texts.ui_assignment[language.current]}
               </ButtonComp>
@@ -150,11 +168,70 @@ export default function Root({
                 ariaLabel={
                   texts.ui_aria_nav_browse_assignments[language.current]
                 }
+                disabled={activeCourse ? false : true}
               >
                 {texts.ui_assignment_management[language.current]}
               </ButtonComp>
             </Grid>
           </Grid>
+
+          <AccordionGroup>
+            <Accordion expanded={addingAssignment}>
+              <AccordionDetails>
+                <>
+                  <Divider sx={smallDividerSX} role="presentation" />
+
+                  <Grid
+                    container
+                    direction="row"
+                    justifyContent="flex-start"
+                    alignItems="center"
+                    spacing={3}
+                  >
+                    <Grid>
+                      <ButtonComp
+                        buttonType="largeAddAlt"
+                        onClick={() => {
+                          navigate("inputCodeAssignment");
+                        }}
+                        ariaLabel={
+                          texts.ui_aria_nav_add_assignment[language.current]
+                        }
+                      >
+                        {texts.ui_code_assignment[language.current]}
+                      </ButtonComp>
+                    </Grid>
+
+                    <Grid>
+                      <ButtonComp
+                        buttonType="largeAddAlt"
+                        onClick={() => {
+                          navigate("inputCodeProjectWork");
+                        }}
+                        ariaLabel={
+                          texts.ui_aria_nav_add_project[language.current]
+                        }
+                      >
+                        {texts.ui_project_work[language.current]}
+                      </ButtonComp>
+                    </Grid>
+
+                    <Grid>
+                      <ButtonComp
+                        buttonType="largeAddAlt"
+                        onClick={() => {
+                          console.log("Add other");
+                        }}
+                        ariaLabel={texts.ui_add[language.current]}
+                      >
+                        {texts.ui_other[language.current]}
+                      </ButtonComp>
+                    </Grid>
+                  </Grid>
+                </>
+              </AccordionDetails>
+            </Accordion>
+          </AccordionGroup>
 
           <Divider sx={dividerSX} role="presentation" />
 
@@ -172,6 +249,7 @@ export default function Root({
                   navigate("newModule");
                 }}
                 ariaLabel={texts.ui_aria_nav_add_module[language.current]}
+                disabled={activeCourse ? false : true}
               >
                 {texts.ui_module[language.current]}
               </ButtonComp>
@@ -183,6 +261,7 @@ export default function Root({
                   navigate("moduleBrowse");
                 }}
                 ariaLabel={texts.ui_aria_nav_browse_modules[language.current]}
+                disabled={activeCourse ? false : true}
               >
                 {texts.ui_module_management[language.current]}
               </ButtonComp>
@@ -205,6 +284,7 @@ export default function Root({
                   navigate("setCreator");
                 }}
                 ariaLabel={texts.ui_aria_nav_add_set[language.current]}
+                disabled={activeCourse ? false : true}
               >
                 {texts.ui_assignment_set[language.current]}
               </ButtonComp>
@@ -214,19 +294,9 @@ export default function Root({
                 buttonType="openCourse"
                 onClick={() => navigate("SetBrowse")}
                 ariaLabel={texts.ui_aria_nav_browse_sets[language.current]}
+                disabled={activeCourse ? false : true}
               >
                 {texts.ui_assignment_sets[language.current]}
-              </ButtonComp>
-            </Grid>
-            <Grid>
-              <ButtonComp
-                buttonType="largeAdd"
-                onClick={() => {
-                  navigate("inputCodeProjectWork");
-                }}
-                ariaLabel={texts.ui_aria_nav_add_project[language.current]}
-              >
-                {texts.ui_add_project_work[language.current]}
               </ButtonComp>
             </Grid>
             <Grid>
@@ -234,6 +304,7 @@ export default function Root({
                 buttonType="export"
                 onClick={() => navigate("exportProject")}
                 ariaLabel={texts.ui_aria_nav_export_project[language.current]}
+                disabled={activeCourse ? false : true}
               >
                 {texts.ui_export_project[language.current]}
               </ButtonComp>
