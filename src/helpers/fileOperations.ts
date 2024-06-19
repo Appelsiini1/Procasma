@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { CourseData } from "../types";
 import { spacesToUnderscores } from "./converters";
+import { courseMetaDataFileName } from "../constants";
 
 interface FileResult {
   content?: any;
@@ -54,7 +55,7 @@ export function handleSaveCourse(course: CourseData, coursesPath: string) {
     const metadata: string = JSON.stringify(course);
 
     // create course metadata.json
-    const metadataPath = path.join(coursePath, "metadata.json");
+    const metadataPath = path.join(coursePath, courseMetaDataFileName);
     writeToFile(metadata, metadataPath);
 
     const assignmentDataPath = path.join(coursePath, "assignment_data");
@@ -80,11 +81,8 @@ export function handleSaveCourse(course: CourseData, coursesPath: string) {
   return true;
 }
 
-export function handleReadCourse(
-  fileName: string,
-  filePath: string
-): CourseData {
-  const filePathJoined = path.join(filePath, fileName);
+export function handleReadCourse(filePath: string): CourseData {
+  const filePathJoined = path.join(filePath, "course_info.json");
   const fileResult = handleReadFile(filePathJoined);
 
   if (fileResult.error) {
@@ -97,4 +95,21 @@ export function handleReadCourse(
   } catch (err) {
     return null;
   }
+}
+
+export function handleUpdateCourse(course: CourseData, coursePath: string) {
+  try {
+    fs.accessSync(coursePath, fs.constants.R_OK | fs.constants.W_OK);
+
+    const metadata: string = JSON.stringify(course);
+
+    // create course metadata.json
+    const metadataPath = path.join(coursePath, courseMetaDataFileName);
+    writeToFile(metadata, metadataPath);
+  } catch (error) {
+    console.error("An error occurred:", (error as Error).message);
+    return false;
+  }
+
+  return true;
 }

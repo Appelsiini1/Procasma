@@ -51,7 +51,13 @@ const App = () => {
     },
     {
       path: "manageCourse",
-      element: <Course activeCourse={activeCourse} />,
+      element: (
+        <Course
+          activeCourse={activeCourse}
+          activePath={activePath}
+          handleActiveCourse={handleActiveCourse}
+        />
+      ),
       loader: async () => {
         return "manage";
       },

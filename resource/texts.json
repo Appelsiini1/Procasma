@@ -743,6 +743,10 @@
     "FI": "Muuta",
     "ENG": "Change"
   },
+  "ui_other": {
+    "FI": "Muu",
+    "ENG": "Other"
+  },
   "ui_current_assig": {
     "FI": "Nykyinen tehtävä",
     "ENG": "Current assignment"
@@ -1002,6 +1006,10 @@
   "ui_assignment": {
     "FI": "Tehtävä",
     "ENG": "Assignment"
+  },
+  "ui_code_assignment": {
+    "FI": "Ohjelmointitehtävä",
+    "ENG": "Coding assignment"
   },
   "ui_module": {
     "FI": "Moduuli",
