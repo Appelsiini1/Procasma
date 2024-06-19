@@ -16,6 +16,7 @@ import SelectedHeader from "../components/SelectedHeader";
 import { useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
+import { CourseData } from "../types";
 
 // Get list of modules via IPC later
 const testSets = [
@@ -25,7 +26,11 @@ const testSets = [
 
 const testTags = ["print", "try...except"];
 
-export default function SetBrowse() {
+export default function SetBrowse({
+  activeCourse,
+}: {
+  activeCourse: CourseData;
+}) {
   const navigate = useNavigate();
   const [noSelected, setNoSelected] = useState(0);
   const [selectedModules, setSelectedModules] = useState<Array<string>>([]);
@@ -114,7 +119,11 @@ export default function SetBrowse() {
 
   return (
     <>
-      <PageHeaderBar pageName={texts.ui_set_browser[language.current]} />
+      <PageHeaderBar
+        pageName={texts.ui_set_browser[language.current]}
+        courseID={activeCourse?.ID}
+        courseTitle={activeCourse?.title}
+      />
       <div className="content">
         <div className="emptySpace1" />
         <SearchBar

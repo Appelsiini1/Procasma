@@ -5,3 +5,10 @@ export async function handleFileOpen() {
   const { canceled, filePaths } = await dialog.showOpenDialog({});
   return !canceled ? filePaths[0] : null;
 }
+
+export async function handleDirectorySelect() {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    properties: ["openDirectory"],
+  });
+  return !canceled ? filePaths[0] : null;
+}

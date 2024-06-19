@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -14,88 +14,119 @@ import SetCreator from "./routes/SetCreator";
 import SetBrowse from "./routes/SetBrowse";
 import Settings from "./routes/Settings";
 import ExportProject from "./routes/ExportProject";
+import { CourseData } from "./types";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-const router = createBrowserRouter([
-  { path: "/", element: <Root />, errorElement: <ErrorPage /> },
-  {
-    path: "createCourse",
-    element: <Course />,
-    loader: async () => {
-      return "create";
+
+const App = () => {
+  const [activeCourse, setActiveCourse] = useState<CourseData>(null);
+  const [activePath, setActivePath] = useState<string>(null);
+
+  function handleActiveCourse(value: CourseData) {
+    setActiveCourse(value);
+  }
+
+  function handleActivePath(value: string) {
+    setActivePath(value);
+  }
+
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: (
+        <Root
+          activeCourse={activeCourse}
+          handleActiveCourse={handleActiveCourse}
+          handleActivePath={handleActivePath}
+        />
+      ),
+      errorElement: <ErrorPage />,
     },
-  },
-  {
-    path: "manageCourse",
-    element: <Course />,
-    loader: async () => {
-      return "manage";
+    {
+      path: "createCourse",
+      element: <Course activeCourse={activeCourse} />,
+      loader: async () => {
+        return "create";
+      },
     },
-  },
-  {
-    path: "inputCodeAssignment",
-    element: <AssignmentInput />,
-    loader: async () => {
-      return "new";
+    {
+      path: "manageCourse",
+      element: <Course activeCourse={activeCourse} />,
+      loader: async () => {
+        return "manage";
+      },
     },
-  },
-  {
-    path: "newModule",
-    element: <ModuleAdd />,
-    loader: async () => {
-      return "new";
+    {
+      path: "inputCodeAssignment",
+      element: <AssignmentInput activeCourse={activeCourse} />,
+      loader: async () => {
+        return "new";
+      },
     },
-  },
-  {
-    path: "AssignmentBrowse",
-    element: <AssignmentBrowse />,
-    loader: async () => {
-      return "browse";
+    {
+      path: "newModule",
+      element: <ModuleAdd activeCourse={activeCourse} />,
+      loader: async () => {
+        return "new";
+      },
     },
-  },
-  {
-    path: "inputCodeProjectWork",
-    element: <ProjectWorkInput />,
-    loader: async () => {
-      return "new";
+    {
+      path: "AssignmentBrowse",
+      element: <AssignmentBrowse activeCourse={activeCourse} />,
+      loader: async () => {
+        return "browse";
+      },
     },
-  },
-  {
-    path: "exportProject",
-    element: <ExportProject />,
-    loader: async () => {
-      return "new";
+    {
+      path: "inputCodeProjectWork",
+      element: <ProjectWorkInput activeCourse={activeCourse} />,
+      loader: async () => {
+        return "new";
+      },
     },
-  },
-  {
-    path: "moduleBrowse",
-    element: <ModuleBrowse />,
-  },
-  {
-    path: "setCreator",
-    element: <SetCreator />,
-    loader: async () => {
-      return "new";
+    {
+      path: "exportProject",
+      element: <ExportProject activeCourse={activeCourse} />,
+      loader: async () => {
+        return "new";
+      },
     },
-  },
-  {
-    path: "setBrowse",
-    element: <SetBrowse />,
-    loader: async () => {
-      return "new";
+    {
+      path: "moduleBrowse",
+      element: <ModuleBrowse activeCourse={activeCourse} />,
     },
-  },
-  {
-    path: "settings",
-    element: <Settings />,
-    loader: async () => {
-      return "new";
+    {
+      path: "setCreator",
+      element: <SetCreator activeCourse={activeCourse} />,
+      loader: async () => {
+        return "new";
+      },
     },
-  },
-]);
+    {
+      path: "setBrowse",
+      element: <SetBrowse activeCourse={activeCourse} />,
+      loader: async () => {
+        return "new";
+      },
+    },
+    {
+      path: "settings",
+      element: <Settings activeCourse={activeCourse} />,
+      loader: async () => {
+        return "new";
+      },
+    },
+  ]);
+
+  return (
+    <>
+      <RouterProvider router={router} />
+    </>
+  );
+};
 
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <App></App>
   </React.StrictMode>
 );

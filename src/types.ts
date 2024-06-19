@@ -16,6 +16,23 @@ export interface CGData {
   atv2: object;
 }
 
+export interface ExampleRunType {
+  generate: boolean;
+  inputs: Array<string | number>;
+  cmdInputs: Array<string | number>;
+  output: string;
+}
+
+export interface Variation {
+  instructions: string;
+  exampleRuns: {
+    [key: string]: ExampleRunType;
+  };
+  files: Array<FileData>;
+  usedIn: Array<string>;
+  cgConfig: CGData;
+}
+
 export interface CommonAssignmentData {
   assignmentID: string;
   title: string;
@@ -31,26 +48,20 @@ export interface CodeAssignmentData extends CommonAssignmentData {
   previous: Array<string> | null;
   codeLanguage: string;
   variations: {
-    [key: string]: {
-      instructions: string;
-      exampleRuns: {
-        [key: string]: {
-          generate: boolean;
-          inputs: Array<string | number>;
-          cmdInputs: Array<string | number>;
-          output: string;
-        };
-      };
-      files: Array<FileData>;
-      usedIn: Array<string>;
-      cgConfig: CGData;
-    };
+    [key: string]: Variation;
   };
 }
 
 export interface CodeLanguage {
   name: string;
   fileExtensions: Array<string>;
+}
+
+export interface LevelsType {
+  [key: number]: {
+    fullName: string;
+    abbreviation: string;
+  };
 }
 
 export interface CourseData {
@@ -63,18 +74,19 @@ export interface CourseData {
   CodeGradeID?: number;
   minLevel?: number;
   maxLevel?: number;
-  levels?: {
-    [key: number]: {
-      fullName: string;
-      abbreviation: string;
-    };
-  } | null;
+  levels?: LevelsType | null;
 }
 
 export type CourseLoaderData = "create" | "manage";
 
 export type ContextBridgeAPI = {
   setTitle: (title: string) => void;
-  openFile: () => string;
   getAppVersion: () => string;
+  saveCourse: (course: CourseData, path: string) => void;
+  saveAssignment: (assignment: CodeAssignmentData, path: string) => void;
+  saveProject: (assignment: CodeAssignmentData, path: string) => void;
+  selectDir: () => string;
+  readCourse: (fileName: string, path: string) => CourseData;
 };
+
+export type SupportedModuleType = "week" | "module" | null;

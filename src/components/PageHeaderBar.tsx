@@ -4,7 +4,9 @@ import HomeIcon from "@mui/icons-material/Home";
 import Logo from "../../resource/Logo.png";
 import Grid from "@mui/joy/Grid";
 import { useNavigate } from "react-router-dom";
-import { currentCourse } from "../constantsUI";
+import texts from "../../resource/texts.json";
+import { language } from "../constantsUI";
+import { useEffect, useState } from "react";
 
 const IconSX = {
   color: "#00000",
@@ -14,13 +16,32 @@ const IconSX = {
 
 const imageSize = "38em";
 
-type ButtonProps = {
+type ComponentProps = {
   pageName: string;
+  courseID: string;
+  courseTitle: string;
 };
 
-export default function PageHeaderBar({ pageName }: ButtonProps) {
+export default function PageHeaderBar({
+  pageName,
+  courseID,
+  courseTitle,
+}: ComponentProps) {
   const navigate = useNavigate();
-  const courseName = currentCourse.ID + " " + currentCourse.title;
+  const [courseName, setCourseName] = useState(null);
+
+  const handleCourseName = (ID: string, title: string) => {
+    if (ID && title) {
+      setCourseName(`${ID} ${title}`);
+    } else {
+      setCourseName(texts.ui_no_course[language.current]);
+    }
+  };
+
+  useEffect(() => {
+    handleCourseName(courseID, courseTitle);
+  }, [courseID, courseTitle]);
+
   return (
     <Box
       sx={{

@@ -1,45 +1,42 @@
-export function deleteVariation(
-  variations: Array<React.JSX.Element>,
-  setVariations: React.Dispatch<React.SetStateAction<React.JSX.Element[]>>,
-  varID: string,
-  pageType: string
-) {
-  if (pageType !== "new") {
-    // call some function through IPC that deletes it from disk
-  } else {
-    setVariations((prevVariations) =>
-      prevVariations.filter((variation) => variation.key !== varID)
-    );
-  }
-}
-
-interface AccordionComponentProps {
-  varID: string;
-}
+import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
 
 /**
- * Takes in any AccordionComponent (most likely
- * VariationComponent, LevelComponent, or ExampleRun) as a
+ * Takes in any variation object (most likely
+ * Variation or ExampleRunType) as a
  * dependency injection.
  */
 export function addVariation(
-  AccordionComponent: React.ComponentType<AccordionComponentProps>,
+  newObject: unknown,
+  variations: { [key: string]: unknown },
   getNextIDfunction: (IDs: string[]) => string,
-  variations: Array<React.JSX.Element> | null,
-  setVariations: React.Dispatch<React.SetStateAction<React.JSX.Element[]>>
+  pathInAssignment: string,
+  handleAssignment: HandleAssignmentFn
 ) {
-  if (!variations || variations.length < 1) {
-    const nextID = getNextIDfunction([]);
-    setVariations([<AccordionComponent varID={nextID} key={nextID} />]);
-  } else {
-    // list the existing ids
-    const varIDs = variations.map((variation) => variation.key);
+  const newVariation = newObject;
 
-    // function to get next available varID
-    const nextID = getNextIDfunction(varIDs);
-    setVariations([
-      ...variations,
-      <AccordionComponent varID={nextID} key={nextID} />,
-    ]);
-  }
+  // list the existing ids
+  const varIDs = Object.keys(variations);
+
+  // function to get next available varID
+  const nextID = getNextIDfunction(varIDs);
+
+  const newVariations = {
+    ...variations,
+    [nextID]: newVariation,
+  };
+
+  handleAssignment(pathInAssignment, newVariations);
+}
+
+export function removeVariation(
+  varID: string,
+  variations: { [key: string]: unknown },
+  pathInAssignment: string,
+  handleAssignment: HandleAssignmentFn
+) {
+  // remove the specified key from variations
+  const { [varID]: _, ...remainingVariations } = variations;
+  const newVariations = remainingVariations;
+
+  handleAssignment(pathInAssignment, newVariations);
 }

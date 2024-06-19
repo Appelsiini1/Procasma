@@ -8,17 +8,19 @@ import texts from "../../resource/texts.json";
 type ButtonProps = {
   min?: number;
   max?: number;
-  value: string;
-  setValue: React.Dispatch<React.SetStateAction<string>>;
+  value: number;
+  //setValue: React.Dispatch<React.SetStateAction<number>>;
   disabled?: boolean;
+  onChange?: (value: number) => void;
 };
 
 export default function NumberInput({
   min,
   max,
   value,
-  setValue,
+  //setValue,
   disabled,
+  onChange,
 }: ButtonProps) {
   if (!min && min !== 0) {
     min = Number.MIN_SAFE_INTEGER;
@@ -28,21 +30,25 @@ export default function NumberInput({
   }
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const result = event.target.value.replace(/^(-)|[^0-9]+/g, "$1");
+    const resultInt = parseInt(result);
 
-    setValue(result);
+    onChange ? onChange(resultInt) : null;
+    //setValue ? setValue(resultInt) : null;
   }
   function handleIncrement() {
     let number = Number(value);
     if (number < max) {
       number += 1;
-      setValue(number.toString());
+      //setValue(number);
+      onChange(number);
     }
   }
   function handleDecrement() {
     let number = Number(value);
     if (number > min) {
       number -= 1;
-      setValue(number.toString());
+      //setValue(number);
+      onChange(number);
     }
   }
   return (

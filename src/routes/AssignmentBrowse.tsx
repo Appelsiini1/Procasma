@@ -17,6 +17,7 @@ import SelectedHeader from "../components/SelectedHeader";
 import { useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
+import { CourseData } from "../types";
 
 // Get list of assignments via IPC later
 const testAssignments = [
@@ -42,13 +43,17 @@ const testModules = [
 
 const testTags = ["print", "try...except"];
 
-export default function AssignmentBrowse() {
+export default function AssignmentBrowse({
+  activeCourse,
+}: {
+  activeCourse: CourseData;
+}) {
   const pageType = useLoaderData();
   const navigate = useNavigate();
   const [noSelected, setNoSelected] = useState(0);
-  const [selectedList, setSelectedList] = useState<Array<String>>([]);
-  const [selectedModules, setSelectedModules] = useState<Array<String>>([]);
-  const [selectedTags, setSelectedTags] = useState<Array<String>>([]);
+  const [selectedList, setSelectedList] = useState<Array<string>>([]);
+  const [selectedModules, setSelectedModules] = useState<Array<string>>([]);
+  const [selectedTags, setSelectedTags] = useState<Array<string>>([]);
   let assignments: Array<React.JSX.Element> = null;
   let selectFragment: React.JSX.Element = null;
   let pageButtons: React.JSX.Element = null;
@@ -71,7 +76,6 @@ export default function AssignmentBrowse() {
         setNoSelected(selectedList.length + 1);
         setBoxState(!state);
       }
-    } else {
     }
   }
 
@@ -239,7 +243,11 @@ export default function AssignmentBrowse() {
   }
   return (
     <>
-      <PageHeaderBar pageName={texts.ui_assignment_browser[language.current]} />
+      <PageHeaderBar
+        pageName={texts.ui_assignment_browser[language.current]}
+        courseID={activeCourse?.ID}
+        courseTitle={activeCourse?.title}
+      />
       <div className="content">
         {selectFragment}
 

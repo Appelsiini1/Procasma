@@ -6,11 +6,21 @@ import { Box, Divider, Grid, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
 import { useNavigate } from "react-router-dom";
 import FadeInImage from "../components/FadeInImage";
+import { CourseData } from "../types";
 import { useEffect } from "react";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 
-export default function Root() {
+export default function Root({
+  activeCourse,
+  handleActiveCourse,
+  handleActivePath,
+}: {
+  activeCourse: CourseData;
+  handleActiveCourse: React.Dispatch<React.SetStateAction<CourseData>>;
+  handleActivePath: React.Dispatch<React.SetStateAction<string>>;
+}) {
+  
   useEffect(() => {
     const getVersion = async () => {
       try {
@@ -28,9 +38,33 @@ export default function Root() {
   const pageName = texts.ui_main[language.current];
   let noInIndex = NaN; //make dynamic later
   const navigate = useNavigate();
+
+  async function handleSelectCourseFolder() {
+    try {
+      const coursePath: string = await window.api.selectDir();
+
+      const course = await window.api.readCourse("metadata.json", coursePath);
+
+      if (course) {
+        handleActiveCourse(course);
+        handleActivePath(coursePath);
+
+        console.log("Active course loaded...");
+      } else {
+        throw new Error("Course folder not valid");
+      }
+    } catch (error) {
+      console.error("An error occurred:", (error as Error).message);
+    }
+  }
+
   return (
     <>
-      <PageHeaderBar pageName={pageName} />
+      <PageHeaderBar
+        pageName={pageName}
+        courseID={activeCourse?.ID}
+        courseTitle={activeCourse?.title}
+      />
       <div className="menuContent">
         <div style={{ height: "10rem" }}>
           <FadeInImage src={LogoText} className="textLogo" alt="main logo" />
@@ -54,7 +88,6 @@ export default function Root() {
               <ButtonComp
                 buttonType="largeAdd"
                 onClick={() => {
-                  console.log("Add Course");
                   navigate("createCourse");
                 }}
                 ariaLabel={texts.ui_aria_nav_course_create[language.current]}
@@ -65,7 +98,7 @@ export default function Root() {
             <Grid>
               <ButtonComp
                 buttonType="openCourse"
-                onClick={() => console.log("Open Course")}
+                onClick={() => handleSelectCourseFolder()}
                 ariaLabel={texts.ui_aria_nav_open_course[language.current]}
               >
                 {texts.course_open[language.current]}
@@ -75,8 +108,11 @@ export default function Root() {
               <ButtonComp
                 buttonType="settings"
                 onClick={() => {
-                  console.log("Manage Course");
-                  navigate("manageCourse");
+                  if (activeCourse) {
+                    navigate("manageCourse");
+                  } else {
+                    console.log("Select a course first");
+                  }
                 }}
                 ariaLabel={texts.ui_aria_nav_manage_course[language.current]}
               >
@@ -98,7 +134,6 @@ export default function Root() {
               <ButtonComp
                 buttonType="largeAdd"
                 onClick={() => {
-                  console.log("Add Assignment");
                   navigate("inputCodeAssignment");
                 }}
                 ariaLabel={texts.ui_aria_nav_add_assignment[language.current]}
@@ -110,7 +145,6 @@ export default function Root() {
               <ButtonComp
                 buttonType="settings"
                 onClick={() => {
-                  console.log("Manage Assignments");
                   navigate("AssignmentBrowse");
                 }}
                 ariaLabel={
@@ -135,7 +169,6 @@ export default function Root() {
               <ButtonComp
                 buttonType="largeAdd"
                 onClick={() => {
-                  console.log("Add Module");
                   navigate("newModule");
                 }}
                 ariaLabel={texts.ui_aria_nav_add_module[language.current]}
@@ -147,7 +180,6 @@ export default function Root() {
               <ButtonComp
                 buttonType="settings"
                 onClick={() => {
-                  console.log("Manage Modules");
                   navigate("moduleBrowse");
                 }}
                 ariaLabel={texts.ui_aria_nav_browse_modules[language.current]}
@@ -170,7 +202,6 @@ export default function Root() {
               <ButtonComp
                 buttonType="largeAdd"
                 onClick={() => {
-                  console.log("Add assignment set");
                   navigate("setCreator");
                 }}
                 ariaLabel={texts.ui_aria_nav_add_set[language.current]}
@@ -191,7 +222,6 @@ export default function Root() {
               <ButtonComp
                 buttonType="largeAdd"
                 onClick={() => {
-                  console.log("Add project work");
                   navigate("inputCodeProjectWork");
                 }}
                 ariaLabel={texts.ui_aria_nav_add_project[language.current]}

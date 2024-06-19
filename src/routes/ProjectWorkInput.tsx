@@ -1,35 +1,33 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
 import texts from "../../resource/texts.json";
 import { language, currentCourse, dividerColor } from "../constantsUI";
-import {
-  AccordionGroup,
-  Box,
-  Divider,
-  Grid,
-  Stack,
-  Table,
-  Typography,
-} from "@mui/joy";
+import { Divider, Grid, Stack, Table, Typography } from "@mui/joy";
 import PageHeaderBar from "../components/PageHeaderBar";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
-import { useState } from "react";
 import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
-import { addVariation, deleteVariation } from "../helpers/variationHelpers";
-import LevelComponent from "../components/LevelComponent";
-import { getNextID } from "../helpers/getNextID";
+import { useAssignment } from "../helpers/assignmentHelpers";
+import { testCurrentProject } from "../myTestGlobals";
+import { CourseData, Variation } from "../types";
+import { splitStringToArray } from "../helpers/converters";
+import VariationsGroup from "../components/VariationsGroup";
 
-export default function ProjectWorkInput() {
+export default function ProjectWorkInput({
+  activeCourse,
+}: {
+  activeCourse: CourseData;
+}) {
+  const [assignment, handleAssignment] = useAssignment(testCurrentProject);
+  const variations: { [key: string]: Variation } = assignment.variations;
+
   const pageType = useLoaderData();
   const navigate = useNavigate();
   let pageTitle: string = null;
   const moduleDisable = currentCourse.moduleType !== null ? false : true;
-  const [moduleNo, setModuleNo] = useState("0");
-  const [levelAccordion, setLevelAccordion] =
-    useState<Array<React.JSX.Element>>(null);
+
   const codeLanguageOptions = defaults.codeLanguages; //get these from settings file later
 
   if (pageType === "new") {
@@ -37,7 +35,11 @@ export default function ProjectWorkInput() {
   }
   return (
     <>
-      <PageHeaderBar pageName={texts.ui_add_project_work[language.current]} />
+      <PageHeaderBar
+        pageName={texts.ui_add_project_work[language.current]}
+        courseID={activeCourse?.ID}
+        courseTitle={activeCourse?.title}
+      />
       <div className="content">
         <Typography level="h1">{pageTitle}</Typography>
         <Table borderAxis="none">
@@ -49,7 +51,13 @@ export default function ProjectWorkInput() {
                 </Typography>
               </td>
               <td>
-                <InputField fieldKey="caTitleInput" />
+                <InputField
+                  fieldKey="caTitleInput"
+                  defaultValue={assignment.title}
+                  onChange={(value: string) =>
+                    handleAssignment("title", value, true)
+                  }
+                />
               </td>
             </tr>
 
@@ -62,8 +70,10 @@ export default function ProjectWorkInput() {
               <td>
                 <NumberInput
                   disabled={moduleDisable}
-                  value={moduleNo}
-                  setValue={setModuleNo}
+                  value={assignment.module}
+                  onChange={(value: number) =>
+                    handleAssignment("module", value)
+                  }
                 ></NumberInput>
               </td>
             </tr>
@@ -88,7 +98,13 @@ export default function ProjectWorkInput() {
                 </Grid>
               </td>
               <td>
-                <InputField fieldKey="caTagsInput" />
+                <InputField
+                  fieldKey="caTagsInput"
+                  defaultValue={assignment.tags.toString()}
+                  onChange={(value: string) =>
+                    handleAssignment("tags", splitStringToArray(value), true)
+                  }
+                />
               </td>
             </tr>
 
@@ -103,8 +119,9 @@ export default function ProjectWorkInput() {
                   name="caCodeLanguageInput"
                   options={codeLanguageOptions}
                   labelKey="name"
-                  placeholder={
-                    texts.help_clang_assignment[language.current] + "..."
+                  defaultValue={assignment.codeLanguage}
+                  onChange={(value: string) =>
+                    handleAssignment("codeLanguage", value)
                   }
                 ></Dropdown>
               </td>
@@ -129,67 +146,11 @@ export default function ProjectWorkInput() {
             {texts.ui_levels[language.current]}
           </Typography>
           <div className="emptySpace1" />
-          <ButtonComp
-            buttonType="normal"
-            onClick={() =>
-              addVariation(
-                LevelComponent,
-                getNextID,
-                levelAccordion,
-                setLevelAccordion
-              )
-            }
-            ariaLabel={texts.ui_aria_add_level[language.current]}
-          >
-            {texts.ui_add_level[language.current]}
-          </ButtonComp>
-          <div className="emptySpace2" />
-          <Box
-            sx={{
-              maxHeight: "40rem",
-              overflowY: "auto",
-              width: "100%",
-              overflowX: "hidden",
-            }}
-          >
-            <AccordionGroup
-              size="lg"
-              sx={{ width: "100%", marginRight: "2rem" }}
-            >
-              {levelAccordion
-                ? levelAccordion.map((level) => (
-                    <Stack
-                      key={level.key}
-                      direction="column"
-                      justifyContent="flex-start"
-                      alignItems="start"
-                      spacing={0.5}
-                    >
-                      <div>{level}</div>
 
-                      <ButtonComp
-                        confirmationModal={true}
-                        modalText={`${texts.ui_delete[language.current]} 
-                        ${texts.ui_level[language.current]} ${level.key}`}
-                        buttonType="delete"
-                        onClick={() =>
-                          deleteVariation(
-                            levelAccordion,
-                            setLevelAccordion,
-                            level.key,
-                            "new"
-                          )
-                        }
-                        ariaLabel={texts.ui_aria_delete_level[language.current]}
-                      >
-                        {`${texts.ui_delete[language.current]} ${level.key}`}
-                      </ButtonComp>
-                      <div className="emptySpace1" />
-                    </Stack>
-                  ))
-                : ""}
-            </AccordionGroup>
-          </Box>
+          <VariationsGroup
+            variations={variations}
+            handleAssignment={handleAssignment}
+          ></VariationsGroup>
         </div>
 
         <div className="emptySpace1" />
@@ -201,7 +162,9 @@ export default function ProjectWorkInput() {
         >
           <ButtonComp
             buttonType="normal"
-            onClick={null}
+            onClick={() =>
+              window.api.saveProject(assignment, "get path from global state?")
+            }
             ariaLabel={texts.ui_aria_save[language.current]}
           >
             {texts.ui_save[language.current]}

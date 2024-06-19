@@ -15,6 +15,7 @@ import {
 import SelectedHeader from "../components/SelectedHeader";
 import { useState } from "react";
 import ButtonComp from "../components/ButtonComp";
+import { CourseData } from "../types";
 
 // Get list of modules via IPC later
 const testModules = [
@@ -24,11 +25,15 @@ const testModules = [
 
 const testTags = ["print", "try...except"];
 
-export default function AssignmentBrowse() {
+export default function AssignmentBrowse({
+  activeCourse,
+}: {
+  activeCourse: CourseData;
+}) {
   const navigate = useNavigate();
   const [noSelected, setNoSelected] = useState(0);
-  const [selectedModules, setSelectedModules] = useState<Array<String>>([]);
-  const [selectedTags, setSelectedTags] = useState<Array<String>>([]);
+  const [selectedModules, setSelectedModules] = useState<Array<string>>([]);
+  const [selectedTags, setSelectedTags] = useState<Array<string>>([]);
   let modules: Array<React.JSX.Element> = null;
   let tags: Array<React.JSX.Element> = null;
 
@@ -112,7 +117,11 @@ export default function AssignmentBrowse() {
 
   return (
     <>
-      <PageHeaderBar pageName={texts.ui_module_browser[language.current]} />
+      <PageHeaderBar
+        pageName={texts.ui_module_browser[language.current]}
+        courseID={activeCourse?.ID}
+        courseTitle={activeCourse?.title}
+      />
       <div className="content">
         <SelectedHeader selected={noSelected} />
         <div className="emptySpace1" />
