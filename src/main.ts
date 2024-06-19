@@ -2,7 +2,12 @@ import { app, BrowserWindow, Menu, ipcMain, dialog } from "electron";
 import path from "path";
 import { handleDirectorySelect, handleFileOpen } from "./helpers/fileDialog";
 import { version } from "./constants";
-import { handleSaveCourse, writeToFile } from "./helpers/fileOperations";
+import {
+  handleReadCourse,
+  handleReadFile,
+  handleSaveCourse,
+  writeToFile,
+} from "./helpers/fileOperations";
 import { CodeAssignmentData, CourseData } from "./types";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -35,6 +40,9 @@ const createWindow = () => {
   ipcMain.handle("selectDir", handleDirectorySelect);
   ipcMain.handle("saveCourse", (event, course, path) =>
     handleSaveCourse(course, path)
+  );
+  ipcMain.handle("readCourse", (event, fileName, path) =>
+    handleReadCourse(fileName, path)
   );
 
   // and load the index.html of the app.

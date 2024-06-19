@@ -22,6 +22,7 @@ import NumberInput from "../components/NumberInput";
 import ButtonComp from "../components/ButtonComp";
 import SwitchComp from "../components/SwitchComp";
 import StepperComp from "../components/StepperComp";
+import { CourseData } from "../types";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 
@@ -31,7 +32,11 @@ const testAssignments = [
   { ID: "2", name: "T2 - Otsikko" },
 ];
 
-export default function ExportProject() {
+export default function ExportProject({
+  activeCourse,
+}: {
+  activeCourse: CourseData;
+}) {
   const pageType = useLoaderData();
   const navigate = useNavigate();
   let pageTitle: string = null;
@@ -57,7 +62,11 @@ export default function ExportProject() {
 
   return (
     <>
-      <PageHeaderBar pageName={texts.ui_export_project[language.current]} />
+      <PageHeaderBar
+        pageName={texts.ui_export_project[language.current]}
+        courseID={activeCourse?.ID}
+        courseTitle={activeCourse?.title}
+      />
       <div className="content" style={{ minHeight: "50rem" }}>
         <StepperComp
           stepperState={stepperState}

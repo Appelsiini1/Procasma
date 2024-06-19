@@ -6,15 +6,24 @@ import { Stack, Table, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
+import { CourseData } from "../types";
 
-export default function Settings() {
+export default function Settings({
+  activeCourse,
+}: {
+  activeCourse: CourseData;
+}) {
   const navigate = useNavigate();
   // temporary languages list
   const languages: object[] = [{ name: "suomi" }, { name: "english" }];
 
   return (
     <>
-      <PageHeaderBar pageName={texts.ui_settings[language.current]} />
+      <PageHeaderBar
+        pageName={texts.ui_settings[language.current]}
+        courseID={activeCourse?.ID}
+        courseTitle={activeCourse?.title}
+      />
       <div className="content" style={{ minHeight: "50rem" }}>
         <Typography level="h1">
           {texts.ui_settings[language.current]}

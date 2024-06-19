@@ -12,7 +12,7 @@ import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import SwitchComp from "../components/SwitchComp";
 import { testCurrentAssignment } from "../myTestGlobals";
-import { Variation } from "../types";
+import { CourseData, Variation } from "../types";
 import {
   splitStringToArray,
   splitStringToNumberArray,
@@ -20,7 +20,11 @@ import {
 import { useAssignment } from "../helpers/assignmentHelpers";
 import VariationsGroup from "../components/VariationsGroup";
 
-export default function AssignmentInput() {
+export default function AssignmentInput({
+  activeCourse,
+}: {
+  activeCourse: CourseData;
+}) {
   const [assignment, handleAssignment] = useAssignment(testCurrentAssignment);
   const variations: { [key: string]: Variation } = assignment.variations;
 
@@ -38,7 +42,11 @@ export default function AssignmentInput() {
 
   return (
     <>
-      <PageHeaderBar pageName={texts.ui_add_assignment[language.current]} />
+      <PageHeaderBar
+        pageName={texts.ui_add_assignment[language.current]}
+        courseID={activeCourse?.ID}
+        courseTitle={activeCourse?.title}
+      />
       <div className="content">
         <Typography level="h1">{pageTitle}</Typography>
         <Table borderAxis="none">

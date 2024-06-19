@@ -6,16 +6,43 @@ import { Box, Divider, Grid, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
 import { useNavigate } from "react-router-dom";
 import FadeInImage from "../components/FadeInImage";
+import { CourseData } from "../types";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 
-export default function Root() {
+export default function Root({
+  activeCourse,
+  handleActiveCourse,
+  handleActivePath,
+}: {
+  activeCourse: CourseData;
+  handleActiveCourse: React.Dispatch<React.SetStateAction<CourseData>>;
+  handleActivePath: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const pageName = texts.ui_main[language.current];
   let noInIndex = NaN; //make dynamic later
   const navigate = useNavigate();
+
+  async function handleSelectCourseFolder() {
+    try {
+      const coursePath: string = await window.api.selectDir();
+
+      const course = await window.api.readCourse("metadata.json", coursePath);
+      console.log(coursePath);
+      handleActiveCourse(course);
+      handleActivePath(coursePath);
+    } catch (error) {
+      console.error("An error occurred:", (error as Error).message);
+    }
+  }
+
   return (
     <>
-      <PageHeaderBar pageName={pageName} />
+      <PageHeaderBar
+        pageName={pageName}
+        courseID={activeCourse?.ID}
+        courseTitle={activeCourse?.title}
+      />
       <div className="menuContent">
         <div style={{ height: "10rem" }}>
           <FadeInImage src={LogoText} className="textLogo" alt="main logo" />
@@ -49,7 +76,7 @@ export default function Root() {
             <Grid>
               <ButtonComp
                 buttonType="openCourse"
-                onClick={() => console.log("Open Course")}
+                onClick={() => handleSelectCourseFolder()}
                 ariaLabel={texts.ui_aria_nav_open_course[language.current]}
               >
                 {texts.course_open[language.current]}
@@ -59,7 +86,11 @@ export default function Root() {
               <ButtonComp
                 buttonType="settings"
                 onClick={() => {
-                  navigate("manageCourse");
+                  if (activeCourse) {
+                    navigate("manageCourse");
+                  } else {
+                    console.log("Select a course first");
+                  }
                 }}
                 ariaLabel={texts.ui_aria_nav_manage_course[language.current]}
               >

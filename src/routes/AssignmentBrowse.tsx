@@ -17,6 +17,7 @@ import SelectedHeader from "../components/SelectedHeader";
 import { useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
+import { CourseData } from "../types";
 
 // Get list of assignments via IPC later
 const testAssignments = [
@@ -42,7 +43,11 @@ const testModules = [
 
 const testTags = ["print", "try...except"];
 
-export default function AssignmentBrowse() {
+export default function AssignmentBrowse({
+  activeCourse,
+}: {
+  activeCourse: CourseData;
+}) {
   const pageType = useLoaderData();
   const navigate = useNavigate();
   const [noSelected, setNoSelected] = useState(0);
@@ -239,7 +244,11 @@ export default function AssignmentBrowse() {
   }
   return (
     <>
-      <PageHeaderBar pageName={texts.ui_assignment_browser[language.current]} />
+      <PageHeaderBar
+        pageName={texts.ui_assignment_browser[language.current]}
+        courseID={activeCourse?.ID}
+        courseTitle={activeCourse?.title}
+      />
       <div className="content">
         {selectFragment}
 

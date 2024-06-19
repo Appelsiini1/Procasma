@@ -21,8 +21,13 @@ import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import SwitchComp from "../components/SwitchComp";
 import { addVariation } from "../helpers/variationHelpers";
+import { CourseData } from "../types";
 
-export default function ModuleAdd() {
+export default function ModuleAdd({
+  activeCourse,
+}: {
+  activeCourse: CourseData;
+}) {
   const pageType = useLoaderData();
   const navigate = useNavigate();
   let pageTitle: string = null;
@@ -34,7 +39,11 @@ export default function ModuleAdd() {
   }
   return (
     <>
-      <PageHeaderBar pageName={texts.ui_add_assignment[language.current]} />
+      <PageHeaderBar
+        pageName={texts.ui_add_assignment[language.current]}
+        courseID={activeCourse?.ID}
+        courseTitle={activeCourse?.title}
+      />
       <div className="content">
         <Typography level="h1">{pageTitle}</Typography>
         <Table borderAxis="none">

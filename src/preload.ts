@@ -6,7 +6,6 @@ import { CodeAssignmentData, CourseData } from "./types";
 
 contextBridge.exposeInMainWorld("api", {
   setTitle: (title: string) => ipcRenderer.send("set-title", title),
-  openFile: () => ipcRenderer.invoke("dialog:openFile"),
   getAppVersion: () => ipcRenderer.invoke("getAppVersion"),
   saveCourse: (course: CourseData, path: string) =>
     ipcRenderer.invoke("saveCourse", course, path),
@@ -15,4 +14,6 @@ contextBridge.exposeInMainWorld("api", {
   saveProject: (assignment: CodeAssignmentData, path: string) =>
     ipcRenderer.send("saveProject", assignment, path),
   selectDir: () => ipcRenderer.invoke("selectDir"),
+  readCourse: (fileName: string, path: string) =>
+    ipcRenderer.invoke("readCourse", fileName, path),
 });

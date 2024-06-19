@@ -81,12 +81,12 @@ export type CourseLoaderData = "create" | "manage";
 
 export type ContextBridgeAPI = {
   setTitle: (title: string) => void;
-  openFile: () => string;
   getAppVersion: () => string;
   saveCourse: (course: CourseData, path: string) => void;
   saveAssignment: (assignment: CodeAssignmentData, path: string) => void;
   saveProject: (assignment: CodeAssignmentData, path: string) => void;
   selectDir: () => string;
+  readCourse: (fileName: string, path: string) => CourseData;
 };
 
 export type SupportedModuleType = "week" | "module" | null;

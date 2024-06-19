@@ -11,11 +11,15 @@ import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import { useAssignment } from "../helpers/assignmentHelpers";
 import { testCurrentProject } from "../myTestGlobals";
-import { Variation } from "../types";
+import { CourseData, Variation } from "../types";
 import { splitStringToArray } from "../helpers/converters";
 import VariationsGroup from "../components/VariationsGroup";
 
-export default function ProjectWorkInput() {
+export default function ProjectWorkInput({
+  activeCourse,
+}: {
+  activeCourse: CourseData;
+}) {
   const [assignment, handleAssignment] = useAssignment(testCurrentProject);
   const variations: { [key: string]: Variation } = assignment.variations;
 
@@ -31,7 +35,11 @@ export default function ProjectWorkInput() {
   }
   return (
     <>
-      <PageHeaderBar pageName={texts.ui_add_project_work[language.current]} />
+      <PageHeaderBar
+        pageName={texts.ui_add_project_work[language.current]}
+        courseID={activeCourse?.ID}
+        courseTitle={activeCourse?.title}
+      />
       <div className="content">
         <Typography level="h1">{pageTitle}</Typography>
         <Table borderAxis="none">

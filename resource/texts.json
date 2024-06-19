@@ -103,6 +103,10 @@
     "FI": "Viikkoja kurssilla",
     "ENG": "Number of weeks on course"
   },
+  "ui_no_course": {
+    "FI": "Ei kurssia valittu",
+    "ENG": "No course selected"
+  },
   "ui_save": {
     "FI": "Tallenna",
     "ENG": "Save"

@@ -1,5 +1,18 @@
 import { CodeAssignmentData, CourseData } from "./types";
 
+export const newCourse: CourseData = {
+  title: "New course",
+  ID: "CT00XXXX",
+  modules: 0,
+  moduleType: "week",
+  language: "FI",
+  codeLanguage: { name: "Python", fileExtensions: [".py"] },
+  CodeGradeID: null,
+  minLevel: 1,
+  maxLevel: 1,
+  levels: null,
+};
+
 export const testCurrentCourse: CourseData = {
   title: "Course 1",
   ID: "CT001234",

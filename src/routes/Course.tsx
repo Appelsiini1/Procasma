@@ -1,11 +1,6 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
 import texts from "../../resource/texts.json";
-import {
-  language,
-  currentCourse,
-  supportedModuleTypes,
-  buttonShadow,
-} from "../constantsUI";
+import { language, supportedModuleTypes, buttonShadow } from "../constantsUI";
 import { Grid, IconButton, Stack, Table, Typography } from "@mui/joy";
 import PageHeaderBar from "../components/PageHeaderBar";
 import InputField from "../components/InputField";
@@ -17,14 +12,17 @@ import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import { useCourse } from "../helpers/assignmentHelpers";
-import { testCurrentCourse } from "../myTestGlobals";
+import { newCourse } from "../myTestGlobals";
 import { courseLevelsToString, splitCourseLevels } from "../helpers/converters";
+import { CourseData } from "../types";
 
-export default function Course() {
-  const [course, handleCourse] = useCourse(testCurrentCourse);
+export default function Course({ activeCourse }: { activeCourse: CourseData }) {
+  let pageType = useLoaderData();
+
+  const initialCourseState = pageType == "create" ? newCourse : activeCourse;
+  const [course, handleCourse] = useCourse(initialCourseState);
   const [path, setPath] = useState("");
 
-  let pageType = useLoaderData();
   let pageTitle: string = null;
   let disableCourseFolderSelect = false;
   const [disableModuleOptions, setDisableModuleOptions] = useState(false);
@@ -38,7 +36,7 @@ export default function Course() {
   if (pageType == "create") {
     pageTitle = texts.course_create[language.current];
   } else {
-    pageTitle = currentCourse.ID + " " + currentCourse.title;
+    pageTitle = course.ID + " " + course.title;
     disableCourseFolderSelect = true;
   }
   const navigate = useNavigate();
@@ -111,7 +109,11 @@ export default function Course() {
 
   return (
     <>
-      <PageHeaderBar pageName={texts.course_create[language.current]} />
+      <PageHeaderBar
+        pageName={texts.course_create[language.current]}
+        courseID={activeCourse?.ID}
+        courseTitle={activeCourse?.title}
+      />
       <div className="content">
         <Typography level="h1">{pageTitle}</Typography>
         <Table borderAxis="none">
@@ -292,7 +294,9 @@ export default function Course() {
               <td>
                 <InputField
                   fieldKey="cCGIDInput"
-                  defaultValue={course.CodeGradeID.toString()}
+                  defaultValue={
+                    course?.CodeGradeID ? String(course.CodeGradeID) : ""
+                  }
                   onChange={(value: string) =>
                     handleCourse("CodeGradeID", parseInt(value), true)
                   }
@@ -310,7 +314,13 @@ export default function Course() {
         >
           <ButtonComp
             buttonType="normal"
-            onClick={() => window.api.saveCourse(course, path)}
+            onClick={() => {
+              if (path && path.length > 1) {
+                window.api.saveCourse(course, path);
+              } else {
+                console.log("choose a folder path");
+              }
+            }}
             ariaLabel={texts.ui_aria_save[language.current]}
           >
             {texts.ui_save[language.current]}
