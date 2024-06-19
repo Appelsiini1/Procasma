@@ -125,10 +125,6 @@ const App = () => {
   );
 };
 
-const vers = await window.api.getAppVersion();
-const title = "Procasma " + vers;
-window.api.setTitle(title);
-
 root.render(
   <React.StrictMode>
     <App></App>
