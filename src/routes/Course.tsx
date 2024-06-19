@@ -19,6 +19,11 @@ import { CourseData } from "../types";
 export default function Course({ activeCourse }: { activeCourse: CourseData }) {
   let pageType = useLoaderData();
 
+  // if somehow navigates to manage course without activeCourse
+  if (!activeCourse) {
+    pageType = "create";
+  }
+
   const initialCourseState = pageType == "create" ? newCourse : activeCourse;
   const [course, handleCourse] = useCourse(initialCourseState);
   const [path, setPath] = useState("");

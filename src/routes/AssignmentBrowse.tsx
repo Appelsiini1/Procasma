@@ -51,9 +51,9 @@ export default function AssignmentBrowse({
   const pageType = useLoaderData();
   const navigate = useNavigate();
   const [noSelected, setNoSelected] = useState(0);
-  const [selectedList, setSelectedList] = useState<Array<String>>([]);
-  const [selectedModules, setSelectedModules] = useState<Array<String>>([]);
-  const [selectedTags, setSelectedTags] = useState<Array<String>>([]);
+  const [selectedList, setSelectedList] = useState<Array<string>>([]);
+  const [selectedModules, setSelectedModules] = useState<Array<string>>([]);
+  const [selectedTags, setSelectedTags] = useState<Array<string>>([]);
   let assignments: Array<React.JSX.Element> = null;
   let selectFragment: React.JSX.Element = null;
   let pageButtons: React.JSX.Element = null;
@@ -76,7 +76,6 @@ export default function AssignmentBrowse({
         setNoSelected(selectedList.length + 1);
         setBoxState(!state);
       }
-    } else {
     }
   }
 

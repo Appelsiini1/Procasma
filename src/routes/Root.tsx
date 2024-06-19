@@ -28,9 +28,15 @@ export default function Root({
       const coursePath: string = await window.api.selectDir();
 
       const course = await window.api.readCourse("metadata.json", coursePath);
-      console.log(coursePath);
-      handleActiveCourse(course);
-      handleActivePath(coursePath);
+
+      if (course) {
+        handleActiveCourse(course);
+        handleActivePath(coursePath);
+
+        console.log("Active course loaded...");
+      } else {
+        throw new Error("Course folder not valid");
+      }
     } catch (error) {
       console.error("An error occurred:", (error as Error).message);
     }

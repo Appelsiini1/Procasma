@@ -39,7 +39,7 @@ export default function ExportProject({
 }) {
   const pageType = useLoaderData();
   const navigate = useNavigate();
-  let pageTitle: string = null;
+  const pageTitle: string = null;
   const [moduleNumber, setmoduleNumber] = useState("1");
   const [stepperState, setStepperState] = useState<number>(0);
   const formats: object[] = [];
