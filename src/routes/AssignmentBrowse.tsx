@@ -14,10 +14,10 @@ import {
   Typography,
 } from "@mui/joy";
 import SelectedHeader from "../components/SelectedHeader";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
-import { CourseData } from "../types";
+import { CodeAssignmentData, CourseData } from "../types";
 
 // Get list of assignments via IPC later
 const testAssignments = [
@@ -45,8 +45,10 @@ const testTags = ["print", "try...except"];
 
 export default function AssignmentBrowse({
   activeCourse,
+  activePath,
 }: {
   activeCourse: CourseData;
+  activePath: string;
 }) {
   const pageType = useLoaderData();
   const navigate = useNavigate();
@@ -59,6 +61,22 @@ export default function AssignmentBrowse({
   let pageButtons: React.JSX.Element = null;
   let modules: Array<React.JSX.Element> = null;
   let tags: Array<React.JSX.Element> = null;
+
+  const [courseAssignments, setCourseAssignments] =
+    useState<Array<CodeAssignmentData>>(null);
+
+  useEffect(() => {
+    const getAssignments = async () => {
+      try {
+        const assignments: CodeAssignmentData[] =
+          await window.api.getAssignments(activePath);
+        //setCourseAssignments(assignments);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getAssignments();
+  }, []);
 
   function handleSelectedListChange(
     assignmentID: string,

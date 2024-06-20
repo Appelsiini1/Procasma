@@ -85,10 +85,11 @@ export type ContextBridgeAPI = {
   getAppVersion: () => string;
   saveCourse: (course: CourseData, path: string) => void;
   updateCourse: (course: CourseData, path: string) => void;
-  saveAssignment: (assignment: CodeAssignmentData, path: string) => void;
-  saveProject: (assignment: CodeAssignmentData, path: string) => void;
   selectDir: () => string;
   readCourse: (path: string) => CourseData;
+  saveAssignment: (assignment: CodeAssignmentData, path: string) => void;
+  saveProject: (assignment: CodeAssignmentData, path: string) => void;
+  getAssignments: (path: string) => CodeAssignmentData[];
 };
 
 export type SupportedModuleType = "week" | "module" | null;

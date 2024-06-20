@@ -22,8 +22,10 @@ import VariationsGroup from "../components/VariationsGroup";
 
 export default function AssignmentInput({
   activeCourse,
+  activePath,
 }: {
   activeCourse: CourseData;
+  activePath: string;
 }) {
   const [assignment, handleAssignment] = useAssignment(testCurrentAssignment);
   const variations: { [key: string]: Variation } = assignment.variations;
@@ -267,12 +269,7 @@ export default function AssignmentInput({
         >
           <ButtonComp
             buttonType="normal"
-            onClick={() =>
-              window.api.saveAssignment(
-                assignment,
-                "get path from global state?"
-              )
-            }
+            onClick={() => window.api.saveAssignment(assignment, activePath)}
             ariaLabel={texts.ui_aria_save[language.current]}
           >
             {texts.ui_save[language.current]}

@@ -3,8 +3,10 @@ import path from "path";
 import { handleDirectorySelect, handleFileOpen } from "./helpers/fileDialog";
 import { version } from "./constants";
 import {
+  handleGetAssignments,
   handleReadCourse,
   handleReadFile,
+  handleSaveAssignment,
   handleSaveCourse,
   handleUpdateCourse,
   writeToFile,
@@ -46,6 +48,10 @@ const createWindow = () => {
   ipcMain.handle("updateCourse", (event, fileName, path) =>
     handleUpdateCourse(fileName, path)
   );
+  ipcMain.handle("saveAssignment", (event, assignment, path) =>
+    handleSaveAssignment(assignment, path)
+  );
+  ipcMain.handle("getAssignments", (event, path) => handleGetAssignments(path));
 
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -92,19 +98,3 @@ app.on("activate", () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
-
-ipcMain.on(
-  "saveAssignment",
-  (event, assignment: CodeAssignmentData, path: string) => {
-    console.log(`main: save assignment to path: ${path}`);
-    console.log(assignment);
-  }
-);
-
-ipcMain.on(
-  "saveProject",
-  (event, assignment: CodeAssignmentData, path: string) => {
-    console.log(`main: save project to path: ${path}`);
-    console.log(assignment);
-  }
-);

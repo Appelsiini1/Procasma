@@ -64,7 +64,9 @@ const App = () => {
     },
     {
       path: "inputCodeAssignment",
-      element: <AssignmentInput activeCourse={activeCourse} />,
+      element: (
+        <AssignmentInput activeCourse={activeCourse} activePath={activePath} />
+      ),
       loader: async () => {
         return "new";
       },
@@ -78,7 +80,9 @@ const App = () => {
     },
     {
       path: "AssignmentBrowse",
-      element: <AssignmentBrowse activeCourse={activeCourse} />,
+      element: (
+        <AssignmentBrowse activeCourse={activeCourse} activePath={activePath} />
+      ),
       loader: async () => {
         return "browse";
       },
