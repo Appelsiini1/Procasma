@@ -1,7 +1,7 @@
 import { app, BrowserWindow, Menu, ipcMain, dialog } from "electron";
 import path from "path";
 import { handleDirectorySelect, handleFileOpen } from "./helpers/fileDialog";
-import { version } from "./constants";
+import { version, DEVMODE } from "./constants";
 import {
   handleReadCourse,
   handleReadFile,
@@ -57,7 +57,9 @@ const createWindow = () => {
   }
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  if (DEVMODE) {
+    mainWindow.webContents.openDevTools();
+  }
 };
 
 // Disable default menu early for performance, see https://github.com/electron/electron/issues/35512
