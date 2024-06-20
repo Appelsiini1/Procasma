@@ -1,4 +1,4 @@
-import { ExampleRunType, FileData, Variation } from "src/types";
+import { ExampleRunType, FileData, Variation } from "./types";
 
 export const dummyFileRows: FileData[] = [
   {

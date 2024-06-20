@@ -6,7 +6,7 @@ import { Stack, Table, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
-import { CourseData } from "../types";
+import { CourseData, SupportedLanguages } from "../types";
 
 export default function Settings({
   activeCourse,
@@ -14,8 +14,30 @@ export default function Settings({
   activeCourse: CourseData;
 }) {
   const navigate = useNavigate();
-  // temporary languages list
-  const languages: object[] = [{ name: "suomi" }, { name: "english" }];
+
+  const languageOptions = texts.languages.map((value) => {
+    return {
+      languageName: value[language.current],
+      abbreviation: value["abbreviation"],
+    };
+  });
+
+  const handleSetLanguage = (value: string) => {
+    languageOptions.map((option) => {
+      if (option?.languageName === value) {
+        try {
+          // attempt cast
+          const abbreviation: SupportedLanguages =
+            option.abbreviation as SupportedLanguages;
+
+          // set the current global language
+          language.current = abbreviation;
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    });
+  };
 
   return (
     <>
@@ -37,7 +59,7 @@ export default function Settings({
                 </Typography>
               </td>
               <td>
-                <InputField fieldKey="caSetName" />
+                <InputField fieldKey="caSetName" onChange={null} />
               </td>
             </tr>
 
@@ -48,7 +70,7 @@ export default function Settings({
                 </Typography>
               </td>
               <td>
-                <InputField fieldKey="caSetName" />
+                <InputField fieldKey="caSetName" onChange={null} />
               </td>
             </tr>
 
@@ -59,7 +81,7 @@ export default function Settings({
                 </Typography>
               </td>
               <td>
-                <InputField fieldKey="caSetName" />
+                <InputField fieldKey="caSetName" onChange={null} />
               </td>
             </tr>
 
@@ -83,10 +105,15 @@ export default function Settings({
               </td>
               <td>
                 <Dropdown
-                  name="caLanguageInput"
-                  options={languages}
-                  labelKey="name"
-                  placeholder={"..."}
+                  name="cLanguageInput"
+                  options={languageOptions}
+                  labelKey="languageName"
+                  defaultValue={
+                    languageOptions.find(
+                      (elem) => elem.abbreviation === language.current
+                    )?.languageName
+                  }
+                  onChange={(value: string) => handleSetLanguage(value)}
                 ></Dropdown>
               </td>
             </tr>

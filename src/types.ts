@@ -1,3 +1,4 @@
+export const supportedLanguagesList: string[] = ["FI", "ENG"];
 export type SupportedLanguages = "FI" | "ENG";
 
 export type FileTypes = "text" | "image" | "code";
