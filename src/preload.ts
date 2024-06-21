@@ -2,7 +2,7 @@
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 
 import { contextBridge, ipcRenderer } from "electron";
-import { CodeAssignmentData, CourseData } from "./types";
+import { CodeAssignmentData, CourseData, Settings } from "./types";
 
 contextBridge.exposeInMainWorld("api", {
   setTitle: (title: string) => ipcRenderer.send("set-title", title),
@@ -17,4 +17,7 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.send("saveProject", assignment, path),
   selectDir: () => ipcRenderer.invoke("selectDir"),
   readCourse: (path: string) => ipcRenderer.invoke("readCourse", path),
+  getSettings: () => ipcRenderer.invoke("getSettings"),
+  saveSettings: (settings: Settings) =>
+    ipcRenderer.send("saveSettings", settings),
 });

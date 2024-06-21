@@ -1,15 +1,15 @@
-import { app, BrowserWindow, Menu, ipcMain, dialog } from "electron";
+import { app, BrowserWindow, Menu, ipcMain } from "electron";
 import path from "path";
 import { handleDirectorySelect, handleFileOpen } from "./helpers/fileDialog";
 import { version, DEVMODE } from "./constants";
 import {
   handleReadCourse,
-  handleReadFile,
   handleSaveCourse,
   handleUpdateCourse,
-  writeToFile,
 } from "./helpers/fileOperations";
-import { CodeAssignmentData, CourseData } from "./types";
+import { CodeAssignmentData, Settings } from "./types";
+import { initialize } from "./helpers/programInit";
+import { getSettings, saveSettings } from "./helpers/settings";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -30,22 +30,6 @@ const createWindow = () => {
       contextIsolation: true,
     },
   });
-
-  // One-way, Renderer to Main
-  ipcMain.on("set-title", (event, title) => {
-    const webContents = event.sender;
-    const win = BrowserWindow.fromWebContents(webContents);
-    win.setTitle(title);
-  });
-
-  ipcMain.handle("selectDir", handleDirectorySelect);
-  ipcMain.handle("saveCourse", (event, course, path) =>
-    handleSaveCourse(course, path)
-  );
-  ipcMain.handle("readCourse", (event, path) => handleReadCourse(path));
-  ipcMain.handle("updateCourse", (event, fileName, path) =>
-    handleUpdateCourse(fileName, path)
-  );
 
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -69,9 +53,6 @@ Menu.setApplicationMenu(null);
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
-  // Bidirectional, renderer to main to renderer
-  ipcMain.handle("dialog:openFile", handleFileOpen);
-  ipcMain.handle("getAppVersion", getVersion);
   createWindow();
 });
 
@@ -95,6 +76,14 @@ app.on("activate", () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
+initialize();
+
+// One-way, Renderer to Main
+ipcMain.on("set-title", (event, title) => {
+  const webContents = event.sender;
+  const win = BrowserWindow.fromWebContents(webContents);
+  win.setTitle(title);
+});
 ipcMain.on(
   "saveAssignment",
   (event, assignment: CodeAssignmentData, path: string) => {
@@ -110,3 +99,19 @@ ipcMain.on(
     console.log(assignment);
   }
 );
+ipcMain.on("saveSettings", (event, settings: Settings) => {
+  saveSettings(settings);
+});
+
+// Bidirectional, renderer to main to renderer
+ipcMain.handle("selectDir", handleDirectorySelect);
+ipcMain.handle("saveCourse", (event, course, path) =>
+  handleSaveCourse(course, path)
+);
+ipcMain.handle("readCourse", (event, path) => handleReadCourse(path));
+ipcMain.handle("updateCourse", (event, fileName, path) =>
+  handleUpdateCourse(fileName, path)
+);
+ipcMain.handle("dialog:openFile", handleFileOpen);
+ipcMain.handle("getAppVersion", getVersion);
+ipcMain.handle("getSettings", getSettings);
