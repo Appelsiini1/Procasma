@@ -226,35 +226,30 @@ export function handleGetAssignments(
     const assignments: CodeAssignmentData[] = [];
 
     // Loop through all the files in the temp directory
-    fs.readdir(assignmentDataPath, function (err, files) {
-      if (err) {
-        console.error("Could not list the directory.", err);
+    const files = fs.readdirSync(assignmentDataPath);
+
+    files.forEach(function (file, index) {
+      const hashFile = `${file}.json`;
+      const assignmentPath: string = path.join(
+        assignmentDataPath,
+        file,
+        hashFile
+      );
+
+      const fileResult = handleReadFile(assignmentPath);
+
+      if (fileResult.error) {
+        return null;
       }
 
-      files.forEach(function (file, index) {
-        const hashFile = `${file}.json`;
-        const assignmentPath: string = path.join(
-          assignmentDataPath,
-          file,
-          hashFile
-        );
+      const assignment = fileResult.content as CodeAssignmentData;
 
-        const fileResult = handleReadFile(assignmentPath);
-
-        if (fileResult.error) {
-          return null;
-        }
-
-        const assignment = fileResult.content as CodeAssignmentData;
-
-        assignments.push(assignment);
-      });
-
-      return assignments;
+      assignments.push(assignment);
     });
+
+    return assignments;
   } catch (error) {
     console.error("An error occurred:", (error as Error).message);
     return null;
   }
-  return null;
 }
