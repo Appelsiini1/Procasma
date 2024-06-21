@@ -10,6 +10,7 @@ export function getApplicationDir() {
   } else {
     appdata = path + "/.Procasma/";
   }
+  return appdata;
 }
 
 export function getCacheDir() {
@@ -20,9 +21,13 @@ export function getCacheDir() {
   }
 }
 
+export function getDarwinSettingsDir() {
+  return getApplicationDir() + "/Preferences/Procasma/";
+}
+
 export function getSettingsFilepath() {
   if (platform === "darwin") {
-    return getApplicationDir() + "/Preferences/Procasma/settings.json";
+    return getDarwinSettingsDir() + "settings.json";
   } else {
     return getApplicationDir() + "settings.json";
   }
