@@ -253,3 +253,15 @@ export function handleGetAssignments(
     return null;
   }
 }
+
+export function removeAssignmentById(coursePath: string, id: string): void {
+  try {
+    // remove the file hash folder and its contents
+    const assignmentPath = path.join(coursePath, "assignment_data", id);
+
+    fs.rmSync(assignmentPath, { recursive: true, force: true });
+  } catch (error) {
+    console.error("An error occurred:", (error as Error).message);
+  }
+  return null;
+}

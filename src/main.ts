@@ -1,17 +1,15 @@
-import { app, BrowserWindow, Menu, ipcMain, dialog } from "electron";
+import { app, BrowserWindow, Menu, ipcMain } from "electron";
 import path from "path";
 import { handleDirectorySelect, handleFileOpen } from "./helpers/fileDialog";
 import { version } from "./constants";
 import {
   handleGetAssignments,
   handleReadCourse,
-  handleReadFile,
   handleSaveAssignment,
   handleSaveCourse,
   handleUpdateCourse,
-  writeToFile,
+  removeAssignmentById,
 } from "./helpers/fileOperations";
-import { CodeAssignmentData, CourseData } from "./types";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -52,6 +50,9 @@ const createWindow = () => {
     handleSaveAssignment(assignment, path)
   );
   ipcMain.handle("getAssignments", (event, path) => handleGetAssignments(path));
+  ipcMain.handle("deleteAssignment", (event, coursePath, id) =>
+    removeAssignmentById(coursePath, id)
+  );
 
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {

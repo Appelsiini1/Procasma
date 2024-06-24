@@ -10,17 +10,23 @@ import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import { useAssignment } from "../helpers/assignmentHelpers";
-import { testCurrentProject } from "../myTestGlobals";
-import { CourseData, Variation } from "../types";
+import { testCurrentAssignment, testCurrentProject } from "../myTestGlobals";
+import { CodeAssignmentData, CourseData, Variation } from "../types";
 import { splitStringToArray } from "../helpers/converters";
 import VariationsGroup from "../components/VariationsGroup";
 
 export default function ProjectWorkInput({
   activeCourse,
+  activePath,
+  activeAssignment,
 }: {
   activeCourse: CourseData;
+  activePath: string;
+  activeAssignment?: CodeAssignmentData;
 }) {
-  const [assignment, handleAssignment] = useAssignment(testCurrentProject);
+  const [assignment, handleAssignment] = useAssignment(
+    activeAssignment ? activeAssignment : testCurrentAssignment
+  );
   const variations: { [key: string]: Variation } = assignment.variations;
 
   const pageType = useLoaderData();
@@ -33,6 +39,11 @@ export default function ProjectWorkInput({
   if (pageType === "new") {
     pageTitle = texts.ui_new_project_work[language.current];
   }
+
+  if (pageType === "manage") {
+    pageTitle = texts.ui_edit_project_work[language.current];
+  }
+
   return (
     <>
       <PageHeaderBar

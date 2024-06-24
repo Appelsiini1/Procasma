@@ -16,4 +16,6 @@ contextBridge.exposeInMainWorld("api", {
   saveAssignment: (assignment: CodeAssignmentData, path: string) =>
     ipcRenderer.invoke("saveAssignment", assignment, path),
   getAssignments: (path: string) => ipcRenderer.invoke("getAssignments", path),
+  deleteAssignment: (coursePath: string, id: string) =>
+    ipcRenderer.invoke("deleteAssignment", coursePath, id),
 });

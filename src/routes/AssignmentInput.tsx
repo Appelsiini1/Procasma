@@ -12,7 +12,7 @@ import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import SwitchComp from "../components/SwitchComp";
 import { testCurrentAssignment } from "../myTestGlobals";
-import { CourseData, Variation } from "../types";
+import { CodeAssignmentData, CourseData, Variation } from "../types";
 import {
   splitStringToArray,
   splitStringToNumberArray,
@@ -23,11 +23,15 @@ import VariationsGroup from "../components/VariationsGroup";
 export default function AssignmentInput({
   activeCourse,
   activePath,
+  activeAssignment,
 }: {
   activeCourse: CourseData;
   activePath: string;
+  activeAssignment?: CodeAssignmentData;
 }) {
-  const [assignment, handleAssignment] = useAssignment(testCurrentAssignment);
+  const [assignment, handleAssignment] = useAssignment(
+    activeAssignment ? activeAssignment : testCurrentAssignment
+  );
   const variations: { [key: string]: Variation } = assignment.variations;
 
   const pageType = useLoaderData();
@@ -40,6 +44,10 @@ export default function AssignmentInput({
 
   if (pageType === "new") {
     pageTitle = texts.ui_new_assignment[language.current];
+  }
+
+  if (pageType === "manage") {
+    pageTitle = texts.ui_edit_assignment[language.current];
   }
 
   return (
