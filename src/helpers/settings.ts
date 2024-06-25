@@ -7,7 +7,8 @@ export function getSettings() {
   if (settingsFromFile.error) {
     throw new Error("Could not load settings from file");
   } else {
-    return JSON.parse(settingsFromFile.content);
+    const settings: Settings = settingsFromFile.content;
+    return settings;
   }
 }
 

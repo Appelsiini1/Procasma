@@ -14,7 +14,12 @@ import {
 import ButtonComp from "../components/ButtonComp";
 import { useNavigate } from "react-router-dom";
 import FadeInImage from "../components/FadeInImage";
-import { CodeAssignmentData, CourseData } from "../types";
+import {
+  CodeAssignmentData,
+  CourseData,
+  Settings,
+  SupportedLanguages,
+} from "../types";
 import { useEffect, useState } from "react";
 import { getAssignments } from "../helpers/requests";
 

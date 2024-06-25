@@ -14,7 +14,30 @@ import SetCreator from "./routes/SetCreator";
 import SetBrowse from "./routes/SetBrowse";
 import Settings from "./routes/Settings";
 import ExportProject from "./routes/ExportProject";
-import { CodeAssignmentData, CourseData } from "./types";
+import { CodeAssignmentData, CourseData, SupportedLanguages } from "./types";
+import { language } from "./constantsUI";
+
+const updateLanguageInit = async () => {
+  try {
+    const settings = await window.api.getSettings();
+
+    if (!settings?.language) {
+      throw new Error("Failed to get settings");
+    }
+
+    const abbreviation: SupportedLanguages =
+      settings.language as SupportedLanguages;
+
+    language.current = abbreviation;
+  } catch (error) {
+    console.error(error);
+  }
+
+  return;
+};
+
+// get the init settings and update the UI language
+await updateLanguageInit();
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
