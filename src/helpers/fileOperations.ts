@@ -34,9 +34,9 @@ export function handleReadFile(filePath: string): FileResult {
   }
 }
 
-export function createFolder(path: string) {
+export function createFolder(path: string, options: object = null) {
   if (!fs.existsSync(path)) {
-    fs.mkdirSync(path);
+    fs.mkdirSync(path, options);
   } /*else {
     throw new Error("Course folder already exists");
   }*/

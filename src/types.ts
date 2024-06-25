@@ -94,3 +94,8 @@ export type ContextBridgeAPI = {
 };
 
 export type SupportedModuleType = "week" | "module" | null;
+
+export interface Settings {
+  codeLanguages: Array<CodeLanguage>;
+  language: string;
+}
