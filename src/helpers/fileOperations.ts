@@ -69,12 +69,6 @@ export function handleSaveCourse(course: CourseData, coursesPath: string) {
     const databasePath = path.join(coursePath, "database");
     createFolder(databasePath);
 
-    // assignment stuff maybe in a different route/handler
-    // create assignment_data
-    //  create assignments by hash
-    //    create variants by ID
-    //      create variant data folder
-
     // create weeks.json
 
     // create sets.json

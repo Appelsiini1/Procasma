@@ -6,7 +6,8 @@ import { Stack, Table, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
-import { CourseData, SupportedLanguages } from "../types";
+import { CourseData, Settings, SupportedLanguages } from "../types";
+import { useState } from "react";
 
 export default function Settings({
   activeCourse,
@@ -14,6 +15,10 @@ export default function Settings({
   activeCourse: CourseData;
 }) {
   const navigate = useNavigate();
+  const [settings, setSettings] = useState<Settings>({
+    codeLanguages: [],
+    language: "ENG",
+  });
 
   const languageOptions = texts.languages.map((value) => {
     return {
@@ -22,7 +27,7 @@ export default function Settings({
     };
   });
 
-  const handleSetLanguage = (value: string) => {
+  function handleSetLanguage(value: string) {
     languageOptions.map((option) => {
       if (option?.languageName === value) {
         try {
@@ -32,12 +37,22 @@ export default function Settings({
 
           // set the current global language
           language.current = abbreviation;
+
+          setSettings((prevSettings) => {
+            const newSettings = prevSettings;
+            newSettings.language = abbreviation;
+            return newSettings;
+          });
         } catch (error) {
           console.log(error);
         }
       }
     });
-  };
+  }
+
+  function handleSaveSettings() {
+    window.api.saveSettings(settings);
+  }
 
   return (
     <>
@@ -129,7 +144,7 @@ export default function Settings({
         >
           <ButtonComp
             buttonType="normal"
-            onClick={() => console.log("save")}
+            onClick={() => handleSaveSettings()}
             ariaLabel={texts.ui_aria_save[language.current]}
           >
             {texts.ui_save[language.current]}

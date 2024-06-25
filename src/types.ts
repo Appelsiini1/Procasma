@@ -80,6 +80,13 @@ export interface CourseData {
 
 export type CourseLoaderData = "create" | "manage";
 
+export type SupportedModuleType = "week" | "module" | null;
+
+export interface Settings {
+  codeLanguages: Array<CodeLanguage>;
+  language: string;
+}
+
 export type ContextBridgeAPI = {
   setTitle: (title: string) => void;
   getAppVersion: () => string;
@@ -91,11 +98,6 @@ export type ContextBridgeAPI = {
   saveProject: (assignment: CodeAssignmentData, path: string) => void;
   getAssignments: (path: string) => CodeAssignmentData[];
   deleteAssignment: (coursePath: string, id: string) => void;
+  saveSettings: (settings: Settings) => void;
+  getSettings: () => Settings;
 };
-
-export type SupportedModuleType = "week" | "module" | null;
-
-export interface Settings {
-  codeLanguages: Array<CodeLanguage>;
-  language: string;
-}
