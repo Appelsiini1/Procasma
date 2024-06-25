@@ -42,7 +42,7 @@ export interface CommonAssignmentData {
 }
 
 export interface CodeAssignmentData extends CommonAssignmentData {
-  assignmentType: "assignment";
+  assignmentType: string;
   assignmentNo: Array<number>;
   level: number | null;
   next: Array<string> | null;
@@ -85,10 +85,12 @@ export type ContextBridgeAPI = {
   getAppVersion: () => string;
   saveCourse: (course: CourseData, path: string) => void;
   updateCourse: (course: CourseData, path: string) => void;
-  saveAssignment: (assignment: CodeAssignmentData, path: string) => void;
-  saveProject: (assignment: CodeAssignmentData, path: string) => void;
   selectDir: () => string;
   readCourse: (path: string) => CourseData;
+  saveAssignment: (assignment: CodeAssignmentData, path: string) => void;
+  saveProject: (assignment: CodeAssignmentData, path: string) => void;
+  getAssignments: (path: string) => CodeAssignmentData[];
+  deleteAssignment: (coursePath: string, id: string) => void;
 };
 
 export type SupportedModuleType = "week" | "module" | null;

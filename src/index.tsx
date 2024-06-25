@@ -14,13 +14,15 @@ import SetCreator from "./routes/SetCreator";
 import SetBrowse from "./routes/SetBrowse";
 import Settings from "./routes/Settings";
 import ExportProject from "./routes/ExportProject";
-import { CourseData } from "./types";
+import { CodeAssignmentData, CourseData } from "./types";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 const App = () => {
   const [activeCourse, setActiveCourse] = useState<CourseData>(null);
   const [activePath, setActivePath] = useState<string>(null);
+  const [activeAssignment, setActiveAssignment] =
+    useState<CodeAssignmentData>(null);
 
   function handleActiveCourse(value: CourseData) {
     setActiveCourse(value);
@@ -30,27 +32,34 @@ const App = () => {
     setActivePath(value);
   }
 
+  function handleActiveAssignment(value: CodeAssignmentData) {
+    setActiveAssignment(value);
+  }
+
   const router = createBrowserRouter([
     {
       path: "/",
       element: (
         <Root
           activeCourse={activeCourse}
+          activePath={activePath}
           handleActiveCourse={handleActiveCourse}
           handleActivePath={handleActivePath}
+          activeAssignment={activeAssignment}
+          handleActiveAssignment={handleActiveAssignment}
         />
       ),
       errorElement: <ErrorPage />,
     },
     {
-      path: "createCourse",
+      path: "/createCourse",
       element: <Course activeCourse={activeCourse} />,
       loader: async () => {
         return "create";
       },
     },
     {
-      path: "manageCourse",
+      path: "/manageCourse",
       element: (
         <Course
           activeCourse={activeCourse}
@@ -63,60 +72,79 @@ const App = () => {
       },
     },
     {
-      path: "inputCodeAssignment",
-      element: <AssignmentInput activeCourse={activeCourse} />,
+      path: "/inputCodeAssignment",
+      element: (
+        <AssignmentInput
+          activeCourse={activeCourse}
+          activePath={activePath}
+          activeAssignment={activeAssignment}
+        />
+      ),
       loader: async () => {
-        return "new";
+        return activeAssignment ? "manage" : "new";
       },
     },
     {
-      path: "newModule",
+      path: "/newModule",
       element: <ModuleAdd activeCourse={activeCourse} />,
       loader: async () => {
         return "new";
       },
     },
     {
-      path: "AssignmentBrowse",
-      element: <AssignmentBrowse activeCourse={activeCourse} />,
+      path: "/AssignmentBrowse",
+      element: (
+        <AssignmentBrowse
+          activeCourse={activeCourse}
+          activePath={activePath}
+          handleActiveAssignment={handleActiveAssignment}
+          activeAssignment={activeAssignment}
+        />
+      ),
       loader: async () => {
         return "browse";
       },
     },
     {
-      path: "inputCodeProjectWork",
-      element: <ProjectWorkInput activeCourse={activeCourse} />,
+      path: "/inputCodeProjectWork",
+      element: (
+        <ProjectWorkInput
+          activeCourse={activeCourse}
+          activePath={activePath}
+          activeAssignment={activeAssignment}
+        />
+      ),
       loader: async () => {
-        return "new";
+        return activeAssignment ? "manage" : "new";
       },
     },
     {
-      path: "exportProject",
+      path: "/exportProject",
       element: <ExportProject activeCourse={activeCourse} />,
       loader: async () => {
         return "new";
       },
     },
     {
-      path: "moduleBrowse",
+      path: "/moduleBrowse",
       element: <ModuleBrowse activeCourse={activeCourse} />,
     },
     {
-      path: "setCreator",
+      path: "/setCreator",
       element: <SetCreator activeCourse={activeCourse} />,
       loader: async () => {
         return "new";
       },
     },
     {
-      path: "setBrowse",
+      path: "/setBrowse",
       element: <SetBrowse activeCourse={activeCourse} />,
       loader: async () => {
         return "new";
       },
     },
     {
-      path: "settings",
+      path: "/settings",
       element: <Settings activeCourse={activeCourse} />,
       loader: async () => {
         return "new";
