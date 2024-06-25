@@ -10,10 +10,11 @@ import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import { useAssignment } from "../helpers/assignmentHelpers";
-import { testCurrentAssignment, testCurrentProject } from "../myTestGlobals";
+import { testCurrentProject } from "../myTestGlobals";
 import { CodeAssignmentData, CourseData, Variation } from "../types";
 import { splitStringToArray } from "../helpers/converters";
 import VariationsGroup from "../components/VariationsGroup";
+import { useEffect } from "react";
 
 export default function ProjectWorkInput({
   activeCourse,
@@ -25,7 +26,7 @@ export default function ProjectWorkInput({
   activeAssignment?: CodeAssignmentData;
 }) {
   const [assignment, handleAssignment] = useAssignment(
-    activeAssignment ? activeAssignment : testCurrentAssignment
+    activeAssignment ? activeAssignment : testCurrentProject
   );
   const variations: { [key: string]: Variation } = assignment.variations;
 
@@ -43,6 +44,11 @@ export default function ProjectWorkInput({
   if (pageType === "manage") {
     pageTitle = texts.ui_edit_project_work[language.current];
   }
+
+  useEffect(() => {
+    // change the assignment type to final project
+    handleAssignment("assignmentType", "finalWork");
+  }, []);
 
   return (
     <>
@@ -173,9 +179,7 @@ export default function ProjectWorkInput({
         >
           <ButtonComp
             buttonType="normal"
-            onClick={() =>
-              window.api.saveProject(assignment, "get path from global state?")
-            }
+            onClick={() => window.api.saveAssignment(assignment, activePath)}
             ariaLabel={texts.ui_aria_save[language.current]}
           >
             {texts.ui_save[language.current]}

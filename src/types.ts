@@ -42,7 +42,7 @@ export interface CommonAssignmentData {
 }
 
 export interface CodeAssignmentData extends CommonAssignmentData {
-  assignmentType: "assignment";
+  assignmentType: string;
   assignmentNo: Array<number>;
   level: number | null;
   next: Array<string> | null;

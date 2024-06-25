@@ -1011,6 +1011,10 @@
     "FI": "Tehtävä",
     "ENG": "Assignment"
   },
+  "ui_finalWork": {
+    "FI": "Harjoitustyö",
+    "ENG": "Final work"
+  },
   "ui_code_assignment": {
     "FI": "Ohjelmointitehtävä",
     "ENG": "Coding assignment"

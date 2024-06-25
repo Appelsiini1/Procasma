@@ -13,7 +13,6 @@ import {
   Stack,
   Typography,
 } from "@mui/joy";
-import SelectedHeader from "../components/SelectedHeader";
 import { useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
@@ -48,6 +47,7 @@ export default function AssignmentBrowse({
   let pageButtons: React.JSX.Element = null;
   let modules: Array<React.JSX.Element> = null;
   let tags: Array<React.JSX.Element> = null;
+  let types: Array<React.JSX.Element> = null;
 
   const [courseAssignments, setCourseAssignments] = useState<
     Array<AssignmentWithCheck>
@@ -59,6 +59,7 @@ export default function AssignmentBrowse({
   const [numSelected, setNumSelected] = useState(0);
   const [uniqueTags, setUniqueTags] = useState<Array<filterState>>([]);
   const [uniqueModules, setUniqueModules] = useState<Array<filterState>>([]);
+  const [uniqueTypes, setUniqueTypes] = useState<Array<filterState>>([]);
   const [search, setSearch] = useState<string>(null);
 
   function handleUpdateUniqueTags(assignments: CodeAssignmentData[]) {
@@ -84,26 +85,30 @@ export default function AssignmentBrowse({
     setUniqueTags(tagsFilter);
   }
 
-  function handleUpdateUniqueModules(assignments: CodeAssignmentData[]) {
-    const modules: string[] = [];
-    const modulesFilter: filterState[] = [];
+  function handleUpdateFilter(
+    assignments: CodeAssignmentData[],
+    attribute: string,
+    setter: React.Dispatch<React.SetStateAction<filterState[]>>
+  ) {
+    const uniques: string[] = [];
+    const filters: filterState[] = [];
 
     assignments.forEach((assignment: CodeAssignmentData) => {
-      const newModule: string | null = assignment?.module.toString();
+      const newUnique: string | null = assignment?.[attribute].toString();
 
-      if (newModule && !modules.includes(newModule)) {
-        modules.push(newModule);
+      if (newUnique && !uniques.includes(newUnique)) {
+        uniques.push(newUnique);
       }
     });
 
-    modules.forEach((module) => {
-      const moduleFilter: filterState = {
+    uniques.forEach((unique) => {
+      const uniqueFilter: filterState = {
         isChecked: false,
-        value: module.toString(),
+        value: unique.toString(),
       };
-      modulesFilter.push(moduleFilter);
+      filters.push(uniqueFilter);
     });
-    setUniqueModules(modulesFilter);
+    setter(filters);
   }
 
   function handleSearch(value: string) {
@@ -131,7 +136,15 @@ export default function AssignmentBrowse({
   }
 
   const refreshAssignments = async () => {
+    if (!activePath) {
+      return;
+    }
+
     const assignments: CodeAssignmentData[] = await getAssignments(activePath);
+
+    if (!assignments) {
+      return;
+    }
 
     // wrap the fetched assignments to store checked state
     const assignentsWithCheck = assignments.map((assignment) => {
@@ -147,7 +160,8 @@ export default function AssignmentBrowse({
       // update assignments and filters
       setCourseAssignments(assignentsWithCheck);
       handleUpdateUniqueTags(assignments);
-      handleUpdateUniqueModules(assignments);
+      handleUpdateFilter(assignments, "module", setUniqueModules);
+      handleUpdateFilter(assignments, "assignmentType", setUniqueTypes);
     }
   };
 
@@ -181,14 +195,6 @@ export default function AssignmentBrowse({
     return array1.some((item) => array2.includes(item));
   }
 
-  function isIterable(obj: any) {
-    // checks for null and undefined
-    if (obj == null) {
-      return false;
-    }
-    return typeof obj[Symbol.iterator] === "function";
-  }
-
   function checkIfShouldShowAssignment(
     assignment: CodeAssignmentData,
     property: string,
@@ -207,7 +213,7 @@ export default function AssignmentBrowse({
       const assignmentValue: CodeAssignmentData[keyof CodeAssignmentData] =
         assignment[property];
 
-      if (isIterable(assignmentValue)) {
+      if (assignmentValue.constructor.name == "Array") {
         if (checkIfAnyCommonItems(assignmentValue, [filter.value])) {
           return true;
         }
@@ -248,6 +254,14 @@ export default function AssignmentBrowse({
           assignment.value,
           "module",
           uniqueModules
+        )
+          ? showAssignment
+          : false;
+
+        showAssignment = checkIfShouldShowAssignment(
+          assignment.value,
+          "assignmentType",
+          uniqueTypes
         )
           ? showAssignment
           : false;
@@ -294,67 +308,56 @@ export default function AssignmentBrowse({
       })
     : null;
 
-  modules = uniqueModules
-    ? uniqueModules.map((module) => {
-        return (
-          <ListItem
-            key={module.value}
-            startAction={
-              <Checkbox
-                checked={module.isChecked}
-                onChange={() =>
-                  handleCheckArray(
-                    module.value,
-                    !module.isChecked,
-                    setUniqueModules
-                  )
-                }
-              ></Checkbox>
-            }
-          >
-            <ListItemButton
-              selected={module.isChecked}
-              onClick={() =>
-                handleCheckArray(
-                  module.value,
-                  !module.isChecked,
-                  setUniqueModules
-                )
-              }
-            >
-              {module.value}
-            </ListItemButton>
-          </ListItem>
-        );
-      })
-    : null;
+  function formAssignmentTypeText(type: string): string {
+    return (texts as any)[`ui_${type}`]?.[language?.current] ?? "";
+  }
 
-  tags = uniqueTags
-    ? uniqueTags.map((tag) => {
-        return (
-          <ListItem
-            key={tag.value}
-            startAction={
-              <Checkbox
-                checked={tag.isChecked}
-                onChange={() =>
-                  handleCheckArray(tag.value, !tag.isChecked, setUniqueTags)
-                }
-              ></Checkbox>
-            }
-          >
-            <ListItemButton
-              selected={tag.isChecked}
-              onClick={() =>
-                handleCheckArray(tag.value, !tag.isChecked, setUniqueTags)
+  /**
+   * @returns A JSX list of unique filters with checkboxes
+   */
+  function generateFilter(
+    uniques: filterState[],
+    setUniques: React.Dispatch<React.SetStateAction<filterState[]>>,
+    filterTextFunction?: (text: string) => string
+  ): Array<React.JSX.Element> {
+    const filters = uniques
+      ? uniques.map((unique) => {
+          return (
+            <ListItem
+              key={unique.value}
+              startAction={
+                <Checkbox
+                  checked={unique.isChecked}
+                  onChange={() =>
+                    handleCheckArray(
+                      unique.value,
+                      !unique.isChecked,
+                      setUniques
+                    )
+                  }
+                ></Checkbox>
               }
             >
-              {tag.value}
-            </ListItemButton>
-          </ListItem>
-        );
-      })
-    : null;
+              <ListItemButton
+                selected={unique.isChecked}
+                onClick={() =>
+                  handleCheckArray(unique.value, !unique.isChecked, setUniques)
+                }
+              >
+                {filterTextFunction
+                  ? filterTextFunction(unique.value)
+                  : unique.value}
+              </ListItemButton>
+            </ListItem>
+          );
+        })
+      : null;
+    return filters;
+  }
+
+  modules = generateFilter(uniqueModules, setUniqueModules);
+  tags = generateFilter(uniqueTags, setUniqueTags);
+  types = generateFilter(uniqueTypes, setUniqueTypes, formAssignmentTypeText);
 
   async function handleOpenAssignment() {
     // set the first selected assignment as global
@@ -369,7 +372,13 @@ export default function AssignmentBrowse({
   useEffect(() => {
     if (activeAssignment && navigateToAssignment) {
       setNavigateToAssignment(false);
-      navigate("/inputCodeAssignment");
+
+      const activeAssignmentType: string = activeAssignment.assignmentType;
+      if (activeAssignmentType === "assignment") {
+        navigate("/inputCodeAssignment");
+      } else if (activeAssignmentType === "finalWork") {
+        navigate("/inputCodeProjectWork");
+      }
     }
   }, [activeAssignment, navigateToAssignment]);
 
@@ -403,7 +412,7 @@ export default function AssignmentBrowse({
         ></SearchBar>
 
         <div className="emptySpace1" />
-        <SelectedHeader selected={numSelected} />
+        {/*<SelectedHeader selected={numSelected} />*/}
 
         <div className="emptySpace1" />
         <Stack
@@ -417,7 +426,7 @@ export default function AssignmentBrowse({
             onClick={() => handleDeleteSelected()}
             ariaLabel={texts.ui_aria_remove_selected[language.current]}
           >
-            {texts.ui_remove_selected[language.current]}
+            {`${texts.ui_delete[language.current]} ${numSelected}`}
           </ButtonComp>
           <ButtonComp
             buttonType="normal"
@@ -428,6 +437,11 @@ export default function AssignmentBrowse({
           >
             {texts.ui_show_edit[language.current]}
           </ButtonComp>
+          <Typography>
+            {selectedAssignments && selectedAssignments.length > 0
+              ? selectedAssignments[0]?.title
+              : ""}
+          </Typography>
         </Stack>
       </>
     );
@@ -516,6 +530,12 @@ export default function AssignmentBrowse({
                 overflow={"auto"}
               >
                 <List>
+                  <ListItem nested>
+                    <ListSubheader>
+                      {texts.ui_type[language.current]}
+                    </ListSubheader>
+                    <List>{types}</List>
+                  </ListItem>
                   <ListItem nested>
                     <ListSubheader>
                       {texts.ui_modules[language.current]}

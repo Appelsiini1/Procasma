@@ -5,7 +5,7 @@ import { Divider, Grid, Stack, Table, Typography } from "@mui/joy";
 import PageHeaderBar from "../components/PageHeaderBar";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
@@ -49,6 +49,11 @@ export default function AssignmentInput({
   if (pageType === "manage") {
     pageTitle = texts.ui_edit_assignment[language.current];
   }
+
+  useEffect(() => {
+    // change the assignment type to final project
+    handleAssignment("assignmentType", "assignment");
+  }, []);
 
   return (
     <>

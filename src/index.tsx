@@ -107,9 +107,15 @@ const App = () => {
     },
     {
       path: "/inputCodeProjectWork",
-      element: <ProjectWorkInput activeCourse={activeCourse} />,
+      element: (
+        <ProjectWorkInput
+          activeCourse={activeCourse}
+          activePath={activePath}
+          activeAssignment={activeAssignment}
+        />
+      ),
       loader: async () => {
-        return "new";
+        return activeAssignment ? "manage" : "new";
       },
     },
     {
