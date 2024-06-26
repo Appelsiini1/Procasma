@@ -1,6 +1,11 @@
 import fs from "fs";
 import path from "path";
-import { CodeAssignmentData, CourseData, Variation } from "../types";
+import {
+  CodeAssignmentData,
+  CourseData,
+  ModuleData,
+  Variation,
+} from "../types";
 import { spacesToUnderscores } from "./converters";
 import { courseMetaDataFileName } from "../constants";
 import { createHash } from "crypto";
@@ -258,4 +263,49 @@ export function removeAssignmentById(coursePath: string, id: string): void {
     console.error("An error occurred:", (error as Error).message);
   }
   return null;
+}
+
+export function handleSaveModule(module: ModuleData, coursePath: string) {
+  // create modules.json if does not exist
+  const modulesPath = path.join(coursePath, "modules.json");
+
+  // read modules.json
+  const fileResult = handleReadFile(modulesPath);
+
+  // if no previous modules
+  if (fileResult.error) {
+    writeToFile(JSON.stringify([module]), modulesPath);
+  } else {
+    const previousModules = fileResult.content as ModuleData[];
+    let foundSameId = false;
+
+    // check if same id exists if the module array exists
+    const newModules = previousModules.filter((element: ModuleData) => {
+      // if exists, overwrite the module
+      if (element.ID == module.ID) {
+        foundSameId = true;
+        return module;
+      }
+      return element;
+    });
+
+    // if did not find the module in previous modules,
+    // push the new module to the list and write to file
+    if (foundSameId) {
+      writeToFile(JSON.stringify(newModules), modulesPath);
+    } else {
+      previousModules.push(module);
+      writeToFile(JSON.stringify([module]), modulesPath);
+    }
+  }
+
+  return;
+}
+
+export function handleGetModules(coursePath: string): ModuleData[] | null {
+  return;
+}
+
+export function removeModuleById(coursePath: string, id: string): void {
+  return;
 }

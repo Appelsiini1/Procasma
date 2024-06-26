@@ -14,7 +14,12 @@ import SetCreator from "./routes/SetCreator";
 import SetBrowse from "./routes/SetBrowse";
 import Settings from "./routes/Settings";
 import ExportProject from "./routes/ExportProject";
-import { CodeAssignmentData, CourseData, SupportedLanguages } from "./types";
+import {
+  CodeAssignmentData,
+  CourseData,
+  ModuleData,
+  SupportedLanguages,
+} from "./types";
 import { language } from "./constantsUI";
 
 const updateLanguageInit = async () => {
@@ -46,6 +51,7 @@ const App = () => {
   const [activePath, setActivePath] = useState<string>(null);
   const [activeAssignment, setActiveAssignment] =
     useState<CodeAssignmentData>(null);
+  const [activeModule, setActiveModule] = useState<ModuleData>(null);
 
   function handleActiveCourse(value: CourseData) {
     setActiveCourse(value);
@@ -109,7 +115,13 @@ const App = () => {
     },
     {
       path: "/newModule",
-      element: <ModuleAdd activeCourse={activeCourse} />,
+      element: (
+        <ModuleAdd
+          activeCourse={activeCourse}
+          activePath={activePath}
+          activeModule={activeModule}
+        />
+      ),
       loader: async () => {
         return "new";
       },

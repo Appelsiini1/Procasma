@@ -4,13 +4,16 @@ import { handleDirectorySelect, handleFileOpen } from "./helpers/fileDialog";
 import { version, DEVMODE } from "./constants";
 import {
   handleGetAssignments,
+  handleGetModules,
   handleReadCourse,
   handleSaveAssignment,
   handleSaveCourse,
+  handleSaveModule,
   handleUpdateCourse,
   removeAssignmentById,
+  removeModuleById,
 } from "./helpers/fileOperations";
-import { CodeAssignmentData, Settings } from "./types";
+import { Settings } from "./types";
 import { initialize } from "./helpers/programInit";
 import { getSettings, saveSettings } from "./helpers/settings";
 
@@ -26,8 +29,8 @@ const getVersion = () => {
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: 1600,
+    height: 1000,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -55,6 +58,14 @@ const createWindow = () => {
   ipcMain.handle("getAssignments", (event, path) => handleGetAssignments(path));
   ipcMain.handle("deleteAssignment", (event, coursePath, id) =>
     removeAssignmentById(coursePath, id)
+  );
+
+  ipcMain.handle("saveModule", (event, module, path) =>
+    handleSaveModule(module, path)
+  );
+  ipcMain.handle("getModules", (event, path) => handleGetModules(path));
+  ipcMain.handle("deleteModule", (event, coursePath, id) =>
+    removeModuleById(coursePath, id)
   );
 
   // and load the index.html of the app.
@@ -118,4 +129,3 @@ ipcMain.on("saveSettings", (event, settings: Settings) => {
 ipcMain.handle("dialog:openFile", handleFileOpen);
 ipcMain.handle("getAppVersion", getVersion);
 ipcMain.handle("getSettings", getSettings);
-
