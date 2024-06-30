@@ -74,8 +74,10 @@ export default function ModuleAdd({
               </td>
               <td>
                 <NumberInput
-                  value={module.ID}
-                  onChange={(value: number) => handleModule("ID", value)}
+                  value={module.assignments}
+                  onChange={(value: number) =>
+                    handleModule("assignments", value)
+                  }
                   min={0}
                 ></NumberInput>
               </td>
@@ -89,10 +91,8 @@ export default function ModuleAdd({
               </td>
               <td>
                 <NumberInput
-                  value={module.assignments}
-                  onChange={(value: number) =>
-                    handleModule("assignments", value)
-                  }
+                  value={module.ID}
+                  onChange={(value: number) => handleModule("ID", value)}
                   min={0}
                 ></NumberInput>
               </td>

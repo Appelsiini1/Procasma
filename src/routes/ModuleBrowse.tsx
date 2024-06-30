@@ -16,14 +16,7 @@ import SelectedHeader from "../components/SelectedHeader";
 import { useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import { CourseData } from "../types";
-
-// Get list of modules via IPC later
-const testModules = [
-  { moduleID: "1", name: "Viikko 1" },
-  { moduleID: "2", name: "Viikko 2" },
-];
-
-const testTags = ["print", "try...except"];
+import { filterState, generateFilter } from "../helpers/browseHelpers";
 
 export default function AssignmentBrowse({
   activeCourse,
@@ -31,89 +24,22 @@ export default function AssignmentBrowse({
   activeCourse: CourseData;
 }) {
   const navigate = useNavigate();
-  const [noSelected, setNoSelected] = useState(0);
-  const [selectedModules, setSelectedModules] = useState<Array<string>>([]);
-  const [selectedTags, setSelectedTags] = useState<Array<string>>([]);
+
+  const [courseModules, setCourseModules] = useState<
+    Array<AssignmentWithCheck>
+  >([]);
+  const [selectedAssignments, setSelectedAssignments] = useState<
+    Array<CodeAssignmentData>
+  >([]);
+  const [navigateToAssignment, setNavigateToAssignment] = useState(false);
+  const [numSelected, setNumSelected] = useState(0);
+  const [uniqueTags, setUniqueTags] = useState<Array<filterState>>([]);
+  const [uniqueModules, setUniqueModules] = useState<Array<filterState>>([]);
   let modules: Array<React.JSX.Element> = null;
   let tags: Array<React.JSX.Element> = null;
 
-  function handleSelectedModules(
-    moduleID: string,
-    state: boolean,
-    setBoxState: React.Dispatch<React.SetStateAction<boolean>>
-  ) {
-    if (state) {
-      setSelectedModules(selectedModules.filter((value) => value !== moduleID));
-      setNoSelected(selectedModules.length - 1);
-      setBoxState(!state);
-    } else {
-      setSelectedModules([...selectedModules, moduleID]);
-      setNoSelected(selectedModules.length + 1);
-      setBoxState(!state);
-    }
-  }
-
-  function handleSelectedTags(
-    tag: string,
-    state: boolean,
-    setBoxState: React.Dispatch<React.SetStateAction<boolean>>
-  ) {
-    if (state) {
-      setSelectedTags(selectedTags.filter((value) => value !== tag));
-      setBoxState(!state);
-    } else {
-      setSelectedTags([...selectedTags, tag]);
-      setBoxState(!state);
-    }
-  }
-
-  modules = testModules.map((value) => {
-    const [boxState, setBoxState] = useState(false);
-    return (
-      <ListItem
-        key={value.moduleID}
-        startAction={
-          <Checkbox
-            checked={boxState}
-            onChange={() =>
-              handleSelectedModules(value.moduleID, boxState, setBoxState)
-            }
-          ></Checkbox>
-        }
-      >
-        <ListItemButton
-          selected={boxState}
-          onClick={() =>
-            handleSelectedModules(value.moduleID, boxState, setBoxState)
-          }
-        >
-          {value.name}
-        </ListItemButton>
-      </ListItem>
-    );
-  });
-
-  tags = testTags.map((value) => {
-    const [boxState, setBoxState] = useState(false);
-    return (
-      <ListItem
-        key={value}
-        startAction={
-          <Checkbox
-            checked={boxState}
-            onChange={() => handleSelectedTags(value, boxState, setBoxState)}
-          ></Checkbox>
-        }
-      >
-        <ListItemButton
-          selected={boxState}
-          onClick={() => handleSelectedTags(value, boxState, setBoxState)}
-        >
-          {value}
-        </ListItemButton>
-      </ListItem>
-    );
-  });
+  modules = generateFilter(uniqueModules, setUniqueModules);
+  tags = generateFilter(uniqueTags, setUniqueTags);
 
   return (
     <>

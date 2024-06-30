@@ -53,6 +53,16 @@ export interface CodeAssignmentData extends CommonAssignmentData {
   };
 }
 
+export interface ModuleData {
+  ID: number;
+  name: string;
+  letters: boolean;
+  assignments: number;
+  subjects: string;
+  tags: Array<string>;
+  instructions: string;
+}
+
 export interface CodeLanguage {
   name: string;
   fileExtensions: Array<string>;
@@ -81,16 +91,6 @@ export interface CourseData {
 export type CourseLoaderData = "create" | "manage";
 
 export type SupportedModuleType = "week" | "module" | null;
-
-export interface ModuleData {
-  ID?: number;
-  name?: string;
-  letters?: boolean;
-  assignments?: number;
-  subjects?: string;
-  tags?: Array<string>;
-  instructions?: string;
-}
 
 export interface Settings {
   codeLanguages: Array<CodeLanguage>;

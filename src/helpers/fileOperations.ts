@@ -280,7 +280,7 @@ export function handleSaveModule(module: ModuleData, coursePath: string) {
     let foundSameId = false;
 
     // check if same id exists if the module array exists
-    const newModules = previousModules.filter((element: ModuleData) => {
+    const newModules = previousModules.map((element: ModuleData) => {
       // if exists, overwrite the module
       if (element.ID == module.ID) {
         foundSameId = true;
@@ -295,7 +295,7 @@ export function handleSaveModule(module: ModuleData, coursePath: string) {
       writeToFile(JSON.stringify(newModules), modulesPath);
     } else {
       previousModules.push(module);
-      writeToFile(JSON.stringify([module]), modulesPath);
+      writeToFile(JSON.stringify(previousModules), modulesPath);
     }
   }
 
@@ -303,7 +303,23 @@ export function handleSaveModule(module: ModuleData, coursePath: string) {
 }
 
 export function handleGetModules(coursePath: string): ModuleData[] | null {
-  return;
+  try {
+    const modulesPath = path.join(coursePath, "modules.json");
+
+    // read modules.json
+    const fileResult = handleReadFile(modulesPath);
+
+    if (fileResult.error) {
+      return null;
+    }
+
+    const modules = fileResult.content as ModuleData[];
+
+    return modules;
+  } catch (error) {
+    console.error("An error occurred:", (error as Error).message);
+    return null;
+  }
 }
 
 export function removeModuleById(coursePath: string, id: string): void {
