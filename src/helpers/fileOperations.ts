@@ -29,6 +29,16 @@ export function writeToFile(content: string, filePath: string) {
   return;
 }
 
+export async function writeToFileSync(content: string, filePath: string) {
+  try {
+    fs.writeFileSync(filePath, content, "utf8");
+  } catch (err) {
+    return { error: (err as Error).message };
+  }
+
+  return null;
+}
+
 export function handleReadFile(filePath: string): FileResult {
   try {
     const data = fs.readFileSync(filePath, "utf8");
@@ -308,7 +318,6 @@ export function handleGetModules(coursePath: string): ModuleData[] | null {
 
     // read modules.json
     const fileResult = handleReadFile(modulesPath);
-
     if (fileResult.error) {
       return null;
     }
@@ -333,7 +342,7 @@ export function removeModuleById(coursePath: string, id: number): void {
     // write remaining modules
     const modulesPath = path.join(coursePath, "modules.json");
 
-    writeToFile(JSON.stringify(newModules), modulesPath);
+    writeToFileSync(JSON.stringify(newModules), modulesPath);
   } catch (error) {
     console.error("An error occurred:", (error as Error).message);
   }

@@ -80,6 +80,8 @@ const App = () => {
           handleActivePath={handleActivePath}
           activeAssignment={activeAssignment}
           handleActiveAssignment={handleActiveAssignment}
+          activeModule={activeModule}
+          handleActiveModule={handleActiveModule}
         />
       ),
       errorElement: <ErrorPage />,
@@ -127,7 +129,7 @@ const App = () => {
         />
       ),
       loader: async () => {
-        return "new";
+        return activeModule ? "manage" : "new";
       },
     },
     {

@@ -135,7 +135,7 @@ export default function ModuleBrowse({
   handleActiveModule: (value: ModuleData) => void;
 }) {
   const navigate = useNavigate();
-  let pageButtons: React.JSX.Element = null;
+  //let pageButtons: React.JSX.Element = null;
   let modules: Array<React.JSX.Element> = null;
   let tags: Array<React.JSX.Element> = null;
 
@@ -234,6 +234,9 @@ export default function ModuleBrowse({
           spacing={2}
         >
           <ButtonComp
+            confirmationModal={true}
+            modalText={`${texts.ui_delete[language.current]} 
+            ${numSelected}`}
             buttonType="normal"
             onClick={() =>
               handleDeleteSelected(selectedModules, activePath, refreshModules)
@@ -280,11 +283,13 @@ export default function ModuleBrowse({
 
               <Box
                 height="40rem"
+                maxHeight="50vh"
                 width="100%"
                 sx={{
                   border: "2px solid lightgrey",
-                  borderRadius: "0.5rem",
+                  borderRadius: "0.2rem",
                 }}
+                overflow={"auto"}
               >
                 <List>{modules}</List>
               </Box>
@@ -303,11 +308,13 @@ export default function ModuleBrowse({
 
               <Box
                 height="40rem"
+                maxHeight="50vh"
                 width="100%"
                 sx={{
                   border: "2px solid lightgrey",
-                  borderRadius: "0.5rem",
+                  borderRadius: "0.2rem",
                 }}
+                overflow={"auto"}
               >
                 <List>{tags}</List>
               </Box>

@@ -20,7 +20,7 @@ export const getAssignments = async (activePath: string) => {
 export const getModules = async (activePath: string) => {
   try {
     const modules: ModuleData[] = await window.api.getModules(activePath);
-    console.log(modules);
+
     if (!modules) {
       throw new Error("no modules");
     }

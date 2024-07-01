@@ -321,6 +321,9 @@ export default function AssignmentBrowse({
           spacing={2}
         >
           <ButtonComp
+            confirmationModal={true}
+            modalText={`${texts.ui_delete[language.current]} 
+              ${numSelected}`}
             buttonType="normal"
             onClick={() =>
               handleDeleteSelected(
@@ -352,25 +355,13 @@ export default function AssignmentBrowse({
     );
     pageButtons = (
       <>
-        <ButtonComp
+        {/*<ButtonComp
           buttonType="normal"
           onClick={null}
           ariaLabel={texts.ui_aria_save[language.current]}
         >
           {texts.ui_save[language.current]}
-        </ButtonComp>
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => {
-            console.log(courseAssignments);
-            console.log(uniqueTags);
-            console.log(uniqueModules);
-            console.log(uniqueTypes);
-          }}
-          ariaLabel={texts.ui_aria_save[language.current]}
-        >
-          log checked states
-        </ButtonComp>
+        </ButtonComp>*/}
         <ButtonComp
           buttonType="normal"
           onClick={() => navigate(-1)}
