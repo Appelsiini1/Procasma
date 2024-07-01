@@ -1,7 +1,8 @@
 import PageHeaderBar from "../components/PageHeaderBar";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import texts from "../../resource/texts.json";
-import { language, currentCourse, dividerColor } from "../constantsUI";
+import { dividerColor } from "../constantsUI";
+import { language } from "../globalsUI";
 import {
   Box,
   Checkbox,

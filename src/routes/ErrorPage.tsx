@@ -10,7 +10,7 @@ import {
 } from "../../resource/texts.json";
 import { Button } from "@mui/joy";
 import HomeIcon from "@mui/icons-material/Home";
-import { language } from "../constantsUI";
+import { language } from "../globalsUI";
 import LogoText from "../../resource/LogoText.png";
 
 //https://github.com/remix-run/react-router/discussions/9628#discussioncomment-5555901

@@ -7,7 +7,7 @@ import Modal from "@mui/joy/Modal";
 import ModalDialog from "@mui/joy/ModalDialog";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { ui_ok } from "../../resource/texts.json";
-import { language } from "../constantsUI";
+import { language } from "../globalsUI";
 
 export default function ModalPopup({
   open,

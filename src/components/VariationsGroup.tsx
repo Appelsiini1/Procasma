@@ -1,6 +1,6 @@
 import { AccordionGroup, Box, Stack } from "@mui/joy";
 import texts from "../../resource/texts.json";
-import { language } from "../constantsUI";
+import { language } from "../globalsUI";
 import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
 import { getNextID } from "../helpers/getNextID";
 import { addVariation, removeVariation } from "../helpers/variationHelpers";

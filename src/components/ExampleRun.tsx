@@ -9,7 +9,8 @@ import {
   Typography,
 } from "@mui/joy";
 import texts from "../../resource/texts.json";
-import { language, spacingSX } from "../constantsUI";
+import { spacingSX } from "../constantsUI";
+import { language } from "../globalsUI";
 import HelpText from "./HelpText";
 import InputField from "./InputField";
 import SwitchComp from "./SwitchComp";

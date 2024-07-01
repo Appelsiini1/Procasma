@@ -1,6 +1,7 @@
 import PageHeaderBar from "../components/PageHeaderBar";
 import texts from "../../resource/texts.json";
-import { language, dividerColor } from "../constantsUI";
+import { dividerColor } from "../constantsUI";
+import { language } from "../globalsUI";
 import LogoText from "../../resource/LogoText.png";
 import {
   Accordion,
@@ -14,12 +15,7 @@ import {
 import ButtonComp from "../components/ButtonComp";
 import { useNavigate } from "react-router-dom";
 import FadeInImage from "../components/FadeInImage";
-import {
-  CodeAssignmentData,
-  CourseData,
-  Settings,
-  SupportedLanguages,
-} from "../types";
+import { CodeAssignmentData, CourseData } from "../types";
 import { useEffect, useState } from "react";
 import { getAssignments } from "../helpers/requests";
 

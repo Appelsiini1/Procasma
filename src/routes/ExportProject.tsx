@@ -1,16 +1,13 @@
 import PageHeaderBar from "../components/PageHeaderBar";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import texts from "../../resource/texts.json";
-import { language, currentCourse, dividerColor } from "../constantsUI";
+import { dividerColor } from "../constantsUI";
+import { language } from "../globalsUI";
 import {
-  Box,
   Card,
   CardContent,
   Checkbox,
   Divider,
-  List,
-  ListItem,
-  ListItemButton,
   Stack,
   Table,
   Typography,
@@ -18,9 +15,7 @@ import {
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
 import { useState } from "react";
-import NumberInput from "../components/NumberInput";
 import ButtonComp from "../components/ButtonComp";
-import SwitchComp from "../components/SwitchComp";
 import StepperComp from "../components/StepperComp";
 import { CourseData } from "../types";
 

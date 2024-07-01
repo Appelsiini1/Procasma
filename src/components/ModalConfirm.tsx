@@ -13,7 +13,8 @@ import {
   ui_cancel,
   ui_confirm_header,
 } from "../../resource/texts.json";
-import { buttonMinWidth, language } from "../constantsUI";
+import { buttonMinWidth } from "../constantsUI";
+import { language } from "../globalsUI";
 
 export default function ModalConfirm() {
   const [open, setOpen] = useState<boolean>(false);

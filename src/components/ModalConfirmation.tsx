@@ -1,7 +1,7 @@
 import { Modal, ModalClose, ModalDialog, Typography } from "@mui/joy";
 import ButtonComp from "./ButtonComp";
 import texts from "../../resource/texts.json";
-import { language } from "../constantsUI";
+import { language } from "../globalsUI";
 
 type ModalConfirmationProps = {
   open: boolean;
