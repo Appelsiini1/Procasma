@@ -4,7 +4,7 @@ import { CodeAssignmentData } from "../types";
 import { isExpanding } from "./assignment";
 
 function openDB(coursePath: string) {
-  const dbPath = path.join(coursePath, "database");
+  const dbPath = path.join(coursePath, "database", "database.db");
   let db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
       console.error(err.message);
@@ -100,7 +100,10 @@ function addToAssignments(
   });
 }
 
-function addToTags(db: sqlite3.Database, assignment: CodeAssignmentData) {
+function setAssignmentTags(
+  db: sqlite3.Database,
+  assignment: CodeAssignmentData
+) {
   db.serialize(() => {
     assignment.tags.forEach((tag) => {
       db.each(
@@ -110,14 +113,21 @@ function addToTags(db: sqlite3.Database, assignment: CodeAssignmentData) {
           if (err) {
             console.log(err.message);
           } else if (row) {
-            let newRow = row.assignment + `,${assignment.assignmentID}`;
-            db.run(
-              `UPDATE tags SET name = ? WHERE name = ?`,
-              [newRow, tag],
-              (err) => {
-                console.log(err.message);
-              }
-            );
+            const oldRow = row.assignment.split(",");
+            if (
+              !oldRow.filter((value) => {
+                return value === assignment.assignmentID ? true : false;
+              })
+            ) {
+              let newRow = row.assignment + `,${assignment.assignmentID}`;
+              db.run(
+                `UPDATE tags SET name = ? WHERE name = ?`,
+                [newRow, tag],
+                (err) => {
+                  console.log(err.message);
+                }
+              );
+            }
           } else {
             db.run(
               `INSERT INTO tags VALUES (?, ?)`,
@@ -131,4 +141,15 @@ function addToTags(db: sqlite3.Database, assignment: CodeAssignmentData) {
       );
     });
   });
+}
+
+export function addAssignment(
+  coursePath: string,
+  assignment: CodeAssignmentData
+) {
+  let db = openDB(coursePath);
+  const assignmentPath = path.join("assignmentData", assignment.assignmentID);
+  addToAssignments(db, assignmentPath, assignment);
+  setAssignmentTags(db, assignment);
+  closeDB(db);
 }
