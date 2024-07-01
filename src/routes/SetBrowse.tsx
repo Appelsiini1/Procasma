@@ -1,11 +1,10 @@
 import PageHeaderBar from "../components/PageHeaderBar";
 import texts from "../../resource/texts.json";
-import { language } from "../constantsUI";
+import { language } from "../globalsUI";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import {
   Box,
   Checkbox,
-  Grid,
   List,
   ListItem,
   ListItemButton,

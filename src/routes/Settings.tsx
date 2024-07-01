@@ -1,6 +1,6 @@
 import PageHeaderBar from "../components/PageHeaderBar";
 import texts from "../../resource/texts.json";
-import { language } from "../constantsUI";
+import { language } from "../globalsUI";
 import { useNavigate } from "react-router-dom";
 import { Stack, Table, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";

@@ -2,7 +2,8 @@ import { Input, Stack, IconButton } from "@mui/joy";
 import React from "react";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
-import { buttonShadow, language } from "../constantsUI";
+import { buttonShadow } from "../constantsUI";
+import { language } from "../globalsUI";
 import texts from "../../resource/texts.json";
 
 type ButtonProps = {

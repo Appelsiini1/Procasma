@@ -1,5 +1,5 @@
 import texts from "../../resource/texts.json";
-import { language } from "../constantsUI";
+import { language } from "../globalsUI";
 import { defaultExampleRun } from "../testData";
 import ButtonComp from "./ButtonComp";
 import { ExampleRunType } from "../types";

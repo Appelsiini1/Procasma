@@ -2,9 +2,8 @@ import { Checkbox, IconButton, Sheet, Table, Select, Option } from "@mui/joy";
 import texts from "../../resource/texts.json";
 import { FileData, FileTypes } from "../types";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { language } from "../constantsUI";
-import { useState } from "react";
-import { HandleAssignmentFn } from "src/routes/AssignmentInput";
+import { language } from "../globalsUI";
+import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
 import ButtonComp from "./ButtonComp";
 import { dummyFileRows } from "../testData";
 

@@ -5,7 +5,7 @@ import Logo from "../../resource/Logo.png";
 import Grid from "@mui/joy/Grid";
 import { useNavigate } from "react-router-dom";
 import texts from "../../resource/texts.json";
-import { language } from "../constantsUI";
+import { language } from "../globalsUI";
 import { useEffect, useState } from "react";
 
 const IconSX = {

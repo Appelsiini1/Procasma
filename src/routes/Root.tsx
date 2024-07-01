@@ -1,6 +1,7 @@
 import PageHeaderBar from "../components/PageHeaderBar";
 import texts from "../../resource/texts.json";
-import { language, dividerColor } from "../constantsUI";
+import { dividerColor } from "../constantsUI";
+import { language } from "../globalsUI";
 import LogoText from "../../resource/LogoText.png";
 import {
   Accordion,

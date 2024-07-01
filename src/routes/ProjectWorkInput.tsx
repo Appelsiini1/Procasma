@@ -1,6 +1,7 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
 import texts from "../../resource/texts.json";
-import { language, currentCourse, dividerColor } from "../constantsUI";
+import { dividerColor } from "../constantsUI";
+import { language, currentCourse } from "../globalsUI";
 import { Divider, Grid, Stack, Table, Typography } from "@mui/joy";
 import PageHeaderBar from "../components/PageHeaderBar";
 import InputField from "../components/InputField";

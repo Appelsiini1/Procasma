@@ -1,4 +1,4 @@
-import { language } from "../constantsUI";
+import { language } from "../globalsUI";
 import texts from "../../resource/texts.json";
 import { Autocomplete, Stack, Typography } from "@mui/joy";
 import ButtonComp from "./ButtonComp";

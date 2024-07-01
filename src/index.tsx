@@ -14,13 +14,9 @@ import SetCreator from "./routes/SetCreator";
 import SetBrowse from "./routes/SetBrowse";
 import Settings from "./routes/Settings";
 import ExportProject from "./routes/ExportProject";
-import {
-  CodeAssignmentData,
-  CourseData,
-  ModuleData,
-  SupportedLanguages,
-} from "./types";
-import { language } from "./constantsUI";
+import { CodeAssignmentData, CourseData, SupportedLanguages } from "./types";
+import { language } from "./globalsUI";
+
 
 const updateLanguageInit = async () => {
   try {

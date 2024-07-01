@@ -1,7 +1,7 @@
 import PageHeaderBar from "../components/PageHeaderBar";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import texts from "../../resource/texts.json";
-import { language } from "../constantsUI";
+import { language } from "../globalsUI";
 import { Grid, Stack, Table, Typography } from "@mui/joy";
 import InputField from "../components/InputField";
 import { useState } from "react";

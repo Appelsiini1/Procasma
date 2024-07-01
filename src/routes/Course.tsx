@@ -1,6 +1,7 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
 import texts from "../../resource/texts.json";
-import { language, supportedModuleTypes, buttonShadow } from "../constantsUI";
+import { supportedModuleTypes, buttonShadow } from "../constantsUI";
+import { language } from "../globalsUI";
 import { Grid, IconButton, Stack, Table, Typography } from "@mui/joy";
 import PageHeaderBar from "../components/PageHeaderBar";
 import InputField from "../components/InputField";
