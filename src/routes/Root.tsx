@@ -14,12 +14,7 @@ import {
 import ButtonComp from "../components/ButtonComp";
 import { useNavigate } from "react-router-dom";
 import FadeInImage from "../components/FadeInImage";
-import {
-  CodeAssignmentData,
-  CourseData,
-  Settings,
-  SupportedLanguages,
-} from "../types";
+import { CodeAssignmentData, CourseData, ModuleData } from "../types";
 import { useEffect, useState } from "react";
 import { getAssignments } from "../helpers/requests";
 
@@ -49,6 +44,8 @@ export default function Root({
   handleActivePath,
   activeAssignment,
   handleActiveAssignment,
+  activeModule,
+  handleActiveModule,
 }: {
   activeCourse: CourseData;
   activePath: string;
@@ -58,9 +55,12 @@ export default function Root({
   handleActiveAssignment: React.Dispatch<
     React.SetStateAction<CodeAssignmentData>
   >;
+  activeModule: ModuleData;
+  handleActiveModule: React.Dispatch<React.SetStateAction<ModuleData>>;
 }) {
   const [addingAssignment, setAddingAssignment] = useState(false);
   const [navigateToAssignment, setNavigateToAssignment] = useState(false);
+  const [navigateToModule, setNavigateToModule] = useState(false);
   const [assignmentsInIndex, setAssignmentsInIndex] = useState(null);
 
   const refreshAssignmentsInIndex = async () => {
@@ -96,6 +96,14 @@ export default function Root({
       navigate("/inputCodeAssignment");
     }
   }, [activeAssignment, navigateToAssignment]);
+
+  // navigate to module after clearing
+  useEffect(() => {
+    if (activeModule === null && navigateToModule) {
+      setNavigateToModule(false);
+      navigate("/newModule");
+    }
+  }, [activeModule, navigateToModule]);
 
   const pageName = texts.ui_main[language.current];
   const navigate = useNavigate();
@@ -294,7 +302,12 @@ export default function Root({
               <ButtonComp
                 buttonType="largeAdd"
                 onClick={() => {
-                  navigate("/newModule");
+                  // clear the active module
+                  // useEffect will navigate on the change
+                  setNavigateToModule(true);
+                  activeModule
+                    ? handleActiveModule(null)
+                    : navigate("/newModule");
                 }}
                 ariaLabel={texts.ui_aria_nav_add_module[language.current]}
                 disabled={activeCourse ? false : true}

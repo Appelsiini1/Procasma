@@ -1,42 +1,43 @@
 import PageHeaderBar from "../components/PageHeaderBar";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import texts from "../../resource/texts.json";
-import { language, currentCourse, dividerColor } from "../constantsUI";
-import {
-  AccordionGroup,
-  Box,
-  Divider,
-  Grid,
-  Stack,
-  Table,
-  Typography,
-} from "@mui/joy";
+import { language } from "../constantsUI";
+import { Grid, Stack, Table, Typography } from "@mui/joy";
 import InputField from "../components/InputField";
-import FolderOpenIcon from "@mui/icons-material/FolderOpen";
-import Dropdown from "../components/Dropdown";
 import { useState } from "react";
 import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
-import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
-import SwitchComp from "../components/SwitchComp";
-import { addVariation } from "../helpers/variationHelpers";
-import { CourseData } from "../types";
+import { CourseData, ModuleData } from "../types";
+import { useModule } from "../helpers/assignmentHelpers";
+import { testModule } from "../myTestGlobals";
+import { splitStringToArray } from "../helpers/converters";
 
 export default function ModuleAdd({
   activeCourse,
+  activePath,
+  activeModule,
 }: {
   activeCourse: CourseData;
+  activePath: string;
+  activeModule?: ModuleData;
 }) {
+  const [module, handleModule] = useModule(
+    activeModule ? activeModule : testModule
+  );
+
   const pageType = useLoaderData();
   const navigate = useNavigate();
   let pageTitle: string = null;
-  const [moduleNumber, setmoduleNumber] = useState("0");
-  const [assignmentAmount, setAssignmentAmount] = useState("0");
 
   if (pageType === "new") {
     pageTitle = texts.ui_new_module[language.current];
   }
+
+  if (pageType === "manage") {
+    pageTitle = texts.ui_edit_module[language.current];
+  }
+
   return (
     <>
       <PageHeaderBar
@@ -55,7 +56,13 @@ export default function ModuleAdd({
                 </Typography>
               </td>
               <td>
-                <InputField fieldKey="mTitleInput" />
+                <InputField
+                  fieldKey="mTitleInput"
+                  defaultValue={module.name}
+                  onChange={(value: string) =>
+                    handleModule("name", value, true)
+                  }
+                />
               </td>
             </tr>
 
@@ -67,8 +74,10 @@ export default function ModuleAdd({
               </td>
               <td>
                 <NumberInput
-                  value={moduleNumber}
-                  setValue={setmoduleNumber}
+                  value={module.assignments}
+                  onChange={(value: number) =>
+                    handleModule("assignments", value)
+                  }
                   min={0}
                 ></NumberInput>
               </td>
@@ -82,8 +91,8 @@ export default function ModuleAdd({
               </td>
               <td>
                 <NumberInput
-                  value={assignmentAmount}
-                  setValue={setAssignmentAmount}
+                  value={module.ID}
+                  onChange={(value: number) => handleModule("ID", value)}
                   min={0}
                 ></NumberInput>
               </td>
@@ -109,7 +118,14 @@ export default function ModuleAdd({
                 </Grid>
               </td>
               <td>
-                <InputField fieldKey="mTopicInput" isLarge />
+                <InputField
+                  fieldKey="mTopicInput"
+                  isLarge
+                  defaultValue={module.subjects}
+                  onChange={(value: string) =>
+                    handleModule("subjects", value, true)
+                  }
+                />
               </td>
             </tr>
 
@@ -133,7 +149,14 @@ export default function ModuleAdd({
                 </Grid>
               </td>
               <td>
-                <InputField fieldKey="mInstructionInput" isLarge />
+                <InputField
+                  fieldKey="mInstructionInput"
+                  isLarge
+                  defaultValue={module.instructions}
+                  onChange={(value: string) =>
+                    handleModule("instructions", value, true)
+                  }
+                />
               </td>
             </tr>
 
@@ -157,7 +180,13 @@ export default function ModuleAdd({
                 </Grid>
               </td>
               <td>
-                <InputField fieldKey="mTagInput" />
+                <InputField
+                  fieldKey="mTagInput"
+                  defaultValue={module.tags.toString()}
+                  onChange={(value: string) =>
+                    handleModule("tags", splitStringToArray(value), true)
+                  }
+                />
               </td>
             </tr>
           </tbody>
@@ -172,10 +201,17 @@ export default function ModuleAdd({
         >
           <ButtonComp
             buttonType="normal"
-            onClick={null}
+            onClick={() => window.api.saveModule(module, activePath)}
             ariaLabel={texts.ui_aria_save[language.current]}
           >
             {texts.ui_save[language.current]}
+          </ButtonComp>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => console.log(module)}
+            ariaLabel={texts.ui_aria_save[language.current]}
+          >
+            log module state
           </ButtonComp>
           <ButtonComp
             buttonType="normal"

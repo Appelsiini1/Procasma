@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { CodeAssignmentData, CourseData } from "../types";
+import { CodeAssignmentData, CourseData, ModuleData } from "../types";
 import { debounceCheckKey } from "./debounce";
 
 export interface HandleAssignmentFn {
@@ -94,4 +94,18 @@ export const useCourse = (
   const handleCourse = createHandleAssignment(setCourse);
 
   return [course, handleCourse];
+};
+
+/**
+ * Handles the state of a module object, and provides
+ * a handleModule function for modifying it.
+ */
+export const useModule = (
+  initialState: ModuleData
+): [ModuleData, HandleAssignmentFn] => {
+  const [module, setModule] = useState<ModuleData>(initialState);
+
+  const handleModule = createHandleAssignment(setModule);
+
+  return [module, handleModule];
 };
