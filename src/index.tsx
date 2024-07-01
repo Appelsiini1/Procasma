@@ -14,9 +14,13 @@ import SetCreator from "./routes/SetCreator";
 import SetBrowse from "./routes/SetBrowse";
 import Settings from "./routes/Settings";
 import ExportProject from "./routes/ExportProject";
-import { CodeAssignmentData, CourseData, SupportedLanguages } from "./types";
+import {
+  CodeAssignmentData,
+  CourseData,
+  ModuleData,
+  SupportedLanguages,
+} from "./types";
 import { language } from "./globalsUI";
-
 
 const updateLanguageInit = async () => {
   try {
@@ -112,7 +116,11 @@ const App = () => {
         />
       ),
       loader: async () => {
-        return activeAssignment ? "manage" : "new";
+        if (activeAssignment?.assignmentType === "assignment") {
+          return "manage";
+        } else {
+          return "new";
+        }
       },
     },
     {
@@ -152,7 +160,11 @@ const App = () => {
         />
       ),
       loader: async () => {
-        return activeAssignment ? "manage" : "new";
+        if (activeAssignment?.assignmentType === "finalWork") {
+          return "manage";
+        } else {
+          return "new";
+        }
       },
     },
     {
