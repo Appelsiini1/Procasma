@@ -15,7 +15,7 @@ import HelpText from "./HelpText";
 import InputField from "./InputField";
 import SwitchComp from "./SwitchComp";
 import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
-import { ExampleRunType } from "src/types";
+import { ExampleRunType } from "../types";
 import { splitStringToArray, arrayToString } from "../helpers/converters";
 
 interface ExampleRunProps {

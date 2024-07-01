@@ -1,4 +1,4 @@
-import { CodeAssignmentData, CourseData } from "./types";
+import { CodeAssignmentData, CourseData, ModuleData } from "./types";
 
 export const newCourse: CourseData = {
   title: "New course",
@@ -33,6 +33,16 @@ export const testCurrentCourse: CourseData = {
       abbreviation: "V",
     },
   },
+};
+
+export const testModule: ModuleData = {
+  ID: 0,
+  name: "module 1",
+  letters: true,
+  assignments: 0,
+  subjects: "",
+  tags: [],
+  instructions: "",
 };
 
 export const testCurrentAssignment: CodeAssignmentData = {

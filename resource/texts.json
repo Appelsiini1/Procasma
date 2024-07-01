@@ -1115,6 +1115,10 @@
     "FI": "Uusi moduuli",
     "ENG": "New module"
   },
+  "ui_edit_module": {
+    "FI": "Muokkaa moduulia",
+    "ENG": "Edit module"
+  },
   "ui_module_title": {
     "FI": "Moduulin otsikko",
     "ENG": "Module title"

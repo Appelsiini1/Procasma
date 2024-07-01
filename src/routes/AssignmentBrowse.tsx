@@ -4,30 +4,152 @@ import { language } from "../globalsUI";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import {
   Box,
-  Checkbox,
   Grid,
   List,
   ListSubheader,
   ListItem,
-  ListItemButton,
   Stack,
   Typography,
+  Checkbox,
+  ListItemButton,
 } from "@mui/joy";
 import { useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
 import { CodeAssignmentData, CourseData } from "../types";
 import { getAssignments } from "../helpers/requests";
+import {
+  WithCheckWrapper,
+  checkIfShouldFilter,
+  filterState,
+  filterType,
+  generateFilter,
+  handleCheckArray,
+  handleUpdateFilter,
+  handleUpdateUniqueTags,
+  setSelectedViaChecked,
+} from "../helpers/browseHelpers";
 
-type filterState = {
-  isChecked: boolean;
-  value: string;
-};
-
-type AssignmentWithCheck = {
-  isChecked: boolean;
+export interface AssignmentWithCheck extends WithCheckWrapper {
   value: CodeAssignmentData;
-};
+}
+
+/**
+ * Generates the list of assignments, filtering based on the given
+ * filters.
+ * @param assignments
+ * @param filters
+ * @returns
+ */
+export function generateAssignments(
+  assignments: AssignmentWithCheck[],
+  setCourseAssignments: React.Dispatch<
+    React.SetStateAction<AssignmentWithCheck[]>
+  >,
+  filters: filterType[],
+  searchTerm: string
+) {
+  const filteredAssignments = assignments
+    ? assignments.map((assignment: AssignmentWithCheck) => {
+        let showAssignment = true;
+
+        // get assignment attributes to filter by
+        // and the respective filters
+        const tags: Array<string> = assignment.value?.tags;
+        const tagFilter = filters.find((filter) => {
+          return filter.name === "tags" ? true : false;
+        });
+
+        const module: string = assignment.value?.module?.toString();
+        const moduleFilter = filters.find((filter) => {
+          return filter.name === "module" ? true : false;
+        });
+
+        const type: string = assignment.value?.assignmentType;
+        const typeFilter = filters.find((filter) => {
+          return filter.name === "assignmentType" ? true : false;
+        });
+
+        // check filtration
+        showAssignment = checkIfShouldFilter(tags, tagFilter.filters)
+          ? showAssignment
+          : false;
+
+        showAssignment = checkIfShouldFilter([module], moduleFilter.filters)
+          ? showAssignment
+          : false;
+
+        showAssignment = checkIfShouldFilter([type], typeFilter.filters)
+          ? showAssignment
+          : false;
+
+        // check search term filtration
+        if (searchTerm && searchTerm.length > 0) {
+          const titleFormatted = assignment.value.title.toLowerCase();
+          const searchFormatted = searchTerm.toLowerCase();
+
+          showAssignment = titleFormatted.includes(searchFormatted)
+            ? true
+            : false;
+        }
+
+        return showAssignment ? (
+          <ListItem
+            key={assignment.value.assignmentID}
+            startAction={
+              <Checkbox
+                checked={assignment.isChecked}
+                onChange={() =>
+                  handleCheckArray(
+                    assignment.value,
+                    !assignment.isChecked,
+                    setCourseAssignments
+                  )
+                }
+              ></Checkbox>
+            }
+          >
+            <ListItemButton
+              selected={assignment.isChecked}
+              onClick={() =>
+                handleCheckArray(
+                  assignment.value,
+                  !assignment.isChecked,
+                  setCourseAssignments
+                )
+              }
+            >
+              {assignment.value.title}
+            </ListItemButton>
+          </ListItem>
+        ) : null;
+      })
+    : null;
+  return filteredAssignments;
+}
+
+export async function handleDeleteSelected(
+  selectedAssignments: CodeAssignmentData[],
+  activePath: string,
+  refreshAssignments: () => void
+) {
+  try {
+    const deletePromises = selectedAssignments.map(async (assignment) => {
+      const result = await window.api.deleteAssignment(
+        activePath,
+        assignment.assignmentID
+      );
+      return result;
+    });
+
+    const results = await Promise.all(deletePromises);
+
+    // get the remaining assignments
+    refreshAssignments();
+  } catch (error) {
+    console.error("Error deleting assignments:", error);
+  }
+}
 
 export default function AssignmentBrowse({
   activeCourse,
@@ -62,77 +184,18 @@ export default function AssignmentBrowse({
   const [uniqueTypes, setUniqueTypes] = useState<Array<filterState>>([]);
   const [search, setSearch] = useState<string>(null);
 
-  function handleUpdateUniqueTags(assignments: CodeAssignmentData[]) {
-    const tags: string[] = [];
-    const tagsFilter: filterState[] = [];
-
-    assignments.forEach((assignment: CodeAssignmentData) => {
-      assignment?.tags.forEach((tag) => {
-        if (!tags.includes(tag)) {
-          tags.push(tag);
-        }
-      });
-    });
-
-    tags.forEach((tag) => {
-      const tagFilter: filterState = {
-        isChecked: false,
-        value: tag,
-      };
-      tagsFilter.push(tagFilter);
-    });
-
-    setUniqueTags(tagsFilter);
-  }
-
-  function handleUpdateFilter(
-    assignments: CodeAssignmentData[],
-    attribute: string,
-    setter: React.Dispatch<React.SetStateAction<filterState[]>>
-  ) {
-    const uniques: string[] = [];
-    const filters: filterState[] = [];
-
-    assignments.forEach((assignment: CodeAssignmentData) => {
-      const newUnique: string | null = assignment?.[attribute].toString();
-
-      if (newUnique && !uniques.includes(newUnique)) {
-        uniques.push(newUnique);
-      }
-    });
-
-    uniques.forEach((unique) => {
-      const uniqueFilter: filterState = {
-        isChecked: false,
-        value: unique.toString(),
-      };
-      filters.push(uniqueFilter);
-    });
-    setter(filters);
-  }
-
   function handleSearch(value: string) {
     setSearch(value);
   }
 
-  /**
-   * Invert the checked state of the element specified by value.
-   */
-  function handleCheckArray(
-    value: any,
-    check: boolean,
-    setter: React.Dispatch<React.SetStateAction<any[]>>
-  ) {
-    setter((prevState) => {
-      const newState = prevState.filter((filter) => {
-        if (filter.value === value) {
-          filter.isChecked = check;
-        }
-        return filter;
-      });
-
-      return newState;
+  function getTagsFromAssignments(
+    assignments: CodeAssignmentData[]
+  ): Array<string> {
+    const tags: Array<string> = [];
+    assignments.forEach((assignment) => {
+      tags.push(...assignment.tags);
     });
+    return tags;
   }
 
   const refreshAssignments = async () => {
@@ -159,9 +222,19 @@ export default function AssignmentBrowse({
     if (assignentsWithCheck) {
       // update assignments and filters
       setCourseAssignments(assignentsWithCheck);
-      handleUpdateUniqueTags(assignments);
-      handleUpdateFilter(assignments, "module", setUniqueModules);
-      handleUpdateFilter(assignments, "assignmentType", setUniqueTypes);
+      const tags: Array<string> = getTagsFromAssignments(assignments);
+      handleUpdateUniqueTags(tags, setUniqueTags);
+
+      const modules: Array<string> = assignments.map((assignment) => {
+        return String(assignment.module);
+      });
+
+      const types: Array<string> = assignments.map((assignment) => {
+        return String(assignment.assignmentType);
+      });
+
+      handleUpdateFilter(modules, setUniqueModules);
+      handleUpdateFilter(types, setUniqueTypes);
     }
   };
 
@@ -172,189 +245,35 @@ export default function AssignmentBrowse({
 
   // Update the selected assignments counter
   useEffect(() => {
-    const checkedAssignments: CodeAssignmentData[] = courseAssignments.map(
-      (assignment) => {
-        return assignment.isChecked ? assignment.value : null;
-      }
-    );
-
-    // remove empty elements and update assignments
-    setSelectedAssignments(checkedAssignments.filter((n) => n));
-
-    const numChecked: number = checkedAssignments.reduce(
-      (accumulator, currentValue) => {
-        return accumulator + (currentValue ? 1 : 0);
-      },
-      0
+    const numChecked = setSelectedViaChecked(
+      courseAssignments,
+      setSelectedAssignments
     );
 
     setNumSelected(numChecked);
   }, [courseAssignments]);
 
-  function checkIfAnyCommonItems(array1: string[], array2: string[]) {
-    return array1.some((item) => array2.includes(item));
-  }
-
-  function checkIfShouldShowAssignment(
-    assignment: CodeAssignmentData,
-    property: string,
-    filterElements: filterState[]
-  ): boolean {
-    let shouldShow = true;
-    let checkedCount = 0;
-
-    const match = filterElements.find((filter) => {
-      if (!filter.isChecked) {
-        return false;
-      }
-
-      checkedCount = checkedCount + 1;
-
-      const assignmentValue: CodeAssignmentData[keyof CodeAssignmentData] =
-        assignment[property];
-
-      if (assignmentValue.constructor.name == "Array") {
-        if (checkIfAnyCommonItems(assignmentValue, [filter.value])) {
-          return true;
-        }
-      } else {
-        if (assignmentValue.toString() === filter.value) {
-          return true;
-        }
-      }
-
-      return false;
-    });
-
-    if (!match) {
-      shouldShow = false;
-    }
-
-    // if no filters, show all
-    if (checkedCount === 0) {
-      shouldShow = true;
-    }
-
-    return shouldShow;
-  }
-
-  assignments = courseAssignments
-    ? courseAssignments.map((assignment: AssignmentWithCheck) => {
-        let showAssignment = true;
-
-        showAssignment = checkIfShouldShowAssignment(
-          assignment.value,
-          "tags",
-          uniqueTags
-        )
-          ? showAssignment
-          : false;
-
-        showAssignment = checkIfShouldShowAssignment(
-          assignment.value,
-          "module",
-          uniqueModules
-        )
-          ? showAssignment
-          : false;
-
-        showAssignment = checkIfShouldShowAssignment(
-          assignment.value,
-          "assignmentType",
-          uniqueTypes
-        )
-          ? showAssignment
-          : false;
-
-        if (search && search.length > 0) {
-          const titleFormatted = assignment.value.title.toLowerCase();
-          const searchFormatted = search.toLowerCase();
-
-          showAssignment = titleFormatted.includes(searchFormatted)
-            ? true
-            : false;
-        }
-
-        return showAssignment ? (
-          <ListItem
-            key={assignment.value.title}
-            startAction={
-              <Checkbox
-                checked={assignment.isChecked}
-                onChange={() =>
-                  handleCheckArray(
-                    assignment.value,
-                    !assignment.isChecked,
-                    setCourseAssignments
-                  )
-                }
-              ></Checkbox>
-            }
-          >
-            <ListItemButton
-              selected={assignment.isChecked}
-              onClick={() =>
-                handleCheckArray(
-                  assignment.value,
-                  !assignment.isChecked,
-                  setCourseAssignments
-                )
-              }
-            >
-              {assignment.value.title}
-            </ListItemButton>
-          </ListItem>
-        ) : null;
-      })
-    : null;
-
+  /**
+   * Generate a string specifying the assignment type from
+   * the identifier within an assignment.
+   */
   function formAssignmentTypeText(type: string): string {
     return (texts as any)[`ui_${type}`]?.[language?.current] ?? "";
   }
 
-  /**
-   * @returns A JSX list of unique filters with checkboxes
-   */
-  function generateFilter(
-    uniques: filterState[],
-    setUniques: React.Dispatch<React.SetStateAction<filterState[]>>,
-    filterTextFunction?: (text: string) => string
-  ): Array<React.JSX.Element> {
-    const filters = uniques
-      ? uniques.map((unique) => {
-          return (
-            <ListItem
-              key={unique.value}
-              startAction={
-                <Checkbox
-                  checked={unique.isChecked}
-                  onChange={() =>
-                    handleCheckArray(
-                      unique.value,
-                      !unique.isChecked,
-                      setUniques
-                    )
-                  }
-                ></Checkbox>
-              }
-            >
-              <ListItemButton
-                selected={unique.isChecked}
-                onClick={() =>
-                  handleCheckArray(unique.value, !unique.isChecked, setUniques)
-                }
-              >
-                {filterTextFunction
-                  ? filterTextFunction(unique.value)
-                  : unique.value}
-              </ListItemButton>
-            </ListItem>
-          );
-        })
-      : null;
-    return filters;
-  }
+  const modulesFilter: filterType = { name: "module", filters: uniqueModules };
+  const tagsFilter: filterType = { name: "tags", filters: uniqueTags };
+  const typesFilter: filterType = {
+    name: "assignmentType",
+    filters: uniqueTypes,
+  };
 
+  assignments = generateAssignments(
+    courseAssignments,
+    setCourseAssignments,
+    [modulesFilter, tagsFilter, typesFilter],
+    search
+  );
   modules = generateFilter(uniqueModules, setUniqueModules);
   tags = generateFilter(uniqueTags, setUniqueTags);
   types = generateFilter(uniqueTypes, setUniqueTypes, formAssignmentTypeText);
@@ -382,25 +301,6 @@ export default function AssignmentBrowse({
     }
   }, [activeAssignment, navigateToAssignment]);
 
-  const handleDeleteSelected = async () => {
-    try {
-      const deletePromises = selectedAssignments.map(async (assignment) => {
-        const result = await window.api.deleteAssignment(
-          activePath,
-          assignment.assignmentID
-        );
-        return result;
-      });
-
-      const results = await Promise.all(deletePromises);
-
-      // get the remaining assignments
-      refreshAssignments();
-    } catch (error) {
-      console.error("Error deleting assignments:", error);
-    }
-  };
-
   if (pageType === "browse") {
     selectFragment = (
       <>
@@ -412,7 +312,6 @@ export default function AssignmentBrowse({
         ></SearchBar>
 
         <div className="emptySpace1" />
-        {/*<SelectedHeader selected={numSelected} />*/}
 
         <div className="emptySpace1" />
         <Stack
@@ -422,8 +321,17 @@ export default function AssignmentBrowse({
           spacing={2}
         >
           <ButtonComp
+            confirmationModal={true}
+            modalText={`${texts.ui_delete[language.current]} 
+              ${numSelected}`}
             buttonType="normal"
-            onClick={() => handleDeleteSelected()}
+            onClick={() =>
+              handleDeleteSelected(
+                selectedAssignments,
+                activePath,
+                refreshAssignments
+              )
+            }
             ariaLabel={texts.ui_aria_remove_selected[language.current]}
           >
             {`${texts.ui_delete[language.current]} ${numSelected}`}
@@ -447,13 +355,13 @@ export default function AssignmentBrowse({
     );
     pageButtons = (
       <>
-        <ButtonComp
+        {/*<ButtonComp
           buttonType="normal"
           onClick={null}
           ariaLabel={texts.ui_aria_save[language.current]}
         >
           {texts.ui_save[language.current]}
-        </ButtonComp>
+        </ButtonComp>*/}
         <ButtonComp
           buttonType="normal"
           onClick={() => navigate(-1)}

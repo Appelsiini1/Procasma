@@ -1,4 +1,4 @@
-import { CodeAssignmentData } from "../types";
+import { CodeAssignmentData, ModuleData } from "../types";
 
 export const getAssignments = async (activePath: string) => {
   try {
@@ -11,6 +11,21 @@ export const getAssignments = async (activePath: string) => {
     }
 
     return assignments;
+  } catch (error) {
+    console.error(error);
+  }
+  return null;
+};
+
+export const getModules = async (activePath: string) => {
+  try {
+    const modules: ModuleData[] = await window.api.getModules(activePath);
+
+    if (!modules) {
+      throw new Error("no modules");
+    }
+
+    return modules;
   } catch (error) {
     console.error(error);
   }

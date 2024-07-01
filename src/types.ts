@@ -53,6 +53,16 @@ export interface CodeAssignmentData extends CommonAssignmentData {
   };
 }
 
+export interface ModuleData {
+  ID: number;
+  name: string;
+  letters: boolean;
+  assignments: number;
+  subjects: string;
+  tags: Array<string>;
+  instructions: string;
+}
+
 export interface CodeLanguage {
   name: string;
   fileExtensions: Array<string>;
@@ -100,4 +110,7 @@ export type ContextBridgeAPI = {
   deleteAssignment: (coursePath: string, id: string) => void;
   saveSettings: (settings: Settings) => void;
   getSettings: () => Settings;
+  saveModule: (module: ModuleData, path: string) => void;
+  getModules: (path: string) => ModuleData[];
+  deleteModule: (coursePath: string, id: number) => void;
 };

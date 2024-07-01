@@ -26,7 +26,10 @@ export default function ModalConfirmation({
           </Typography>
           <ButtonComp
             buttonType="delete"
-            onClick={() => confirmFunction()}
+            onClick={() => {
+              confirmFunction();
+              close();
+            }}
             ariaLabel={texts.ui_confirm[language.current]}
           >
             {text}

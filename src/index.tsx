@@ -17,6 +17,7 @@ import ExportProject from "./routes/ExportProject";
 import { CodeAssignmentData, CourseData, SupportedLanguages } from "./types";
 import { language } from "./globalsUI";
 
+
 const updateLanguageInit = async () => {
   try {
     const settings = await window.api.getSettings();
@@ -46,6 +47,7 @@ const App = () => {
   const [activePath, setActivePath] = useState<string>(null);
   const [activeAssignment, setActiveAssignment] =
     useState<CodeAssignmentData>(null);
+  const [activeModule, setActiveModule] = useState<ModuleData>(null);
 
   function handleActiveCourse(value: CourseData) {
     setActiveCourse(value);
@@ -59,6 +61,10 @@ const App = () => {
     setActiveAssignment(value);
   }
 
+  function handleActiveModule(value: ModuleData) {
+    setActiveModule(value);
+  }
+
   const router = createBrowserRouter([
     {
       path: "/",
@@ -70,6 +76,8 @@ const App = () => {
           handleActivePath={handleActivePath}
           activeAssignment={activeAssignment}
           handleActiveAssignment={handleActiveAssignment}
+          activeModule={activeModule}
+          handleActiveModule={handleActiveModule}
         />
       ),
       errorElement: <ErrorPage />,
@@ -109,9 +117,15 @@ const App = () => {
     },
     {
       path: "/newModule",
-      element: <ModuleAdd activeCourse={activeCourse} />,
+      element: (
+        <ModuleAdd
+          activeCourse={activeCourse}
+          activePath={activePath}
+          activeModule={activeModule}
+        />
+      ),
       loader: async () => {
-        return "new";
+        return activeModule ? "manage" : "new";
       },
     },
     {
@@ -120,8 +134,8 @@ const App = () => {
         <AssignmentBrowse
           activeCourse={activeCourse}
           activePath={activePath}
-          handleActiveAssignment={handleActiveAssignment}
           activeAssignment={activeAssignment}
+          handleActiveAssignment={handleActiveAssignment}
         />
       ),
       loader: async () => {
@@ -150,7 +164,14 @@ const App = () => {
     },
     {
       path: "/moduleBrowse",
-      element: <ModuleBrowse activeCourse={activeCourse} />,
+      element: (
+        <ModuleBrowse
+          activeCourse={activeCourse}
+          activePath={activePath}
+          activeModule={activeModule}
+          handleActiveModule={handleActiveModule}
+        />
+      ),
     },
     {
       path: "/setCreator",
