@@ -322,6 +322,21 @@ export function handleGetModules(coursePath: string): ModuleData[] | null {
   }
 }
 
-export function removeModuleById(coursePath: string, id: string): void {
-  return;
+export function removeModuleById(coursePath: string, id: number): void {
+  const prevModules = handleGetModules(coursePath);
+
+  try {
+    const newModules = prevModules.filter((module) => {
+      return module.ID === id ? null : module;
+    });
+
+    // write remaining modules
+    const modulesPath = path.join(coursePath, "modules.json");
+
+    writeToFile(JSON.stringify(newModules), modulesPath);
+  } catch (error) {
+    console.error("An error occurred:", (error as Error).message);
+  }
+
+  return null;
 }

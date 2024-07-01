@@ -65,6 +65,10 @@ const App = () => {
     setActiveAssignment(value);
   }
 
+  function handleActiveModule(value: ModuleData) {
+    setActiveModule(value);
+  }
+
   const router = createBrowserRouter([
     {
       path: "/",
@@ -132,8 +136,8 @@ const App = () => {
         <AssignmentBrowse
           activeCourse={activeCourse}
           activePath={activePath}
-          handleActiveAssignment={handleActiveAssignment}
           activeAssignment={activeAssignment}
+          handleActiveAssignment={handleActiveAssignment}
         />
       ),
       loader: async () => {
@@ -162,7 +166,14 @@ const App = () => {
     },
     {
       path: "/moduleBrowse",
-      element: <ModuleBrowse activeCourse={activeCourse} />,
+      element: (
+        <ModuleBrowse
+          activeCourse={activeCourse}
+          activePath={activePath}
+          activeModule={activeModule}
+          handleActiveModule={handleActiveModule}
+        />
+      ),
     },
     {
       path: "/setCreator",

@@ -110,8 +110,7 @@ export type ContextBridgeAPI = {
   deleteAssignment: (coursePath: string, id: string) => void;
   saveSettings: (settings: Settings) => void;
   getSettings: () => Settings;
-
   saveModule: (module: ModuleData, path: string) => void;
   getModules: (path: string) => ModuleData[];
-  deleteModule: (coursePath: string, id: string) => void;
+  deleteModule: (coursePath: string, id: number) => void;
 };

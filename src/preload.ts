@@ -25,6 +25,6 @@ contextBridge.exposeInMainWorld("api", {
   saveModule: (module: ModuleData, path: string) =>
     ipcRenderer.invoke("saveModule", module, path),
   getModules: (path: string) => ipcRenderer.invoke("getModules", path),
-  deleteModule: (coursePath: string, id: string) =>
+  deleteModule: (coursePath: string, id: number) =>
     ipcRenderer.invoke("deleteModule", coursePath, id),
 });

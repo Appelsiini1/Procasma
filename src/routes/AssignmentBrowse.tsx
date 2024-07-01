@@ -10,6 +10,8 @@ import {
   ListItem,
   Stack,
   Typography,
+  Checkbox,
+  ListItemButton,
 } from "@mui/joy";
 import { useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
@@ -17,16 +19,137 @@ import SearchBar from "../components/SearchBar";
 import { CodeAssignmentData, CourseData } from "../types";
 import { getAssignments } from "../helpers/requests";
 import {
-  AssignmentWithCheck,
+  WithCheckWrapper,
+  checkIfShouldFilter,
   filterState,
   filterType,
-  generateAssignments,
   generateFilter,
-  handleDeleteSelected,
+  handleCheckArray,
   handleUpdateFilter,
   handleUpdateUniqueTags,
   setSelectedViaChecked,
 } from "../helpers/browseHelpers";
+
+export interface AssignmentWithCheck extends WithCheckWrapper {
+  value: CodeAssignmentData;
+}
+
+/**
+ * Generates the list of assignments, filtering based on the given
+ * filters.
+ * @param assignments
+ * @param filters
+ * @returns
+ */
+export function generateAssignments(
+  assignments: AssignmentWithCheck[],
+  setCourseAssignments: React.Dispatch<
+    React.SetStateAction<AssignmentWithCheck[]>
+  >,
+  filters: filterType[],
+  searchTerm: string
+) {
+  const filteredAssignments = assignments
+    ? assignments.map((assignment: AssignmentWithCheck) => {
+        let showAssignment = true;
+
+        // get assignment attributes to filter by
+        // and the respective filters
+        const tags: Array<string> = assignment.value?.tags;
+        const tagFilter = filters.find((filter) => {
+          return filter.name === "tags" ? true : false;
+        });
+
+        const module: string = assignment.value?.module?.toString();
+        const moduleFilter = filters.find((filter) => {
+          return filter.name === "module" ? true : false;
+        });
+
+        const type: string = assignment.value?.assignmentType;
+        const typeFilter = filters.find((filter) => {
+          return filter.name === "assignmentType" ? true : false;
+        });
+
+        // check filtration
+        showAssignment = checkIfShouldFilter(tags, tagFilter.filters)
+          ? showAssignment
+          : false;
+
+        showAssignment = checkIfShouldFilter([module], moduleFilter.filters)
+          ? showAssignment
+          : false;
+
+        showAssignment = checkIfShouldFilter([type], typeFilter.filters)
+          ? showAssignment
+          : false;
+
+        // check search term filtration
+        if (searchTerm && searchTerm.length > 0) {
+          const titleFormatted = assignment.value.title.toLowerCase();
+          const searchFormatted = searchTerm.toLowerCase();
+
+          showAssignment = titleFormatted.includes(searchFormatted)
+            ? true
+            : false;
+        }
+
+        return showAssignment ? (
+          <ListItem
+            key={assignment.value.assignmentID}
+            startAction={
+              <Checkbox
+                checked={assignment.isChecked}
+                onChange={() =>
+                  handleCheckArray(
+                    assignment.value,
+                    !assignment.isChecked,
+                    setCourseAssignments
+                  )
+                }
+              ></Checkbox>
+            }
+          >
+            <ListItemButton
+              selected={assignment.isChecked}
+              onClick={() =>
+                handleCheckArray(
+                  assignment.value,
+                  !assignment.isChecked,
+                  setCourseAssignments
+                )
+              }
+            >
+              {assignment.value.title}
+            </ListItemButton>
+          </ListItem>
+        ) : null;
+      })
+    : null;
+  return filteredAssignments;
+}
+
+export async function handleDeleteSelected(
+  selectedAssignments: CodeAssignmentData[],
+  activePath: string,
+  refreshAssignments: () => void
+) {
+  try {
+    const deletePromises = selectedAssignments.map(async (assignment) => {
+      const result = await window.api.deleteAssignment(
+        activePath,
+        assignment.assignmentID
+      );
+      return result;
+    });
+
+    const results = await Promise.all(deletePromises);
+
+    // get the remaining assignments
+    refreshAssignments();
+  } catch (error) {
+    console.error("Error deleting assignments:", error);
+  }
+}
 
 export default function AssignmentBrowse({
   activeCourse,
@@ -189,7 +312,6 @@ export default function AssignmentBrowse({
         ></SearchBar>
 
         <div className="emptySpace1" />
-        {/*<SelectedHeader selected={numSelected} />*/}
 
         <div className="emptySpace1" />
         <Stack
