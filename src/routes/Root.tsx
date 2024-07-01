@@ -61,6 +61,7 @@ export default function Root({
 }) {
   const [addingAssignment, setAddingAssignment] = useState(false);
   const [navigateToAssignment, setNavigateToAssignment] = useState(false);
+  const [navigateToProjectWork, setNavigateToProjectWork] = useState(false);
   const [navigateToModule, setNavigateToModule] = useState(false);
   const [assignmentsInIndex, setAssignmentsInIndex] = useState(null);
 
@@ -97,6 +98,14 @@ export default function Root({
       navigate("/inputCodeAssignment");
     }
   }, [activeAssignment, navigateToAssignment]);
+
+  // navigate to assignment after clearing
+  useEffect(() => {
+    if (activeAssignment === null && navigateToProjectWork) {
+      setNavigateToProjectWork(false);
+      navigate("/inputCodeProjectWork");
+    }
+  }, [activeAssignment, navigateToProjectWork]);
 
   // navigate to module after clearing
   useEffect(() => {
@@ -263,7 +272,12 @@ export default function Root({
                       <ButtonComp
                         buttonType="largeAddAlt"
                         onClick={() => {
-                          navigate("/inputCodeProjectWork");
+                          // clear the active project work
+                          // useEffect will navigate on the change
+                          setNavigateToProjectWork(true);
+                          activeAssignment
+                            ? handleActiveAssignment(null)
+                            : navigate("/inputCodeProjectWork");
                         }}
                         ariaLabel={
                           texts.ui_aria_nav_add_project[language.current]

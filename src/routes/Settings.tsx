@@ -52,6 +52,9 @@ export default function Settings({
 
   function handleSaveSettings() {
     window.api.saveSettings(settings);
+
+    // reload the page
+    navigate(0);
   }
 
   return (
@@ -61,7 +64,7 @@ export default function Settings({
         courseID={activeCourse?.ID}
         courseTitle={activeCourse?.title}
       />
-      <div className="content" style={{ minHeight: "50rem" }}>
+      <div className="content" style={{ height: "40rem", maxHeight: "80vh" }}>
         <Typography level="h1">
           {texts.ui_settings[language.current]}
         </Typography>
