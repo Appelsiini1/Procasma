@@ -6,7 +6,8 @@ import { Stack, Table, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
-import { CourseData } from "../types";
+import { CourseData, Settings, SupportedLanguages } from "../types";
+import { useState } from "react";
 
 export default function Settings({
   activeCourse,
@@ -14,8 +15,44 @@ export default function Settings({
   activeCourse: CourseData;
 }) {
   const navigate = useNavigate();
-  // temporary languages list
-  const languages: object[] = [{ name: "suomi" }, { name: "english" }];
+  const [settings, setSettings] = useState<Settings>({
+    codeLanguages: [],
+    language: "ENG",
+  });
+
+  const languageOptions = texts.languages.map((value) => {
+    return {
+      languageName: value[language.current],
+      abbreviation: value["abbreviation"],
+    };
+  });
+
+  function handleSetLanguage(value: string) {
+    languageOptions.map((option) => {
+      if (option?.languageName === value) {
+        try {
+          // attempt cast
+          const abbreviation: SupportedLanguages =
+            option.abbreviation as SupportedLanguages;
+
+          // set the current global language
+          language.current = abbreviation;
+
+          setSettings((prevSettings) => {
+            const newSettings = prevSettings;
+            newSettings.language = abbreviation;
+            return newSettings;
+          });
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    });
+  }
+
+  function handleSaveSettings() {
+    window.api.saveSettings(settings);
+  }
 
   return (
     <>
@@ -37,7 +74,7 @@ export default function Settings({
                 </Typography>
               </td>
               <td>
-                <InputField fieldKey="caSetName" />
+                <InputField fieldKey="caSetName" onChange={null} />
               </td>
             </tr>
 
@@ -48,7 +85,7 @@ export default function Settings({
                 </Typography>
               </td>
               <td>
-                <InputField fieldKey="caSetName" />
+                <InputField fieldKey="caSetName" onChange={null} />
               </td>
             </tr>
 
@@ -59,7 +96,7 @@ export default function Settings({
                 </Typography>
               </td>
               <td>
-                <InputField fieldKey="caSetName" />
+                <InputField fieldKey="caSetName" onChange={null} />
               </td>
             </tr>
 
@@ -83,10 +120,15 @@ export default function Settings({
               </td>
               <td>
                 <Dropdown
-                  name="caLanguageInput"
-                  options={languages}
-                  labelKey="name"
-                  placeholder={"..."}
+                  name="cLanguageInput"
+                  options={languageOptions}
+                  labelKey="languageName"
+                  defaultValue={
+                    languageOptions.find(
+                      (elem) => elem.abbreviation === language.current
+                    )?.languageName
+                  }
+                  onChange={(value: string) => handleSetLanguage(value)}
                 ></Dropdown>
               </td>
             </tr>
@@ -102,7 +144,7 @@ export default function Settings({
         >
           <ButtonComp
             buttonType="normal"
-            onClick={() => console.log("save")}
+            onClick={() => handleSaveSettings()}
             ariaLabel={texts.ui_aria_save[language.current]}
           >
             {texts.ui_save[language.current]}

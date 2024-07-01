@@ -5,14 +5,14 @@ import { Divider, Grid, Stack, Table, Typography } from "@mui/joy";
 import PageHeaderBar from "../components/PageHeaderBar";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import SwitchComp from "../components/SwitchComp";
 import { testCurrentAssignment } from "../myTestGlobals";
-import { CourseData, Variation } from "../types";
+import { CodeAssignmentData, CourseData, Variation } from "../types";
 import {
   splitStringToArray,
   splitStringToNumberArray,
@@ -22,10 +22,16 @@ import VariationsGroup from "../components/VariationsGroup";
 
 export default function AssignmentInput({
   activeCourse,
+  activePath,
+  activeAssignment,
 }: {
   activeCourse: CourseData;
+  activePath: string;
+  activeAssignment?: CodeAssignmentData;
 }) {
-  const [assignment, handleAssignment] = useAssignment(testCurrentAssignment);
+  const [assignment, handleAssignment] = useAssignment(
+    activeAssignment ? activeAssignment : testCurrentAssignment
+  );
   const variations: { [key: string]: Variation } = assignment.variations;
 
   const pageType = useLoaderData();
@@ -39,6 +45,15 @@ export default function AssignmentInput({
   if (pageType === "new") {
     pageTitle = texts.ui_new_assignment[language.current];
   }
+
+  if (pageType === "manage") {
+    pageTitle = texts.ui_edit_assignment[language.current];
+  }
+
+  useEffect(() => {
+    // change the assignment type to final project
+    handleAssignment("assignmentType", "assignment");
+  }, []);
 
   return (
     <>
@@ -267,12 +282,7 @@ export default function AssignmentInput({
         >
           <ButtonComp
             buttonType="normal"
-            onClick={() =>
-              window.api.saveAssignment(
-                assignment,
-                "get path from global state?"
-              )
-            }
+            onClick={() => window.api.saveAssignment(assignment, activePath)}
             ariaLabel={texts.ui_aria_save[language.current]}
           >
             {texts.ui_save[language.current]}

@@ -2,6 +2,8 @@ import { language } from "../constantsUI";
 import texts from "../../resource/texts.json";
 import { Autocomplete, Stack, Typography } from "@mui/joy";
 import ButtonComp from "./ButtonComp";
+import { useState } from "react";
+import InputField from "./InputField";
 
 type OptionType = {
   [key: string]: string;
@@ -21,8 +23,15 @@ export default function SearchBar({
   title?: string;
   autoFillOptions: Array<object>;
   optionLabel: string;
-  searchFunction: () => void;
+  searchFunction: (value: string) => void;
 }) {
+  const [text, setText] = useState(null);
+
+  function handleText(value: string) {
+    setText(value);
+    searchFunction(value);
+  }
+
   return (
     <>
       <Stack
@@ -34,16 +43,15 @@ export default function SearchBar({
       >
         <Typography level="h4">{title}</Typography>
         <div style={{ width: "100%" }}>
-          <Autocomplete
-            key="caSearch"
+          <InputField
+            fieldKey="caSearchBar"
             placeholder="..."
-            options={autoFillOptions}
-            getOptionLabel={(option: OptionType) => option[optionLabel]}
+            onChange={(value: string) => handleText(value)}
           />
         </div>
         <ButtonComp
           buttonType="normal"
-          onClick={searchFunction}
+          onClick={() => searchFunction(text)}
           ariaLabel={texts.ui_aria_search[language.current]}
         >
           {texts.ui_search_button[language.current]}

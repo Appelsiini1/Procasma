@@ -3,9 +3,12 @@ import path from "path";
 import { handleDirectorySelect, handleFileOpen } from "./helpers/fileDialog";
 import { version, DEVMODE } from "./constants";
 import {
+  handleGetAssignments,
   handleReadCourse,
+  handleSaveAssignment,
   handleSaveCourse,
   handleUpdateCourse,
+  removeAssignmentById,
 } from "./helpers/fileOperations";
 import { CodeAssignmentData, Settings } from "./types";
 import { initialize } from "./helpers/programInit";
@@ -30,6 +33,29 @@ const createWindow = () => {
       contextIsolation: true,
     },
   });
+
+  // One-way, Renderer to Main
+  ipcMain.on("set-title", (event, title) => {
+    const webContents = event.sender;
+    const win = BrowserWindow.fromWebContents(webContents);
+    win.setTitle(title);
+  });
+
+  ipcMain.handle("selectDir", handleDirectorySelect);
+  ipcMain.handle("saveCourse", (event, course, path) =>
+    handleSaveCourse(course, path)
+  );
+  ipcMain.handle("readCourse", (event, path) => handleReadCourse(path));
+  ipcMain.handle("updateCourse", (event, fileName, path) =>
+    handleUpdateCourse(fileName, path)
+  );
+  ipcMain.handle("saveAssignment", (event, assignment, path) =>
+    handleSaveAssignment(assignment, path)
+  );
+  ipcMain.handle("getAssignments", (event, path) => handleGetAssignments(path));
+  ipcMain.handle("deleteAssignment", (event, coursePath, id) =>
+    removeAssignmentById(coursePath, id)
+  );
 
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -84,34 +110,12 @@ ipcMain.on("set-title", (event, title) => {
   const win = BrowserWindow.fromWebContents(webContents);
   win.setTitle(title);
 });
-ipcMain.on(
-  "saveAssignment",
-  (event, assignment: CodeAssignmentData, path: string) => {
-    console.log(`main: save assignment to path: ${path}`);
-    console.log(assignment);
-  }
-);
-
-ipcMain.on(
-  "saveProject",
-  (event, assignment: CodeAssignmentData, path: string) => {
-    console.log(`main: save project to path: ${path}`);
-    console.log(assignment);
-  }
-);
 ipcMain.on("saveSettings", (event, settings: Settings) => {
   saveSettings(settings);
 });
 
 // Bidirectional, renderer to main to renderer
-ipcMain.handle("selectDir", handleDirectorySelect);
-ipcMain.handle("saveCourse", (event, course, path) =>
-  handleSaveCourse(course, path)
-);
-ipcMain.handle("readCourse", (event, path) => handleReadCourse(path));
-ipcMain.handle("updateCourse", (event, fileName, path) =>
-  handleUpdateCourse(fileName, path)
-);
 ipcMain.handle("dialog:openFile", handleFileOpen);
 ipcMain.handle("getAppVersion", getVersion);
 ipcMain.handle("getSettings", getSettings);
+

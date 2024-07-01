@@ -1,3 +1,4 @@
+export const supportedLanguagesList: string[] = ["FI", "ENG"];
 export type SupportedLanguages = "FI" | "ENG";
 
 export type FileTypes = "text" | "image" | "code";
@@ -41,7 +42,7 @@ export interface CommonAssignmentData {
 }
 
 export interface CodeAssignmentData extends CommonAssignmentData {
-  assignmentType: "assignment";
+  assignmentType: string;
   assignmentNo: Array<number>;
   level: number | null;
   next: Array<string> | null;
@@ -79,20 +80,24 @@ export interface CourseData {
 
 export type CourseLoaderData = "create" | "manage";
 
-export type ContextBridgeAPI = {
-  setTitle: (title: string) => void;
-  getAppVersion: () => string;
-  saveCourse: (course: CourseData, path: string) => void;
-  updateCourse: (course: CourseData, path: string) => void;
-  saveAssignment: (assignment: CodeAssignmentData, path: string) => void;
-  saveProject: (assignment: CodeAssignmentData, path: string) => void;
-  selectDir: () => string;
-  readCourse: (path: string) => CourseData;
-};
-
 export type SupportedModuleType = "week" | "module" | null;
 
 export interface Settings {
   codeLanguages: Array<CodeLanguage>;
   language: string;
 }
+
+export type ContextBridgeAPI = {
+  setTitle: (title: string) => void;
+  getAppVersion: () => string;
+  saveCourse: (course: CourseData, path: string) => void;
+  updateCourse: (course: CourseData, path: string) => void;
+  selectDir: () => string;
+  readCourse: (path: string) => CourseData;
+  saveAssignment: (assignment: CodeAssignmentData, path: string) => void;
+  saveProject: (assignment: CodeAssignmentData, path: string) => void;
+  getAssignments: (path: string) => CodeAssignmentData[];
+  deleteAssignment: (coursePath: string, id: string) => void;
+  saveSettings: (settings: Settings) => void;
+  getSettings: () => Settings;
+};

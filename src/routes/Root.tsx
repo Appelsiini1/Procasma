@@ -14,8 +14,14 @@ import {
 import ButtonComp from "../components/ButtonComp";
 import { useNavigate } from "react-router-dom";
 import FadeInImage from "../components/FadeInImage";
-import { CourseData } from "../types";
+import {
+  CodeAssignmentData,
+  CourseData,
+  Settings,
+  SupportedLanguages,
+} from "../types";
 import { useEffect, useState } from "react";
+import { getAssignments } from "../helpers/requests";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 const smallDividerSX = {
@@ -26,33 +32,72 @@ const smallDividerSX = {
   marginRight: "7rem",
 };
 
+const getVersion = async () => {
+  try {
+    const vers = await window.api.getAppVersion();
+    const title = "Procasma " + vers;
+    window.api.setTitle(title);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export default function Root({
   activeCourse,
+  activePath,
   handleActiveCourse,
   handleActivePath,
+  activeAssignment,
+  handleActiveAssignment,
 }: {
   activeCourse: CourseData;
+  activePath: string;
   handleActiveCourse: React.Dispatch<React.SetStateAction<CourseData>>;
   handleActivePath: React.Dispatch<React.SetStateAction<string>>;
+  activeAssignment: CodeAssignmentData;
+  handleActiveAssignment: React.Dispatch<
+    React.SetStateAction<CodeAssignmentData>
+  >;
 }) {
   const [addingAssignment, setAddingAssignment] = useState(false);
+  const [navigateToAssignment, setNavigateToAssignment] = useState(false);
+  const [assignmentsInIndex, setAssignmentsInIndex] = useState(null);
 
+  const refreshAssignmentsInIndex = async () => {
+    const assignments: CodeAssignmentData[] = await getAssignments(activePath);
+
+    if (!assignments) {
+      return;
+    }
+
+    const numAssignments: number = assignments.reduce(
+      (accumulator, currentValue) => {
+        return accumulator + (currentValue ? 1 : 0);
+      },
+      0
+    );
+
+    setAssignmentsInIndex(numAssignments);
+  };
+
+  // update the assignments in index count
   useEffect(() => {
-    const getVersion = async () => {
-      try {
-        const vers = await window.api.getAppVersion();
-        const title = "Procasma " + vers;
-        window.api.setTitle(title);
-        console.log(title);
-      } catch (error) {
-        console.error(error);
-      }
-    };
     getVersion();
-  }, []);
+
+    if (activePath) {
+      refreshAssignmentsInIndex();
+    }
+  }, [activePath]);
+
+  // navigate to assignment after clearing
+  useEffect(() => {
+    if (activeAssignment === null && navigateToAssignment) {
+      setNavigateToAssignment(false);
+      navigate("/inputCodeAssignment");
+    }
+  }, [activeAssignment, navigateToAssignment]);
 
   const pageName = texts.ui_main[language.current];
-  const noInIndex = NaN; //make dynamic later
   const navigate = useNavigate();
 
   async function handleSelectCourseFolder() {
@@ -64,8 +109,6 @@ export default function Root({
       if (course) {
         handleActiveCourse(course);
         handleActivePath(coursePath);
-
-        console.log("Active course loaded...");
       } else {
         throw new Error("Course folder not valid");
       }
@@ -89,7 +132,7 @@ export default function Root({
         <Typography level="h4" sx={{ paddingBottom: "2rem" }}>
           {texts.ui_no_assignments_index[language.current] +
             ": " +
-            noInIndex.toString()}
+            `${assignmentsInIndex ? String(assignmentsInIndex) : "0"}`}
         </Typography>
 
         <Box>
@@ -104,7 +147,7 @@ export default function Root({
               <ButtonComp
                 buttonType="largeAdd"
                 onClick={() => {
-                  navigate("createCourse");
+                  navigate("/createCourse");
                 }}
                 ariaLabel={texts.ui_aria_nav_course_create[language.current]}
               >
@@ -125,7 +168,7 @@ export default function Root({
                 buttonType="settings"
                 onClick={() => {
                   if (activeCourse) {
-                    navigate("manageCourse");
+                    navigate("/manageCourse");
                   } else {
                     console.log("Select a course first");
                   }
@@ -163,7 +206,7 @@ export default function Root({
               <ButtonComp
                 buttonType="settings"
                 onClick={() => {
-                  navigate("AssignmentBrowse");
+                  navigate("/AssignmentBrowse");
                 }}
                 ariaLabel={
                   texts.ui_aria_nav_browse_assignments[language.current]
@@ -192,7 +235,12 @@ export default function Root({
                       <ButtonComp
                         buttonType="largeAddAlt"
                         onClick={() => {
-                          navigate("inputCodeAssignment");
+                          // clear the active assignment
+                          // useEffect will navigate on the change
+                          setNavigateToAssignment(true);
+                          activeAssignment
+                            ? handleActiveAssignment(null)
+                            : navigate("/inputCodeAssignment");
                         }}
                         ariaLabel={
                           texts.ui_aria_nav_add_assignment[language.current]
@@ -206,7 +254,7 @@ export default function Root({
                       <ButtonComp
                         buttonType="largeAddAlt"
                         onClick={() => {
-                          navigate("inputCodeProjectWork");
+                          navigate("/inputCodeProjectWork");
                         }}
                         ariaLabel={
                           texts.ui_aria_nav_add_project[language.current]
@@ -246,7 +294,7 @@ export default function Root({
               <ButtonComp
                 buttonType="largeAdd"
                 onClick={() => {
-                  navigate("newModule");
+                  navigate("/newModule");
                 }}
                 ariaLabel={texts.ui_aria_nav_add_module[language.current]}
                 disabled={activeCourse ? false : true}
@@ -258,7 +306,7 @@ export default function Root({
               <ButtonComp
                 buttonType="settings"
                 onClick={() => {
-                  navigate("moduleBrowse");
+                  navigate("/moduleBrowse");
                 }}
                 ariaLabel={texts.ui_aria_nav_browse_modules[language.current]}
                 disabled={activeCourse ? false : true}
@@ -281,7 +329,7 @@ export default function Root({
               <ButtonComp
                 buttonType="largeAdd"
                 onClick={() => {
-                  navigate("setCreator");
+                  navigate("/setCreator");
                 }}
                 ariaLabel={texts.ui_aria_nav_add_set[language.current]}
                 disabled={activeCourse ? false : true}
@@ -292,7 +340,7 @@ export default function Root({
             <Grid>
               <ButtonComp
                 buttonType="openCourse"
-                onClick={() => navigate("SetBrowse")}
+                onClick={() => navigate("/SetBrowse")}
                 ariaLabel={texts.ui_aria_nav_browse_sets[language.current]}
                 disabled={activeCourse ? false : true}
               >
@@ -302,7 +350,7 @@ export default function Root({
             <Grid>
               <ButtonComp
                 buttonType="export"
-                onClick={() => navigate("exportProject")}
+                onClick={() => navigate("/exportProject")}
                 ariaLabel={texts.ui_aria_nav_export_project[language.current]}
                 disabled={activeCourse ? false : true}
               >
@@ -323,7 +371,7 @@ export default function Root({
             <Grid>
               <ButtonComp
                 buttonType="settings"
-                onClick={() => navigate("settings")}
+                onClick={() => navigate("/settings")}
                 ariaLabel={texts.ui_delete[language.current]}
               >
                 {texts.ui_settings[language.current]}

@@ -147,6 +147,10 @@
     "FI": "Tehtävien hallinta",
     "ENG": "Assignment management"
   },
+  "ui_edit_assignment": {
+    "FI": "Muokkaa tehtävää",
+    "ENG": "Edit assignment"
+  },
   "ui_create_new_set": {
     "FI": "Luo uusi tehtäväsarja",
     "ENG": "Create new assigment set"
@@ -1007,6 +1011,10 @@
     "FI": "Tehtävä",
     "ENG": "Assignment"
   },
+  "ui_finalWork": {
+    "FI": "Harjoitustyö",
+    "ENG": "Final work"
+  },
   "ui_code_assignment": {
     "FI": "Ohjelmointitehtävä",
     "ENG": "Coding assignment"
@@ -1098,6 +1106,10 @@
   "ui_new_project_work": {
     "FI": "Uusi harjoitustyö",
     "ENG": "New project work"
+  },
+  "ui_edit_project_work": {
+    "FI": "Muokkaa harjoitustyötä",
+    "ENG": "Edit project work"
   },
   "ui_new_module": {
     "FI": "Uusi moduuli",
