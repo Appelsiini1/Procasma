@@ -238,7 +238,7 @@ function addToAssignments(
   });
 }
 
-export function addAssignment(
+export function addAssignmentToDatabase(
   coursePath: string,
   assignment: CodeAssignmentData
 ) {
@@ -249,7 +249,7 @@ export function addAssignment(
   closeDB(db);
 }
 
-export function getAssignment(
+export function getAssignmentFromDatabase(
   coursePath: string,
   id: string
 ): CodeAssignmentDatabase | null {
@@ -271,11 +271,14 @@ export function getAssignment(
   return result;
 }
 
-export function updateAssignment(
+export function updateAssignmentToDatabase(
   coursePath: string,
   assignment: CodeAssignmentData
 ) {
-  const oldAssignment = getAssignment(coursePath, assignment.assignmentID);
+  const oldAssignment = getAssignmentFromDatabase(
+    coursePath,
+    assignment.assignmentID
+  );
   if (!oldAssignment) {
     throw new Error(
       "Assignment does not exist in the database, cannot update."
@@ -326,8 +329,11 @@ export function updateAssignment(
   closeDB(db);
 }
 
-export function deleteAssignment(coursePath: string, assignmentID: string) {
-  const oldAssignment = getAssignment(coursePath, assignmentID);
+export function deleteAssignmentFromDatabase(
+  coursePath: string,
+  assignmentID: string
+) {
+  const oldAssignment = getAssignmentFromDatabase(coursePath, assignmentID);
   let db = openDB(coursePath);
   oldAssignment.tags.split(",").forEach((tag) => {
     deleteFromTags(db, tag, assignmentID);
