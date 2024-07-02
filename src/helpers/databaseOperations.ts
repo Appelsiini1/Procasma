@@ -77,7 +77,11 @@ export function initDB(coursePath: string) {
 }
 
 // Assignment tags
-function addTag(db: sqlite3.Database, tag: string, assignmentID: string) {
+function addAssignmentTag(
+  db: sqlite3.Database,
+  tag: string,
+  assignmentID: string
+) {
   db.serialize(() => {
     db.get(
       `SELECT assignments FROM tags WHERE name = ?`,
@@ -122,7 +126,7 @@ function addAssignmentTags(
 ) {
   db.serialize(() => {
     tags.forEach((tag) => {
-      addTag(db, tag, assignmentID);
+      addAssignmentTag(db, tag, assignmentID);
     });
   });
 }
@@ -135,12 +139,12 @@ function _updateTag(db: sqlite3.Database, name: string, newRow: string) {
   });
 }
 
-function deleteFromTags(
+function deleteFromAssignmentTags(
   db: sqlite3.Database,
   name: string,
   assignmentID: string
 ) {
-  let row = _getTag(db, name);
+  let row = _getAssignmentTag(db, name);
   if (row) {
     if (row.split(",").includes(assignmentID)) {
       let newRow = row
@@ -162,7 +166,7 @@ function deleteFromTags(
   }
 }
 
-function _getTag(db: sqlite3.Database, name: string): string | null {
+function _getAssignmentTag(db: sqlite3.Database, name: string): string | null {
   let result: string = null;
   db.serialize(() => {
     db.get(
@@ -180,7 +184,7 @@ function _getTag(db: sqlite3.Database, name: string): string | null {
   return result;
 }
 
-function updateTags(
+function updateAssignmentTags(
   db: sqlite3.Database,
   oldTags: string,
   newTags: Array<string>,
@@ -202,11 +206,11 @@ function updateTags(
   });
 
   toDelete.every((value) => {
-    deleteFromTags(db, value, assignmentID);
+    deleteFromAssignmentTags(db, value, assignmentID);
   });
 
   toAdd.every((value) => {
-    addTag(db, value, assignmentID);
+    addAssignmentTag(db, value, assignmentID);
   });
 }
 
@@ -292,7 +296,7 @@ export function updateAssignmentToDatabase(
     params.push(assignment.title);
   }
   if (oldAssignment.tags !== assignment.tags.toString()) {
-    updateTags(
+    updateAssignmentTags(
       db,
       oldAssignment.tags,
       assignment.tags,
@@ -336,7 +340,7 @@ export function deleteAssignmentFromDatabase(
   const oldAssignment = getAssignmentFromDatabase(coursePath, assignmentID);
   let db = openDB(coursePath);
   oldAssignment.tags.split(",").forEach((tag) => {
-    deleteFromTags(db, tag, assignmentID);
+    deleteFromAssignmentTags(db, tag, assignmentID);
   });
   db.serialize(() => {
     db.run(`DELETE FROM assignments WHERE id = ?`, [assignmentID], (err) => {
