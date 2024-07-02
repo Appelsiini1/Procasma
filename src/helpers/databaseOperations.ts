@@ -1,6 +1,6 @@
 import sqlite3 from "sqlite3";
 import path from "path";
-import { CodeAssignmentData } from "../types";
+import { CodeAssignmentData, CodeAssignmentDatabase } from "../types";
 import { isExpanding } from "./assignment";
 
 function openDB(coursePath: string) {
@@ -81,7 +81,8 @@ function addToAssignments(
 ) {
   db.serialize(() => {
     db.run(
-      `INSERT INTO assignments(id, type, title, tags, module, position, level, isExpanding, path) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO assignments(id, type, title, tags, module, position, level, isExpanding, path) 
+      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         assignment.assignmentID,
         assignment.assignmentType,
@@ -90,7 +91,7 @@ function addToAssignments(
         assignment.module,
         assignment.assignmentNo.toString(),
         assignment.level,
-        isExpanding(assignment),
+        isExpanding(assignment) ? 1 : 0,
         assignmentPath,
       ],
       (err) => {
@@ -100,13 +101,14 @@ function addToAssignments(
   });
 }
 
-function setAssignmentTags(
+function addAssignmentTags(
   db: sqlite3.Database,
-  assignment: CodeAssignmentData
+  tags: Array<string>,
+  assignmentID: string
 ) {
   db.serialize(() => {
-    assignment.tags.forEach((tag) => {
-      db.each(
+    tags.forEach((tag) => {
+      db.get(
         `SELECT assignments FROM tags WHERE name = ?`,
         [tag],
         (err, row: { assignment?: string }) => {
@@ -116,10 +118,10 @@ function setAssignmentTags(
             const oldRow = row.assignment.split(",");
             if (
               !oldRow.filter((value) => {
-                return value === assignment.assignmentID ? true : false;
+                return value === assignmentID ? true : false;
               })
             ) {
-              let newRow = row.assignment + `,${assignment.assignmentID}`;
+              let newRow = row.assignment + `,${assignmentID}`;
               db.run(
                 `UPDATE tags SET name = ? WHERE name = ?`,
                 [newRow, tag],
@@ -131,7 +133,7 @@ function setAssignmentTags(
           } else {
             db.run(
               `INSERT INTO tags VALUES (?, ?)`,
-              [tag, assignment.assignmentID],
+              [tag, assignmentID],
               (err) => {
                 console.log(err.message);
               }
@@ -150,6 +152,194 @@ export function addAssignment(
   let db = openDB(coursePath);
   const assignmentPath = path.join("assignmentData", assignment.assignmentID);
   addToAssignments(db, assignmentPath, assignment);
-  setAssignmentTags(db, assignment);
+  addAssignmentTags(db, assignment.tags, assignment.assignmentID);
   closeDB(db);
+}
+
+export function getAssignment(
+  coursePath: string,
+  id: string
+): CodeAssignmentDatabase | null {
+  let db = openDB(coursePath);
+  let result: CodeAssignmentDatabase | null = null;
+  db.serialize(() => {
+    db.get(`SELECT * FROM assignments WHERE id = ?`, [id], (err, row) => {
+      if (err) {
+        console.log(err.message);
+      } else if (row) {
+        result = row as CodeAssignmentDatabase;
+        result.isExpanding = result.isExpanding ? true : false;
+      } else {
+        console.log("Could not find assignment from database.");
+      }
+    });
+  });
+  closeDB(db);
+  return result;
+}
+
+function updateTags(
+  db: sqlite3.Database,
+  oldTags: string,
+  newTags: Array<string>,
+  assignmentID: string
+) {
+  const oldTagsArray = oldTags.split(",");
+  const getTag = (name: string): string | null => {
+    let result: string = null;
+    db.serialize(() => {
+      db.get(
+        `SELECT assignments FROM tags WHERE name = ?`,
+        [name],
+        (err, row: { assignment?: string }) => {
+          if (err) {
+            console.log(err.message);
+          } else if (row) {
+            result = row.assignment;
+          }
+        }
+      );
+    });
+    return result;
+  };
+  const updateTag = (name: string, newRow: string) => {
+    db.serialize(() => {
+      db.run(
+        `UPDATE tags SET name = ? WHERE name = ?`,
+        [newRow, name],
+        (err) => {
+          console.log(err.message);
+        }
+      );
+    });
+  };
+  const deleteFromTags = (name: string, assignmentID: string) => {
+    let row = getTag(name);
+    if (row) {
+      if (row.split(",").includes(assignmentID)) {
+        updateTag(
+          name,
+          row
+            .split(",")
+            .filter((value) => {
+              value !== assignmentID;
+            })
+            .toString()
+        );
+      }
+    }
+  };
+
+  const addTag = (tag: string, assignmentID: string) => {
+    db.serialize(() => {
+      db.get(
+        `SELECT assignments FROM tags WHERE name = ?`,
+        [tag],
+        (err, row: { assignment?: string }) => {
+          if (err) {
+            console.log(err.message);
+          } else if (row) {
+            const oldRow = row.assignment.split(",");
+            if (
+              !oldRow.filter((value) => {
+                return value === assignmentID ? true : false;
+              })
+            ) {
+              let newRow = row.assignment + `,${assignmentID}`;
+              db.run(
+                `UPDATE tags SET name = ? WHERE name = ?`,
+                [newRow, tag],
+                (err) => {
+                  console.log(err.message);
+                }
+              );
+            }
+          } else {
+            db.run(
+              `INSERT INTO tags VALUES (?, ?)`,
+              [tag, assignmentID],
+              (err) => {
+                console.log(err.message);
+              }
+            );
+          }
+        }
+      );
+    });
+  };
+
+  let toDelete: Array<string> = [];
+  let toAdd: Array<string> = [];
+  oldTagsArray.every((value) => {
+    if (!newTags.includes(value)) {
+      toDelete.push(value);
+    }
+  });
+  newTags.every((value) => {
+    if (!oldTagsArray.includes(value)) {
+      toAdd.push(value);
+    }
+  });
+
+  toDelete.every((value) => {
+    deleteFromTags(value, assignmentID);
+  });
+
+  toAdd.every((value) => {
+    addTag(value, assignmentID);
+  });
+}
+
+export function updateAssignment(
+  coursePath: string,
+  assignment: CodeAssignmentData
+) {
+  const oldAssignment = getAssignment(coursePath, assignment.assignmentID);
+  if (!oldAssignment) {
+    throw new Error(
+      "Assignment does not exist in the database, cannot update."
+    );
+  }
+  let sql = `UPDATE assignments SET `;
+  let params = [];
+  let db = openDB(coursePath);
+  if (oldAssignment.title !== assignment.title) {
+    sql += `title = ?\n`;
+    params.push(assignment.title);
+  }
+  if (oldAssignment.tags !== assignment.tags.toString()) {
+    updateTags(
+      db,
+      oldAssignment.tags,
+      assignment.tags,
+      assignment.assignmentID
+    );
+  }
+  if (oldAssignment.module !== assignment.module) {
+    sql += `module = ?\n`;
+    params.push(assignment.module);
+  }
+  if (oldAssignment.position !== assignment.assignmentNo.toString()) {
+    sql += `position = ?\n`;
+    params.push(assignment.assignmentNo.toString());
+  }
+  if (oldAssignment.level !== assignment.level) {
+    sql += `level = ?`;
+    params.push(assignment.level);
+  }
+  if (oldAssignment.isExpanding !== isExpanding(assignment)) {
+    sql += `isExpanding = ?`;
+    params.push(isExpanding(assignment) ? 1 : 0);
+  }
+
+  if (sql !== `UPDATE assignments SET `) {
+    sql += `WHERE id = ?`;
+    params.push(assignment.assignmentID);
+
+    db.serialize(() => {
+      db.run(sql, params, (err) => {
+        console.log(err.message);
+      });
+    });
+  }
 }
