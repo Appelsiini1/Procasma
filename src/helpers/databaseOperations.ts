@@ -29,7 +29,7 @@ export function initDB(coursePath: string) {
   let db = openDB(coursePath);
   db.serialize(() => {
     db.run(
-      `CREATE TABLE assignments (
+      `CREATE TABLE IF NOT EXISTS assignments (
                 id TEXT PRIMARY KEY
                 type TEXT NOT NULL
                 title TEXT NOT NULL
@@ -44,7 +44,7 @@ export function initDB(coursePath: string) {
       }
     );
     db.run(
-      `CREATE TABLE modules (
+      `CREATE TABLE IF NOT EXISTS modules (
                 moduleId TEXT PRIMARY KEY
                 name TEXT NOT NULL
                 tags TEXT
@@ -57,7 +57,7 @@ export function initDB(coursePath: string) {
       }
     );
     db.run(
-      `CREATE TABLE tags (
+      `CREATE TABLE IF NOT EXISTS tags (
                 name TEXT PRIMARY KEY
                 assignments TEXT NOT NULL);`,
       (err) => {
@@ -65,7 +65,7 @@ export function initDB(coursePath: string) {
       }
     );
     db.run(
-      `CREATE TABLE moduleTags (
+      `CREATE TABLE IF NOT EXISTS moduleTags (
                   name TEXT PRIMARY KEY
                   modules TEXT NOT NULL);`,
       (err) => {
@@ -383,6 +383,11 @@ export function deleteAssignmentFromDatabase(
   });
 }
 
-// Module tags
-
 // Module
+export function getModuleFromDatabase() {}
+
+export function addModuleToDatabase() {}
+
+export function updateModuleToDatabase() {}
+
+export function deleteModule() {}
