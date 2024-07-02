@@ -123,6 +123,6 @@ export type CodeAssignmentDatabase = {
   module: number | null;
   position: string;
   level: number | null;
-  isExpanding: string | boolean;
+  isExpanding: boolean;
   path: string;
 };
