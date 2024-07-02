@@ -9,6 +9,7 @@ import {
 import { spacesToUnderscores } from "./converters";
 import { courseMetaDataFileName } from "../constants";
 import { createHash } from "crypto";
+import { deleteAssignmentFromDatabase } from "./databaseOperations";
 
 interface FileResult {
   content?: any;
@@ -269,6 +270,7 @@ export function removeAssignmentById(coursePath: string, id: string): void {
     const assignmentPath = path.join(coursePath, "assignment_data", id);
 
     fs.rmSync(assignmentPath, { recursive: true, force: true });
+    deleteAssignmentFromDatabase(coursePath, id);
   } catch (error) {
     console.error("An error occurred:", (error as Error).message);
   }
