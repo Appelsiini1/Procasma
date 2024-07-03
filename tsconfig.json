@@ -14,5 +14,10 @@
     "resolveJsonModule": true,
     "jsx": "react-jsx"
   },
-  "include": ["src/**/*", "./src/images.d.tsx", "./src/window.d.tsx"]
+  "include": [
+    "src/**/*",
+    "./src/images.d.tsx",
+    "./src/window.d.tsx",
+    "forge.env.d.ts"
+  ]
 }

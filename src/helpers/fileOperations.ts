@@ -12,6 +12,8 @@ import { courseMetaDataFileName } from "../constants";
 import { createHash } from "crypto";
 import { getFileNameFromPath } from "./utility";
 import { promisify } from "util";
+import { deleteAssignmentFromDatabase } from "./databaseOperations";
+
 
 interface FileResult {
   content?: any;
@@ -442,6 +444,7 @@ export function removeAssignmentById(coursePath: string, id: string) {
     if (result?.error) {
       throw new Error(result.error);
     }
+    deleteAssignmentFromDatabase(coursePath, id);
   } catch (err) {
     return { error: (err as Error).message };
   }
