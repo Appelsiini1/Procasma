@@ -12,9 +12,12 @@ contextBridge.exposeInMainWorld("api", {
   updateCourse: (course: CourseData, path: string) =>
     ipcRenderer.invoke("updateCourse", course, path),
   selectDir: () => ipcRenderer.invoke("selectDir"),
+  selectFiles: () => ipcRenderer.invoke("selectFiles"),
   readCourse: (path: string) => ipcRenderer.invoke("readCourse", path),
   saveAssignment: (assignment: CodeAssignmentData, path: string) =>
     ipcRenderer.invoke("saveAssignment", assignment, path),
+  updateAssignment: (assignment: CodeAssignmentData, path: string) =>
+    ipcRenderer.invoke("updateAssignment", assignment, path),
   getAssignments: (path: string) => ipcRenderer.invoke("getAssignments", path),
   deleteAssignment: (coursePath: string, id: string) =>
     ipcRenderer.invoke("deleteAssignment", coursePath, id),

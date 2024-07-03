@@ -1,6 +1,10 @@
 import { app, BrowserWindow, Menu, ipcMain } from "electron";
 import path from "path";
-import { handleDirectorySelect, handleFileOpen } from "./helpers/fileDialog";
+import {
+  handleDirectorySelect,
+  handleFileOpen,
+  handleFilesOpen,
+} from "./helpers/fileDialog";
 import { version, DEVMODE } from "./constants";
 import {
   handleGetAssignments,
@@ -9,6 +13,7 @@ import {
   handleSaveAssignment,
   handleSaveCourse,
   handleSaveModule,
+  handleUpdateAssignment,
   handleUpdateCourse,
   removeAssignmentById,
   removeModuleById,
@@ -45,6 +50,7 @@ const createWindow = () => {
   });
 
   ipcMain.handle("selectDir", handleDirectorySelect);
+  ipcMain.handle("selectFiles", handleFilesOpen);
   ipcMain.handle("saveCourse", (event, course, path) =>
     handleSaveCourse(course, path)
   );
@@ -55,6 +61,10 @@ const createWindow = () => {
   ipcMain.handle("saveAssignment", (event, assignment, path) =>
     handleSaveAssignment(assignment, path)
   );
+  ipcMain.handle("updateAssignment", (event, assignment, path) =>
+    handleUpdateAssignment(assignment, path)
+  );
+
   ipcMain.handle("getAssignments", (event, path) => handleGetAssignments(path));
   ipcMain.handle("deleteAssignment", (event, coursePath, id) =>
     removeAssignmentById(coursePath, id)

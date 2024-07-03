@@ -1,4 +1,13 @@
-import { CodeAssignmentData, CourseData, ModuleData } from "./types";
+import { CodeAssignmentData, CourseData, FileData, ModuleData } from "./types";
+
+export const defaultFile: FileData = {
+  fileName: "",
+  path: "",
+  solution: false,
+  fileContent: "instruction",
+  showStudent: false,
+  fileType: "text",
+};
 
 export const newCourse: CourseData = {
   title: "New course",
@@ -46,7 +55,7 @@ export const testModule: ModuleData = {
 };
 
 export const testCurrentAssignment: CodeAssignmentData = {
-  assignmentID: "assignment_001",
+  assignmentID: null,
   title: "Assignment 1",
   tags: ["print", "try...except"],
   module: 1,
@@ -67,16 +76,7 @@ export const testCurrentAssignment: CodeAssignmentData = {
           output: "Output for run 1",
         },
       },
-      files: [
-        {
-          fileName: "example1.txt",
-          path: "/path/to/example1.txt",
-          solution: true,
-          fileContent: "data",
-          showStudent: true,
-          fileType: "text",
-        },
-      ],
+      files: [],
       usedIn: ["course1", "course2"],
       cgConfig: {
         id: "cg1",
@@ -99,24 +99,7 @@ export const testCurrentAssignment: CodeAssignmentData = {
           output: "Output for run 2 in variation 2",
         },
       },
-      files: [
-        {
-          fileName: "example2.js",
-          path: "/path/to/example2.js",
-          solution: false,
-          fileContent: "code",
-          showStudent: false,
-          fileType: "code",
-        },
-        {
-          fileName: "example3.py",
-          path: "/path/to/example3.py",
-          solution: true,
-          fileContent: "code",
-          showStudent: true,
-          fileType: "code",
-        },
-      ],
+      files: [],
       usedIn: ["course3"],
       cgConfig: {
         id: "cg2",

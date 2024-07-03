@@ -1,4 +1,4 @@
-import { CourseData, LevelsType } from "../types";
+import { LevelsType } from "../types";
 
 export function splitStringToArray(input: string): string[] {
   const trimmedInput = input.trim();

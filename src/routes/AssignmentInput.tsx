@@ -56,6 +56,19 @@ export default function AssignmentInput({
     handleAssignment("assignmentType", "assignment");
   }, []);
 
+  async function handleSaveAssignment() {
+    let result = null;
+    if (pageType === "manage") {
+      result = await window.api.updateAssignment(assignment, activePath);
+    } else {
+      result = await window.api.saveAssignment(assignment, activePath);
+    }
+
+    if (result?.error) {
+      console.error("Error saving assignment:", result.error);
+    }
+  }
+
   return (
     <>
       <PageHeaderBar
@@ -283,7 +296,7 @@ export default function AssignmentInput({
         >
           <ButtonComp
             buttonType="normal"
-            onClick={() => window.api.saveAssignment(assignment, activePath)}
+            onClick={() => handleSaveAssignment()}
             ariaLabel={texts.ui_aria_save[language.current]}
           >
             {texts.ui_save[language.current]}
