@@ -133,6 +133,6 @@ export type ModuleDatabase = {
   tags: string | null;
   assignments: number;
   subjects: string;
-  letters: string;
+  letters: number;
   instructions: string;
 };

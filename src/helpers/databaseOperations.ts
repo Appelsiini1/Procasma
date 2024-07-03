@@ -8,16 +8,24 @@ import {
 } from "../types";
 import { isExpanding } from "./assignment";
 
+interface DatabaseResult {
+  content?: any;
+  error?: string;
+}
+
 // Database connection
 function openDB(coursePath: string) {
   const dbPath = path.join(coursePath, "database", "database.db");
+  let result: DatabaseResult = null;
   let db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
       console.error(err.message);
+      result = { error: err.message };
     }
     console.log("Connected to the database.");
+    result = { content: db };
   });
-  return db;
+  return result;
 }
 
 function closeDB(db: sqlite3.Database) {
@@ -31,7 +39,11 @@ function closeDB(db: sqlite3.Database) {
 
 // Database initialization
 export function initDB(coursePath: string) {
-  let db = openDB(coursePath);
+  const rValue = openDB(coursePath);
+  if (rValue.error) {
+    return rValue;
+  }
+  let db = rValue.content as sqlite3.Database;
   db.serialize(() => {
     db.run(
       `CREATE TABLE IF NOT EXISTS assignments (
@@ -79,19 +91,25 @@ export function initDB(coursePath: string) {
     );
   });
   closeDB(db);
+  return { content: true };
 }
 
 // Row counts
 export function getModuleCount(coursePath: string) {
-  let db = openDB(coursePath);
-  let result: number = null;
+  const rValue = openDB(coursePath);
+  if (rValue.error) {
+    return rValue;
+  }
+  let db = rValue.content as sqlite3.Database;
+  let result: DatabaseResult = {};
   db.serialize(() => {
     db.get(`SELECT COUNT(*) FROM modules`, (err, count) => {
       if (err) {
         console.log(err.message);
+        result.error = err.message;
       } else {
         console.log(count);
-        result = count as number;
+        result.content = count as number;
       }
     });
   });
@@ -99,15 +117,20 @@ export function getModuleCount(coursePath: string) {
 }
 
 export function getAssignmentCount(coursePath: string) {
-  let db = openDB(coursePath);
-  let result: number = null;
+  const rValue = openDB(coursePath);
+  if (rValue.error) {
+    return rValue;
+  }
+  let db = rValue.content as sqlite3.Database;
+  let result: DatabaseResult = {};
   db.serialize(() => {
     db.get(`SELECT COUNT(*) FROM assignments`, (err, count) => {
       if (err) {
         console.log(err.message);
+        result.error = err.message;
       } else {
         console.log(count);
-        result = count as number;
+        result.content = count as number;
       }
     });
   });
@@ -127,6 +150,7 @@ function addTag(
     table = "moduleTags";
     key = "modules";
   }
+  let result: DatabaseResult = {};
   db.serialize(() => {
     db.get(
       `SELECT ${key} rowKey FROM ${table} WHERE name = ?`,
@@ -134,6 +158,7 @@ function addTag(
       (err, row: { rowKey?: string }) => {
         if (err) {
           console.log(err.message);
+          result.error = err.message;
         } else if (row) {
           const oldRow = row.rowKey.split(",");
           if (
@@ -147,17 +172,23 @@ function addTag(
               [newRow, tag],
               (err) => {
                 console.log(err.message);
+                result.error = err.message;
               }
             );
           }
         } else {
           db.run(`INSERT INTO ${table} VALUES (?, ?)`, [tag, id], (err) => {
             console.log(err.message);
+            result.error = err.message;
           });
         }
       }
     );
   });
+  if (!result.error) {
+    return { content: true };
+  }
+  return result;
 }
 
 function addAssignmentTags(
@@ -165,11 +196,18 @@ function addAssignmentTags(
   tags: Array<string>,
   assignmentID: string
 ) {
+  let result: DatabaseResult = {};
   db.serialize(() => {
-    tags.forEach((tag) => {
-      addTag(db, tag, assignmentID);
+    tags.some((tag) => {
+      result = addTag(db, tag, assignmentID);
+      if (result.error) {
+        return true;
+      } else {
+        return false;
+      }
     });
   });
+  return result;
 }
 
 function _updateTag(
@@ -184,15 +222,18 @@ function _updateTag(
     table = "moduleTags";
     key = "modules";
   }
+  let result: DatabaseResult = {};
   db.serialize(() => {
     db.run(
       `UPDATE ${table} SET ${key} = ? WHERE name = ?`,
       [newRow, name],
       (err) => {
         console.log(err.message);
+        result.error = err.message;
       }
     );
   });
+  return result.error ? result : { content: true };
 }
 
 function deleteFromTags(
@@ -206,33 +247,43 @@ function deleteFromTags(
     table = "moduleTags";
   }
   let row = _getTag(db, name);
+  if (!row.content) {
+    return row;
+  }
+  let result: DatabaseResult = {};
+
   if (row) {
-    if (row.split(",").includes(id)) {
-      let newRow = row
+    if (row.content.split(",").includes(id)) {
+      let newRow = row.content
         .split(",")
-        .filter((value) => {
+        .filter((value: string) => {
           value !== id;
         })
         .toString();
       if (newRow.length !== 0) {
-        _updateTag(db, name, newRow);
+        result = _updateTag(db, name, newRow);
+        if (result.error) {
+          return result;
+        }
       } else {
         db.serialize(() => {
           db.run(`DELETE FROM ${table} WHERE name = ?`, [name], (err) => {
             console.log(err.message);
+            result.error = err.message;
           });
         });
       }
     }
   }
+  return result.error ? result : { content: true };
 }
 
 function _getTag(
   db: sqlite3.Database,
   name: string,
   assignment = true
-): string | null {
-  let result: string = null;
+): DatabaseResult {
+  let result: DatabaseResult = {};
   let table = "tags";
   let key = "assignments";
   if (!assignment) {
@@ -246,8 +297,9 @@ function _getTag(
       (err, row: { rowKey?: string }) => {
         if (err) {
           console.log(err.message);
+          result.error = err.message;
         } else if (row) {
-          result = row.rowKey;
+          result.content = row.rowKey;
         }
       }
     );
@@ -263,27 +315,33 @@ function updateTags(
   assignment = true
 ) {
   const oldTagsArray = oldTags.split(",");
+  let result: DatabaseResult = {};
 
   let toDelete: Array<string> = [];
   let toAdd: Array<string> = [];
-  oldTagsArray.every((value) => {
+  oldTagsArray.forEach((value) => {
     if (!newTags.includes(value)) {
       toDelete.push(value);
     }
   });
-  newTags.every((value) => {
+  newTags.forEach((value) => {
     if (!oldTagsArray.includes(value)) {
       toAdd.push(value);
     }
   });
 
   toDelete.every((value) => {
-    deleteFromTags(db, value, id, assignment);
+    result = deleteFromTags(db, value, id, assignment);
+    if (result.error) return false;
+    return true;
   });
 
   toAdd.every((value) => {
-    addTag(db, value, id, assignment);
+    result = addTag(db, value, id, assignment);
+    if (result.error) return false;
+    return true;
   });
+  return result;
 }
 
 function addModuleTags(
@@ -291,11 +349,18 @@ function addModuleTags(
   tags: Array<string>,
   moduleID: string
 ) {
+  let result: DatabaseResult = {};
   db.serialize(() => {
-    tags.forEach((tag) => {
-      addTag(db, tag, moduleID, false);
+    tags.some((tag) => {
+      result = addTag(db, tag, moduleID, false);
+      if (result.error) {
+        return true;
+      } else {
+        return false;
+      }
     });
   });
+  return result;
 }
 
 // Assignment
@@ -304,6 +369,7 @@ function addToAssignments(
   assignmentPath: string,
   assignment: CodeAssignmentData
 ) {
+  let result: DatabaseResult = {};
   db.serialize(() => {
     db.run(
       `INSERT INTO assignments(id, type, title, tags, module, position, level, isExpanding, path) 
@@ -321,37 +387,53 @@ function addToAssignments(
       ],
       (err) => {
         console.log(err.message);
+        result.error = err.message;
       }
     );
   });
+  return result.error ? result : { content: true };
 }
 
 export function addAssignmentToDatabase(
   coursePath: string,
   assignment: CodeAssignmentData
 ) {
-  let db = openDB(coursePath);
+  const rValue = openDB(coursePath);
+  let result: DatabaseResult = {};
+  if (rValue.error) {
+    return rValue;
+  }
+  let db = rValue.content as sqlite3.Database;
   const assignmentPath = path.join("assignmentData", assignment.assignmentID);
-  addToAssignments(db, assignmentPath, assignment);
-  addAssignmentTags(db, assignment.tags, assignment.assignmentID);
+  result = addToAssignments(db, assignmentPath, assignment);
+  if (result.error) return result;
+  result = addAssignmentTags(db, assignment.tags, assignment.assignmentID);
+  if (result.error) return result;
   closeDB(db);
+  return result;
 }
 
 export function getAssignmentFromDatabase(
   coursePath: string,
   id: string
-): CodeAssignmentDatabase | null {
-  let db = openDB(coursePath);
-  let result: CodeAssignmentDatabase | null = null;
+): DatabaseResult {
+  const rValue = openDB(coursePath);
+  if (rValue.error) {
+    return rValue;
+  }
+  let db = rValue.content as sqlite3.Database;
+  let result: DatabaseResult = {};
   db.serialize(() => {
     db.get(`SELECT * FROM assignments WHERE id = ?`, [id], (err, row) => {
       if (err) {
         console.log(err.message);
+        result.error = err.message;
       } else if (row) {
-        result = row as CodeAssignmentDatabase;
-        result.isExpanding = result.isExpanding ? true : false;
+        result.content = row as CodeAssignmentDatabase;
+        result.content.isExpanding = result.content.isExpanding ? true : false;
       } else {
         console.log("Could not find assignment from database.");
+        result.error = "Could not find assignment from database.";
       }
     });
   });
@@ -363,29 +445,38 @@ export function updateAssignmentToDatabase(
   coursePath: string,
   assignment: CodeAssignmentData
 ) {
-  const oldAssignment = getAssignmentFromDatabase(
+  const getResult = getAssignmentFromDatabase(
     coursePath,
     assignment.assignmentID
   );
-  if (!oldAssignment) {
-    throw new Error(
-      "Assignment does not exist in the database, cannot update."
-    );
+  if (getResult.error) {
+    return getResult;
+  } else if (!getResult.content) {
+    return {
+      error: "Assignment does not exist in the database, cannot update.",
+    };
   }
+  const oldAssignment = getResult.content as CodeAssignmentDatabase;
   let sql = `UPDATE assignments SET `;
   let params = [];
-  let db = openDB(coursePath);
+  const rValue = openDB(coursePath);
+  if (rValue.error) {
+    return rValue;
+  }
+  let db = rValue.content as sqlite3.Database;
+  let error: DatabaseResult = {};
   if (oldAssignment.title !== assignment.title) {
     sql += `title = ?\n`;
     params.push(assignment.title);
   }
   if (oldAssignment.tags !== assignment.tags.toString()) {
-    updateTags(
+    error = updateTags(
       db,
       oldAssignment.tags,
       assignment.tags,
       assignment.assignmentID
     );
+    if (error.error) return error;
   }
   if (oldAssignment.module !== assignment.module) {
     sql += `module = ?\n`;
@@ -411,35 +502,53 @@ export function updateAssignmentToDatabase(
     db.serialize(() => {
       db.run(sql, params, (err) => {
         console.log(err.message);
+        error.error = err.message;
       });
     });
   }
   closeDB(db);
+  return error.error ? error : { content: true };
 }
 
 export function deleteAssignmentFromDatabase(
   coursePath: string,
   assignmentID: string
 ) {
-  const oldAssignment = getAssignmentFromDatabase(coursePath, assignmentID);
-  let db = openDB(coursePath);
+  const getResult = getAssignmentFromDatabase(coursePath, assignmentID);
+  if (getResult.error) {
+    return getResult;
+  } else if (!getResult.content) {
+    return {
+      error: "Assignment does not exist in the database, cannot update.",
+    };
+  }
+  const oldAssignment = getResult.content as CodeAssignmentDatabase;
+  const rValue = openDB(coursePath);
+  if (rValue.error) {
+    return rValue;
+  }
+  let db = rValue.content as sqlite3.Database;
+  let result: DatabaseResult = {};
   oldAssignment.tags.split(",").forEach((tag) => {
     deleteFromTags(db, tag, assignmentID);
   });
   db.serialize(() => {
     db.run(`DELETE FROM assignments WHERE id = ?`, [assignmentID], (err) => {
       console.log(err.message);
+      result.error = err.message;
     });
   });
+  return result.error ? result : { content: true };
 }
 
 // Module
-export function getModuleFromDatabase(
-  coursePath: string,
-  moduleId: number
-): ModuleData | null {
-  let db = openDB(coursePath);
-  let result: any = null;
+export function getModuleFromDatabase(coursePath: string, moduleId: number) {
+  const rValue = openDB(coursePath);
+  if (rValue.error) {
+    return rValue;
+  }
+  let db = rValue.content as sqlite3.Database;
+  let result: DatabaseResult = {};
   db.serialize(() => {
     db.get(
       `SELECT * FROM modules WHERE id = ?`,
@@ -447,17 +556,19 @@ export function getModuleFromDatabase(
       (err, row: ModuleDatabase) => {
         if (err) {
           console.log(err.message);
+          result.error = err.message;
         } else if (row) {
-          result = {};
-          result.ID = row.id;
-          result.name = row.name;
-          result.tags = row.tags.split(",");
-          result.assignments = row.assignments;
-          result.subjects = row.subjects;
-          result.letters = row.letters ? true : false;
-          result.instructions = row.instructions;
+          result.content = {};
+          result.content.ID = row.id;
+          result.content.name = row.name;
+          result.content.tags = row.tags.split(",");
+          result.content.assignments = row.assignments;
+          result.content.subjects = row.subjects;
+          result.content.letters = row.letters ? true : false;
+          result.content.instructions = row.instructions;
         } else {
           console.log("Could not find assignment from database.");
+          result.error = "Could not find assignment from database.";
         }
       }
     );
@@ -467,7 +578,12 @@ export function getModuleFromDatabase(
 }
 
 export function addModuleToDatabase(coursePath: string, module: ModuleData) {
-  let db = openDB(coursePath);
+  const rValue = openDB(coursePath);
+  if (rValue.error) {
+    return rValue;
+  }
+  let db = rValue.content as sqlite3.Database;
+  let result: DatabaseResult = {};
   db.serialize(() => {
     db.run(
       `INSERT INTO modules(id, name, tags, assignments, subjects, letters, instructions) 
@@ -483,32 +599,47 @@ export function addModuleToDatabase(coursePath: string, module: ModuleData) {
       ],
       (err) => {
         console.log(err.message);
+        result.error = err.message;
       }
     );
-    addModuleTags(db, module.tags, module.ID.toString());
+    if (!result.error) {
+      result = addModuleTags(db, module.tags, module.ID.toString());
+    }
   });
+  return result.error ? result : { content: true };
 }
 
 export function updateModuleToDatabase(coursePath: string, module: ModuleData) {
-  const oldModule = getModuleFromDatabase(coursePath, module.ID);
-  if (!oldModule) {
-    throw new Error("Module does not exist in the database, cannot update.");
+  const getResult = getModuleFromDatabase(coursePath, module.ID);
+  if (getResult.error) {
+    return getResult;
+  } else if (!getResult.content) {
+    return {
+      error: "Module does not exist in the database, cannot update.",
+    };
   }
+  const oldModule = getResult.content;
+  let result: DatabaseResult = {};
   let sql = `UPDATE modules SET `;
   let params = [];
-  let db = openDB(coursePath);
+  const rValue = openDB(coursePath);
+  if (rValue.error) {
+    return rValue;
+  }
+  let db = rValue.content as sqlite3.Database;
   if (oldModule.name !== module.name) {
     sql += `name = ?\n`;
     params.push(module.name);
   }
   if (oldModule.tags.toString() !== module.tags.toString()) {
-    updateTags(
+    result = updateTags(
       db,
       oldModule.tags.toString(),
       module.tags,
       module.ID.toString(),
       false
     );
+    if (result.error) return result;
   }
   if (oldModule.assignments !== module.assignments) {
     sql += `assignments = ?\n`;
@@ -534,21 +665,38 @@ export function updateModuleToDatabase(coursePath: string, module: ModuleData) {
     db.serialize(() => {
       db.run(sql, params, (err) => {
         console.log(err.message);
+        result.error = err.message;
       });
     });
   }
   closeDB(db);
+  return result.error ? result : { content: true };
 }
 
 export function deleteModule(coursePath: string, moduleID: number) {
-  const oldModule = getModuleFromDatabase(coursePath, moduleID);
-  let db = openDB(coursePath);
+  const getResult = getModuleFromDatabase(coursePath, moduleID);
+  if (getResult.error) {
+    return getResult;
+  } else if (!getResult.content) {
+    return {
+      error: "Assignment does not exist in the database, cannot update.",
+    };
+  }
+  const oldModule = getResult.content as ModuleData;
+  let result: DatabaseResult = {};
+  const rValue = openDB(coursePath);
+  if (rValue.error) {
+    return rValue;
+  }
+  let db = rValue.content as sqlite3.Database;
   oldModule.tags.forEach((tag) => {
     deleteFromTags(db, tag, moduleID.toString());
   });
   db.serialize(() => {
     db.run(`DELETE FROM modules WHERE id = ?`, [moduleID], (err) => {
       console.log(err.message);
+      result.error = err.message;
     });
   });
+  return result.error ? result : { content: true };
 }
