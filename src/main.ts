@@ -1,6 +1,10 @@
 import { app, BrowserWindow, Menu, ipcMain } from "electron";
 import path from "path";
-import { handleDirectorySelect, handleFileOpen } from "./helpers/fileDialog";
+import {
+  handleDirectorySelect,
+  handleFileOpen,
+  handleFilesOpen,
+} from "./helpers/fileDialog";
 import { version, DEVMODE } from "./constants";
 import {
   handleGetAssignments,
@@ -9,11 +13,11 @@ import {
   handleSaveAssignment,
   handleSaveCourse,
   handleSaveModule,
+  handleUpdateAssignment,
   handleUpdateCourse,
   removeAssignmentById,
   removeModuleById,
 } from "./helpers/fileOperations";
-import { Settings } from "./types";
 import { initialize } from "./helpers/programInit";
 import { getSettings, saveSettings } from "./helpers/settings";
 
@@ -45,6 +49,7 @@ const createWindow = () => {
   });
 
   ipcMain.handle("selectDir", handleDirectorySelect);
+  ipcMain.handle("selectFiles", handleFilesOpen);
   ipcMain.handle("saveCourse", (event, course, path) =>
     handleSaveCourse(course, path)
   );
@@ -55,6 +60,10 @@ const createWindow = () => {
   ipcMain.handle("saveAssignment", (event, assignment, path) =>
     handleSaveAssignment(assignment, path)
   );
+  ipcMain.handle("updateAssignment", (event, assignment, path) =>
+    handleUpdateAssignment(assignment, path)
+  );
+
   ipcMain.handle("getAssignments", (event, path) => handleGetAssignments(path));
   ipcMain.handle("deleteAssignment", (event, coursePath, id) =>
     removeAssignmentById(coursePath, id)
@@ -67,6 +76,8 @@ const createWindow = () => {
   ipcMain.handle("deleteModule", (event, coursePath, id) =>
     removeModuleById(coursePath, id)
   );
+
+  ipcMain.handle("saveSettings", (event, settings) => saveSettings(settings));
 
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -120,9 +131,6 @@ ipcMain.on("set-title", (event, title) => {
   const webContents = event.sender;
   const win = BrowserWindow.fromWebContents(webContents);
   win.setTitle(title);
-});
-ipcMain.on("saveSettings", (event, settings: Settings) => {
-  saveSettings(settings);
 });
 
 // Bidirectional, renderer to main to renderer

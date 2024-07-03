@@ -907,6 +907,30 @@
     "FI": "Virhe aiempien tehtäväsarjojen tallennuksessa. Katso lisätietoja lokista.",
     "ENG": "Error in saving assignment sets. See log for details."
   },
+  "ui_assignment_save_success": {
+    "FI": "Tehtävä tallennettu.",
+    "ENG": "Assignment saved."
+  },
+  "ui_delete_success": {
+    "FI": "Poistettu onnistuneesti.",
+    "ENG": "Deletion was successful."
+  },
+  "ui_settings_save_success": {
+    "FI": "Asetukset tallennettu.",
+    "ENG": "Settings saved."
+  },
+  "ui_assignment_error_duplicate_title": {
+    "FI": "Samanniminen tehtävä on jo olemassa.",
+    "ENG": "An assignment with that title already exists."
+  },
+  "ui_no_course_path_selected": {
+    "FI": "Ei kurssipolkua valittu.",
+    "ENG": "No course path selected."
+  },
+  "ui_path_to_delete_not_in_project": {
+    "FI": "Polku joka yritettiin poistaa ei ole projektin sisällä!",
+    "ENG": "An attempt to remove a path was made, but the path was not in the project!"
+  },
   "ui_set_save_success": {
     "FI": "Tehtäväsarja tallennettu.",
     "ENG": "Assignment set saved."
@@ -1066,6 +1090,10 @@
   "ui_course_folder": {
     "FI": "Kurssin kansio",
     "ENG": "Course folder"
+  },
+  "ui_course_folder_invalid": {
+    "FI": "Kurssin kansio ei ole validi",
+    "ENG": "Course folder invalid"
   },
   "ui_module_type": {
     "FI": "Moduulin tyyppi",

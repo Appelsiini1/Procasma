@@ -20,6 +20,11 @@ import {
 } from "../helpers/converters";
 import { useAssignment } from "../helpers/assignmentHelpers";
 import VariationsGroup from "../components/VariationsGroup";
+import SnackbarComp, {
+  SnackBarAttributes,
+  functionResultToSnackBar,
+} from "../components/SnackBarComp";
+import { deepCopy } from "../helpers/utility";
 
 export default function AssignmentInput({
   activeCourse,
@@ -31,7 +36,7 @@ export default function AssignmentInput({
   activeAssignment?: CodeAssignmentData;
 }) {
   const [assignment, handleAssignment] = useAssignment(
-    activeAssignment ? activeAssignment : testCurrentAssignment
+    activeAssignment ? activeAssignment : deepCopy(testCurrentAssignment)
   );
   const variations: { [key: string]: Variation } = assignment.variations;
 
@@ -42,6 +47,9 @@ export default function AssignmentInput({
   const levelsDisable = currentCourse.levels !== null ? false : true;
   const [expanding, setExpanding] = useState(false);
   const codeLanguageOptions = defaults.codeLanguages; //get these from settings file later
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [snackBarAttributes, setSnackBarAttributes] =
+    useState<SnackBarAttributes>({ color: "success", text: "" });
 
   if (pageType === "new") {
     pageTitle = texts.ui_new_assignment[language.current];
@@ -52,9 +60,20 @@ export default function AssignmentInput({
   }
 
   useEffect(() => {
-    // change the assignment type to final project
+    // change the assignment type to assignment
     handleAssignment("assignmentType", "assignment");
   }, []);
+
+  async function handleSaveAssignment() {
+    let result = null;
+    if (pageType === "manage") {
+      result = await window.api.updateAssignment(assignment, activePath);
+    } else {
+      result = await window.api.saveAssignment(assignment, activePath);
+    }
+
+    functionResultToSnackBar(result, setShowSnackbar, setSnackBarAttributes);
+  }
 
   return (
     <>
@@ -283,7 +302,7 @@ export default function AssignmentInput({
         >
           <ButtonComp
             buttonType="normal"
-            onClick={() => window.api.saveAssignment(assignment, activePath)}
+            onClick={() => handleSaveAssignment()}
             ariaLabel={texts.ui_aria_save[language.current]}
           >
             {texts.ui_save[language.current]}
@@ -304,6 +323,13 @@ export default function AssignmentInput({
           </ButtonComp>
         </Stack>
       </div>
+      {showSnackbar ? (
+        <SnackbarComp
+          text={snackBarAttributes.text}
+          color={snackBarAttributes.color}
+          setShowSnackbar={setShowSnackbar}
+        ></SnackbarComp>
+      ) : null}
     </>
   );
 }

@@ -29,6 +29,10 @@ import {
   handleUpdateUniqueTags,
   setSelectedViaChecked,
 } from "../helpers/browseHelpers";
+import SnackbarComp, {
+  SnackBarAttributes,
+  functionResultToSnackBar,
+} from "../components/SnackBarComp";
 
 export interface AssignmentWithCheck extends WithCheckWrapper {
   value: CodeAssignmentData;
@@ -128,29 +132,6 @@ export function generateAssignments(
   return filteredAssignments;
 }
 
-export async function handleDeleteSelected(
-  selectedAssignments: CodeAssignmentData[],
-  activePath: string,
-  refreshAssignments: () => void
-) {
-  try {
-    const deletePromises = selectedAssignments.map(async (assignment) => {
-      const result = await window.api.deleteAssignment(
-        activePath,
-        assignment.assignmentID
-      );
-      return result;
-    });
-
-    const results = await Promise.all(deletePromises);
-
-    // get the remaining assignments
-    refreshAssignments();
-  } catch (error) {
-    console.error("Error deleting assignments:", error);
-  }
-}
-
 export default function AssignmentBrowse({
   activeCourse,
   activePath,
@@ -183,6 +164,9 @@ export default function AssignmentBrowse({
   const [uniqueModules, setUniqueModules] = useState<Array<filterState>>([]);
   const [uniqueTypes, setUniqueTypes] = useState<Array<filterState>>([]);
   const [search, setSearch] = useState<string>(null);
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [snackBarAttributes, setSnackBarAttributes] =
+    useState<SnackBarAttributes>({ color: "success", text: "" });
 
   function handleSearch(value: string) {
     setSearch(value);
@@ -242,6 +226,44 @@ export default function AssignmentBrowse({
   useEffect(() => {
     refreshAssignments();
   }, []);
+
+  async function handleDeleteSelected() {
+    try {
+      const deletePromises = selectedAssignments.map(async (assignment) => {
+        const result = await window.api.deleteAssignment(
+          activePath,
+          assignment.assignmentID
+        );
+        return result;
+      });
+
+      const results = await Promise.all(deletePromises);
+
+      const foundError = results.find((result) => {
+        return result?.error ? true : false;
+      });
+
+      // display the first error as a snackbar
+      if (foundError) {
+        functionResultToSnackBar(
+          foundError,
+          setShowSnackbar,
+          setSnackBarAttributes
+        );
+      } else {
+        functionResultToSnackBar(
+          { success: "ui_delete_success" },
+          setShowSnackbar,
+          setSnackBarAttributes
+        );
+      }
+
+      // get the remaining assignments
+      refreshAssignments();
+    } catch (error) {
+      console.error("Error deleting assignments:", error);
+    }
+  }
 
   // Update the selected assignments counter
   useEffect(() => {
@@ -325,13 +347,7 @@ export default function AssignmentBrowse({
             modalText={`${texts.ui_delete[language.current]} 
               ${numSelected}`}
             buttonType="normal"
-            onClick={() =>
-              handleDeleteSelected(
-                selectedAssignments,
-                activePath,
-                refreshAssignments
-              )
-            }
+            onClick={() => handleDeleteSelected()}
             ariaLabel={texts.ui_aria_remove_selected[language.current]}
           >
             {`${texts.ui_delete[language.current]} ${numSelected}`}
@@ -472,6 +488,13 @@ export default function AssignmentBrowse({
           {pageButtons}
         </Stack>
       </div>
+      {showSnackbar ? (
+        <SnackbarComp
+          text={snackBarAttributes.text}
+          color={snackBarAttributes.color}
+          setShowSnackbar={setShowSnackbar}
+        ></SnackbarComp>
+      ) : null}
     </>
   );
 }

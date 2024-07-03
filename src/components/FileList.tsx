@@ -5,7 +5,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { language } from "../globalsUI";
 import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
 import ButtonComp from "./ButtonComp";
-import { dummyFileRows } from "../testData";
+import { defaultFile } from "../myTestGlobals";
+import {
+  deepCopy,
+  getFileNameFromPath,
+  getFileTypeUsingExtension,
+} from "../helpers/utility";
 
 interface FileContentSelectProps {
   fileIndex: number;
@@ -15,6 +20,25 @@ interface FileContentSelectProps {
     value: string | boolean | FileTypes
   ) => void;
   defaultValue: string;
+}
+
+async function handleSelectFiles() {
+  try {
+    const filePaths: Array<string> = window.api.selectFiles();
+
+    if (!filePaths) {
+      throw new Error("Selected files not valid");
+    }
+
+    if (filePaths?.length) {
+      throw new Error("Select at least one file");
+    }
+
+    return filePaths;
+  } catch (error) {
+    console.error("An error occurred:", (error as Error).message);
+  }
+  return null;
 }
 
 /**
@@ -63,28 +87,33 @@ export default function FileList({
     attribute: keyof FileData,
     value: string | boolean | FileTypes
   ) => {
-    /*
-    setFileRows((prevRows) =>
-      prevRows.map((row) =>
-        row.fileName === fileName ? { ...row, [attribute]: value } : row
-      )
-    );
-    */
     const newFiles = [...files];
     newFiles[fileIndex] = { ...newFiles[fileIndex], [attribute]: value };
 
     handleAssignment(`${pathInAssignment}`, newFiles);
   };
 
-  /**
-   * TODO: file add dialogue
-   */
-  const handleAddFile = () => {
-    const newFile = dummyFileRows[0];
-    const newFiles = [...files, newFile];
+  async function handleAddFile() {
+    const newPaths: Array<string> = await handleSelectFiles();
 
-    handleAssignment(`${pathInAssignment}`, newFiles);
-  };
+    if (!newPaths) {
+      return;
+    }
+
+    const newFiles: FileData[] = newPaths.map((path) => {
+      const newFile = deepCopy(defaultFile);
+      newFile.path = path;
+      newFile.fileName = getFileNameFromPath(path);
+
+      const fileType = getFileTypeUsingExtension(path);
+      newFile.fileType = fileType ? fileType : "text";
+      return newFile;
+    });
+
+    const oldAndNewFiles = [...files, ...newFiles];
+
+    handleAssignment(`${pathInAssignment}`, oldAndNewFiles);
+  }
 
   const handleRemoveFile = (fileIndex: number) => {
     const newFiles = files.filter((_, i) => i !== fileIndex);
@@ -117,7 +146,7 @@ export default function FileList({
           </thead>
           <tbody>
             {files.map((file, fileIndex) => (
-              <tr key={file.fileName}>
+              <tr key={file.path}>
                 {/*<th scope="file">{file.fileName}</th>*/}
                 <td>{file.fileName}</td>
                 <td>{file.fileType}</td>

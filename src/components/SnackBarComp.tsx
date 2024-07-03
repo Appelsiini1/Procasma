@@ -1,0 +1,92 @@
+import {
+  Snackbar,
+  SnackbarCloseReason as SnackbarCloseReasonType,
+} from "@mui/joy";
+import { useEffect, useState } from "react";
+import texts from "../../resource/texts.json";
+import { language } from "../globalsUI";
+
+export interface SnackBarAttributes {
+  color: string;
+  text: string;
+}
+
+/**
+ * Takes a result object containing an error or success
+ * message and activates a given snackbar using the message
+ */
+export function functionResultToSnackBar(
+  result: {
+    error?: string;
+    success?: string;
+  },
+  setShowSnackbar: React.Dispatch<React.SetStateAction<boolean>>,
+  setSnackBarAttributes: React.Dispatch<
+    React.SetStateAction<SnackBarAttributes>
+  >
+) {
+  // results.success|error contains the key to the message
+  if (result?.error) {
+    const saveErrorMsg = (texts as any)?.[result.error]?.[language.current];
+    setShowSnackbar(true);
+    setSnackBarAttributes({
+      color: "danger",
+      text: saveErrorMsg ? saveErrorMsg : result.error,
+    });
+  }
+
+  if (result?.success) {
+    const saveSuccessMsg = (texts as any)?.[result.success]?.[language.current];
+    setShowSnackbar(true);
+    setSnackBarAttributes({
+      color: "success",
+      text: saveSuccessMsg ? saveSuccessMsg : result.success,
+    });
+  }
+}
+
+export default function SnackbarComp({
+  text,
+  color,
+  setShowSnackbar,
+}: {
+  text: string;
+  color?: string;
+  setShowSnackbar: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const [open, setOpen] = useState(true);
+  const [reasons, setReasons] = useState<SnackbarCloseReasonType[]>([]);
+
+  useEffect(() => {
+    if (
+      (["timeout", "clickaway"] as const).every((item) =>
+        reasons.includes(item)
+      )
+    ) {
+      setOpen(false);
+    }
+  }, [reasons]);
+
+  const vertical = "bottom";
+  const horizontal = "center";
+
+  return (
+    <Snackbar
+      autoHideDuration={3000}
+      anchorOrigin={{ vertical, horizontal }}
+      open={open}
+      onClose={(event, reason) => {
+        setReasons((prev) => [...new Set([...prev, reason])]);
+      }}
+      onUnmount={() => {
+        setShowSnackbar(false);
+        setReasons([]);
+      }}
+      key={text}
+      color={color as any}
+      variant="soft"
+    >
+      {text}
+    </Snackbar>
+  );
+}
