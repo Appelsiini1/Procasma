@@ -126,3 +126,13 @@ export type CodeAssignmentDatabase = {
   isExpanding: boolean;
   path: string;
 };
+
+export type ModuleDatabase = {
+  id: number;
+  name: string;
+  tags: string | null;
+  assignments: number;
+  subjects: string;
+  letters: string;
+  instructions: string;
+};

@@ -1,6 +1,11 @@
 import sqlite3 from "sqlite3";
 import path from "path";
-import { CodeAssignmentData, CodeAssignmentDatabase } from "../types";
+import {
+  CodeAssignmentData,
+  CodeAssignmentDatabase,
+  ModuleData,
+  ModuleDatabase,
+} from "../types";
 import { isExpanding } from "./assignment";
 
 // Database connection
@@ -45,7 +50,7 @@ export function initDB(coursePath: string) {
     );
     db.run(
       `CREATE TABLE IF NOT EXISTS modules (
-                moduleId TEXT PRIMARY KEY
+                id INTEGER PRIMARY KEY
                 name TEXT NOT NULL
                 tags TEXT
                 assignments INTEGER
@@ -384,7 +389,37 @@ export function deleteAssignmentFromDatabase(
 }
 
 // Module
-export function getModuleFromDatabase() {}
+export function getModuleFromDatabase(
+  coursePath: string,
+  moduleId: string
+): ModuleData | null {
+  let db = openDB(coursePath);
+  let result: any = null;
+  db.serialize(() => {
+    db.get(
+      `SELECT * FROM modules WHERE id = ?`,
+      [moduleId],
+      (err, row: ModuleDatabase) => {
+        if (err) {
+          console.log(err.message);
+        } else if (row) {
+          result = {};
+          result.ID = row.id;
+          result.name = row.name;
+          result.tags = row.tags.split(",");
+          result.assignments = row.assignments;
+          result.subjects = row.subjects;
+          result.letters = row.letters === "true" ? true : false;
+          result.instructions = row.instructions;
+        } else {
+          console.log("Could not find assignment from database.");
+        }
+      }
+    );
+  });
+  closeDB(db);
+  return result;
+}
 
 export function addModuleToDatabase() {}
 
