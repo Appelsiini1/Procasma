@@ -15,7 +15,9 @@ import { testCurrentProject } from "../myTestGlobals";
 import { CodeAssignmentData, CourseData, Variation } from "../types";
 import { splitStringToArray } from "../helpers/converters";
 import VariationsGroup from "../components/VariationsGroup";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import SnackbarComp, { SnackBarAttributes } from "../components/SnackBarComp";
+import { deepCopy } from "../helpers/utility";
 
 export default function ProjectWorkInput({
   activeCourse,
@@ -27,7 +29,7 @@ export default function ProjectWorkInput({
   activeAssignment?: CodeAssignmentData;
 }) {
   const [assignment, handleAssignment] = useAssignment(
-    activeAssignment ? activeAssignment : testCurrentProject
+    activeAssignment ? activeAssignment : deepCopy(testCurrentProject)
   );
   const variations: { [key: string]: Variation } = assignment.variations;
 
@@ -35,8 +37,10 @@ export default function ProjectWorkInput({
   const navigate = useNavigate();
   let pageTitle: string = null;
   const moduleDisable = currentCourse.moduleType !== null ? false : true;
-
   const codeLanguageOptions = defaults.codeLanguages; //get these from settings file later
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [snackBarAttributes, setSnackBarAttributes] =
+    useState<SnackBarAttributes>({ color: "success", text: "" });
 
   if (pageType === "new") {
     pageTitle = texts.ui_new_project_work[language.current];
@@ -50,6 +54,36 @@ export default function ProjectWorkInput({
     // change the assignment type to final project
     handleAssignment("assignmentType", "finalWork");
   }, []);
+
+  async function handleSaveAssignment() {
+    let result = null;
+    if (pageType === "manage") {
+      result = await window.api.updateAssignment(assignment, activePath);
+    } else {
+      result = await window.api.saveAssignment(assignment, activePath);
+    }
+
+    // results.success|error contains the key to the message
+    if (result?.error) {
+      const saveErrorMsg = (texts as any)?.[result.error]?.[language.current];
+      setShowSnackbar(true);
+      setSnackBarAttributes({
+        color: "danger",
+        text: saveErrorMsg ? saveErrorMsg : result.error,
+      });
+    }
+
+    if (result?.success) {
+      const saveSuccessMsg = (texts as any)?.[result.success]?.[
+        language.current
+      ];
+      setShowSnackbar(true);
+      setSnackBarAttributes({
+        color: "success",
+        text: saveSuccessMsg ? saveSuccessMsg : result.success,
+      });
+    }
+  }
 
   return (
     <>
@@ -180,7 +214,7 @@ export default function ProjectWorkInput({
         >
           <ButtonComp
             buttonType="normal"
-            onClick={() => window.api.saveAssignment(assignment, activePath)}
+            onClick={() => handleSaveAssignment()}
             ariaLabel={texts.ui_aria_save[language.current]}
           >
             {texts.ui_save[language.current]}
@@ -194,6 +228,13 @@ export default function ProjectWorkInput({
           </ButtonComp>
         </Stack>
       </div>
+      {showSnackbar ? (
+        <SnackbarComp
+          text={snackBarAttributes.text}
+          color={snackBarAttributes.color}
+          setShowSnackbar={setShowSnackbar}
+        ></SnackbarComp>
+      ) : null}
     </>
   );
 }

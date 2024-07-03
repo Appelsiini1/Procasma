@@ -110,7 +110,7 @@ export const testCurrentAssignment: CodeAssignmentData = {
 };
 
 export const testCurrentProject: CodeAssignmentData = {
-  assignmentID: "assignment_002",
+  assignmentID: null,
   title: "Project 1",
   tags: ["print", "try...except"],
   module: 1,
@@ -131,16 +131,7 @@ export const testCurrentProject: CodeAssignmentData = {
           output: "Output for run 1",
         },
       },
-      files: [
-        {
-          fileName: "example1.txt",
-          path: "/path/to/example1.txt",
-          solution: true,
-          fileContent: "data",
-          showStudent: true,
-          fileType: "text",
-        },
-      ],
+      files: [],
       usedIn: ["course1", "course2"],
       cgConfig: {
         id: "cg1",
@@ -163,24 +154,7 @@ export const testCurrentProject: CodeAssignmentData = {
           output: "Output for run 2 in variation 2",
         },
       },
-      files: [
-        {
-          fileName: "example2.js",
-          path: "/path/to/example2.js",
-          solution: false,
-          fileContent: "code",
-          showStudent: false,
-          fileType: "code",
-        },
-        {
-          fileName: "example3.py",
-          path: "/path/to/example3.py",
-          solution: true,
-          fileContent: "code",
-          showStudent: true,
-          fileType: "code",
-        },
-      ],
+      files: [],
       usedIn: ["course3"],
       cgConfig: {
         id: "cg2",

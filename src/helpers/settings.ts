@@ -1,5 +1,5 @@
 import * as oso from "./osOperations";
-import { handleReadFile, writeToFile } from "./fileOperations";
+import { handleReadFile, writeToFileSync } from "./fileOperations";
 import { Settings } from "../types";
 
 export function getSettings() {
@@ -14,5 +14,9 @@ export function getSettings() {
 
 export function saveSettings(settings: Settings) {
   const path = oso.getSettingsFilepath();
-  writeToFile(JSON.stringify(settings), path);
+  const result = writeToFileSync(JSON.stringify(settings), path);
+  if (result?.error) {
+    return { error: result.error };
+  }
+  return { success: "ui_settings_save_success" };
 }

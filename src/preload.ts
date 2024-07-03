@@ -23,7 +23,7 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("deleteAssignment", coursePath, id),
   getSettings: () => ipcRenderer.invoke("getSettings"),
   saveSettings: (settings: Settings) =>
-    ipcRenderer.send("saveSettings", settings),
+    ipcRenderer.invoke("saveSettings", settings),
 
   saveModule: (module: ModuleData, path: string) =>
     ipcRenderer.invoke("saveModule", module, path),

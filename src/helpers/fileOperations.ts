@@ -22,9 +22,15 @@ function hashSHA(content: string) {
   return createHash("sha256").update(content).digest("hex");
 }
 
-export function handleRemoveFolder(path: string) {
-  // add check to make sure path in course directory!
+/**
+ * Remove a file or folder by force, checks if the path
+ * contains "Procasma".
+ */
+export function removePathSyncForce(path: string) {
   try {
+    if (!path.includes("Procasma")) {
+      throw new Error("ui_path_to_delete_not_in_project");
+    }
     fs.rmSync(path, { recursive: true, force: true });
   } catch (err) {
     return { error: (err as Error).message };
@@ -42,13 +48,12 @@ export function writeToFile(content: string, filePath: string) {
   return;
 }
 
-export async function writeToFileSync(content: string, filePath: string) {
+export function writeToFileSync(content: string, filePath: string) {
   try {
     fs.writeFileSync(filePath, content, "utf8");
   } catch (err) {
     return { error: (err as Error).message };
   }
-
   return null;
 }
 
@@ -62,6 +67,9 @@ export function handleReadFile(filePath: string): FileResult {
   }
 }
 
+/**
+ * Creat folder at path if it does not already exist.
+ */
 export function createFolder(path: string, options: object = null) {
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path, options);
@@ -109,10 +117,14 @@ export function handleSaveCourse(course: CourseData, coursesPath: string) {
 }
 
 export function handleReadCourse(filePath: string): CourseData {
+  if (!filePath || filePath.length < 1) {
+    return null;
+  }
+
   const filePathJoined = path.join(filePath, "course_info.json");
   const fileResult = handleReadFile(filePathJoined);
 
-  if (fileResult.error) {
+  if (fileResult?.error) {
     return null;
   }
 
@@ -149,7 +161,11 @@ export function createAssignmentFolderWithHash(
   // create hash folder (overwrite if exists)
   const hashPath = path.join(assignmentDataPath, hash);
   if (fs.existsSync(hashPath)) {
-    handleRemoveFolder(hashPath);
+    const result = removePathSyncForce(hashPath);
+
+    if (result?.error) {
+      return result;
+    }
   }
   createFolder(hashPath);
 
@@ -160,7 +176,7 @@ export function createAssignmentFolderWithHash(
   const assignmentJSON: string = JSON.stringify(assignment);
   writeToFile(assignmentJSON, hashFilePath);
 
-  return;
+  return null;
 }
 
 export function generateAssignmentHash(assignment: CodeAssignmentData) {
@@ -220,47 +236,34 @@ export async function copyVariationFiles(
         newFilePath,
         coursePath
       );
-      const resolvedPath = path.join(coursePath, file.path);
 
       try {
-        // first try to access the file to check if absolute path is valid
+        // try to access the file to check if absolute path is valid
         fs.accessSync(file.path, fs.constants.R_OK | fs.constants.W_OK);
 
         // then copy the file, and change the path to be relative
         await copyFile(file.path, newFilePath);
         file.path = newFilePathRelative;
         return;
-      } catch (err) {}
+      } catch (err) {
+        // Absolute path not valid, file already in assignment
+      }
 
-      try {
-        // if joining course path and existing path yield an
-        // accessible file, no copying needed. Otherwise path is not valid
-        fs.accessSync(resolvedPath, fs.constants.R_OK | fs.constants.W_OK);
-        return;
-      } catch (err) {}
-
-      return null;
-    });
-
-    try {
-      await Promise.all(copyPromises);
-    } catch (err) {
-      console.log("Error Found:", err);
       return;
-    }
+    });
+    await Promise.all(copyPromises);
   });
-
-  try {
-    await Promise.all(variationPromises);
-  } catch (err) {
-    console.log("Error Found:", err);
-  }
+  await Promise.all(variationPromises);
 }
 
 export function handleGetAssignments(
   coursePath: string
 ): CodeAssignmentData[] | null {
   try {
+    if (!coursePath || coursePath.length === 0) {
+      throw new Error("ui_no_course_path_selected");
+    }
+
     const assignmentDataPath = path.join(coursePath, "assignment_data");
     const assignments: CodeAssignmentData[] = [];
 
@@ -313,62 +316,81 @@ export async function removeOldFilesFromVariations(
   },
   hashFolderPath: string
 ) {
-  const variationPromises = Object.keys(variations).map(async (varID) => {
+  const errors = [];
+
+  for (const varID of Object.keys(variations)) {
     const variationPath = path.join(hashFolderPath, varID);
     const variationFiles = variations[varID].files;
 
     if (!variationFiles) {
-      return { error: "no variation files" };
+      errors.push({ varID, error: "no variation files" });
+      continue;
     }
 
     // loop through material files in variation folder
     // deleting if not in the variation object
     try {
-      fs.readdirSync(variationPath).map((fileName) => {
-        const foundFile = variationFiles.find((file) => {
-          return file.fileName === fileName ? true : false;
-        });
-        if (!foundFile) {
-          const result = handleRemoveFolder(path.join(variationPath, fileName));
+      const files = fs.readdirSync(variationPath);
 
-          if (result) {
+      for (const fileName of files) {
+        const foundFile = variationFiles.find(
+          (file) => file.fileName === fileName
+        );
+
+        if (!foundFile) {
+          const result = removePathSyncForce(
+            path.join(variationPath, fileName)
+          );
+
+          if (result?.error) {
             throw new Error(result.error);
           }
         }
-        return;
-      });
+      }
     } catch (err) {
-      return { error: (err as Error).message };
+      errors.push({ varID, error: err.message });
     }
-    return null;
-  });
+  }
+
+  if (errors.length > 0) {
+    console.log(errors);
+  }
+
+  return; //return errors.length > 0 ? errors : null;
 }
 
 export async function handleSaveOrUpdateAssignment(
   assignment: CodeAssignmentData,
   coursePath: string,
-  newAssignment: boolean
+  oldAssignment: boolean
 ) {
   try {
-    let result = null;
+    if (!coursePath || coursePath.length === 0) {
+      throw new Error("ui_no_course_path_selected");
+    }
+
     const assignmentDataPath = path.join(coursePath, "assignment_data");
     let assignmentHash: string | null = assignment?.assignmentID;
     if (!assignmentHash) {
       assignmentHash = generateAssignmentHash(assignment);
     }
 
-    if (!newAssignment) {
+    if (!oldAssignment) {
       // if saving new assignment, return if
       // identically named one exists
       if (doesAssignmentExist(assignment?.title, coursePath)) {
-        throw new Error("Assignment with title already exists");
+        throw new Error("ui_assignment_error_duplicate_title");
       }
 
-      createAssignmentFolderWithHash(
+      const result = createAssignmentFolderWithHash(
         assignment,
         assignmentDataPath,
         assignmentHash
       );
+
+      if (result?.error) {
+        throw new Error(result.error);
+      }
     }
 
     const hashFolderPath = path.join(assignmentDataPath, assignmentHash);
@@ -377,25 +399,24 @@ export async function handleSaveOrUpdateAssignment(
     const variations: { [key: string]: Variation } = assignment.variations;
     await copyVariationFiles(variations, hashFolderPath, coursePath);
 
-    // clean the variation folder of deleted files
-    result = await removeOldFilesFromVariations(variations, hashFolderPath);
-
-    if (result?.error) {
-      throw new Error(result.error);
-    }
+    // clean the variation folder of deleted files (fire and forget)
+    removeOldFilesFromVariations(variations, hashFolderPath);
 
     // save assignment data
     assignment.assignmentID = assignmentHash;
     const assignmentJSON: string = JSON.stringify(assignment);
     const hashFilePath = path.join(hashFolderPath, `${assignmentHash}.json`);
 
-    writeToFile(assignmentJSON, hashFilePath);
+    const result = writeToFileSync(assignmentJSON, hashFilePath);
+    if (result?.error) {
+      throw new Error(result.error);
+    }
   } catch (err) {
     console.error("An error occurred:", (err as Error).message);
     return { error: (err as Error).message };
   }
 
-  return null;
+  return { success: "ui_assignment_save_success" };
 }
 
 export async function handleSaveAssignment(
@@ -412,14 +433,17 @@ export async function handleUpdateAssignment(
   return handleSaveOrUpdateAssignment(assignment, coursePath, true);
 }
 
-export function removeAssignmentById(coursePath: string, id: string): void {
+export function removeAssignmentById(coursePath: string, id: string) {
   try {
     // remove the file hash folder and its contents
     const assignmentPath = path.join(coursePath, "assignment_data", id);
 
-    fs.rmSync(assignmentPath, { recursive: true, force: true });
-  } catch (error) {
-    console.error("An error occurred:", (error as Error).message);
+    const result = removePathSyncForce(assignmentPath);
+    if (result?.error) {
+      throw new Error(result.error);
+    }
+  } catch (err) {
+    return { error: (err as Error).message };
   }
   return null;
 }

@@ -18,7 +18,6 @@ import {
   removeAssignmentById,
   removeModuleById,
 } from "./helpers/fileOperations";
-import { Settings } from "./types";
 import { initialize } from "./helpers/programInit";
 import { getSettings, saveSettings } from "./helpers/settings";
 
@@ -78,6 +77,8 @@ const createWindow = () => {
     removeModuleById(coursePath, id)
   );
 
+  ipcMain.handle("saveSettings", (event, settings) => saveSettings(settings));
+
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
@@ -130,9 +131,6 @@ ipcMain.on("set-title", (event, title) => {
   const webContents = event.sender;
   const win = BrowserWindow.fromWebContents(webContents);
   win.setTitle(title);
-});
-ipcMain.on("saveSettings", (event, settings: Settings) => {
-  saveSettings(settings);
 });
 
 // Bidirectional, renderer to main to renderer

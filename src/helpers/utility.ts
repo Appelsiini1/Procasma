@@ -1,6 +1,11 @@
 import { codeExtensions, imageExtensions, textExtensions } from "../constants";
 import { FileTypes } from "../types";
 
+// DEV
+export const sleep = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+// END DEV
+
 export function getFileNameFromPath(str: string) {
   return str.split("\\").pop().split("/").pop();
 }

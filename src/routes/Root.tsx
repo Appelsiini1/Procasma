@@ -18,6 +18,10 @@ import FadeInImage from "../components/FadeInImage";
 import { CodeAssignmentData, CourseData, ModuleData } from "../types";
 import { useEffect, useState } from "react";
 import { getAssignments } from "../helpers/requests";
+import SnackbarComp, {
+  SnackBarAttributes,
+  functionResultToSnackBar,
+} from "../components/SnackBarComp";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 const smallDividerSX = {
@@ -64,6 +68,9 @@ export default function Root({
   const [navigateToProjectWork, setNavigateToProjectWork] = useState(false);
   const [navigateToModule, setNavigateToModule] = useState(false);
   const [assignmentsInIndex, setAssignmentsInIndex] = useState(null);
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [snackBarAttributes, setSnackBarAttributes] =
+    useState<SnackBarAttributes>({ color: "success", text: "" });
 
   const refreshAssignmentsInIndex = async () => {
     const assignments: CodeAssignmentData[] = await getAssignments(activePath);
@@ -122,16 +129,20 @@ export default function Root({
     try {
       const coursePath: string = await window.api.selectDir();
 
-      const course = await window.api.readCourse(coursePath);
+      const course: CourseData = await window.api.readCourse(coursePath);
 
       if (course) {
         handleActiveCourse(course);
         handleActivePath(coursePath);
       } else {
-        throw new Error("Course folder not valid");
+        throw new Error("ui_course_folder_invalid");
       }
-    } catch (error) {
-      console.error("An error occurred:", (error as Error).message);
+    } catch (err) {
+      functionResultToSnackBar(
+        { error: (err as Error).message },
+        setShowSnackbar,
+        setSnackBarAttributes
+      );
     }
   }
 
@@ -409,6 +420,13 @@ export default function Root({
           <div className="emptySpace3" />
         </Box>
       </div>
+      {showSnackbar ? (
+        <SnackbarComp
+          text={snackBarAttributes.text}
+          color={snackBarAttributes.color}
+          setShowSnackbar={setShowSnackbar}
+        ></SnackbarComp>
+      ) : null}
     </>
   );
 }
