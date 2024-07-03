@@ -363,11 +363,11 @@ export function updateAssignmentToDatabase(
     params.push(assignment.assignmentNo.toString());
   }
   if (oldAssignment.level !== assignment.level) {
-    sql += `level = ?`;
+    sql += `level = ?\n`;
     params.push(assignment.level);
   }
   if (oldAssignment.isExpanding !== isExpanding(assignment)) {
-    sql += `isExpanding = ?`;
+    sql += `isExpanding = ?\n`;
     params.push(isExpanding(assignment) ? 1 : 0);
   }
 
@@ -403,7 +403,7 @@ export function deleteAssignmentFromDatabase(
 // Module
 export function getModuleFromDatabase(
   coursePath: string,
-  moduleId: string
+  moduleId: number
 ): ModuleData | null {
   let db = openDB(coursePath);
   let result: any = null;
@@ -421,7 +421,7 @@ export function getModuleFromDatabase(
           result.tags = row.tags.split(",");
           result.assignments = row.assignments;
           result.subjects = row.subjects;
-          result.letters = row.letters === "true" ? true : false;
+          result.letters = row.letters ? true : false;
           result.instructions = row.instructions;
         } else {
           console.log("Could not find assignment from database.");
@@ -456,6 +456,66 @@ export function addModuleToDatabase(coursePath: string, module: ModuleData) {
   });
 }
 
-export function updateModuleToDatabase() {}
+export function updateMduleToDatabase(coursePath: string, module: ModuleData) {
+  const oldModule = getModuleFromDatabase(coursePath, module.ID);
+  if (!oldModule) {
+    throw new Error("Module does not exist in the database, cannot update.");
+  }
+  let sql = `UPDATE modules SET `;
+  let params = [];
+  let db = openDB(coursePath);
+  if (oldModule.name !== module.name) {
+    sql += `name = ?\n`;
+    params.push(module.name);
+  }
+  if (oldModule.tags.toString() !== module.tags.toString()) {
+    updateTags(
+      db,
+      oldModule.tags.toString(),
+      module.tags,
+      module.ID.toString(),
+      false
+    );
+  }
+  if (oldModule.assignments !== module.assignments) {
+    sql += `assignments = ?\n`;
+    params.push(module.assignments);
+  }
+  if (oldModule.subjects !== module.subjects) {
+    sql += `subjects = ?\n`;
+    params.push(module.subjects);
+  }
+  if (oldModule.letters !== module.letters) {
+    sql += `letters = ?\n`;
+    params.push(module.letters ? 1 : 0);
+  }
+  if (oldModule.instructions !== module.instructions) {
+    sql += `instructions = ?\n`;
+    params.push(module.instructions);
+  }
 
-export function deleteModule() {}
+  if (sql !== `UPDATE assignments SET `) {
+    sql += `WHERE id = ?`;
+    params.push(module.ID);
+
+    db.serialize(() => {
+      db.run(sql, params, (err) => {
+        console.log(err.message);
+      });
+    });
+  }
+  closeDB(db);
+}
+
+export function deleteModule(coursePath: string, moduleID: number) {
+  const oldModule = getModuleFromDatabase(coursePath, moduleID);
+  let db = openDB(coursePath);
+  oldModule.tags.forEach((tag) => {
+    deleteFromTags(db, tag, moduleID.toString());
+  });
+  db.serialize(() => {
+    db.run(`DELETE FROM modules WHERE id = ?`, [moduleID], (err) => {
+      console.log(err.message);
+    });
+  });
+}
