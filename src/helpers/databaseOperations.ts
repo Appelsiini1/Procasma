@@ -253,6 +253,18 @@ function updateTags(
   });
 }
 
+function addModuleTags(
+  db: sqlite3.Database,
+  tags: Array<string>,
+  moduleID: string
+) {
+  db.serialize(() => {
+    tags.forEach((tag) => {
+      addTag(db, tag, moduleID, false);
+    });
+  });
+}
+
 // Assignment
 function addToAssignments(
   db: sqlite3.Database,
@@ -421,7 +433,28 @@ export function getModuleFromDatabase(
   return result;
 }
 
-export function addModuleToDatabase() {}
+export function addModuleToDatabase(coursePath: string, module: ModuleData) {
+  let db = openDB(coursePath);
+  db.serialize(() => {
+    db.run(
+      `INSERT INTO modules(id, name, tags, assignments, subjects, letters, instructions) 
+      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        module.ID,
+        module.name,
+        module.tags.toString(),
+        module.assignments,
+        module.subjects,
+        module.letters ? 1 : 0,
+        module.instructions,
+      ],
+      (err) => {
+        console.log(err.message);
+      }
+    );
+    addModuleTags(db, module.tags, module.ID.toString());
+  });
+}
 
 export function updateModuleToDatabase() {}
 
