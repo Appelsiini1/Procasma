@@ -25,7 +25,7 @@ function hashSHA(content: string) {
 export function handleRemoveFolder(path: string) {
   // add check to make sure path in course directory!
   try {
-    fs.rmSync(path, { recursive: true, force: false });
+    fs.rmSync(path, { recursive: true, force: true });
   } catch (err) {
     return { error: (err as Error).message };
   }
@@ -210,6 +210,7 @@ export async function copyVariationFiles(
     createFolder(variantPath);
 
     // copy related files to the variation folder
+    // paths may be relative or absolute
     const files: FileData[] = variations?.[varID]?.files;
 
     const copyPromises = files.map(async (file) => {
@@ -219,29 +220,25 @@ export async function copyVariationFiles(
         newFilePath,
         coursePath
       );
+      const resolvedPath = path.join(coursePath, file.path);
 
       try {
-        const newAbsoultePath = path.join(coursePath, newFilePath);
-        console.log("newAbsoultePath");
-        console.log(newAbsoultePath);
-        try {
-          fs.accessSync(newAbsoultePath, fs.constants.R_OK | fs.constants.W_OK);
-          console.log("File exists, not copying");
-        } catch {
-          // file is not in course
-          console.log("before copyfile:");
-          console.log("file.path");
-          console.log(file.path);
-          console.log("newFilePath");
-          console.log(newFilePath);
+        // first try to access the file to check if absolute path is valid
+        fs.accessSync(file.path, fs.constants.R_OK | fs.constants.W_OK);
 
-          await copyFile(file.path, newFilePath);
-          file.path = newFilePathRelative;
-          return file;
-        }
-      } catch (err) {
-        console.log("Error Found:", err);
-      }
+        // then copy the file, and change the path to be relative
+        await copyFile(file.path, newFilePath);
+        file.path = newFilePathRelative;
+        return;
+      } catch (err) {}
+
+      try {
+        // if joining course path and existing path yield an
+        // accessible file, no copying needed. Otherwise path is not valid
+        fs.accessSync(resolvedPath, fs.constants.R_OK | fs.constants.W_OK);
+        return;
+      } catch (err) {}
+
       return null;
     });
 
@@ -249,6 +246,7 @@ export async function copyVariationFiles(
       await Promise.all(copyPromises);
     } catch (err) {
       console.log("Error Found:", err);
+      return;
     }
   });
 
@@ -309,19 +307,57 @@ export function doesAssignmentExist(
   return sameNameAssignment ? true : false;
 }
 
+export async function removeOldFilesFromVariations(
+  variations: {
+    [key: string]: Variation;
+  },
+  hashFolderPath: string
+) {
+  const variationPromises = Object.keys(variations).map(async (varID) => {
+    const variationPath = path.join(hashFolderPath, varID);
+    const variationFiles = variations[varID].files;
+
+    if (!variationFiles) {
+      return { error: "no variation files" };
+    }
+
+    // loop through material files in variation folder
+    // deleting if not in the variation object
+    try {
+      fs.readdirSync(variationPath).map((fileName) => {
+        const foundFile = variationFiles.find((file) => {
+          return file.fileName === fileName ? true : false;
+        });
+        if (!foundFile) {
+          const result = handleRemoveFolder(path.join(variationPath, fileName));
+
+          if (result) {
+            throw new Error(result.error);
+          }
+        }
+        return;
+      });
+    } catch (err) {
+      return { error: (err as Error).message };
+    }
+    return null;
+  });
+}
+
 export async function handleSaveOrUpdateAssignment(
   assignment: CodeAssignmentData,
   coursePath: string,
-  updatingAssignment: boolean
+  newAssignment: boolean
 ) {
   try {
+    let result = null;
     const assignmentDataPath = path.join(coursePath, "assignment_data");
     let assignmentHash: string | null = assignment?.assignmentID;
     if (!assignmentHash) {
       assignmentHash = generateAssignmentHash(assignment);
     }
 
-    if (!updatingAssignment) {
+    if (!newAssignment) {
       // if saving new assignment, return if
       // identically named one exists
       if (doesAssignmentExist(assignment?.title, coursePath)) {
@@ -339,13 +375,18 @@ export async function handleSaveOrUpdateAssignment(
 
     // create variant folders and copy files
     const variations: { [key: string]: Variation } = assignment.variations;
-
     await copyVariationFiles(variations, hashFolderPath, coursePath);
+
+    // clean the variation folder of deleted files
+    result = await removeOldFilesFromVariations(variations, hashFolderPath);
+
+    if (result?.error) {
+      throw new Error(result.error);
+    }
 
     // save assignment data
     assignment.assignmentID = assignmentHash;
     const assignmentJSON: string = JSON.stringify(assignment);
-
     const hashFilePath = path.join(hashFolderPath, `${assignmentHash}.json`);
 
     writeToFile(assignmentJSON, hashFilePath);
