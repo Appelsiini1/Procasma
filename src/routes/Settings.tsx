@@ -8,6 +8,10 @@ import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
 import { CourseData, Settings, SupportedLanguages } from "../types";
 import { useState } from "react";
+import SnackbarComp, {
+  SnackBarAttributes,
+  functionResultToSnackBar,
+} from "../components/SnackBarComp";
 
 export default function Settings({
   activeCourse,
@@ -19,6 +23,9 @@ export default function Settings({
     codeLanguages: [],
     language: "ENG",
   });
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [snackBarAttributes, setSnackBarAttributes] =
+    useState<SnackBarAttributes>({ color: "success", text: "" });
 
   const languageOptions = texts.languages.map((value) => {
     return {
@@ -50,8 +57,10 @@ export default function Settings({
     });
   }
 
-  function handleSaveSettings() {
-    window.api.saveSettings(settings);
+  async function handleSaveSettings() {
+    const result = await window.api.saveSettings(settings);
+
+    functionResultToSnackBar(result, setShowSnackbar, setSnackBarAttributes);
   }
 
   return (
@@ -61,7 +70,7 @@ export default function Settings({
         courseID={activeCourse?.ID}
         courseTitle={activeCourse?.title}
       />
-      <div className="content" style={{ minHeight: "50rem" }}>
+      <div className="content" style={{ height: "40rem", maxHeight: "80vh" }}>
         <Typography level="h1">
           {texts.ui_settings[language.current]}
         </Typography>
@@ -158,6 +167,13 @@ export default function Settings({
           </ButtonComp>
         </Stack>
       </div>
+      {showSnackbar ? (
+        <SnackbarComp
+          text={snackBarAttributes.text}
+          color={snackBarAttributes.color}
+          setShowSnackbar={setShowSnackbar}
+        ></SnackbarComp>
+      ) : null}
     </>
   );
 }

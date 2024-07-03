@@ -1,6 +1,10 @@
 import { app, BrowserWindow, Menu, ipcMain } from "electron";
 import path from "path";
-import { handleDirectorySelect, handleFileOpen } from "./helpers/fileDialog";
+import {
+  handleDirectorySelect,
+  handleFileOpen,
+  handleFilesOpen,
+} from "./helpers/fileDialog";
 import { version, DEVMODE } from "./constants";
 import {
   handleGetAssignments,
@@ -9,11 +13,11 @@ import {
   handleSaveAssignment,
   handleSaveCourse,
   handleSaveModule,
+  handleUpdateAssignment,
   handleUpdateCourse,
   removeAssignmentById,
   removeModuleById,
 } from "./helpers/fileOperations";
-import { Settings } from "./types";
 import { initialize } from "./helpers/programInit";
 import { getSettings, saveSettings } from "./helpers/settings";
 
@@ -90,9 +94,6 @@ ipcMain.on("set-title", (event, title) => {
   const win = BrowserWindow.fromWebContents(webContents);
   win.setTitle(title);
 });
-ipcMain.on("saveSettings", (event, settings: Settings) => {
-  saveSettings(settings);
-});
 ipcMain.on("set-title", (event, title) => {
   const webContents = event.sender;
   const win = BrowserWindow.fromWebContents(webContents);
@@ -126,3 +127,8 @@ ipcMain.handle("getModules", (event, path) => handleGetModules(path));
 ipcMain.handle("deleteModule", (event, coursePath, id) =>
   removeModuleById(coursePath, id)
 );
+ipcMain.handle("saveSettings", (event, settings) => saveSettings(settings));
+ipcMain.handle("selectFiles", handleFilesOpen);
+  ipcMain.handle("updateAssignment", (event, assignment, path) =>
+    handleUpdateAssignment(assignment, path)
+  );
