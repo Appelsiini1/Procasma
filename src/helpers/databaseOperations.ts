@@ -40,7 +40,7 @@ function closeDB(db: sqlite3.Database) {
 // Database initialization
 export function initDB(coursePath: string) {
   const rValue = openDB(coursePath);
-  if (rValue.error) {
+  if (rValue?.error) {
     return rValue;
   }
   let db = rValue.content as sqlite3.Database;
@@ -97,7 +97,7 @@ export function initDB(coursePath: string) {
 // Row counts
 export function getModuleCount(coursePath: string) {
   const rValue = openDB(coursePath);
-  if (rValue.error) {
+  if (rValue?.error) {
     return rValue;
   }
   let db = rValue.content as sqlite3.Database;
@@ -118,7 +118,7 @@ export function getModuleCount(coursePath: string) {
 
 export function getAssignmentCount(coursePath: string) {
   const rValue = openDB(coursePath);
-  if (rValue.error) {
+  if (rValue?.error) {
     return rValue;
   }
   let db = rValue.content as sqlite3.Database;
@@ -185,7 +185,7 @@ function addTag(
       }
     );
   });
-  if (!result.error) {
+  if (!result?.error) {
     return { content: true };
   }
   return result;
@@ -200,7 +200,7 @@ function addAssignmentTags(
   db.serialize(() => {
     tags.some((tag) => {
       result = addTag(db, tag, assignmentID);
-      if (result.error) {
+      if (result?.error) {
         return true;
       } else {
         return false;
@@ -233,7 +233,7 @@ function _updateTag(
       }
     );
   });
-  return result.error ? result : { content: true };
+  return result?.error ? result : { content: true };
 }
 
 function deleteFromTags(
@@ -262,7 +262,7 @@ function deleteFromTags(
         .toString();
       if (newRow.length !== 0) {
         result = _updateTag(db, name, newRow);
-        if (result.error) {
+        if (result?.error) {
           return result;
         }
       } else {
@@ -332,13 +332,13 @@ function updateTags(
 
   toDelete.every((value) => {
     result = deleteFromTags(db, value, id, assignment);
-    if (result.error) return false;
+    if (result?.error) return false;
     return true;
   });
 
   toAdd.every((value) => {
     result = addTag(db, value, id, assignment);
-    if (result.error) return false;
+    if (result?.error) return false;
     return true;
   });
   return result;
@@ -353,7 +353,7 @@ function addModuleTags(
   db.serialize(() => {
     tags.some((tag) => {
       result = addTag(db, tag, moduleID, false);
-      if (result.error) {
+      if (result?.error) {
         return true;
       } else {
         return false;
@@ -391,7 +391,7 @@ function addToAssignments(
       }
     );
   });
-  return result.error ? result : { content: true };
+  return result?.error ? result : { content: true };
 }
 
 export function addAssignmentToDatabase(
@@ -400,15 +400,15 @@ export function addAssignmentToDatabase(
 ) {
   const rValue = openDB(coursePath);
   let result: DatabaseResult = {};
-  if (rValue.error) {
+  if (rValue?.error) {
     return rValue;
   }
   let db = rValue.content as sqlite3.Database;
   const assignmentPath = path.join("assignmentData", assignment.assignmentID);
   result = addToAssignments(db, assignmentPath, assignment);
-  if (result.error) return result;
+  if (result?.error) return result;
   result = addAssignmentTags(db, assignment.tags, assignment.assignmentID);
-  if (result.error) return result;
+  if (result?.error) return result;
   closeDB(db);
   return result;
 }
@@ -418,7 +418,7 @@ export function getAssignmentFromDatabase(
   id: string
 ): DatabaseResult {
   const rValue = openDB(coursePath);
-  if (rValue.error) {
+  if (rValue?.error) {
     return rValue;
   }
   let db = rValue.content as sqlite3.Database;
@@ -449,7 +449,7 @@ export function updateAssignmentToDatabase(
     coursePath,
     assignment.assignmentID
   );
-  if (getResult.error) {
+  if (getResult?.error) {
     return getResult;
   } else if (!getResult.content) {
     return {
@@ -460,7 +460,7 @@ export function updateAssignmentToDatabase(
   let sql = `UPDATE assignments SET `;
   let params = [];
   const rValue = openDB(coursePath);
-  if (rValue.error) {
+  if (rValue?.error) {
     return rValue;
   }
   let db = rValue.content as sqlite3.Database;
@@ -476,7 +476,7 @@ export function updateAssignmentToDatabase(
       assignment.tags,
       assignment.assignmentID
     );
-    if (error.error) return error;
+    if (error?.error) return error;
   }
   if (oldAssignment.module !== assignment.module) {
     sql += `module = ?\n`;
@@ -507,7 +507,7 @@ export function updateAssignmentToDatabase(
     });
   }
   closeDB(db);
-  return error.error ? error : { content: true };
+  return error?.error ? error : { content: true };
 }
 
 export function deleteAssignmentFromDatabase(
@@ -515,7 +515,7 @@ export function deleteAssignmentFromDatabase(
   assignmentID: string
 ) {
   const getResult = getAssignmentFromDatabase(coursePath, assignmentID);
-  if (getResult.error) {
+  if (getResult?.error) {
     return getResult;
   } else if (!getResult.content) {
     return {
@@ -524,7 +524,7 @@ export function deleteAssignmentFromDatabase(
   }
   const oldAssignment = getResult.content as CodeAssignmentDatabase;
   const rValue = openDB(coursePath);
-  if (rValue.error) {
+  if (rValue?.error) {
     return rValue;
   }
   let db = rValue.content as sqlite3.Database;
@@ -538,13 +538,13 @@ export function deleteAssignmentFromDatabase(
       result.error = err.message;
     });
   });
-  return result.error ? result : { content: true };
+  return result?.error ? result : { content: true };
 }
 
 // Module
 export function getModuleFromDatabase(coursePath: string, moduleId: number) {
   const rValue = openDB(coursePath);
-  if (rValue.error) {
+  if (rValue?.error) {
     return rValue;
   }
   let db = rValue.content as sqlite3.Database;
@@ -579,7 +579,7 @@ export function getModuleFromDatabase(coursePath: string, moduleId: number) {
 
 export function addModuleToDatabase(coursePath: string, module: ModuleData) {
   const rValue = openDB(coursePath);
-  if (rValue.error) {
+  if (rValue?.error) {
     return rValue;
   }
   let db = rValue.content as sqlite3.Database;
@@ -602,11 +602,11 @@ export function addModuleToDatabase(coursePath: string, module: ModuleData) {
         result.error = err.message;
       }
     );
-    if (!result.error) {
+    if (!result?.error) {
       result = addModuleTags(db, module.tags, module.ID.toString());
     }
   });
-  return result.error ? result : { content: true };
+  return result?.error ? result : { content: true };
 }
 
 export function updateModuleToDatabase(coursePath: string, module: ModuleData) {
@@ -623,7 +623,7 @@ export function updateModuleToDatabase(coursePath: string, module: ModuleData) {
   let sql = `UPDATE modules SET `;
   let params = [];
   const rValue = openDB(coursePath);
-  if (rValue.error) {
+  if (rValue?.error) {
     return rValue;
   }
   let db = rValue.content as sqlite3.Database;
@@ -639,7 +639,7 @@ export function updateModuleToDatabase(coursePath: string, module: ModuleData) {
       module.ID.toString(),
       false
     );
-    if (result.error) return result;
+    if (result?.error) return result;
   }
   if (oldModule.assignments !== module.assignments) {
     sql += `assignments = ?\n`;
@@ -670,12 +670,12 @@ export function updateModuleToDatabase(coursePath: string, module: ModuleData) {
     });
   }
   closeDB(db);
-  return result.error ? result : { content: true };
+  return result?.error ? result : { content: true };
 }
 
 export function deleteModule(coursePath: string, moduleID: number) {
   const getResult = getModuleFromDatabase(coursePath, moduleID);
-  if (getResult.error) {
+  if (getResult?.error) {
     return getResult;
   } else if (!getResult.content) {
     return {
@@ -685,7 +685,7 @@ export function deleteModule(coursePath: string, moduleID: number) {
   const oldModule = getResult.content as ModuleData;
   let result: DatabaseResult = {};
   const rValue = openDB(coursePath);
-  if (rValue.error) {
+  if (rValue?.error) {
     return rValue;
   }
   let db = rValue.content as sqlite3.Database;
@@ -698,5 +698,5 @@ export function deleteModule(coursePath: string, moduleID: number) {
       result.error = err.message;
     });
   });
-  return result.error ? result : { content: true };
+  return result?.error ? result : { content: true };
 }
