@@ -81,6 +81,39 @@ export function initDB(coursePath: string) {
   closeDB(db);
 }
 
+// Row counts
+export function getModuleCount(coursePath: string) {
+  let db = openDB(coursePath);
+  let result: number = null;
+  db.serialize(() => {
+    db.get(`SELECT COUNT(*) FROM modules`, (err, count) => {
+      if (err) {
+        console.log(err.message);
+      } else {
+        console.log(count);
+        result = count as number;
+      }
+    });
+  });
+  return result;
+}
+
+export function getAssignmentCount(coursePath: string) {
+  let db = openDB(coursePath);
+  let result: number = null;
+  db.serialize(() => {
+    db.get(`SELECT COUNT(*) FROM assignments`, (err, count) => {
+      if (err) {
+        console.log(err.message);
+      } else {
+        console.log(count);
+        result = count as number;
+      }
+    });
+  });
+  return result;
+}
+
 // Tags
 function addTag(
   db: sqlite3.Database,
@@ -456,7 +489,7 @@ export function addModuleToDatabase(coursePath: string, module: ModuleData) {
   });
 }
 
-export function updateMduleToDatabase(coursePath: string, module: ModuleData) {
+export function updateModuleToDatabase(coursePath: string, module: ModuleData) {
   const oldModule = getModuleFromDatabase(coursePath, module.ID);
   if (!oldModule) {
     throw new Error("Module does not exist in the database, cannot update.");
