@@ -11,6 +11,7 @@ import {
   getFileNameFromPath,
   getFileTypeUsingExtension,
 } from "../helpers/utility";
+import { DropzoneComp } from "./DropzoneComp";
 
 interface FileContentSelectProps {
   fileIndex: number;
@@ -93,13 +94,7 @@ export default function FileList({
     handleAssignment(`${pathInAssignment}`, newFiles);
   };
 
-  async function handleAddFile() {
-    const newPaths: Array<string> = await handleSelectFiles();
-
-    if (!newPaths) {
-      return;
-    }
-
+  function handleSetFiles(newPaths: Array<string>) {
     const newFiles: FileData[] = newPaths.map((path) => {
       const newFile = deepCopy(defaultFile);
       newFile.path = path;
@@ -121,11 +116,22 @@ export default function FileList({
     handleAssignment(`${pathInAssignment}`, newFiles);
   };
 
+  async function handleAddFiles() {
+    const newPaths: Array<string> = await handleSelectFiles();
+
+    if (!newPaths) {
+      return;
+    }
+
+    handleSetFiles(newPaths);
+    return;
+  }
+
   return (
     <>
       <ButtonComp
         buttonType="normal"
-        onClick={() => handleAddFile()}
+        onClick={() => handleAddFiles()}
         ariaLabel={texts.ui_aria_import_files[language.current]}
       >
         {texts.ui_import_files[language.current]}
@@ -190,6 +196,9 @@ export default function FileList({
             ))}
           </tbody>
         </Table>
+
+        <div className="emptySpace1" />
+        <DropzoneComp handleSetFiles={handleSetFiles}></DropzoneComp>
       </Sheet>
     </>
   );
