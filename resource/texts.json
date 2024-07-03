@@ -235,6 +235,14 @@
     "FI": "Lisää tehtävä",
     "ENG": "Add assignment"
   },
+  "ui_dropzone_text_default": {
+    "FI": "Raahaa tähän tiedostoja",
+    "ENG": "Drag files here"
+  },
+  "ui_dropzone_text_hover": {
+    "FI": "Pudota tiedostoja",
+    "ENG": "Drop files"
+  },
   "ui_add_project_work": {
     "FI": "Lisää harjoitustyö",
     "ENG": "Add project work"
