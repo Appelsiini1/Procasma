@@ -55,7 +55,7 @@ export const testModule: ModuleData = {
 };
 
 export const testCurrentAssignment: CodeAssignmentData = {
-  assignmentID: null,
+  assignmentID: "asdj9284872",
   title: "Assignment 1",
   tags: ["print", "try...except"],
   module: 1,

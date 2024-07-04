@@ -20,6 +20,7 @@ import {
 } from "./helpers/fileOperations";
 import { initialize } from "./helpers/programInit";
 import { getSettings, saveSettings } from "./helpers/settings";
+import { testDatabase } from "./helpers/testDatabase";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -129,6 +130,8 @@ ipcMain.handle("deleteModule", (event, coursePath, id) =>
 );
 ipcMain.handle("saveSettings", (event, settings) => saveSettings(settings));
 ipcMain.handle("selectFiles", handleFilesOpen);
-  ipcMain.handle("updateAssignment", (event, assignment, path) =>
-    handleUpdateAssignment(assignment, path)
-  );
+ipcMain.handle("updateAssignment", (event, assignment, path) =>
+  handleUpdateAssignment(assignment, path)
+);
+
+testDatabase();
