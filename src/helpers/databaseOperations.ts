@@ -47,14 +47,14 @@ export function initDB(coursePath: string) {
   db.serialize(() => {
     db.run(
       `CREATE TABLE IF NOT EXISTS assignments (
-                id TEXT PRIMARY KEY
-                type TEXT NOT NULL
-                title TEXT NOT NULL
-                tags TEXT
-                module INTEGER
-                position TEXT NOT NULL
-                level INTEGER
-                isExpanding TEXT NOT NULL
+                id TEXT PRIMARY KEY,
+                type TEXT NOT NULL,
+                title TEXT NOT NULL,
+                tags TEXT,
+                module INTEGER,
+                position TEXT NOT NULL,
+                level INTEGER,
+                isExpanding TEXT NOT NULL,
                 path TEXT NOT NULL);`,
       (err) => {
         console.log(err.message);
@@ -62,12 +62,12 @@ export function initDB(coursePath: string) {
     );
     db.run(
       `CREATE TABLE IF NOT EXISTS modules (
-                id INTEGER PRIMARY KEY
-                name TEXT NOT NULL
-                tags TEXT
-                assignments INTEGER
-                subjects TEXT
-                letters TEXT
+                id INTEGER PRIMARY KEY,
+                name TEXT NOT NULL,
+                tags TEXT,
+                assignments INTEGER,
+                subjects TEXT,
+                letters TEXT,
                 instructions TEXT);`,
       (err) => {
         console.log(err.message);
@@ -75,7 +75,7 @@ export function initDB(coursePath: string) {
     );
     db.run(
       `CREATE TABLE IF NOT EXISTS tags (
-                name TEXT PRIMARY KEY
+                name TEXT PRIMARY KEY,
                 assignments TEXT NOT NULL);`,
       (err) => {
         console.log(err.message);
@@ -83,7 +83,7 @@ export function initDB(coursePath: string) {
     );
     db.run(
       `CREATE TABLE IF NOT EXISTS moduleTags (
-                  name TEXT PRIMARY KEY
+                  name TEXT PRIMARY KEY,
                   modules TEXT NOT NULL);`,
       (err) => {
         console.log(err.message);
