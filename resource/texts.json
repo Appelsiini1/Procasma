@@ -915,9 +915,17 @@
     "FI": "Virhe aiempien tehtäväsarjojen tallennuksessa. Katso lisätietoja lokista.",
     "ENG": "Error in saving assignment sets. See log for details."
   },
+  "ui_choose_folder_path": {
+    "FI": "Valitse polku kurssille.",
+    "ENG": "Choose a course path."
+  },
   "ui_assignment_save_success": {
     "FI": "Tehtävä tallennettu.",
     "ENG": "Assignment saved."
+  },
+  "ui_course_save_success": {
+    "FI": "Kurssi tallennettu.",
+    "ENG": "Course saved."
   },
   "ui_delete_success": {
     "FI": "Poistettu onnistuneesti.",
@@ -930,6 +938,10 @@
   "ui_assignment_error_duplicate_title": {
     "FI": "Samanniminen tehtävä on jo olemassa.",
     "ENG": "An assignment with that title already exists."
+  },
+  "ui_course_error_duplicate": {
+    "FI": "Samanniminen kurssikansio on jo olemassa.",
+    "ENG": "Course folder already exists."
   },
   "ui_no_course_path_selected": {
     "FI": "Ei kurssipolkua valittu.",

@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import texts from "../../resource/texts.json";
 import { language } from "../globalsUI";
 import { useEffect, useState } from "react";
+import { refreshTitle } from "../helpers/requests";
 
 const IconSX = {
   color: "#00000",
@@ -41,6 +42,10 @@ export default function PageHeaderBar({
   useEffect(() => {
     handleCourseName(courseID, courseTitle);
   }, [courseID, courseTitle]);
+
+  useEffect(() => {
+    refreshTitle();
+  }, []);
 
   return (
     <Box
