@@ -12,6 +12,7 @@ import {
   getFileTypeUsingExtension,
 } from "../helpers/utility";
 import { DropzoneComp } from "./DropzoneComp";
+import log from "electron-log/renderer";
 
 interface FileContentSelectProps {
   fileIndex: number;
@@ -38,6 +39,7 @@ async function handleSelectFiles() {
     return filePaths;
   } catch (error) {
     console.error("An error occurred:", (error as Error).message);
+    log.error(error.message);
   }
   return null;
 }

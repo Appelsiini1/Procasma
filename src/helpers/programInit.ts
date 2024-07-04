@@ -4,9 +4,11 @@ import fs from "fs";
 import { platform } from "node:process";
 import defaults from "../../resource/defaults.json";
 import { saveSettings } from "./settings";
+import log from "electron-log/node";
 
 export function initialize() {
   try {
+    log.info("Initializing folders...");
     if (!fs.existsSync(oso.getApplicationDir())) {
       createFolder(oso.getApplicationDir(), { recursive: true });
     }
@@ -24,5 +26,6 @@ export function initialize() {
     }
   } catch (err) {
     console.log(err);
+    log.error(err);
   }
 }

@@ -12,6 +12,7 @@ import { Button } from "@mui/joy";
 import HomeIcon from "@mui/icons-material/Home";
 import { language } from "../globalsUI";
 import LogoText from "../../resource/LogoText.png";
+import log from "electron-log/renderer";
 
 //https://github.com/remix-run/react-router/discussions/9628#discussioncomment-5555901
 interface RouterError extends Error {}
@@ -31,6 +32,7 @@ export default function ErrorPage() {
     errorMessage = error;
   } else {
     console.error(error);
+    log.error(error);
     errorMessage = "Unknown error";
   }
   const navigate = useNavigate();

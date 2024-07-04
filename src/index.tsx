@@ -21,6 +21,9 @@ import {
   SupportedLanguages,
 } from "./types";
 import { language } from "./globalsUI";
+import log from "electron-log/renderer";
+
+log.info("-- START OF PROCASMA RENDERER --");
 
 const updateLanguageInit = async () => {
   try {
@@ -36,6 +39,7 @@ const updateLanguageInit = async () => {
     language.current = abbreviation;
   } catch (error) {
     console.error(error);
+    log.error(error);
   }
 
   return;

@@ -12,6 +12,7 @@ import { courseMetaDataFileName } from "../constants";
 import { createHash } from "crypto";
 import { getFileNameFromPath } from "./utility";
 import { promisify } from "util";
+import log from "electron-log/node";
 
 interface FileResult {
   content?: any;
@@ -119,6 +120,7 @@ export function handleSaveCourse(course: CourseData, coursesPath: string) {
     // create sets.json
   } catch (err) {
     console.error("An error occurred:", (err as Error).message);
+    log.error(err.message);
     return { error: (err as Error).message };
   }
 
@@ -156,6 +158,7 @@ export function handleUpdateCourse(course: CourseData, coursePath: string) {
     writeToFile(metadata, metadataPath);
   } catch (err) {
     console.error("An error occurred:", (err as Error).message);
+    log.error(err.message);
     return { error: (err as Error).message };
   }
 
@@ -200,6 +203,7 @@ export function generateAssignmentHash(assignment: CodeAssignmentData) {
     return hash;
   } catch (error) {
     console.error("An error occurred:", (error as Error).message);
+    log.error(error.message);
     return null;
   }
 }
@@ -301,6 +305,7 @@ export function handleGetAssignments(
     return assignments;
   } catch (error) {
     console.error("An error occurred:", (error as Error).message);
+    log.error(error.message);
     return null;
   }
 }
@@ -422,6 +427,7 @@ export async function handleSaveOrUpdateAssignment(
     }
   } catch (err) {
     console.error("An error occurred:", (err as Error).message);
+    log.error(err.message);
     return { error: (err as Error).message };
   }
 
@@ -509,6 +515,7 @@ export function handleGetModules(coursePath: string): ModuleData[] | null {
     return modules;
   } catch (error) {
     console.error("An error occurred:", (error as Error).message);
+    log.error(error.message);
     return null;
   }
 }
@@ -527,6 +534,7 @@ export function removeModuleById(coursePath: string, id: number): void {
     writeToFileSync(JSON.stringify(newModules), modulesPath);
   } catch (error) {
     console.error("An error occurred:", (error as Error).message);
+    log.error(error.message);
   }
 
   return null;
