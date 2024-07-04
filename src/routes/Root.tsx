@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import FadeInImage from "../components/FadeInImage";
 import { CodeAssignmentData, CourseData, ModuleData } from "../types";
 import { useEffect, useState } from "react";
-import { getAssignments } from "../helpers/requests";
+import { getAssignments, refreshTitle } from "../helpers/requests";
 import SnackbarComp, {
   SnackBarAttributes,
   functionResultToSnackBar,
@@ -30,16 +30,6 @@ const smallDividerSX = {
   bgcolor: dividerColor,
   marginLeft: "7rem",
   marginRight: "7rem",
-};
-
-const getVersion = async () => {
-  try {
-    const vers = await window.api.getAppVersion();
-    const title = "Procasma " + vers;
-    window.api.setTitle(title);
-  } catch (error) {
-    console.error(error);
-  }
 };
 
 export default function Root({
@@ -89,10 +79,12 @@ export default function Root({
     setAssignmentsInIndex(numAssignments);
   };
 
+  useEffect(() => {
+    refreshTitle();
+  }, []);
+
   // update the assignments in index count
   useEffect(() => {
-    getVersion();
-
     if (activePath) {
       refreshAssignmentsInIndex();
     }
@@ -135,7 +127,11 @@ export default function Root({
         handleActiveCourse(course);
         handleActivePath(coursePath);
       } else {
-        throw new Error("ui_course_folder_invalid");
+        functionResultToSnackBar(
+          { info: "ui_course_folder_invalid" },
+          setShowSnackbar,
+          setSnackBarAttributes
+        );
       }
     } catch (err) {
       functionResultToSnackBar(

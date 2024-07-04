@@ -100,8 +100,8 @@ export interface Settings {
 export type ContextBridgeAPI = {
   setTitle: (title: string) => void;
   getAppVersion: () => string;
-  saveCourse: (course: CourseData, path: string) => void;
-  updateCourse: (course: CourseData, path: string) => void;
+  saveCourse: (course: CourseData, path: string) => any;
+  updateCourse: (course: CourseData, path: string) => any;
   selectDir: () => string;
   selectFiles: () => Array<string>;
   readCourse: (path: string) => CourseData;
