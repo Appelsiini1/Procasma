@@ -116,3 +116,25 @@ export type ContextBridgeAPI = {
   getModules: (path: string) => ModuleData[];
   deleteModule: (coursePath: string, id: number) => void;
 };
+
+export type CodeAssignmentDatabase = {
+  id: string;
+  type: string;
+  title: string;
+  tags: string | null;
+  module: number | null;
+  position: string;
+  level: number | null;
+  isExpanding: boolean;
+  path: string;
+};
+
+export type ModuleDatabase = {
+  id: number;
+  name: string;
+  tags: string | null;
+  assignments: number;
+  subjects: string;
+  letters: number;
+  instructions: string;
+};

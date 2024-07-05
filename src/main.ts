@@ -20,7 +20,9 @@ import {
 } from "./helpers/fileOperations";
 import { initialize } from "./helpers/programInit";
 import { getSettings, saveSettings } from "./helpers/settings";
+import { testDatabase } from "./helpers/testDatabase";
 import log from "electron-log";
+
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -45,44 +47,6 @@ const createWindow = () => {
       contextIsolation: true,
     },
   });
-
-  // One-way, Renderer to Main
-  ipcMain.on("set-title", (event, title) => {
-    const webContents = event.sender;
-    const win = BrowserWindow.fromWebContents(webContents);
-    win.setTitle(title);
-  });
-
-  ipcMain.handle("selectDir", handleDirectorySelect);
-  ipcMain.handle("selectFiles", handleFilesOpen);
-  ipcMain.handle("saveCourse", (event, course, path) =>
-    handleSaveCourse(course, path)
-  );
-  ipcMain.handle("readCourse", (event, path) => handleReadCourse(path));
-  ipcMain.handle("updateCourse", (event, fileName, path) =>
-    handleUpdateCourse(fileName, path)
-  );
-  ipcMain.handle("saveAssignment", (event, assignment, path) =>
-    handleSaveAssignment(assignment, path)
-  );
-  ipcMain.handle("updateAssignment", (event, assignment, path) =>
-    handleUpdateAssignment(assignment, path)
-  );
-
-  ipcMain.handle("getAssignments", (event, path) => handleGetAssignments(path));
-  ipcMain.handle("deleteAssignment", (event, coursePath, id) =>
-    removeAssignmentById(coursePath, id)
-  );
-
-  ipcMain.handle("saveModule", (event, module, path) =>
-    handleSaveModule(module, path)
-  );
-  ipcMain.handle("getModules", (event, path) => handleGetModules(path));
-  ipcMain.handle("deleteModule", (event, coursePath, id) =>
-    removeModuleById(coursePath, id)
-  );
-
-  ipcMain.handle("saveSettings", (event, settings) => saveSettings(settings));
 
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -137,8 +101,43 @@ ipcMain.on("set-title", (event, title) => {
   const win = BrowserWindow.fromWebContents(webContents);
   win.setTitle(title);
 });
+ipcMain.on("set-title", (event, title) => {
+  const webContents = event.sender;
+  const win = BrowserWindow.fromWebContents(webContents);
+  win.setTitle(title);
+});
 
 // Bidirectional, renderer to main to renderer
 ipcMain.handle("dialog:openFile", handleFileOpen);
 ipcMain.handle("getAppVersion", getVersion);
 ipcMain.handle("getSettings", getSettings);
+ipcMain.handle("selectDir", handleDirectorySelect);
+ipcMain.handle("saveCourse", (event, course, path) =>
+  handleSaveCourse(course, path)
+);
+ipcMain.handle("readCourse", (event, path) => handleReadCourse(path));
+ipcMain.handle("updateCourse", (event, fileName, path) =>
+  handleUpdateCourse(fileName, path)
+);
+ipcMain.handle("saveAssignment", (event, assignment, path) =>
+  handleSaveAssignment(assignment, path)
+);
+ipcMain.handle("getAssignments", (event, path) => handleGetAssignments(path));
+ipcMain.handle("deleteAssignment", (event, coursePath, id) =>
+  removeAssignmentById(coursePath, id)
+);
+
+ipcMain.handle("saveModule", (event, module, path) =>
+  handleSaveModule(module, path)
+);
+ipcMain.handle("getModules", (event, path) => handleGetModules(path));
+ipcMain.handle("deleteModule", (event, coursePath, id) =>
+  removeModuleById(coursePath, id)
+);
+ipcMain.handle("saveSettings", (event, settings) => saveSettings(settings));
+ipcMain.handle("selectFiles", handleFilesOpen);
+ipcMain.handle("updateAssignment", (event, assignment, path) =>
+  handleUpdateAssignment(assignment, path)
+);
+
+testDatabase();
