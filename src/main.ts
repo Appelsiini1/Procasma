@@ -21,11 +21,17 @@ import {
 import { initialize } from "./helpers/programInit";
 import { getSettings, saveSettings } from "./helpers/settings";
 import { testDatabase } from "./helpers/testDatabase";
+import log from "electron-log";
+
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
   app.quit();
 }
+
+log.initialize();
+log.info("-- STARTING PROCASMA MAIN --");
+log.info(`Procasma v${version}`);
 
 const getVersion = () => {
   return version;

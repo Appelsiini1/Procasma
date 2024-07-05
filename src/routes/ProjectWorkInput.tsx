@@ -16,7 +16,10 @@ import { CodeAssignmentData, CourseData, Variation } from "../types";
 import { splitStringToArray } from "../helpers/converters";
 import VariationsGroup from "../components/VariationsGroup";
 import { useEffect, useState } from "react";
-import SnackbarComp, { SnackBarAttributes } from "../components/SnackBarComp";
+import SnackbarComp, {
+  SnackBarAttributes,
+  functionResultToSnackBar,
+} from "../components/SnackBarComp";
 import { deepCopy } from "../helpers/utility";
 
 export default function ProjectWorkInput({
@@ -63,26 +66,7 @@ export default function ProjectWorkInput({
       result = await window.api.saveAssignment(assignment, activePath);
     }
 
-    // results.success|error contains the key to the message
-    if (result?.error) {
-      const saveErrorMsg = (texts as any)?.[result.error]?.[language.current];
-      setShowSnackbar(true);
-      setSnackBarAttributes({
-        color: "danger",
-        text: saveErrorMsg ? saveErrorMsg : result.error,
-      });
-    }
-
-    if (result?.success) {
-      const saveSuccessMsg = (texts as any)?.[result.success]?.[
-        language.current
-      ];
-      setShowSnackbar(true);
-      setSnackBarAttributes({
-        color: "success",
-        text: saveSuccessMsg ? saveSuccessMsg : result.success,
-      });
-    }
+    functionResultToSnackBar(result, setShowSnackbar, setSnackBarAttributes);
   }
 
   return (

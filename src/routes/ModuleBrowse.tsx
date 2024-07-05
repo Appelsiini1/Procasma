@@ -26,6 +26,7 @@ import {
   setSelectedViaChecked,
 } from "../helpers/browseHelpers";
 import { getModules } from "../helpers/requests";
+import log from "electron-log/renderer";
 
 export interface ModuleWithCheck extends WithCheckWrapper {
   value: ModuleData;
@@ -120,6 +121,7 @@ export async function handleDeleteSelected(
     refreshModules();
   } catch (error) {
     console.error("Error deleting modules:", error);
+    log.error(`Error deleting modules: ${error}`);
   }
 }
 

@@ -13,7 +13,7 @@ import { createHash } from "crypto";
 import { getFileNameFromPath } from "./utility";
 import { promisify } from "util";
 import { deleteAssignmentFromDatabase } from "./databaseOperations";
-
+import log from "electron-log/node";
 
 interface FileResult {
   content?: any;
@@ -72,13 +72,19 @@ export function handleReadFile(filePath: string): FileResult {
 /**
  * Creat folder at path if it does not already exist.
  */
-export function createFolder(path: string, options: object = null) {
+export function createFolder(
+  path: string,
+  requireUnique?: boolean,
+  options: object = null
+) {
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path, options);
-  } /*else {
-    throw new Error("Course folder already exists");
-  }*/
-  return;
+  } else {
+    if (requireUnique) {
+      return { error: "ui_course_error_duplicate" };
+    }
+  }
+  return null;
 }
 
 export function handleSaveCourse(course: CourseData, coursesPath: string) {
@@ -93,7 +99,10 @@ export function handleSaveCourse(course: CourseData, coursesPath: string) {
     const coursePath = path.join(coursesPath, courseTitleFormatted);
 
     // create course folder
-    createFolder(coursePath);
+    const result = createFolder(coursePath, true);
+    if (result?.error) {
+      throw new Error(result?.error);
+    }
 
     const metadata: string = JSON.stringify(course);
 
@@ -110,12 +119,13 @@ export function handleSaveCourse(course: CourseData, coursesPath: string) {
     // create weeks.json
 
     // create sets.json
-  } catch (error) {
-    console.error("An error occurred:", (error as Error).message);
-    return false;
+  } catch (err) {
+    console.error("An error occurred:", (err as Error).message);
+    log.error(err.message);
+    return { error: (err as Error).message };
   }
 
-  return true;
+  return { success: "ui_course_save_success" };
 }
 
 export function handleReadCourse(filePath: string): CourseData {
@@ -147,12 +157,13 @@ export function handleUpdateCourse(course: CourseData, coursePath: string) {
     // create course metadata.json
     const metadataPath = path.join(coursePath, courseMetaDataFileName);
     writeToFile(metadata, metadataPath);
-  } catch (error) {
-    console.error("An error occurred:", (error as Error).message);
-    return false;
+  } catch (err) {
+    console.error("An error occurred:", (err as Error).message);
+    log.error(err.message);
+    return { error: (err as Error).message };
   }
 
-  return true;
+  return { success: "ui_course_save_success" };
 }
 
 export function createAssignmentFolderWithHash(
@@ -193,6 +204,7 @@ export function generateAssignmentHash(assignment: CodeAssignmentData) {
     return hash;
   } catch (error) {
     console.error("An error occurred:", (error as Error).message);
+    log.error(error.message);
     return null;
   }
 }
@@ -294,6 +306,7 @@ export function handleGetAssignments(
     return assignments;
   } catch (error) {
     console.error("An error occurred:", (error as Error).message);
+    log.error(error.message);
     return null;
   }
 }
@@ -415,6 +428,7 @@ export async function handleSaveOrUpdateAssignment(
     }
   } catch (err) {
     console.error("An error occurred:", (err as Error).message);
+    log.error(err.message);
     return { error: (err as Error).message };
   }
 
@@ -503,6 +517,7 @@ export function handleGetModules(coursePath: string): ModuleData[] | null {
     return modules;
   } catch (error) {
     console.error("An error occurred:", (error as Error).message);
+    log.error(error.message);
     return null;
   }
 }
@@ -521,6 +536,7 @@ export function removeModuleById(coursePath: string, id: number): void {
     writeToFileSync(JSON.stringify(newModules), modulesPath);
   } catch (error) {
     console.error("An error occurred:", (error as Error).message);
+    log.error(error.message);
   }
 
   return null;

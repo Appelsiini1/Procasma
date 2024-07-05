@@ -16,6 +16,10 @@ import { useCourse } from "../helpers/assignmentHelpers";
 import { newCourse } from "../myTestGlobals";
 import { courseLevelsToString, splitCourseLevels } from "../helpers/converters";
 import { CourseData } from "../types";
+import SnackbarComp, {
+  SnackBarAttributes,
+  functionResultToSnackBar,
+} from "../components/SnackBarComp";
 
 export default function Course({
   activeCourse,
@@ -36,6 +40,9 @@ export default function Course({
   const initialCourseState = pageType == "create" ? newCourse : activeCourse;
   const [course, handleCourse] = useCourse(initialCourseState);
   const [path, setPath] = useState(activePath ? activePath : "");
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [snackBarAttributes, setSnackBarAttributes] =
+    useState<SnackBarAttributes>({ color: "success", text: "" });
 
   let pageTitle: string = null;
   let disableCourseFolderSelect = false;
@@ -120,6 +127,28 @@ export default function Course({
       }
     });
   };
+
+  async function handleSaveCourse() {
+    if (!path || path.length < 1) {
+      functionResultToSnackBar(
+        { info: "ui_choose_folder_path" },
+        setShowSnackbar,
+        setSnackBarAttributes
+      );
+      return;
+    }
+
+    let result = null;
+    if (pageType == "manage") {
+      result = await window.api.updateCourse(course, path);
+
+      handleActiveCourse(course);
+    } else {
+      result = await window.api.saveCourse(course, path);
+    }
+
+    functionResultToSnackBar(result, setShowSnackbar, setSnackBarAttributes);
+  }
 
   return (
     <>
@@ -329,20 +358,7 @@ export default function Course({
           <ButtonComp
             buttonType="normal"
             onClick={() => {
-              if (path && path.length > 1) {
-                if (pageType == "create") {
-                  window.api.saveCourse(course, path);
-                } else {
-                  window.api.updateCourse(course, path);
-
-                  //@TODO updating course state will have to
-                  // work differently if done with async in the
-                  // near future
-                  handleActiveCourse(course);
-                }
-              } else {
-                console.log("choose a folder path");
-              }
+              handleSaveCourse();
             }}
             ariaLabel={texts.ui_aria_save[language.current]}
           >
@@ -364,6 +380,13 @@ export default function Course({
           </ButtonComp>
         </Stack>
       </div>
+      {showSnackbar ? (
+        <SnackbarComp
+          text={snackBarAttributes.text}
+          color={snackBarAttributes.color}
+          setShowSnackbar={setShowSnackbar}
+        ></SnackbarComp>
+      ) : null}
     </>
   );
 }

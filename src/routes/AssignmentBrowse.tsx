@@ -33,6 +33,7 @@ import SnackbarComp, {
   SnackBarAttributes,
   functionResultToSnackBar,
 } from "../components/SnackBarComp";
+import log from "electron-log/renderer";
 
 export interface AssignmentWithCheck extends WithCheckWrapper {
   value: CodeAssignmentData;
@@ -262,6 +263,7 @@ export default function AssignmentBrowse({
       refreshAssignments();
     } catch (error) {
       console.error("Error deleting assignments:", error);
+      log.error(`Error deleting assignments: ${error}`);
     }
   }
 

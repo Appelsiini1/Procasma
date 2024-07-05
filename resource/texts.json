@@ -35,11 +35,11 @@
     "FI": "Komentoriviparametrit",
     "ENG": "Commandline arguments"
   },
-  "tex_ex_input_datafile": {
+  "ex_input_datafile": {
     "FI": "Esimerkki syötetiedostosta",
     "ENG": "Example from input file"
   },
-  "tex_ex_resultfile": {
+  "ex_resultfile": {
     "FI": "Esimerkki tulostiedostosta",
     "ENG": "Example from output file"
   },
@@ -47,11 +47,11 @@
     "FI": "Tuloste",
     "ENG": "Output"
   },
-  "tex_assignment_letter": {
+  "assignment_letter": {
     "FI": "T",
     "ENG": "A"
   },
-  "tex_lecture_letter": {
+  "lecture_letter": {
     "FI": "L",
     "ENG": "L"
   },
@@ -234,6 +234,14 @@
   "ui_add_assignment": {
     "FI": "Lisää tehtävä",
     "ENG": "Add assignment"
+  },
+  "ui_dropzone_text_default": {
+    "FI": "Raahaa tähän tiedostoja",
+    "ENG": "Drag files here"
+  },
+  "ui_dropzone_text_hover": {
+    "FI": "Pudota tiedostoja",
+    "ENG": "Drop files"
   },
   "ui_add_project_work": {
     "FI": "Lisää harjoitustyö",
@@ -424,12 +432,12 @@
     "ENG": "Navigate to the course management view"
   },
   "ui_aria_nav_add_assignment": {
-    "FI": "Siirry uuden kurssin luontinäkymään",
-    "ENG": "Navigate to the course creation view"
+    "FI": "Siirry uuden tehtävän luontinäkymään",
+    "ENG": "Navigate to the assignment creation view"
   },
   "ui_aria_nav_manage_assignment": {
-    "FI": "Siirry uuden kurssin luontinäkymään",
-    "ENG": "Navigate to the course creation view"
+    "FI": "Siirry tehtävän hallintanäkymään",
+    "ENG": "Navigate to the assignment management view"
   },
   "ui_aria_nav_browse_assignments": {
     "FI": "Siirry selaamaan tehtäviä",
@@ -508,8 +516,8 @@
     "ENG": "Input all tags here, separated by a comma."
   },
   "help_inst": {
-    "FI": "Täytä tähän tehtävän variaation tehtävänanto. Tämä syötelaatikko tukee LaTeX komentoja.",
-    "ENG": "Fill here the assignment variation instructions. This input box supports LaTeX commands."
+    "FI": "Täytä tähän tehtävän variaation tehtävänanto.",
+    "ENG": "Fill here the assignment variation instructions."
   },
   "help_inputs": {
     "FI": "Syötä testiajon syötteet. Erota syötteet rivinvaihdolla.",
@@ -535,10 +543,6 @@
     "FI": "Syötä tähän setit joissa tehtävää on aiemmin käytetty. Oletusformaatti on '[vuosi]/[periodi]', esim. 2023/1",
     "ENG": "Input the sets where this assignment has been used before. Default format is '[year]/[period]', ex. 2023/1"
   },
-  "ui_assig_man_warning_popup": {
-    "FI": "'Lisää tehtävä' ikkuna on jo avattuna.",
-    "ENG": "The 'Add assingment' window is already open."
-  },
   "ui_ok": {
     "FI": "OK",
     "ENG": "OK"
@@ -559,11 +563,11 @@
     "FI": "Metadatatiedostot",
     "ENG": "Metadata files"
   },
-  "tex_toc": {
+  "toc": {
     "FI": "Sisällysluettelo",
     "ENG": "Contents"
   },
-  "tex_page": {
+  "page": {
     "FI": "Sivu",
     "ENG": "Page"
   },
@@ -607,10 +611,6 @@
     "FI": "Mitään kurssia ei ole avattuna.",
     "ENG": "No course has been opened."
   },
-  "popup_courseinfo_missing": {
-    "FI": "Kurssitietoja puuttuu, lisää tiedot pääsivulle ja paina 'Tallenna'.",
-    "ENG": "Some course information seems to be missing, please add them on the main window and press 'Save'."
-  },
   "ui_add_week": {
     "FI": "Lisää viikkotiedot",
     "ENG": "Add week info"
@@ -640,16 +640,16 @@
     "ENG": "Input the week a title. If left empty, the default will be used."
   },
   "help_week_topics": {
-    "FI": "Lisää tähän viikolla/luennolla käsiteltävät aiheet. Erottele aiheet rivinvaihdolla. \nTukee LaTeX komentoja, mutta huomaa että listaus tehdään automaattisesti.",
-    "ENG": "Add the topics that are covered on this week/lecture. Separate topics with a new line. \nSupports LaTeX commands, but note that the listing will be done automatically."
+    "FI": "Lisää tähän viikolla/luennolla käsiteltävät aiheet. Erottele aiheet rivinvaihdolla.",
+    "ENG": "Add the topics that are covered on this week/lecture. Separate topics with a new line."
   },
   "help_week_tags": {
     "FI": "Syötä viikon aihetunnisteet. Erote aihetunnisteet pilkulla.",
     "ENG": "Input the tags for the week here. Separate each of them with a comma."
   },
   "help_week_inst": {
-    "FI": "Syötä viikon erikoisohjeet. Nämä tulostuvat aihelistan perään. Tukee LaTeX komentoja.",
-    "ENG": "Input any special instructions for the week. These will be printed after the topic list. Supports LaTeX commands."
+    "FI": "Syötä viikon erikoisohjeet. Nämä tulostuvat aihelistan perään.",
+    "ENG": "Input any special instructions for the week. These will be printed after the topic list."
   },
   "ui_assignment_browse": {
     "FI": "Tehtävien selaus",
@@ -731,14 +731,6 @@
     "FI": "Tehtäväsarjojen luonti",
     "ENG": "Assignment set creation"
   },
-  "ui_move_up": {
-    "FI": "Siirrä ylös",
-    "ENG": "Move up"
-  },
-  "ui_move_down": {
-    "FI": "Siirrä alas",
-    "ENG": "Move down"
-  },
   "ui_accept": {
     "FI": "Hyväksy",
     "ENG": "Accept"
@@ -759,7 +751,7 @@
     "FI": "Valitse tulosten tallennuskansio",
     "ENG": "Choose result output folder"
   },
-  "tex_answers": {
+  "answers": {
     "FI": "Vastaukset",
     "ENG": "Answers"
   },
@@ -768,16 +760,16 @@
     "ENG": "Assignment instruction papers succesfully created to folder:"
   },
   "ui_pdf_error": {
-    "FI": "Virhe PDF tiedoston luonnissa. Lisätietoja lokissa:",
-    "ENG": "Error in PDF generation. Details in log:"
+    "FI": "Virhe PDF tiedoston luonnissa:",
+    "ENG": "Error in PDF generation:"
   },
   "ui_del_error_disk": {
-    "FI": "Virhe tehtävän poistamisessa levyltä! Lisätietoja lokissa.",
-    "ENG": "Error deleting assignment files from disk! See log for details."
+    "FI": "Virhe tehtävän poistamisessa levyltä!",
+    "ENG": "Error deleting assignment files from disk!"
   },
   "ui_del_error_index": {
-    "FI": "Virhe poistettaessa tehtävää indeksistä. Lisätietoja lokissa.",
-    "ENG": "Error deleting assignment from index. See log for details."
+    "FI": "Virhe poistettaessa tehtävää indeksistä.",
+    "ENG": "Error deleting assignment from index."
   },
   "ui_del_ok": {
     "FI": "Tehtävä poistettu onnistuneesti.",
@@ -787,21 +779,17 @@
     "FI": "Oletko varma?",
     "ENG": "Are you sure?"
   },
-  "ui_generating_tex": {
-    "FI": "Luodaan TeX-tiedostoa...",
-    "ENG": "Generating TeX-file..."
-  },
   "ui_creating_pdf": {
     "FI": "Luodaan PDF-tiedostoja...",
     "ENG": "Generating PDF-files..."
   },
   "ui_copying": {
-    "FI": "Kopioidaan tulostiedostoja...",
+    "FI": "Kopioidaan tiedostoja...",
     "ENG": "Copying files..."
   },
   "ui_copy_error": {
-    "FI": "Virhe PDF tiedostojen siirrossa. Lisätietoja lokissa:",
-    "ENG": "Error moving PDF files. Details in log:"
+    "FI": "Virhe PDF tiedostojen siirrossa.",
+    "ENG": "Error moving PDF files."
   },
   "ui_menu_language": {
     "FI": "Kieli",
@@ -827,7 +815,7 @@
     "FI": "Virhe tasojen muotoilussa. Tarkista oikea muotoilu (?)-merkistä.",
     "ENG": "Error in level formatting Check correct formatin from (?)"
   },
-  "tex_level_subheader": {
+  "level_subheader": {
     "FI": "Tehtävän taso",
     "ENG": "Assignment level"
   },
@@ -839,13 +827,13 @@
     "FI": "Viikkojen ohjeita ei löydy. Lisää viikkojen ohjeet ennen tehtäväsarjojen luontia.",
     "ENG": "No week instructions found. Please add week data before creating assignment sets."
   },
-  "ui_index_open_error": {
-    "FI": "Tehtäväindeksiä ei voitu avata. Lisätietoa lokitiedostossa.",
-    "ENG": "Assignment index could not be opened. More details in the log file."
+  "ui_db_open_error": {
+    "FI": "Tehtävätietokantaa ei voitu avata.",
+    "ENG": "Assignment database could not be opened."
   },
   "ui_error_save_course": {
-    "FI": "Virhe kurssin tietojen tallennuksessa. Lisätietoja lokitiedostossa.",
-    "ENG": "Error saving course information. More details in the log file."
+    "FI": "Virhe kurssin tietojen tallennuksessa.",
+    "ENG": "Error saving course information."
   },
   "ui_project_work": {
     "FI": "Harjoitustyö",
@@ -900,16 +888,24 @@
     "ENG": "Name"
   },
   "ui_error_load_set": {
-    "FI": "Virhe aiempien tehtäväsarjojen latauksessa. Katso lisätietoja lokista.",
-    "ENG": "Error in loading assignment sets. See log for details."
+    "FI": "Virhe aiempien tehtäväsarjojen latauksessa.",
+    "ENG": "Error in loading assignment sets."
   },
   "ui_error_save_set": {
-    "FI": "Virhe aiempien tehtäväsarjojen tallennuksessa. Katso lisätietoja lokista.",
-    "ENG": "Error in saving assignment sets. See log for details."
+    "FI": "Virhe aiempien tehtäväsarjojen tallennuksessa.",
+    "ENG": "Error in saving assignment sets."
+  },
+  "ui_choose_folder_path": {
+    "FI": "Valitse polku kurssille.",
+    "ENG": "Choose a course path."
   },
   "ui_assignment_save_success": {
     "FI": "Tehtävä tallennettu.",
     "ENG": "Assignment saved."
+  },
+  "ui_course_save_success": {
+    "FI": "Kurssi tallennettu.",
+    "ENG": "Course saved."
   },
   "ui_delete_success": {
     "FI": "Poistettu onnistuneesti.",
@@ -922,6 +918,10 @@
   "ui_assignment_error_duplicate_title": {
     "FI": "Samanniminen tehtävä on jo olemassa.",
     "ENG": "An assignment with that title already exists."
+  },
+  "ui_course_error_duplicate": {
+    "FI": "Samanniminen kurssikansio on jo olemassa.",
+    "ENG": "Course folder already exists."
   },
   "ui_no_course_path_selected": {
     "FI": "Ei kurssipolkua valittu.",
@@ -960,8 +960,8 @@
     "ENG": "Target removal failed. Check log for more information."
   },
   "ui_error_week_exists": {
-    "FI": "Viikon tiedot on jo olemassa!",
-    "ENG": "This week's info already exists!"
+    "FI": "Moduulin tiedot on jo olemassa!",
+    "ENG": "This module's info already exists!"
   },
   "ui_error_open_course": {
     "FI": "Virhe avattaessa kurssia!",
@@ -975,7 +975,7 @@
     "FI": "Tuo kuvat",
     "ENG": "Import images"
   },
-  "tex_fig": {
+  "fig": {
     "FI": "Kuva",
     "ENG": "Figure"
   },

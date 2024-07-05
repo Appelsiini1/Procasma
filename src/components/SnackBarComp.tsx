@@ -19,6 +19,7 @@ export function functionResultToSnackBar(
   result: {
     error?: string;
     success?: string;
+    info?: string;
   },
   setShowSnackbar: React.Dispatch<React.SetStateAction<boolean>>,
   setSnackBarAttributes: React.Dispatch<
@@ -41,6 +42,15 @@ export function functionResultToSnackBar(
     setSnackBarAttributes({
       color: "success",
       text: saveSuccessMsg ? saveSuccessMsg : result.success,
+    });
+  }
+
+  if (result?.info) {
+    const saveSuccessMsg = (texts as any)?.[result.info]?.[language.current];
+    setShowSnackbar(true);
+    setSnackBarAttributes({
+      color: "neutral",
+      text: saveSuccessMsg ? saveSuccessMsg : result.info,
     });
   }
 }

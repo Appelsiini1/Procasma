@@ -1,4 +1,16 @@
 import { CodeAssignmentData, ModuleData } from "../types";
+import log from "electron-log/renderer";
+
+export const refreshTitle = async () => {
+  try {
+    const vers = await window.api.getAppVersion();
+    const title = "Procasma " + vers;
+    window.api.setTitle(title);
+  } catch (error) {
+    console.error(error);
+    log.error(error);
+  }
+};
 
 export const getAssignments = async (activePath: string) => {
   try {
@@ -13,6 +25,7 @@ export const getAssignments = async (activePath: string) => {
     return assignments;
   } catch (error) {
     console.error(error);
+    log.error(error);
   }
   return null;
 };
@@ -28,6 +41,7 @@ export const getModules = async (activePath: string) => {
     return modules;
   } catch (error) {
     console.error(error);
+    log.error(error);
   }
   return null;
 };
