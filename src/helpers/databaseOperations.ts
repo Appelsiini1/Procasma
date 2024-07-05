@@ -10,6 +10,7 @@ import { isExpanding } from "./assignment";
 
 interface DatabaseResult {
   content?: any;
+  message?: string;
   error?: string;
 }
 
@@ -35,7 +36,7 @@ async function closeDB(db: sqlite3.Database) {
       if (err) {
         reject({ error: err.message });
       }
-      resolve({ content: "Closed the database connection." });
+      resolve({ message: "Closed the database connection." });
     });
   });
 }
@@ -48,7 +49,7 @@ export async function initDB(coursePath: string) {
     if (result?.error) {
       throw new Error(`Failed to open database: ${result.error}`);
     }
-    const db = result.content;
+    const db = result.content as sqlite3.Database;
 
     result = await new Promise((resolve, reject) => {
       db.serialize(() => {
@@ -104,7 +105,7 @@ export async function initDB(coursePath: string) {
             }
           }
         );
-        resolve({ content: "Tables created successfully" });
+        resolve({ message: "Tables created successfully" });
       });
     });
     if (result?.error) {
@@ -115,8 +116,8 @@ export async function initDB(coursePath: string) {
     if (result?.error) {
       throw new Error(result.error);
     }
-    if (result?.content) {
-      console.log(result.content);
+    if (result?.message) {
+      console.log(result.message);
     }
     return { content: true };
   } catch (err) {
@@ -127,46 +128,82 @@ export async function initDB(coursePath: string) {
 }
 
 // Row counts
-export function getModuleCount(coursePath: string) {
-  const rValue = openDB(coursePath);
-  if (rValue?.error) {
-    return rValue;
-  }
-  let db = rValue.content as sqlite3.Database;
-  let result: DatabaseResult = {};
-  db.serialize(() => {
-    db.get(`SELECT COUNT(*) FROM modules`, (err, count) => {
-      if (err) {
-        console.log(err.message);
-        result.error = err.message;
-      } else {
-        console.log(count);
-        result.content = count as number;
-      }
+export async function getModuleCount(coursePath: string) {
+  try {
+    let result: DatabaseResult = await openDB(coursePath);
+
+    if (result?.error) {
+      throw new Error(`Failed to open database: ${result.error}`);
+    }
+    const db = result.content as sqlite3.Database;
+    result = await new Promise((resolve, reject) => {
+      db.serialize(() => {
+        db.get(`SELECT COUNT(*) FROM modules`, (err, count) => {
+          if (err) {
+            reject({ error: err.message });
+          } else {
+            resolve({ content: count });
+          }
+        });
+      });
     });
-  });
-  return result;
+    if (result?.error) {
+      throw new Error(result.error);
+    } else {
+      console.log(result.content);
+    }
+    const closeResult: DatabaseResult = await closeDB(db);
+    if (closeResult?.error) {
+      throw new Error(closeResult.error);
+    }
+    if (closeResult?.content) {
+      console.log(closeResult.content);
+    }
+
+    return result;
+  } catch (err) {
+    console.log("Unexpected error:", err);
+    return { error: (err as Error).message };
+  }
 }
 
-export function getAssignmentCount(coursePath: string) {
-  const rValue = openDB(coursePath);
-  if (rValue?.error) {
-    return rValue;
-  }
-  let db = rValue.content as sqlite3.Database;
-  let result: DatabaseResult = {};
-  db.serialize(() => {
-    db.get(`SELECT COUNT(*) FROM assignments`, (err, count) => {
-      if (err) {
-        console.log(err.message);
-        result.error = err.message;
-      } else {
-        console.log(count);
-        result.content = count as number;
-      }
+export async function getAssignmentCount(coursePath: string) {
+  try {
+    let result: DatabaseResult = await openDB(coursePath);
+
+    if (result?.error) {
+      throw new Error(`Failed to open database: ${result.error}`);
+    }
+    const db = result.content as sqlite3.Database;
+    result = await new Promise((resolve, reject) => {
+      db.serialize(() => {
+        db.get(`SELECT COUNT(*) FROM assignments`, (err, count) => {
+          if (err) {
+            reject({ error: err.message });
+          } else {
+            resolve({ content: count });
+          }
+        });
+      });
     });
-  });
-  return result;
+    if (result?.error) {
+      throw new Error(result.error);
+    } else {
+      console.log(result.content);
+    }
+    const closeResult: DatabaseResult = await closeDB(db);
+    if (closeResult?.error) {
+      throw new Error(closeResult.error);
+    }
+    if (closeResult?.content) {
+      console.log(closeResult.content);
+    }
+
+    return result;
+  } catch (err) {
+    console.log("Unexpected error:", err);
+    return { error: (err as Error).message };
+  }
 }
 
 // Tags
@@ -218,7 +255,7 @@ async function addTag(
               }
             });
           }
-          resolve({ message: "Tag added successfully" });
+          resolve({ content: "Tag added successfully" });
         }
       );
     });
@@ -256,23 +293,25 @@ function _updateTag(
     table = "moduleTags";
     key = "modules";
   }
-  let result: DatabaseResult = {};
-  db.serialize(() => {
-    db.run(
-      `UPDATE ${table} SET ${key} = ? WHERE name = ?`,
-      [newRow, name],
-      (err) => {
-        if (err) {
-          console.log(err.message);
-          result.error = err.message;
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      db.run(
+        `UPDATE ${table} SET ${key} = ? WHERE name = ?`,
+        [newRow, name],
+        (err) => {
+          if (err) {
+            console.log(err.message);
+            reject({ error: err.message });
+          } else {
+            resolve({ content: "Tag updated succesfully." });
+          }
         }
-      }
-    );
+      );
+    });
   });
-  return result?.error ? result : { content: true };
 }
 
-function deleteFromTags(
+async function deleteFromTags(
   db: sqlite3.Database,
   name: string,
   id: string,
@@ -282,70 +321,89 @@ function deleteFromTags(
   if (!assignment) {
     table = "moduleTags";
   }
-  let row = _getTag(db, name);
-  if (!row.content) {
-    return row;
-  }
-  let result: DatabaseResult = {};
+  try {
+    let row = (await _getTag(db, name)) as DatabaseResult;
+    if (!row.content) {
+      throw new Error(row.error);
+    }
+    let result: DatabaseResult = {};
 
-  if (row) {
-    if (row.content.split(",").includes(id)) {
-      let newRow = row.content
-        .split(",")
-        .filter((value: string) => {
-          value !== id;
-        })
-        .toString();
-      if (newRow.length !== 0) {
-        result = _updateTag(db, name, newRow);
+    if (row) {
+      if (row.content.split(",").includes(id)) {
+        let newRow = row.content
+          .split(",")
+          .filter((value: string) => {
+            value !== id;
+          })
+          .toString();
+        if (newRow.length !== 0) {
+          result = await _updateTag(db, name, newRow);
+          if (result?.error) {
+            throw new Error(result.error);
+          }
+        } else {
+          result = await new Promise((resolve, reject) => {
+            db.serialize(() => {
+              db.run(`DELETE FROM ${table} WHERE name = ?`, [name], (err) => {
+                if (err) {
+                  reject({ error: err.message });
+                } else {
+                  resolve({
+                    message: `Succesfully removed ${
+                      assignment ? "assignment" : "module"
+                    } '${id}' from tag '${name}' in database.`,
+                  });
+                }
+              });
+            });
+          });
+        }
         if (result?.error) {
+          throw new Error(result.error);
+        } else {
           return result;
         }
       } else {
-        db.serialize(() => {
-          db.run(`DELETE FROM ${table} WHERE name = ?`, [name], (err) => {
-            if (err) {
-              console.log(err.message);
-              result.error = err.message;
-            }
-          });
-        });
+        return {
+          message: `${
+            assignment ? "Assignment" : "Module"
+          } '${id}' not in tag '${name}', no changes made to database`,
+        };
       }
+    } else {
+      return { message: `Tag ${name} not in database. No changes made.` };
     }
+  } catch (err) {
+    console.error(err);
+    return { error: (err as Error).message };
   }
-  return result.error ? result : { content: true };
 }
 
-function _getTag(
-  db: sqlite3.Database,
-  name: string,
-  assignment = true
-): DatabaseResult {
-  let result: DatabaseResult = {};
+function _getTag(db: sqlite3.Database, name: string, assignment = true) {
   let table = "tags";
   let key = "assignments";
   if (!assignment) {
     table = "moduleTags";
     key = "modules";
   }
-  db.serialize(() => {
-    db.get(
-      `SELECT ${key} rowKey FROM ${table} WHERE name = ?`,
-      [name],
-      (err, row: { rowKey?: string }) => {
-        if (err) {
-          console.log(err.message);
-          result.error = err.message;
-        } else if (row) {
-          result.content = row.rowKey;
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      db.get(
+        `SELECT ${key} rowKey FROM ${table} WHERE name = ?`,
+        [name],
+        (err, row: { rowKey?: string }) => {
+          if (err) {
+            reject({ error: err.message });
+          } else if (row) {
+            resolve({ content: row.rowKey });
+          }
         }
-      }
-    );
+      );
+    });
   });
-  return result;
 }
 
-function updateTags(
+async function updateTags(
   db: sqlite3.Database,
   oldTags: string,
   newTags: Array<string>,
@@ -368,29 +426,34 @@ function updateTags(
     }
   });
 
-  toDelete.every((value) => {
-    result = deleteFromTags(db, value, id, assignment);
-    if (result?.error) return false;
-    return true;
-  });
+  try {
+    toDelete.every(async (value) => {
+      result = await deleteFromTags(db, value, id, assignment);
+      if (result?.error) throw new Error(result.error);
+      return true;
+    });
 
-  toAdd.every((value) => {
-    result = addTag(db, value, id, assignment);
-    if (result?.error) return false;
-    return true;
-  });
-  return result;
+    toAdd.every(async (value) => {
+      result = await addTag(db, value, id, assignment);
+      if (result?.error) throw new Error(result.error);
+      return true;
+    });
+  } catch (err) {
+    console.error(err);
+    return { error: (err as Error).message };
+  }
+  return { message: "Tags updated." };
 }
 
-function addModuleTags(
+async function addModuleTags(
   db: sqlite3.Database,
   tags: Array<string>,
   moduleID: string
 ) {
   let result: DatabaseResult = {};
   db.serialize(() => {
-    tags.some((tag) => {
-      result = addTag(db, tag, moduleID, false);
+    tags.some(async (tag) => {
+      result = await addTag(db, tag, moduleID, false);
       if (result?.error) {
         return true;
       } else {
@@ -425,10 +488,11 @@ async function addToAssignments(
         ],
         (err) => {
           if (err) {
-            console.error(err.message);
             reject({ error: err.message });
           } else {
-            resolve({ message: "Assignment inserted successfully" });
+            resolve({
+              message: `Assignment ${assignment.assignmentID} inserted successfully`,
+            });
           }
         }
       );
@@ -448,11 +512,14 @@ export async function addAssignmentToDatabase(
     }
     const db = result.content;
 
+    // This may need to be changed in the future!!
     const assignmentPath = path.join("assignmentData", assignment.assignmentID);
 
     result = await addToAssignments(db, assignmentPath, assignment);
     if (result?.error) {
       throw new Error(result.error);
+    } else {
+      console.log(result.message);
     }
 
     result = await addAssignmentTags(
@@ -474,300 +541,479 @@ export async function addAssignmentToDatabase(
   }
 }
 
-export function getAssignmentFromDatabase(
+export async function getAssignmentFromDatabase(
   coursePath: string,
   id: string
-): DatabaseResult {
-  const rValue = openDB(coursePath);
-  if (rValue?.error) {
-    return rValue;
-  }
-  let db = rValue.content as sqlite3.Database;
-  let result: DatabaseResult = {};
-  db.serialize(() => {
-    db.get(`SELECT * FROM assignments WHERE id = ?`, [id], (err, row) => {
-      if (err) {
-        console.log(err.message);
-        result.error = err.message;
-      } else if (row) {
-        result.content = row as CodeAssignmentDatabase;
-        result.content.isExpanding = result.content.isExpanding ? true : false;
-      } else {
-        console.log("Could not find assignment from database.");
-        result.error = "Could not find assignment from database.";
-      }
+) {
+  try {
+    let result: DatabaseResult = await openDB(coursePath);
+
+    if (result?.error) {
+      throw new Error(`Failed to open database: ${result.error}`);
+    }
+    const db = result.content as sqlite3.Database;
+    result = await new Promise((resolve, reject) => {
+      db.serialize(() => {
+        db.get(`SELECT * FROM assignments WHERE id = ?`, [id], (err, row) => {
+          if (err) {
+            reject({ error: err.message });
+          } else if (row) {
+            const content = row as CodeAssignmentDatabase;
+            content.isExpanding = content.isExpanding ? true : false;
+            resolve({ content: content });
+          } else {
+            reject({ error: "Could not find assignment from database." });
+          }
+        });
+      });
     });
-  });
-  closeDB(db);
-  return result;
+    if (result?.error) {
+      throw new Error(result.error);
+    }
+    const closeResult: DatabaseResult = await closeDB(db);
+    if (closeResult?.error) {
+      throw new Error(closeResult.error);
+    }
+    if (closeResult?.content) {
+      console.log(closeResult.content);
+    }
+    return result;
+  } catch (err) {
+    console.log("Unexpected error:", err);
+    return { error: (err as Error).message };
+  }
 }
 
-export function updateAssignmentToDatabase(
+export async function updateAssignmentToDatabase(
   coursePath: string,
   assignment: CodeAssignmentData
 ) {
-  const getResult = getAssignmentFromDatabase(
-    coursePath,
-    assignment.assignmentID
-  );
-  if (getResult?.error) {
-    return getResult;
-  } else if (!getResult.content) {
-    return {
-      error: "Assignment does not exist in the database, cannot update.",
-    };
-  }
-  const oldAssignment = getResult.content as CodeAssignmentDatabase;
-  let sql = `UPDATE assignments SET `;
-  let params = [];
-  const rValue = openDB(coursePath);
-  if (rValue?.error) {
-    return rValue;
-  }
-  let db = rValue.content as sqlite3.Database;
-  let error: DatabaseResult = {};
-  if (oldAssignment.title !== assignment.title) {
-    sql += `title = ?\n`;
-    params.push(assignment.title);
-  }
-  if (oldAssignment.tags !== assignment.tags.toString()) {
-    error = updateTags(
-      db,
-      oldAssignment.tags,
-      assignment.tags,
+  try {
+    const getResult = await getAssignmentFromDatabase(
+      coursePath,
       assignment.assignmentID
     );
-    if (error?.error) return error;
-  }
-  if (oldAssignment.module !== assignment.module) {
-    sql += `module = ?\n`;
-    params.push(assignment.module);
-  }
-  if (oldAssignment.position !== assignment.assignmentNo.toString()) {
-    sql += `position = ?\n`;
-    params.push(assignment.assignmentNo.toString());
-  }
-  if (oldAssignment.level !== assignment.level) {
-    sql += `level = ?\n`;
-    params.push(assignment.level);
-  }
-  if (oldAssignment.isExpanding !== isExpanding(assignment)) {
-    sql += `isExpanding = ?\n`;
-    params.push(isExpanding(assignment) ? 1 : 0);
-  }
+    if (getResult?.error) {
+      return getResult;
+    } else if (!getResult.content) {
+      return {
+        error: "Assignment does not exist in the database, cannot update.",
+      };
+    }
+    const oldAssignment = getResult.content as CodeAssignmentDatabase;
 
-  if (sql !== `UPDATE assignments SET `) {
-    sql += `WHERE id = ?`;
-    params.push(assignment.assignmentID);
+    let sql = `UPDATE assignments SET `;
+    let params = [];
+    let result: DatabaseResult = await openDB(coursePath);
 
-    db.serialize(() => {
-      db.run(sql, params, (err) => {
-        if (err) {
-          console.log(err.message);
-          error.error = err.message;
-        }
+    if (result?.error) {
+      throw new Error(`Failed to open database: ${result.error}`);
+    }
+    const db = result.content as sqlite3.Database;
+
+    if (oldAssignment.title !== assignment.title) {
+      sql += `title = ?\n`;
+      params.push(assignment.title);
+    }
+    if (oldAssignment.tags !== assignment.tags.toString()) {
+      result = await updateTags(
+        db,
+        oldAssignment.tags,
+        assignment.tags,
+        assignment.assignmentID
+      );
+      if (result?.error) {
+        throw new Error(result.error);
+      } else {
+        console.log(result.message);
+      }
+    }
+    if (oldAssignment.module !== assignment.module) {
+      sql += `module = ?\n`;
+      params.push(assignment.module);
+    }
+    if (oldAssignment.position !== assignment.assignmentNo.toString()) {
+      sql += `position = ?\n`;
+      params.push(assignment.assignmentNo.toString());
+    }
+    if (oldAssignment.level !== assignment.level) {
+      sql += `level = ?\n`;
+      params.push(assignment.level);
+    }
+    if (oldAssignment.isExpanding !== isExpanding(assignment)) {
+      sql += `isExpanding = ?\n`;
+      params.push(isExpanding(assignment) ? 1 : 0);
+    }
+
+    if (sql !== `UPDATE assignments SET `) {
+      sql += `WHERE id = ?`;
+      params.push(assignment.assignmentID);
+
+      result = await new Promise((resolve, reject) => {
+        db.serialize(() => {
+          db.run(sql, params, (err) => {
+            if (err) {
+              reject(err.message);
+            } else {
+              resolve({
+                message: `Assignment '${assignment.assignmentID}' updated.`,
+              });
+            }
+          });
+        });
       });
-    });
+      if (result?.error) {
+        throw new Error(result.error);
+      } else {
+        console.log(result.content);
+      }
+    }
+
+    const closeResult: DatabaseResult = await closeDB(db);
+    if (closeResult?.error) {
+      throw new Error(closeResult.error);
+    }
+    if (closeResult?.content) {
+      console.log(closeResult.content);
+    }
+
+    return { content: true };
+  } catch (err) {
+    console.log("Unexpected error:", err);
+    return { error: (err as Error).message };
   }
-  closeDB(db);
-  return error?.error ? error : { content: true };
 }
 
-export function deleteAssignmentFromDatabase(
+export async function deleteAssignmentFromDatabase(
   coursePath: string,
   assignmentID: string
 ) {
-  const getResult = getAssignmentFromDatabase(coursePath, assignmentID);
-  if (getResult?.error) {
-    return getResult;
-  } else if (!getResult.content) {
-    return {
-      error: "Assignment does not exist in the database, cannot update.",
-    };
-  }
-  const oldAssignment = getResult.content as CodeAssignmentDatabase;
-  const rValue = openDB(coursePath);
-  if (rValue?.error) {
-    return rValue;
-  }
-  let db = rValue.content as sqlite3.Database;
-  let result: DatabaseResult = {};
-  oldAssignment.tags.split(",").forEach((tag) => {
-    deleteFromTags(db, tag, assignmentID);
-  });
-  db.serialize(() => {
-    db.run(`DELETE FROM assignments WHERE id = ?`, [assignmentID], (err) => {
-      if (err) {
-        console.log(err.message);
-        result.error = err.message;
+  try {
+    const getResult = await getAssignmentFromDatabase(coursePath, assignmentID);
+    if (getResult?.error) {
+      throw new Error(getResult.error);
+    } else if (!getResult.content) {
+      throw new Error(
+        `Assignment '${assignmentID}' does not exist in the database, cannot delete.`
+      );
+    }
+    const oldAssignment = getResult.content as CodeAssignmentDatabase;
+
+    let result: DatabaseResult = await openDB(coursePath);
+
+    if (result?.error) {
+      throw new Error(`Failed to open database: ${result.error}`);
+    }
+    const db = result.content as sqlite3.Database;
+
+    oldAssignment.tags.split(",").forEach(async (tag) => {
+      const delResult = await deleteFromTags(db, tag, assignmentID);
+      if (delResult?.error) {
+        throw new Error(delResult.error);
+      } else {
+        console.log(delResult.message);
       }
     });
-  });
-  return result?.error ? result : { content: true };
+    result = await new Promise((resolve, reject) => {
+      db.serialize(() => {
+        db.run(
+          `DELETE FROM assignments WHERE id = ?`,
+          [assignmentID],
+          (err) => {
+            if (err) {
+              reject(err.message);
+            } else {
+              resolve({
+                message: `Deleted assignment '${assignmentID}' from database`,
+              });
+            }
+          }
+        );
+      });
+    });
+    if (result?.error) {
+      throw new Error(result.error);
+    } else {
+      console.log(result.content);
+    }
+    const closeResult: DatabaseResult = await closeDB(db);
+    if (closeResult?.error) {
+      throw new Error(closeResult.error);
+    }
+    if (closeResult?.content) {
+      console.log(closeResult.content);
+    }
+    return { content: true };
+  } catch (err) {
+    console.log("Unexpected error:", err);
+    return { error: (err as Error).message };
+  }
 }
 
 // Module
-export function getModuleFromDatabase(coursePath: string, moduleId: number) {
-  const rValue = openDB(coursePath);
-  if (rValue?.error) {
-    return rValue;
-  }
-  let db = rValue.content as sqlite3.Database;
-  let result: DatabaseResult = {};
-  db.serialize(() => {
-    db.get(
-      `SELECT * FROM modules WHERE id = ?`,
-      [moduleId],
-      (err, row: ModuleDatabase) => {
-        if (err) {
-          console.log(err.message);
-          result.error = err.message;
-        } else if (row) {
-          result.content = {};
-          result.content.ID = row.id;
-          result.content.name = row.name;
-          result.content.tags = row.tags.split(",");
-          result.content.assignments = row.assignments;
-          result.content.subjects = row.subjects;
-          result.content.letters = row.letters ? true : false;
-          result.content.instructions = row.instructions;
-        } else {
-          console.log("Could not find assignment from database.");
-          result.error = "Could not find assignment from database.";
-        }
-      }
-    );
-  });
-  closeDB(db);
-  return result;
-}
+export async function getModuleFromDatabase(
+  coursePath: string,
+  moduleId: number
+) {
+  try {
+    let result: DatabaseResult = await openDB(coursePath);
 
-export function addModuleToDatabase(coursePath: string, module: ModuleData) {
-  const rValue = openDB(coursePath);
-  if (rValue?.error) {
-    return rValue;
-  }
-  let db = rValue.content as sqlite3.Database;
-  let result: DatabaseResult = {};
-  db.serialize(() => {
-    db.run(
-      `INSERT INTO modules(id, name, tags, assignments, subjects, letters, instructions) 
-      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        module.ID,
-        module.name,
-        module.tags.toString(),
-        module.assignments,
-        module.subjects,
-        module.letters ? 1 : 0,
-        module.instructions,
-      ],
-      (err) => {
-        if (err) {
-          console.log(err.message);
-          result.error = err.message;
-        }
-      }
-    );
-    if (!result?.error) {
-      result = addModuleTags(db, module.tags, module.ID.toString());
+    if (result?.error) {
+      throw new Error(`Failed to open database: ${result.error}`);
     }
-  });
-  return result?.error ? result : { content: true };
-}
-
-export function updateModuleToDatabase(coursePath: string, module: ModuleData) {
-  const getResult = getModuleFromDatabase(coursePath, module.ID);
-  if (getResult.error) {
-    return getResult;
-  } else if (!getResult.content) {
-    return {
-      error: "Module does not exist in the database, cannot update.",
-    };
-  }
-  const oldModule = getResult.content;
-  let result: DatabaseResult = {};
-  let sql = `UPDATE modules SET `;
-  let params = [];
-  const rValue = openDB(coursePath);
-  if (rValue?.error) {
-    return rValue;
-  }
-  let db = rValue.content as sqlite3.Database;
-  if (oldModule.name !== module.name) {
-    sql += `name = ?\n`;
-    params.push(module.name);
-  }
-  if (oldModule.tags.toString() !== module.tags.toString()) {
-    result = updateTags(
-      db,
-      oldModule.tags.toString(),
-      module.tags,
-      module.ID.toString(),
-      false
-    );
-    if (result?.error) return result;
-  }
-  if (oldModule.assignments !== module.assignments) {
-    sql += `assignments = ?\n`;
-    params.push(module.assignments);
-  }
-  if (oldModule.subjects !== module.subjects) {
-    sql += `subjects = ?\n`;
-    params.push(module.subjects);
-  }
-  if (oldModule.letters !== module.letters) {
-    sql += `letters = ?\n`;
-    params.push(module.letters ? 1 : 0);
-  }
-  if (oldModule.instructions !== module.instructions) {
-    sql += `instructions = ?\n`;
-    params.push(module.instructions);
-  }
-
-  if (sql !== `UPDATE assignments SET `) {
-    sql += `WHERE id = ?`;
-    params.push(module.ID);
-
-    db.serialize(() => {
-      db.run(sql, params, (err) => {
-        if (err) {
-          console.log(err.message);
-          result.error = err.message;
-        }
+    const db = result.content as sqlite3.Database;
+    result = await new Promise((resolve, reject) => {
+      db.serialize(() => {
+        db.get(
+          `SELECT * FROM modules WHERE id = ?`,
+          [moduleId],
+          (err, row: ModuleDatabase) => {
+            if (err) {
+              reject({ error: err.message });
+            } else if (row) {
+              const content: any = {};
+              content.ID = row.id;
+              content.name = row.name;
+              content.tags = row.tags.split(",");
+              content.assignments = row.assignments;
+              content.subjects = row.subjects;
+              content.letters = row.letters ? true : false;
+              content.instructions = row.instructions;
+              resolve({ content: content });
+            } else {
+              reject({ error: "Could not find assignment from database." });
+            }
+          }
+        );
       });
     });
+    if (result?.error) {
+      throw new Error(result.error);
+    }
+    const closeResult: DatabaseResult = await closeDB(db);
+    if (closeResult?.error) {
+      throw new Error(closeResult.error);
+    }
+    if (closeResult?.content) {
+      console.log(closeResult.content);
+    }
+
+    return result;
+  } catch (err) {
+    console.log("Unexpected error:", err);
+    return { error: (err as Error).message };
   }
-  closeDB(db);
-  return result?.error ? result : { content: true };
 }
 
-export function deleteModule(coursePath: string, moduleID: number) {
-  const getResult = getModuleFromDatabase(coursePath, moduleID);
-  if (getResult?.error) {
-    return getResult;
-  } else if (!getResult.content) {
-    return {
-      error: "Assignment does not exist in the database, cannot update.",
-    };
+export async function addModuleToDatabase(
+  coursePath: string,
+  module: ModuleData
+) {
+  try {
+    let result: DatabaseResult = await openDB(coursePath);
+
+    if (result?.error) {
+      throw new Error(`Failed to open database: ${result.error}`);
+    }
+    const db = result.content as sqlite3.Database;
+
+    result = await new Promise((resolve, reject) => {
+      db.serialize(() => {
+        db.run(
+          `INSERT INTO modules(id, name, tags, assignments, subjects, letters, instructions) 
+      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            module.ID,
+            module.name,
+            module.tags.toString(),
+            module.assignments,
+            module.subjects,
+            module.letters ? 1 : 0,
+            module.instructions,
+          ],
+          (err) => {
+            if (err) {
+              reject({ error: err.message });
+            } else {
+              resolve({ message: `Added module '${module.ID}' to database` });
+            }
+          }
+        );
+      });
+    });
+    if (!result?.error) {
+      result = await addModuleTags(db, module.tags, module.ID.toString());
+      if (result?.error) {
+        throw new Error(result.error);
+      } else {
+        console.log(result.content);
+      }
+    } else {
+      throw new Error(result.error);
+    }
+    return { content: true };
+  } catch (err) {
+    console.log("Unexpected error:", err);
+    return { error: (err as Error).message };
   }
-  const oldModule = getResult.content as ModuleData;
-  let result: DatabaseResult = {};
-  const rValue = openDB(coursePath);
-  if (rValue?.error) {
-    return rValue;
+}
+
+export async function updateModuleToDatabase(
+  coursePath: string,
+  module: ModuleData
+) {
+  try {
+    const getResult = await getModuleFromDatabase(coursePath, module.ID);
+    if (getResult.error) {
+      return getResult;
+    } else if (!getResult.content) {
+      return {
+        error: "Module does not exist in the database, cannot update.",
+      };
+    }
+    const oldModule = getResult.content;
+    let sql = `UPDATE modules SET `;
+    let params = [];
+
+    let result: DatabaseResult = await openDB(coursePath);
+
+    if (result?.error) {
+      throw new Error(`Failed to open database: ${result.error}`);
+    }
+    const db = result.content as sqlite3.Database;
+
+    if (oldModule.name !== module.name) {
+      sql += `name = ?\n`;
+      params.push(module.name);
+    }
+    if (oldModule.tags.toString() !== module.tags.toString()) {
+      result = await updateTags(
+        db,
+        oldModule.tags.toString(),
+        module.tags,
+        module.ID.toString(),
+        false
+      );
+      if (result?.error) {
+        return result;
+      } else {
+        console.log(result.message);
+      }
+    }
+    if (oldModule.assignments !== module.assignments) {
+      sql += `assignments = ?\n`;
+      params.push(module.assignments);
+    }
+    if (oldModule.subjects !== module.subjects) {
+      sql += `subjects = ?\n`;
+      params.push(module.subjects);
+    }
+    if (oldModule.letters !== module.letters) {
+      sql += `letters = ?\n`;
+      params.push(module.letters ? 1 : 0);
+    }
+    if (oldModule.instructions !== module.instructions) {
+      sql += `instructions = ?\n`;
+      params.push(module.instructions);
+    }
+
+    if (sql !== `UPDATE assignments SET `) {
+      sql += `WHERE id = ?`;
+      params.push(module.ID);
+
+      result = await new Promise((resolve, reject) => {
+        db.serialize(() => {
+          db.run(sql, params, (err) => {
+            if (err) {
+              reject({ error: err.message });
+            } else {
+              resolve({ message: `Module '${module.ID}' updated.` });
+            }
+          });
+        });
+      });
+      if (result?.error) {
+        throw new Error(result.error);
+      } else {
+        console.log(result.content);
+      }
+    }
+
+    const closeResult: DatabaseResult = await closeDB(db);
+    if (closeResult?.error) {
+      throw new Error(closeResult.error);
+    }
+    if (closeResult?.content) {
+      console.log(closeResult.content);
+    }
+
+    return { content: true };
+  } catch (err) {
+    console.log("Unexpected error:", err);
+    return { error: (err as Error).message };
   }
-  let db = rValue.content as sqlite3.Database;
-  oldModule.tags.forEach((tag) => {
-    deleteFromTags(db, tag, moduleID.toString());
-  });
-  db.serialize(() => {
-    db.run(`DELETE FROM modules WHERE id = ?`, [moduleID], (err) => {
-      if (err) {
-        console.log(err.message);
-        result.error = err.message;
+}
+
+export async function deleteModule(coursePath: string, moduleID: number) {
+  try {
+    const getResult = await getModuleFromDatabase(coursePath, moduleID);
+    if (getResult?.error) {
+      throw new Error(getResult.error);
+    } else if (!getResult.content) {
+      throw new Error(
+        `Module '${moduleID}' does not exist in the database, cannot delete.`
+      );
+    }
+    const oldAssignment = getResult.content as CodeAssignmentDatabase;
+
+    let result: DatabaseResult = await openDB(coursePath);
+
+    if (result?.error) {
+      throw new Error(`Failed to open database: ${result.error}`);
+    }
+    const db = result.content as sqlite3.Database;
+
+    oldAssignment.tags.split(",").forEach(async (tag) => {
+      const delResult = await deleteFromTags(
+        db,
+        tag,
+        moduleID.toString(),
+        false
+      );
+      if (delResult?.error) {
+        throw new Error(delResult.error);
+      } else {
+        console.log(delResult.message);
       }
     });
-  });
-  return result?.error ? result : { content: true };
+    result = await new Promise((resolve, reject) => {
+      db.serialize(() => {
+        db.run(`DELETE FROM modules WHERE id = ?`, [moduleID], (err) => {
+          if (err) {
+            reject(err.message);
+          } else {
+            resolve({
+              message: `Deleted module '${moduleID}' from database`,
+            });
+          }
+        });
+      });
+    });
+    if (result?.error) {
+      throw new Error(result.error);
+    } else {
+      console.log(result.content);
+    }
+    const closeResult: DatabaseResult = await closeDB(db);
+    if (closeResult?.error) {
+      throw new Error(closeResult.error);
+    }
+    if (closeResult?.content) {
+      console.log(closeResult.content);
+    }
+    return { content: true };
+  } catch (err) {
+    console.log("Unexpected error:", err);
+    return { error: (err as Error).message };
+  }
 }
