@@ -156,8 +156,8 @@ export async function getModuleCount(coursePath: string) {
     if (closeResult?.error) {
       throw new Error(closeResult.error);
     }
-    if (closeResult?.content) {
-      console.log(closeResult.content);
+    if (closeResult?.message) {
+      console.log(closeResult.message);
     }
 
     return result;
@@ -195,8 +195,8 @@ export async function getAssignmentCount(coursePath: string) {
     if (closeResult?.error) {
       throw new Error(closeResult.error);
     }
-    if (closeResult?.content) {
-      console.log(closeResult.content);
+    if (closeResult?.message) {
+      console.log(closeResult.message);
     }
 
     return result;
@@ -225,11 +225,13 @@ async function addTag(
         `SELECT ${key} rowKey FROM ${table} WHERE name = ?`,
         [tag],
         (err, row: { rowKey?: string }) => {
+          console.log(row);
           if (err) {
             console.log(err.message);
             reject({ error: err.message });
           } else if (row) {
             const oldRow = row.rowKey.split(",");
+            console.log(oldRow);
             if (
               !oldRow.filter((value) => {
                 return value === id ? true : false;
@@ -255,7 +257,7 @@ async function addTag(
               }
             });
           }
-          resolve({ content: "Tag added successfully" });
+          resolve({ message: `Tag '${tag}' added to '${table}' successfully` });
         }
       );
     });
@@ -451,14 +453,19 @@ async function addModuleTags(
   moduleID: string
 ) {
   let result: DatabaseResult = {};
-  db.serialize(() => {
-    tags.some(async (tag) => {
-      result = await addTag(db, tag, moduleID, false);
-      if (result?.error) {
-        return true;
-      } else {
-        return false;
-      }
+  result = await new Promise((resolve, reject) => {
+    db.serialize(() => {
+      tags.some(async (tag) => {
+        result = await addTag(db, tag, moduleID, false);
+        if (result?.error) {
+          reject(result);
+          return true;
+        } else {
+          console.log(result.message);
+          return false;
+        }
+      });
+      resolve({ message: "Module tags added." });
     });
   });
   return result;
@@ -529,9 +536,17 @@ export async function addAssignmentToDatabase(
     );
     if (result?.error) {
       throw new Error(result.error);
+    } else {
+      console.log(result.message);
     }
 
-    closeDB(db);
+    const closeResult: DatabaseResult = await closeDB(db);
+    if (closeResult?.error) {
+      throw new Error(closeResult.error);
+    }
+    if (closeResult?.message) {
+      console.log(closeResult.message);
+    }
 
     return { content: true };
   } catch (err) {
@@ -544,7 +559,7 @@ export async function addAssignmentToDatabase(
 export async function getAssignmentFromDatabase(
   coursePath: string,
   id: string
-) {
+): Promise<DatabaseResult> {
   try {
     let result: DatabaseResult = await openDB(coursePath);
 
@@ -562,7 +577,7 @@ export async function getAssignmentFromDatabase(
             content.isExpanding = content.isExpanding ? true : false;
             resolve({ content: content });
           } else {
-            reject({ error: "Could not find assignment from database." });
+            reject({ error: "Could not find assignment in database." });
           }
         });
       });
@@ -574,8 +589,8 @@ export async function getAssignmentFromDatabase(
     if (closeResult?.error) {
       throw new Error(closeResult.error);
     }
-    if (closeResult?.content) {
-      console.log(closeResult.content);
+    if (closeResult?.message) {
+      console.log(closeResult.message);
     }
     return result;
   } catch (err) {
@@ -612,7 +627,7 @@ export async function updateAssignmentToDatabase(
     const db = result.content as sqlite3.Database;
 
     if (oldAssignment.title !== assignment.title) {
-      sql += `title = ?\n`;
+      sql += `title = ?,`;
       params.push(assignment.title);
     }
     if (oldAssignment.tags !== assignment.tags.toString()) {
@@ -629,23 +644,26 @@ export async function updateAssignmentToDatabase(
       }
     }
     if (oldAssignment.module !== assignment.module) {
-      sql += `module = ?\n`;
+      sql += `module = ?,`;
       params.push(assignment.module);
     }
     if (oldAssignment.position !== assignment.assignmentNo.toString()) {
-      sql += `position = ?\n`;
+      sql += `position = ?,`;
       params.push(assignment.assignmentNo.toString());
     }
     if (oldAssignment.level !== assignment.level) {
-      sql += `level = ?\n`;
+      sql += `level = ?,`;
       params.push(assignment.level);
     }
     if (oldAssignment.isExpanding !== isExpanding(assignment)) {
-      sql += `isExpanding = ?\n`;
+      sql += `isExpanding = ?,`;
       params.push(isExpanding(assignment) ? 1 : 0);
     }
 
     if (sql !== `UPDATE assignments SET `) {
+      if (sql.endsWith(",")) {
+        sql = sql.slice(0, sql.length - 1);
+      }
       sql += `WHERE id = ?`;
       params.push(assignment.assignmentID);
 
@@ -665,7 +683,7 @@ export async function updateAssignmentToDatabase(
       if (result?.error) {
         throw new Error(result.error);
       } else {
-        console.log(result.content);
+        console.log(result.message);
       }
     }
 
@@ -673,8 +691,8 @@ export async function updateAssignmentToDatabase(
     if (closeResult?.error) {
       throw new Error(closeResult.error);
     }
-    if (closeResult?.content) {
-      console.log(closeResult.content);
+    if (closeResult?.message) {
+      console.log(closeResult.message);
     }
 
     return { content: true };
@@ -734,14 +752,14 @@ export async function deleteAssignmentFromDatabase(
     if (result?.error) {
       throw new Error(result.error);
     } else {
-      console.log(result.content);
+      console.log(result.message);
     }
     const closeResult: DatabaseResult = await closeDB(db);
     if (closeResult?.error) {
       throw new Error(closeResult.error);
     }
-    if (closeResult?.content) {
-      console.log(closeResult.content);
+    if (closeResult?.message) {
+      console.log(closeResult.message);
     }
     return { content: true };
   } catch (err) {
@@ -781,7 +799,7 @@ export async function getModuleFromDatabase(
               content.instructions = row.instructions;
               resolve({ content: content });
             } else {
-              reject({ error: "Could not find assignment from database." });
+              reject({ error: "Could not find module in database." });
             }
           }
         );
@@ -794,8 +812,8 @@ export async function getModuleFromDatabase(
     if (closeResult?.error) {
       throw new Error(closeResult.error);
     }
-    if (closeResult?.content) {
-      console.log(closeResult.content);
+    if (closeResult?.message) {
+      console.log(closeResult.message);
     }
 
     return result;
@@ -821,7 +839,7 @@ export async function addModuleToDatabase(
       db.serialize(() => {
         db.run(
           `INSERT INTO modules(id, name, tags, assignments, subjects, letters, instructions) 
-      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      VALUES(?, ?, ?, ?, ?, ?, ?)`,
           [
             module.ID,
             module.name,
@@ -846,10 +864,17 @@ export async function addModuleToDatabase(
       if (result?.error) {
         throw new Error(result.error);
       } else {
-        console.log(result.content);
+        console.log(result.message);
       }
     } else {
       throw new Error(result.error);
+    }
+    const closeResult: DatabaseResult = await closeDB(db);
+    if (closeResult?.error) {
+      throw new Error(closeResult.error);
+    }
+    if (closeResult?.message) {
+      console.log(closeResult.message);
     }
     return { content: true };
   } catch (err) {
@@ -883,7 +908,7 @@ export async function updateModuleToDatabase(
     const db = result.content as sqlite3.Database;
 
     if (oldModule.name !== module.name) {
-      sql += `name = ?\n`;
+      sql += `name = ?,`;
       params.push(module.name);
     }
     if (oldModule.tags.toString() !== module.tags.toString()) {
@@ -901,23 +926,26 @@ export async function updateModuleToDatabase(
       }
     }
     if (oldModule.assignments !== module.assignments) {
-      sql += `assignments = ?\n`;
+      sql += `assignments = ?,`;
       params.push(module.assignments);
     }
     if (oldModule.subjects !== module.subjects) {
-      sql += `subjects = ?\n`;
+      sql += `subjects = ?,`;
       params.push(module.subjects);
     }
     if (oldModule.letters !== module.letters) {
-      sql += `letters = ?\n`;
+      sql += `letters = ?,`;
       params.push(module.letters ? 1 : 0);
     }
     if (oldModule.instructions !== module.instructions) {
-      sql += `instructions = ?\n`;
+      sql += `instructions = ?,`;
       params.push(module.instructions);
     }
 
     if (sql !== `UPDATE assignments SET `) {
+      if (sql.endsWith(",")) {
+        sql = sql.slice(0, sql.length - 1);
+      }
       sql += `WHERE id = ?`;
       params.push(module.ID);
 
@@ -935,7 +963,7 @@ export async function updateModuleToDatabase(
       if (result?.error) {
         throw new Error(result.error);
       } else {
-        console.log(result.content);
+        console.log(result.message);
       }
     }
 
@@ -943,8 +971,8 @@ export async function updateModuleToDatabase(
     if (closeResult?.error) {
       throw new Error(closeResult.error);
     }
-    if (closeResult?.content) {
-      console.log(closeResult.content);
+    if (closeResult?.message) {
+      console.log(closeResult.message);
     }
 
     return { content: true };
@@ -964,7 +992,7 @@ export async function deleteModule(coursePath: string, moduleID: number) {
         `Module '${moduleID}' does not exist in the database, cannot delete.`
       );
     }
-    const oldAssignment = getResult.content as CodeAssignmentDatabase;
+    const oldModule = getResult.content as ModuleData;
 
     let result: DatabaseResult = await openDB(coursePath);
 
@@ -973,7 +1001,7 @@ export async function deleteModule(coursePath: string, moduleID: number) {
     }
     const db = result.content as sqlite3.Database;
 
-    oldAssignment.tags.split(",").forEach(async (tag) => {
+    oldModule.tags.forEach(async (tag) => {
       const delResult = await deleteFromTags(
         db,
         tag,
@@ -1002,14 +1030,14 @@ export async function deleteModule(coursePath: string, moduleID: number) {
     if (result?.error) {
       throw new Error(result.error);
     } else {
-      console.log(result.content);
+      console.log(result.message);
     }
     const closeResult: DatabaseResult = await closeDB(db);
     if (closeResult?.error) {
       throw new Error(closeResult.error);
     }
-    if (closeResult?.content) {
-      console.log(closeResult.content);
+    if (closeResult?.message) {
+      console.log(closeResult.message);
     }
     return { content: true };
   } catch (err) {
