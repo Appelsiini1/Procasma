@@ -50,8 +50,18 @@ export const testModule: ModuleData = {
   letters: true,
   assignments: 0,
   subjects: "",
-  tags: [],
+  tags: ["print"],
   instructions: "",
+};
+
+export const testEditedModule: ModuleData = {
+  ID: 0,
+  name: "module 2",
+  letters: false,
+  assignments: 5,
+  subjects: "asfa",
+  tags: ["print"],
+  instructions: "adada",
 };
 
 export const testCurrentAssignment: CodeAssignmentData = {
@@ -65,6 +75,61 @@ export const testCurrentAssignment: CodeAssignmentData = {
   next: ["nextAssignment1", "nextAssignment2"],
   previous: ["previousAssignment1", "previousAssignment2"],
   codeLanguage: "TypeScript",
+  variations: {
+    A: {
+      instructions: "Complete the following tasks.",
+      exampleRuns: {
+        1: {
+          generate: true,
+          inputs: [1, 2, 3],
+          cmdInputs: ["npm", "start"],
+          output: "Output for run 1",
+        },
+      },
+      files: [],
+      usedIn: ["course1", "course2"],
+      cgConfig: {
+        id: "cg1",
+        atv2: {},
+      },
+    },
+    B: {
+      instructions: "Solve the problems below.",
+      exampleRuns: {
+        1: {
+          generate: true,
+          inputs: [4, 5, 6],
+          cmdInputs: ["python", "script.py"],
+          output: "Output for run 1 in variation 2",
+        },
+        2: {
+          generate: false,
+          inputs: [7, 8, 9],
+          cmdInputs: ["node", "app.js"],
+          output: "Output for run 2 in variation 2",
+        },
+      },
+      files: [],
+      usedIn: ["course3"],
+      cgConfig: {
+        id: "cg2",
+        atv2: {},
+      },
+    },
+  },
+};
+
+export const testCurrentEditedAssignment: CodeAssignmentData = {
+  assignmentID: "asdj9284872",
+  title: "Assignment 5",
+  tags: ["print", "if-else"],
+  module: 4,
+  assignmentType: "assignment",
+  assignmentNo: [1, 2, 5],
+  level: 5,
+  next: ["nextAssignment1", "nextAssignment2"],
+  previous: ["previousAssignment1", "previousAssignment2"],
+  codeLanguage: "Python",
   variations: {
     A: {
       instructions: "Complete the following tasks.",
