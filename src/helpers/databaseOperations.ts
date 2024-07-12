@@ -225,13 +225,10 @@ async function addTag(
         `SELECT ${key} rowKey FROM ${table} WHERE name = ?`,
         [tag],
         (err, row: { rowKey?: string }) => {
-          console.log(row);
           if (err) {
-            console.log(err.message);
             reject({ error: err.message });
           } else if (row) {
             const oldRow = row.rowKey.split(",");
-            console.log(oldRow);
             if (
               !oldRow.filter((value) => {
                 return value === id ? true : false;
@@ -243,7 +240,6 @@ async function addTag(
                 [newRow, tag],
                 (err) => {
                   if (err) {
-                    console.log(err.message);
                     reject({ error: err.message });
                   }
                 }
@@ -252,7 +248,6 @@ async function addTag(
           } else {
             db.run(`INSERT INTO ${table} VALUES (?, ?)`, [tag, id], (err) => {
               if (err) {
-                console.log(err.message);
                 reject({ error: err.message });
               }
             });
@@ -268,16 +263,16 @@ async function addAssignmentTags(
   db: sqlite3.Database,
   tags: Array<string>,
   assignmentID: string
-) {
+): Promise<DatabaseResult> {
   return new Promise((resolve, reject) => {
     db.serialize(async () => {
       try {
         const results = await Promise.all(
           tags.map((tag) => addTag(db, tag, assignmentID))
         );
-        resolve(results);
-      } catch (error) {
-        reject(error);
+        resolve({content: results});
+      } catch (err) {
+        reject({error: err.message});
       }
     });
   });
@@ -324,7 +319,7 @@ async function deleteFromTags(
     table = "moduleTags";
   }
   try {
-    let row = (await _getTag(db, name)) as DatabaseResult;
+    const row = (await _getTag(db, name)) as DatabaseResult;
     if (!row.content) {
       throw new Error(row.error);
     }
@@ -332,7 +327,7 @@ async function deleteFromTags(
 
     if (row) {
       if (row.content.split(",").includes(id)) {
-        let newRow = row.content
+        const newRow = row.content
           .split(",")
           .filter((value: string) => {
             value !== id;
@@ -415,8 +410,8 @@ async function updateTags(
   const oldTagsArray = oldTags.split(",");
   let result: DatabaseResult = {};
 
-  let toDelete: Array<string> = [];
-  let toAdd: Array<string> = [];
+  const toDelete: Array<string> = [];
+  const toAdd: Array<string> = [];
   oldTagsArray.forEach((value) => {
     if (!newTags.includes(value)) {
       toDelete.push(value);
@@ -537,7 +532,7 @@ export async function addAssignmentToDatabase(
     if (result?.error) {
       throw new Error(result.error);
     } else {
-      console.log(result.message);
+      console.log(result.content);
     }
 
     const closeResult: DatabaseResult = await closeDB(db);
@@ -618,7 +613,7 @@ export async function updateAssignmentToDatabase(
     const oldAssignment = getResult.content as CodeAssignmentDatabase;
 
     let sql = `UPDATE assignments SET `;
-    let params = [];
+    const params: any = [];
     let result: DatabaseResult = await openDB(coursePath);
 
     if (result?.error) {
@@ -898,7 +893,7 @@ export async function updateModuleToDatabase(
     }
     const oldModule = getResult.content;
     let sql = `UPDATE modules SET `;
-    let params = [];
+    const params: any = [];
 
     let result: DatabaseResult = await openDB(coursePath);
 
