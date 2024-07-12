@@ -39,6 +39,7 @@ const getVersion = () => {
 
 const createWindow = () => {
   // Create the browser window.
+  /*
   const mainWindow = new BrowserWindow({
     width: 1600,
     height: 1000,
@@ -61,6 +62,7 @@ const createWindow = () => {
   if (DEVMODE) {
     mainWindow.webContents.openDevTools();
   }
+    */
 };
 
 // Disable default menu early for performance, see https://github.com/electron/electron/issues/35512

@@ -64,6 +64,16 @@ export const testEditedModule: ModuleData = {
   instructions: "adada",
 };
 
+export const testModuleSecond: ModuleData = {
+  ID: 8,
+  name: "module 8",
+  letters: true,
+  assignments: 0,
+  subjects: "",
+  tags: ["print", "lol"],
+  instructions: "",
+};
+
 export const testCurrentAssignment: CodeAssignmentData = {
   assignmentID: "asdj9284872",
   title: "Assignment 1",
@@ -130,6 +140,61 @@ export const testCurrentEditedAssignment: CodeAssignmentData = {
   next: ["nextAssignment1", "nextAssignment2"],
   previous: ["previousAssignment1", "previousAssignment2"],
   codeLanguage: "Python",
+  variations: {
+    A: {
+      instructions: "Complete the following tasks.",
+      exampleRuns: {
+        1: {
+          generate: true,
+          inputs: [1, 2, 3],
+          cmdInputs: ["npm", "start"],
+          output: "Output for run 1",
+        },
+      },
+      files: [],
+      usedIn: ["course1", "course2"],
+      cgConfig: {
+        id: "cg1",
+        atv2: {},
+      },
+    },
+    B: {
+      instructions: "Solve the problems below.",
+      exampleRuns: {
+        1: {
+          generate: true,
+          inputs: [4, 5, 6],
+          cmdInputs: ["python", "script.py"],
+          output: "Output for run 1 in variation 2",
+        },
+        2: {
+          generate: false,
+          inputs: [7, 8, 9],
+          cmdInputs: ["node", "app.js"],
+          output: "Output for run 2 in variation 2",
+        },
+      },
+      files: [],
+      usedIn: ["course3"],
+      cgConfig: {
+        id: "cg2",
+        atv2: {},
+      },
+    },
+  },
+};
+
+export const testCurrentAssignmentSecond: CodeAssignmentData = {
+  assignmentID: "fkdlsjak33",
+  title: "Assignment 1",
+  tags: ["print", "try...except", "another one"],
+  module: 1,
+  assignmentType: "assignment",
+  assignmentNo: [1, 2, 3],
+  level: 5,
+  next: ["nextAssignment1", "nextAssignment2"],
+  previous: ["previousAssignment1", "previousAssignment2"],
+  codeLanguage: "TypeScript",
   variations: {
     A: {
       instructions: "Complete the following tasks.",

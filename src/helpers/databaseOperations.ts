@@ -127,31 +127,25 @@ export async function initDB(coursePath: string) {
   }
 }
 
-// Row counts
-export async function getModuleCount(coursePath: string) {
-  try {
-    let result: DatabaseResult = await openDB(coursePath);
+// Wrapper for all db operations
+async function executeDatabaseOperation(
+  coursePath: string,
+  operation: (db: sqlite3.Database) => Promise<DatabaseResult>
+): Promise<DatabaseResult> {
+  let db: sqlite3.Database;
 
-    if (result?.error) {
-      throw new Error(`Failed to open database: ${result.error}`);
+  try {
+    const openResult: DatabaseResult = await openDB(coursePath);
+    if (openResult?.error) {
+      throw new Error(openResult.error);
     }
-    const db = result.content as sqlite3.Database;
-    result = await new Promise((resolve, reject) => {
-      db.serialize(() => {
-        db.get(`SELECT COUNT(*) FROM modules`, (err, count) => {
-          if (err) {
-            reject({ error: err.message });
-          } else {
-            resolve({ content: count });
-          }
-        });
-      });
-    });
-    if (result?.error) {
+    db = openResult.content as sqlite3.Database;
+
+    const result = await operation(db);
+    if (result.error) {
       throw new Error(result.error);
-    } else {
-      console.log(result.content);
     }
+
     const closeResult: DatabaseResult = await closeDB(db);
     if (closeResult?.error) {
       throw new Error(closeResult.error);
@@ -167,15 +161,30 @@ export async function getModuleCount(coursePath: string) {
   }
 }
 
-export async function getAssignmentCount(coursePath: string) {
-  try {
-    let result: DatabaseResult = await openDB(coursePath);
+// Row counts
+export async function getModuleCount(
+  coursePath: string
+): Promise<DatabaseResult> {
+  return executeDatabaseOperation(coursePath, (db: sqlite3.Database) => {
+    return new Promise((resolve, reject) => {
+      db.serialize(() => {
+        db.get("SELECT COUNT(*) AS count FROM modules", (err, row) => {
+          if (err) {
+            reject({ error: err.message });
+          } else {
+            resolve({ content: row }); // should it be row.count?
+          }
+        });
+      });
+    });
+  });
+}
 
-    if (result?.error) {
-      throw new Error(`Failed to open database: ${result.error}`);
-    }
-    const db = result.content as sqlite3.Database;
-    result = await new Promise((resolve, reject) => {
+export async function getAssignmentCount(
+  coursePath: string
+): Promise<DatabaseResult> {
+  return executeDatabaseOperation(coursePath, (db: sqlite3.Database) => {
+    return new Promise((resolve, reject) => {
       db.serialize(() => {
         db.get(`SELECT COUNT(*) FROM assignments`, (err, count) => {
           if (err) {
@@ -186,10 +195,37 @@ export async function getAssignmentCount(coursePath: string) {
         });
       });
     });
+  });
+}
+
+// General CRUD
+export async function getAll(
+  coursePath: string,
+  table: string
+): Promise<DatabaseResult> {
+  try {
+    let result: DatabaseResult = await openDB(coursePath);
+
+    if (result?.error) {
+      throw new Error(`Failed to open database: ${result.error}`);
+    }
+    const db = result.content as sqlite3.Database;
+    result = await new Promise((resolve, reject) => {
+      db.serialize(() => {
+        db.all(`SELECT * FROM ${table}`, (err, rows) => {
+          if (err) {
+            reject({ error: err.message });
+          } else if (rows) {
+            const content = rows;
+            resolve({ content: content });
+          } else {
+            reject({ error: `Could not find items in table ${table}.` });
+          }
+        });
+      });
+    });
     if (result?.error) {
       throw new Error(result.error);
-    } else {
-      console.log(result.content);
     }
     const closeResult: DatabaseResult = await closeDB(db);
     if (closeResult?.error) {
@@ -198,7 +234,6 @@ export async function getAssignmentCount(coursePath: string) {
     if (closeResult?.message) {
       console.log(closeResult.message);
     }
-
     return result;
   } catch (err) {
     console.log("Unexpected error:", err);
@@ -229,12 +264,13 @@ async function addTag(
             reject({ error: err.message });
           } else if (row) {
             const oldRow = row.rowKey.split(",");
-            if (
-              !oldRow.filter((value) => {
-                return value === id ? true : false;
-              })
-            ) {
+
+            const idExists = oldRow.find((value) => {
+              return value === id ? true : false;
+            });
+            if (!idExists) {
               const newRow = row.rowKey + `,${id}`;
+
               db.run(
                 `UPDATE ${table} SET ${key} = ? WHERE name = ?`,
                 [newRow, tag],
@@ -270,9 +306,9 @@ async function addAssignmentTags(
         const results = await Promise.all(
           tags.map((tag) => addTag(db, tag, assignmentID))
         );
-        resolve({content: results});
+        resolve({ content: results });
       } catch (err) {
-        reject({error: err.message});
+        reject({ error: err.message });
       }
     });
   });
@@ -464,6 +500,14 @@ async function addModuleTags(
     });
   });
   return result;
+}
+
+export async function getAllAssignmentTags(coursePath: string) {
+  return await getAll(coursePath, "tags");
+}
+
+export async function getAllModuleTags(coursePath: string) {
+  return await getAll(coursePath, "moduleTags");
 }
 
 // Assignment
@@ -763,6 +807,10 @@ export async function deleteAssignmentFromDatabase(
   }
 }
 
+export async function getAllAssignments(coursePath: string) {
+  return await getAll(coursePath, "assignments");
+}
+
 // Module
 export async function getModuleFromDatabase(
   coursePath: string,
@@ -784,7 +832,7 @@ export async function getModuleFromDatabase(
             if (err) {
               reject({ error: err.message });
             } else if (row) {
-              const content: any = {};
+              const content = {} as ModuleData;
               content.ID = row.id;
               content.name = row.name;
               content.tags = row.tags.split(",");
@@ -1039,4 +1087,8 @@ export async function deleteModule(coursePath: string, moduleID: number) {
     console.log("Unexpected error:", err);
     return { error: (err as Error).message };
   }
+}
+
+export async function getAllModules(coursePath: string) {
+  return await getAll(coursePath, "modules");
 }
