@@ -2,7 +2,8 @@ import * as DatabaseFunc from "../helpers/databaseOperations";
 import * as testGlobals from "../myTestGlobals";
 
 export async function testDatabase() {
-  const testPath = "C:\\Users\\ramis\\Documents\\Procasma database test";
+  //const testPath = "C:\\Users\\ramis\\Documents\\Procasma database test";
+  const testPath = "C:\\Users\\Elias\\Documents\\DEV\\Procasma\\" 
   //   const dbPromise = new Promise((resolve, reject) => {
   //     let value = DatabaseFunc.initDB(testPath);
   //     resolve(value);
@@ -15,7 +16,7 @@ export async function testDatabase() {
 
   console.log("Database init:");
   console.log(result);
-
+  
   console.log("-----");
   result = await DatabaseFunc.addAssignmentToDatabase(
     testPath,
@@ -23,7 +24,7 @@ export async function testDatabase() {
   );
   console.log("Add assignment:");
   console.log(result);
-
+  
   console.log("-----");
   result = await DatabaseFunc.getAssignmentFromDatabase(
     testPath,
@@ -47,7 +48,7 @@ export async function testDatabase() {
   );
   console.log("Get assignment:");
   console.log(result);
-
+  
   console.log("-----");
   result = await DatabaseFunc.deleteAssignmentFromDatabase(
     testPath,
@@ -55,7 +56,7 @@ export async function testDatabase() {
   );
   console.log("Delete assignment:");
   console.log(result);
-
+  
   console.log("-----");
   result = await DatabaseFunc.addModuleToDatabase(
     testPath,
