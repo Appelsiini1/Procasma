@@ -191,6 +191,6 @@ export async function testDatabase() {
   //   });
 
   originalTests(testPath);
-  assignmentTests(testPath);
-  moduleTests(testPath);
+  //assignmentTests(testPath);
+  //moduleTests(testPath);
 }

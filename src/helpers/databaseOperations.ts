@@ -20,10 +20,10 @@ function openDB(coursePath: string) {
   return new Promise((resolve, reject) => {
     const db = new sqlite3.Database(dbPath, (err) => {
       if (err) {
-        console.error("Error in openDB():", err);
+        console.error("Error in openDB():", err.message);
         reject(err);
       } else {
-        console.log("Connected to the database.");
+        //console.log("Connected to the database.");
         resolve({ content: db });
       }
     });
@@ -34,9 +34,10 @@ async function closeDB(db: sqlite3.Database) {
   return new Promise((resolve, reject) => {
     db.close((err) => {
       if (err) {
-        console.error("Error in closeDB():", err);
+        console.error("Error in closeDB():", err.message);
         reject(err);
       }
+      //console.log("Closed the database connection.");
       resolve({ message: "Closed the database connection." });
     });
   });
@@ -59,15 +60,12 @@ async function execDBOperation(
 
     const result = await operation(db);
 
-    const closeResult: DatabaseResult = await closeDB(db);
-    if (closeResult?.message) {
-      console.log(closeResult.message);
-    }
+    await closeDB(db);
 
     return result;
   } catch (err) {
-    console.error("Error in execDBOperation():", err);
-    return { error: (err as Error).message };
+    console.error("Error in execDBOperation():", err.message);
+    return err.message;
   }
 }
 
@@ -106,7 +104,7 @@ export async function initDB(coursePath: string): Promise<DatabaseResult> {
           db.serialize(() => {
             db.run(query, (err: Error) => {
               if (err) {
-                console.error("Error in initDB():", err);
+                console.error("Error in initDB():", err.message);
                 throw err;
               }
             });
@@ -116,8 +114,8 @@ export async function initDB(coursePath: string): Promise<DatabaseResult> {
 
       return { message: "Tables created successfully" };
     } catch (err) {
-      console.error("Error in initDB():", err);
-      return err;
+      console.error("Error in initDB():", err.message);
+      throw err;
     }
   });
 }
@@ -134,7 +132,7 @@ export async function getAll(
       db.serialize(() => {
         db.all(`SELECT * FROM ${table}`, (err, rows) => {
           if (err) {
-            console.error("Error in getAll():", err);
+            console.error("Error in getAll():", err.message);
             reject(err);
           } else if (rows) {
             const content = rows;
@@ -157,7 +155,7 @@ export async function getModuleCount(
       db.serialize(() => {
         db.get("SELECT COUNT(*) AS count FROM modules", (err, row) => {
           if (err) {
-            console.error("Error in getModuleCount():", err);
+            console.error("Error in getModuleCount():", err.message);
             reject(err);
           } else {
             resolve({ content: row }); // should it be row.count?
@@ -176,7 +174,7 @@ export async function getAssignmentCount(
       db.serialize(() => {
         db.get(`SELECT COUNT(*) FROM assignments`, (err, count) => {
           if (err) {
-            console.error("Error in getAssignmentCount():", err);
+            console.error("Error in getAssignmentCount():", err.message);
             reject(err);
           } else {
             resolve({ content: count });
@@ -206,42 +204,49 @@ async function addTag(
         `SELECT ${key} rowKey FROM ${table} WHERE name = ?`,
         [tag],
         (err, row: { rowKey?: string }) => {
-          if (err) {
-            console.error("Error in addTag():", err);
-            reject(err);
-          } else if (row) {
-            const oldRow = row.rowKey.split(",");
+          try {
+            if (err) {
+              console.error("Error in addTag():", err.message);
+              reject(err);
+            } else if (row) {
+              const oldRow = row.rowKey.split(",");
 
-            const idExists = oldRow.find((value) => {
-              return value === id ? true : false;
-            });
-            if (!idExists) {
-              const newRow = row.rowKey + `,${id}`;
-
-              db.run(
-                `UPDATE ${table} SET ${key} = ? WHERE name = ?`,
-                [newRow, tag],
-                (err) => {
-                  if (err) {
-                    console.error("Error in addTag():", err);
-                    reject(err);
+              const idExists = oldRow.find((value) => {
+                return value === id ? true : false;
+              });
+              if (!idExists) {
+                const newRow = row.rowKey + `,${id}`;
+                db.run(
+                  `UPDATE ${table} SET ${key} = ? WHERE name = ?`,
+                  [newRow, tag],
+                  (err) => {
+                    if (err) {
+                      console.error("Error in addTag():", err.message);
+                      reject(err);
+                    }
+                    resolve({
+                      message: `Tag '${tag}' updated in '${table}' successfully`,
+                    });
                   }
-                  resolve({
-                    message: `Tag '${tag}' updated in '${table}' successfully`,
-                  });
-                }
-              );
-            }
-          } else {
-            db.run(`INSERT INTO ${table} VALUES (?, ?)`, [tag, id], (err) => {
-              if (err) {
-                console.error("Error in addTag():", err);
-                reject(err);
+                );
               }
               resolve({
-                message: `Tag '${tag}' added to '${table}' successfully`,
+                message: `ID already exists on row '${tag}' in '${table}'`,
               });
-            });
+            } else {
+              db.run(`INSERT INTO ${table} VALUES (?, ?)`, [tag, id], (err) => {
+                if (err) {
+                  console.error("Error in addTag():", err.message);
+                  reject(err);
+                }
+                resolve({
+                  message: `Tag '${tag}' added to '${table}' successfully`,
+                });
+              });
+            }
+          } catch (err) {
+            console.error("Error in addTag():", err.message);
+            reject(err);
           }
         }
       );
@@ -263,11 +268,11 @@ function _getTag(db: sqlite3.Database, name: string, assignment = true) {
         [name],
         (err, row: { rowKey?: string }) => {
           if (err) {
-            console.error("Error in _getTag():", err);
             reject(err);
           } else if (row) {
             resolve({ content: row.rowKey });
           }
+          resolve({ message: `Tag ${name} not in database.` });
         }
       );
     });
@@ -287,7 +292,7 @@ async function addAssignmentTags(
         );
         resolve({ content: results });
       } catch (err) {
-        console.error("Error in addAssignmentTags():", err);
+        console.error("Error in addAssignmentTags():", err.message);
         reject(err);
       }
     });
@@ -313,7 +318,7 @@ function _updateTag(
         [newRow, name],
         (err) => {
           if (err) {
-            console.error("Error in _updateTag():", err);
+            console.error("Error in _updateTag():", err.message);
             reject(err);
           } else {
             resolve({ content: "Tag updated succesfully." });
@@ -335,13 +340,10 @@ async function deleteFromTags(
     table = "moduleTags";
   }
   try {
-    const row = (await _getTag(db, name)) as DatabaseResult;
-    if (!row.content) {
-      throw new Error(row.error);
-    }
+    const row: DatabaseResult = await _getTag(db, name);
 
-    if (!row) {
-      return { message: `Tag ${name} not in database. No changes made.` };
+    if (row.message) {
+      return row;
     }
 
     if (!row.content.split(",").includes(id)) {
@@ -381,8 +383,8 @@ async function deleteFromTags(
     }
     return result;
   } catch (err) {
-    console.error("Error in deleteFromTags():", err);
-    return err;
+    console.error("Error in deleteFromTags():", err.message);
+    throw err;
   }
 }
 
@@ -417,8 +419,8 @@ async function updateTags(
 
     return { message: "Tags updated." };
   } catch (err) {
-    console.error("Error in updateTags():", err);
-    return err;
+    console.error("Error in updateTags():", err.message);
+    throw err;
   }
 }
 
@@ -470,7 +472,7 @@ async function addToAssignments(
         ],
         (err) => {
           if (err) {
-            console.error("Error in addToAssignments():", err);
+            console.error("Error in addToAssignments():", err.message);
             reject(err);
           } else {
             resolve({
@@ -495,21 +497,17 @@ export async function addAssignmentToDB(
         assignment.assignmentID
       );
 
-      let result: DatabaseResult = await addToAssignments(
+      const result: DatabaseResult = await addToAssignments(
         db,
         assignmentPath,
         assignment
       );
 
-      result = await addAssignmentTags(
-        db,
-        assignment.tags,
-        assignment.assignmentID
-      );
+      await addAssignmentTags(db, assignment.tags, assignment.assignmentID);
       return result;
     } catch (err) {
-      console.error("Error in addAssignmentToDB():", err);
-      return err;
+      console.error("Error in addAssignmentToDB():", err.message);
+      throw err;
     }
   });
 }
@@ -523,7 +521,7 @@ export async function getAssignmentFromDB(
       db.serialize(() => {
         db.get(`SELECT * FROM assignments WHERE id = ?`, [id], (err, row) => {
           if (err) {
-            console.error("Error in getAssignmentFromDB():", err);
+            console.error("Error in getAssignmentFromDB():", err.message);
             reject(err);
           } else if (row) {
             const content = row as CodeAssignmentDatabase;
@@ -609,11 +607,10 @@ export async function updateAssignmentInDB(
           });
         });
       }
-
       return result;
     } catch (err) {
-      console.error("Error in updateAssignmentInDB():", err);
-      return err;
+      console.error("Error in updateAssignmentInDB():", err.message);
+      throw err;
     }
   });
 }
@@ -637,7 +634,6 @@ export async function deleteAssignmentFromDB(
           .split(",")
           .map((tag) => deleteFromTags(db, tag, assignmentID))
       );
-
       const result: DatabaseResult = await new Promise((resolve, reject) => {
         db.serialize(() => {
           db.run(
@@ -658,8 +654,8 @@ export async function deleteAssignmentFromDB(
 
       return result;
     } catch (err) {
-      console.error("Error in deleteAssignmentFromDB():", err);
-      return err;
+      console.error("Error in deleteAssignmentFromDB():", err.message);
+      throw err;
     }
   });
 }
@@ -681,7 +677,7 @@ export async function getModuleFromDB(
           [moduleId],
           (err, row: ModuleDatabase) => {
             if (err) {
-              console.error("Error in getModuleFromDB():", err);
+              console.error("Error in getModuleFromDB():", err.message);
               reject(err);
             } else if (row) {
               const content = {} as ModuleData;
@@ -709,7 +705,7 @@ export async function addModuleToDB(
 ): Promise<DatabaseResult> {
   return execDBOperation(coursePath, async (db: sqlite3.Database) => {
     try {
-      await new Promise((resolve, reject) => {
+      const result = await new Promise((resolve, reject) => {
         db.serialize(() => {
           db.run(
             `INSERT INTO modules(id, name, tags, assignments, subjects, letters, instructions) 
@@ -725,7 +721,7 @@ export async function addModuleToDB(
             ],
             (err) => {
               if (err) {
-                console.error("Error in addModuleToDB():", err);
+                console.error("Error in addModuleToDB():", err.message);
                 reject(err);
               } else {
                 resolve({
@@ -736,15 +732,11 @@ export async function addModuleToDB(
           );
         });
       });
-      const result: DatabaseResult = await addModuleTags(
-        db,
-        module.tags,
-        module.ID.toString()
-      );
-      return { message: result.message };
+      await addModuleTags(db, module.tags, module.ID.toString());
+      return result;
     } catch (err) {
-      console.error("Error in addModuleToDB():", err);
-      return err;
+      console.error("Error in addModuleToDB():", err.message);
+      throw err;
     }
   });
 }
@@ -819,8 +811,8 @@ export async function updateModuleInDB(
 
       return result;
     } catch (err) {
-      console.error("Error in updateModuleInDB():", err);
-      return err;
+      console.error("Error in updateModuleInDB():", err.message);
+      throw err;
     }
   });
 }
@@ -861,8 +853,8 @@ export async function deleteModule(
 
       return result;
     } catch (err) {
-      console.error("Error in deleteModule():", err);
-      return err;
+      console.error("Error in deleteModule():", err.message);
+      throw err;
     }
   });
 }
