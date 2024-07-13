@@ -8,7 +8,7 @@ async function originalTests(testPath: string) {
   console.log(result);
 
   console.log("-----");
-  result = await DatabaseFunc.addAssignmentToDatabase(
+  result = await DatabaseFunc.addAssignmentToDB(
     testPath,
     testGlobals.testCurrentAssignment
   );
@@ -16,7 +16,7 @@ async function originalTests(testPath: string) {
   console.log(result);
 
   console.log("-----");
-  result = await DatabaseFunc.getAssignmentFromDatabase(
+  result = await DatabaseFunc.getAssignmentFromDB(
     testPath,
     testGlobals.testCurrentAssignment.assignmentID
   );
@@ -24,7 +24,7 @@ async function originalTests(testPath: string) {
   console.log(result);
 
   console.log("-----");
-  result = await DatabaseFunc.updateAssignmentToDatabase(
+  result = await DatabaseFunc.updateAssignmentInDB(
     testPath,
     testGlobals.testCurrentEditedAssignment
   );
@@ -32,7 +32,7 @@ async function originalTests(testPath: string) {
   console.log(result);
 
   console.log("-----");
-  result = await DatabaseFunc.getAssignmentFromDatabase(
+  result = await DatabaseFunc.getAssignmentFromDB(
     testPath,
     testGlobals.testCurrentAssignment.assignmentID
   );
@@ -40,7 +40,7 @@ async function originalTests(testPath: string) {
   console.log(result);
 
   console.log("-----");
-  result = await DatabaseFunc.deleteAssignmentFromDatabase(
+  result = await DatabaseFunc.deleteAssignmentFromDB(
     testPath,
     testGlobals.testCurrentAssignment.assignmentID
   );
@@ -48,15 +48,12 @@ async function originalTests(testPath: string) {
   console.log(result);
 
   console.log("-----");
-  result = await DatabaseFunc.addModuleToDatabase(
-    testPath,
-    testGlobals.testModule
-  );
+  result = await DatabaseFunc.addModuleToDB(testPath, testGlobals.testModule);
   console.log("Add module:");
   console.log(result);
 
   console.log("-----");
-  result = await DatabaseFunc.getModuleFromDatabase(
+  result = await DatabaseFunc.getModuleFromDB(
     testPath,
     testGlobals.testModule.ID
   );
@@ -64,7 +61,7 @@ async function originalTests(testPath: string) {
   console.log(result);
 
   console.log("-----");
-  result = await DatabaseFunc.updateModuleToDatabase(
+  result = await DatabaseFunc.updateModuleInDB(
     testPath,
     testGlobals.testEditedModule
   );
@@ -72,7 +69,7 @@ async function originalTests(testPath: string) {
   console.log(result);
 
   console.log("-----");
-  result = await DatabaseFunc.getModuleFromDatabase(
+  result = await DatabaseFunc.getModuleFromDB(
     testPath,
     testGlobals.testModule.ID
   );
@@ -92,7 +89,7 @@ async function assignmentTests(testPath: string) {
   console.log(result);
 
   console.log("-----");
-  result = await DatabaseFunc.addAssignmentToDatabase(
+  result = await DatabaseFunc.addAssignmentToDB(
     testPath,
     testGlobals.testCurrentAssignment
   );
@@ -100,7 +97,7 @@ async function assignmentTests(testPath: string) {
   console.log(result);
 
   console.log("-----");
-  result = await DatabaseFunc.addAssignmentToDatabase(
+  result = await DatabaseFunc.addAssignmentToDB(
     testPath,
     testGlobals.testCurrentAssignmentSecond
   );
@@ -118,7 +115,7 @@ async function assignmentTests(testPath: string) {
   console.log(result);
 
   console.log("-----");
-  result = await DatabaseFunc.deleteAssignmentFromDatabase(
+  result = await DatabaseFunc.deleteAssignmentFromDB(
     testPath,
     testGlobals.testCurrentAssignment.assignmentID
   );
@@ -126,7 +123,7 @@ async function assignmentTests(testPath: string) {
   console.log(result);
 
   console.log("-----");
-  result = await DatabaseFunc.deleteAssignmentFromDatabase(
+  result = await DatabaseFunc.deleteAssignmentFromDB(
     testPath,
     testGlobals.testCurrentAssignmentSecond.assignmentID
   );
@@ -141,15 +138,12 @@ async function moduleTests(testPath: string) {
   console.log(result);
 
   console.log("-----");
-  result = await DatabaseFunc.addModuleToDatabase(
-    testPath,
-    testGlobals.testModule
-  );
+  result = await DatabaseFunc.addModuleToDB(testPath, testGlobals.testModule);
   console.log("Add module:");
   console.log(result);
 
   console.log("-----");
-  result = await DatabaseFunc.addModuleToDatabase(
+  result = await DatabaseFunc.addModuleToDB(
     testPath,
     testGlobals.testModuleSecond
   );
@@ -198,5 +192,5 @@ export async function testDatabase() {
 
   originalTests(testPath);
   assignmentTests(testPath);
-  //moduleTests(testPath);
+  moduleTests(testPath);
 }

@@ -12,7 +12,7 @@ import { courseMetaDataFileName } from "../constants";
 import { createHash } from "crypto";
 import { getFileNameFromPath } from "./utility";
 import { promisify } from "util";
-import { deleteAssignmentFromDatabase } from "./databaseOperations";
+import { deleteAssignmentFromDB } from "./databaseOperations";
 import log from "electron-log/node";
 
 interface FileResult {
@@ -458,7 +458,7 @@ export function removeAssignmentById(coursePath: string, id: string) {
     if (result?.error) {
       throw new Error(result.error);
     }
-    deleteAssignmentFromDatabase(coursePath, id);
+    deleteAssignmentFromDB(coursePath, id);
   } catch (err) {
     return { error: (err as Error).message };
   }
