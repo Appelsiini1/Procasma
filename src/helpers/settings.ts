@@ -1,10 +1,12 @@
 import * as oso from "./osOperations";
-import { handleReadFile, writeToFileSync } from "./fileOperations";
+import fs from "fs";
+import log from "electron-log/node";
+import { handleReadFileSync } from "./fileOperations";
 import { Settings } from "../types";
 
 export function getSettings() {
-  const settingsFromFile = handleReadFile(oso.getSettingsFilepath());
-  if (settingsFromFile.error) {
+  const settingsFromFile = handleReadFileSync(oso.getSettingsFilepath());
+  if (!settingsFromFile) {
     throw new Error("Could not load settings from file");
   } else {
     const settings: Settings = settingsFromFile.content;
@@ -13,10 +15,12 @@ export function getSettings() {
 }
 
 export function saveSettings(settings: Settings) {
-  const path = oso.getSettingsFilepath();
-  const result = writeToFileSync(JSON.stringify(settings), path);
-  if (result?.error) {
-    return { error: result.error };
+  try {
+    const path = oso.getSettingsFilepath();
+    fs.writeFileSync(path, JSON.stringify(settings));
+    return { success: "ui_settings_save_success" };
+  } catch (err) {
+    log.error("Error in saveSettings():", err.message);
+    throw err;
   }
-  return { success: "ui_settings_save_success" };
 }

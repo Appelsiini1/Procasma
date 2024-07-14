@@ -97,26 +97,6 @@ export interface Settings {
   language: string;
 }
 
-export type ContextBridgeAPI = {
-  setTitle: (title: string) => void;
-  getAppVersion: () => string;
-  saveCourse: (course: CourseData, path: string) => any;
-  updateCourse: (course: CourseData, path: string) => any;
-  selectDir: () => string;
-  selectFiles: () => Array<string>;
-  readCourse: (path: string) => CourseData;
-  saveAssignment: (assignment: CodeAssignmentData, path: string) => any;
-  updateAssignment: (assignment: CodeAssignmentData, path: string) => any;
-  saveProject: (assignment: CodeAssignmentData, path: string) => void;
-  getAssignments: (path: string) => CodeAssignmentData[];
-  deleteAssignment: (coursePath: string, id: string) => any;
-  saveSettings: (settings: Settings) => any;
-  getSettings: () => Settings;
-  saveModule: (module: ModuleData, path: string) => void;
-  getModules: (path: string) => ModuleData[];
-  deleteModule: (coursePath: string, id: number) => void;
-};
-
 export type CodeAssignmentDatabase = {
   id: string;
   type: string;
@@ -137,4 +117,36 @@ export type ModuleDatabase = {
   subjects: string;
   letters: number;
   instructions: string;
+};
+
+export interface IpcResult {
+  content?: any;
+  message?: string;
+  success: boolean;
+}
+
+export interface GeneralResult {
+  content?: any;
+  message?: string;
+  error?: string;
+}
+
+export type ContextBridgeAPI = {
+  setTitle: (title: string) => void;
+  getAppVersion: () => IpcResult; //string;
+  saveCourse: (course: CourseData, path: string) => IpcResult; //any;
+  updateCourse: (course: CourseData, path: string) => IpcResult; //any;
+  selectDir: () => IpcResult;
+  selectFiles: () => IpcResult; //Array<string>;
+  readCourse: (path: string) => IpcResult;
+  saveAssignment: (assignment: CodeAssignmentData, path: string) => IpcResult; //any;
+  updateAssignment: (assignment: CodeAssignmentData, path: string) => IpcResult; //any;
+  saveProject: (assignment: CodeAssignmentData, path: string) => void;
+  getAssignments: (path: string) => IpcResult; //CodeAssignmentData[];
+  deleteAssignment: (coursePath: string, id: string) => IpcResult; //any;
+  saveSettings: (settings: Settings) => IpcResult; //any;
+  getSettings: () => IpcResult; //Settings;
+  saveModule: (module: ModuleData, path: string) => void;
+  getModules: (path: string) => IpcResult; //ModuleData[];
+  deleteModule: (coursePath: string, id: number) => void;
 };

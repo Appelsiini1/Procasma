@@ -15,7 +15,7 @@ import {
 import ButtonComp from "../components/ButtonComp";
 import { useNavigate } from "react-router-dom";
 import FadeInImage from "../components/FadeInImage";
-import { CodeAssignmentData, CourseData, ModuleData } from "../types";
+import { CodeAssignmentData, CourseData, IpcResult, ModuleData } from "../types";
 import { useEffect, useState } from "react";
 import { getAssignments, refreshTitle } from "../helpers/requests";
 import SnackbarComp, {
@@ -119,10 +119,12 @@ export default function Root({
 
   async function handleSelectCourseFolder() {
     try {
-      const coursePath: string = await window.api.selectDir();
+      const resultDir: IpcResult = await window.api.selectDir();
+      const coursePath = resultDir.content
 
-      const course: CourseData = await window.api.readCourse(coursePath);
-
+      const result: IpcResult = await window.api.readCourse(coursePath);
+      const course: CourseData = result.content;
+      
       if (course) {
         handleActiveCourse(course);
         handleActivePath(coursePath);
