@@ -239,7 +239,7 @@ async function _handleSaveOrUpdateAssignment(
 
     fs.writeFileSync(hashFilePath, assignmentJSON, "utf8");
 
-    return { success: "ui_assignment_save_success" };
+    return "ui_assignment_save_success";
   } catch (err) {
     log.error("Error in _handleSaveOrUpdateAssignment():", err.message);
     throw err;
@@ -310,7 +310,7 @@ export function handleSaveCourse(course: CourseData, coursesPath: string) {
     // create weeks.json
 
     // create sets.json
-    return { success: "ui_course_save_success" };
+    return "ui_course_save_success";
   } catch (err) {
     log.error("Error in handleSaveCourse():", err.message);
     throw err;
@@ -344,7 +344,7 @@ export function handleUpdateCourse(course: CourseData, coursePath: string) {
     // create course metadata.json
     const metadataPath = path.join(coursePath, courseMetaDataFileName);
     fs.writeFileSync(metadataPath, metadata, "utf8");
-    return { success: "ui_course_save_success" };
+    return "ui_course_save_success";
   } catch (err) {
     log.error("Error in handleUpdateCourse():", err.message);
     throw err;

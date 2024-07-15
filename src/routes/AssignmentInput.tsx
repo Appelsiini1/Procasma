@@ -1,7 +1,6 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
-import texts from "../../resource/texts.json";
 import { dividerColor } from "../constantsUI";
-import { language, currentCourse } from "../globalsUI";
+import { currentCourse } from "../globalsUI";
 import { Divider, Grid, Stack, Table, Typography } from "@mui/joy";
 import PageHeaderBar from "../components/PageHeaderBar";
 import InputField from "../components/InputField";
@@ -25,6 +24,8 @@ import SnackbarComp, {
   functionResultToSnackBar,
 } from "../components/SnackBarComp";
 import { deepCopy } from "../helpers/utility";
+import { parseUICode } from "../helpers/translation";
+import { handleIPCResult } from "../helpers/errorHelpers";
 
 export default function AssignmentInput({
   activeCourse,
@@ -52,11 +53,11 @@ export default function AssignmentInput({
     useState<SnackBarAttributes>({ color: "success", text: "" });
 
   if (pageType === "new") {
-    pageTitle = texts.ui_new_assignment[language.current];
+    pageTitle = parseUICode("ui_new_assignment");
   }
 
   if (pageType === "manage") {
-    pageTitle = texts.ui_edit_assignment[language.current];
+    pageTitle = parseUICode("ui_edit_assignment");
   }
 
   useEffect(() => {
@@ -65,20 +66,34 @@ export default function AssignmentInput({
   }, []);
 
   async function handleSaveAssignment() {
-    let result = null;
-    if (pageType === "manage") {
-      result = await window.api.updateAssignment(assignment, activePath);
-    } else {
-      result = await window.api.saveAssignment(assignment, activePath);
+    let snackbarSeverity = "success";
+    let snackbarText = "ui_course_folder_opened";
+    try {
+      if (pageType === "manage") {
+        snackbarText = await handleIPCResult(() =>
+          window.api.updateAssignment(assignment, activePath)
+        );
+      } else {
+        snackbarText = await handleIPCResult(() =>
+          window.api.saveAssignment(assignment, activePath)
+        );
+      }
+    } catch (err) {
+      snackbarText = err.message;
+      snackbarSeverity = "error";
     }
 
-    functionResultToSnackBar(result, setShowSnackbar, setSnackBarAttributes);
+    functionResultToSnackBar(
+      { [snackbarSeverity]: parseUICode(snackbarText) },
+      setShowSnackbar,
+      setSnackBarAttributes
+    );
   }
 
   return (
     <>
       <PageHeaderBar
-        pageName={texts.ui_add_assignment[language.current]}
+        pageName={parseUICode("ui_add_assignment")}
         courseID={activeCourse?.ID}
         courseTitle={activeCourse?.title}
       />
@@ -89,7 +104,7 @@ export default function AssignmentInput({
             <tr key="caTitle">
               <td style={{ width: "25%" }}>
                 <Typography level="h4">
-                  {texts.ui_assignment_title[language.current]}
+                  {parseUICode("ui_assignment_title")}
                 </Typography>
               </td>
               <td>
@@ -106,7 +121,7 @@ export default function AssignmentInput({
             <tr key="caLevel">
               <td>
                 <Typography level="h4">
-                  {texts.ui_assignment_level[language.current]}
+                  {parseUICode("ui_assignment_level")}
                 </Typography>
               </td>
               <td>
@@ -120,9 +135,7 @@ export default function AssignmentInput({
 
             <tr key="caModule">
               <td>
-                <Typography level="h4">
-                  {texts.ui_module[language.current]}
-                </Typography>
+                <Typography level="h4">{parseUICode("ui_module")}</Typography>
               </td>
               <td>
                 <NumberInput
@@ -146,13 +159,11 @@ export default function AssignmentInput({
                 >
                   <Grid xs={10}>
                     <Typography level="h4">
-                      {texts.ui_assignment_no[language.current]}
+                      {parseUICode("ui_assignment_no")}
                     </Typography>
                   </Grid>
                   <Grid xs={2}>
-                    <HelpText
-                      text={texts.help_assignment_no[language.current]}
-                    />
+                    <HelpText text={parseUICode("help_assignment_no")} />
                   </Grid>
                 </Grid>
               </td>
@@ -182,13 +193,11 @@ export default function AssignmentInput({
                 >
                   <Grid xs={10}>
                     <Typography level="h4">
-                      {texts.ui_assignment_tags[language.current]}
+                      {parseUICode("ui_assignment_tags")}
                     </Typography>
                   </Grid>
                   <Grid xs={2}>
-                    <HelpText
-                      text={texts.help_assignment_tags[language.current]}
-                    />
+                    <HelpText text={parseUICode("help_assignment_tags")} />
                   </Grid>
                 </Grid>
               </td>
@@ -206,7 +215,7 @@ export default function AssignmentInput({
             <tr key="caCodeLanguage">
               <td>
                 <Typography level="h4">
-                  {texts.ui_code_lang[language.current]}
+                  {parseUICode("ui_code_lang")}
                 </Typography>
               </td>
               <td>
@@ -225,7 +234,7 @@ export default function AssignmentInput({
             <tr key="caExpanding">
               <td>
                 <Typography level="h4">
-                  {texts.ui_exp_assignment[language.current]}
+                  {parseUICode("ui_exp_assignment")}
                 </Typography>
               </td>
               <td>
@@ -244,11 +253,11 @@ export default function AssignmentInput({
                 >
                   <Grid xs={10}>
                     <Typography level="h4">
-                      {texts.ui_used_in[language.current]}
+                      {parseUICode("ui_used_in")}
                     </Typography>
                   </Grid>
                   <Grid xs={2}>
-                    <HelpText text={texts.help_used_in[language.current]} />
+                    <HelpText text={parseUICode("help_used_in")} />
                   </Grid>
                 </Grid>
               </td>
@@ -282,9 +291,7 @@ export default function AssignmentInput({
 
         <div className="emptySpace2" />
         <div style={{ marginLeft: "0.9rem", width: "100%" }}>
-          <Typography level="h3">
-            {texts.ui_variations[language.current]}
-          </Typography>
+          <Typography level="h3">{parseUICode("ui_variations")}</Typography>
           <div className="emptySpace1" />
 
           <VariationsGroup
@@ -303,23 +310,23 @@ export default function AssignmentInput({
           <ButtonComp
             buttonType="normal"
             onClick={() => handleSaveAssignment()}
-            ariaLabel={texts.ui_aria_save[language.current]}
+            ariaLabel={parseUICode("ui_aria_save")}
           >
-            {texts.ui_save[language.current]}
+            {parseUICode("ui_save")}
           </ButtonComp>
           <ButtonComp
             buttonType="normal"
             onClick={() => console.log(assignment)}
-            ariaLabel={texts.ui_aria_save[language.current]}
+            ariaLabel={parseUICode("ui_aria_save")}
           >
             log assignment state
           </ButtonComp>
           <ButtonComp
             buttonType="normal"
             onClick={() => navigate(-1)}
-            ariaLabel={texts.ui_aria_cancel[language.current]}
+            ariaLabel={parseUICode("ui_aria_cancel")}
           >
-            {texts.ui_cancel[language.current]}
+            {parseUICode("ui_cancel")}
           </ButtonComp>
         </Stack>
       </div>

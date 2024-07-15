@@ -8,9 +8,7 @@ import {
   Stack,
   Typography,
 } from "@mui/joy";
-import texts from "../../resource/texts.json";
 import { spacingSX } from "../constantsUI";
-import { language } from "../globalsUI";
 import HelpText from "./HelpText";
 import InputField from "./InputField";
 import ButtonComp from "./ButtonComp";
@@ -18,6 +16,7 @@ import FileList from "./FileList";
 import { ExampleRunType, Variation } from "../types";
 import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
 import ExampleRunsGroup from "./ExampleRunsGroup";
+import { parseUICode } from "../helpers/translation";
 
 type ComponentProps = {
   varID: string;
@@ -40,7 +39,7 @@ export default function LevelComponent({
         <Avatar color="primary">{varID}</Avatar>
         <ListItemContent>
           <Typography level="title-md">
-            {texts.ui_level[language.current] + " " + varID}
+            {parseUICode("ui_level") + " " + varID}
           </Typography>
         </ListItemContent>
       </AccordionSummary>
@@ -53,10 +52,8 @@ export default function LevelComponent({
             spacing={2}
             sx={spacingSX}
           >
-            <Typography level="h4">
-              {texts.ui_level_title[language.current]}
-            </Typography>
-            <HelpText text={texts.help_inst[language.current]} />
+            <Typography level="h4">{parseUICode("ui_level_title")}</Typography>
+            <HelpText text={parseUICode("help_inst")} />
           </Stack>
 
           <div className="emptySpace1" />
@@ -67,10 +64,8 @@ export default function LevelComponent({
             spacing={2}
             sx={spacingSX}
           >
-            <Typography level="h4">
-              {texts.ui_inst[language.current]}
-            </Typography>
-            <HelpText text={texts.help_inst[language.current]} />
+            <Typography level="h4">{parseUICode("ui_inst")}</Typography>
+            <HelpText text={parseUICode("help_inst")} />
           </Stack>
           <InputField
             fieldKey={varID + "vInstInput"}
@@ -85,14 +80,14 @@ export default function LevelComponent({
           <ButtonComp
             buttonType="normalAlt"
             onClick={null}
-            ariaLabel={texts.ui_aria_cg_config[language.current]}
+            ariaLabel={parseUICode("ui_aria_cg_config")}
           >
-            {texts.ui_cg_config[language.current]}
+            {parseUICode("ui_cg_config")}
           </ButtonComp>
 
           <div className="emptySpace1" />
           <Typography level="h4" sx={spacingSX}>
-            {texts.ui_files[language.current]}
+            {parseUICode("ui_files")}
           </Typography>
 
           <FileList
@@ -103,7 +98,7 @@ export default function LevelComponent({
 
           <div className="emptySpace1" />
           <Typography level="h4" sx={spacingSX}>
-            {texts.ui_ex_runs[language.current]}
+            {parseUICode("ui_ex_runs")}
           </Typography>
 
           <ExampleRunsGroup

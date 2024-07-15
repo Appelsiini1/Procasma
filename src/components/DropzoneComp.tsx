@@ -1,8 +1,7 @@
 import { useDropzone } from "react-dropzone";
 import { CSSProperties, useCallback, useMemo } from "react";
 import { Typography } from "@mui/material";
-import texts from "../../resource/texts.json";
-import { language } from "../globalsUI";
+import { parseUICode } from "../helpers/translation";
 
 /**
  * Dropzone component for files
@@ -78,11 +77,11 @@ export const DropzoneComp = ({
           <input {...getInputProps()} />
           {isDragActive ? (
             <Typography variant="body1">
-              <span>{texts.ui_dropzone_text_hover[language.current]}</span>
+              <span>{parseUICode("ui_dropzone_text_hover")}</span>
             </Typography>
           ) : (
             <Typography variant="body1">
-              <span>{texts.ui_dropzone_text_default[language.current]}</span>
+              <span>{parseUICode("ui_dropzone_text_default")}</span>
             </Typography>
           )}
         </div>

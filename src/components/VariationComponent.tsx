@@ -8,9 +8,7 @@ import {
   Stack,
   Typography,
 } from "@mui/joy";
-import texts from "../../resource/texts.json";
 import { spacingSX } from "../constantsUI";
-import { language } from "../globalsUI";
 import HelpText from "./HelpText";
 import InputField from "./InputField";
 import ButtonComp from "./ButtonComp";
@@ -18,6 +16,7 @@ import FileList from "./FileList";
 import { ExampleRunType, Variation } from "../types";
 import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
 import ExampleRunsGroup from "./ExampleRunsGroup";
+import { parseUICode } from "../helpers/translation";
 
 type ComponentProps = {
   varID: string;
@@ -40,7 +39,7 @@ export default function VariationComponent({
         <Avatar color="primary">{varID}</Avatar>
         <ListItemContent>
           <Typography level="title-md">
-            {texts.ui_variation[language.current] + " " + varID}
+            {parseUICode("ui_variation") + " " + varID}
           </Typography>
         </ListItemContent>
       </AccordionSummary>
@@ -53,10 +52,8 @@ export default function VariationComponent({
             spacing={2}
             sx={spacingSX}
           >
-            <Typography level="h4">
-              {texts.ui_inst[language.current]}
-            </Typography>
-            <HelpText text={texts.help_inst[language.current]} />
+            <Typography level="h4">{parseUICode("ui_inst")}</Typography>
+            <HelpText text={parseUICode("help_inst")} />
           </Stack>
           <InputField
             fieldKey={varID + "vInstInput"}
@@ -71,14 +68,14 @@ export default function VariationComponent({
           <ButtonComp
             buttonType="normalAlt"
             onClick={null}
-            ariaLabel={texts.ui_aria_cg_config[language.current]}
+            ariaLabel={parseUICode("ui_aria_cg_config")}
           >
-            {texts.ui_cg_config[language.current]}
+            {parseUICode("ui_cg_config")}
           </ButtonComp>
 
           <div className="emptySpace2" />
           <Typography level="h4" sx={spacingSX}>
-            {texts.ui_files[language.current]}
+            {parseUICode("ui_files")}
           </Typography>
 
           <FileList
@@ -89,7 +86,7 @@ export default function VariationComponent({
 
           <div className="emptySpace2" />
           <Typography level="h4" sx={spacingSX}>
-            {texts.ui_ex_runs[language.current]}
+            {parseUICode("ui_ex_runs")}
           </Typography>
 
           <ExampleRunsGroup

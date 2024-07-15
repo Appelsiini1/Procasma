@@ -1,8 +1,6 @@
 import { Checkbox, IconButton, Sheet, Table, Select, Option } from "@mui/joy";
-import texts from "../../resource/texts.json";
 import { FileData, FileTypes } from "../types";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { language } from "../globalsUI";
 import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
 import ButtonComp from "./ButtonComp";
 import { defaultFile } from "../myTestGlobals";
@@ -13,6 +11,8 @@ import {
 } from "../helpers/utility";
 import { DropzoneComp } from "./DropzoneComp";
 import log from "electron-log/renderer";
+import { handleIPCResult } from "../helpers/errorHelpers";
+import { parseUICode } from "../helpers/translation";
 
 interface FileContentSelectProps {
   fileIndex: number;
@@ -26,20 +26,17 @@ interface FileContentSelectProps {
 
 async function handleSelectFiles() {
   try {
-    const filePaths: Array<string> = window.api.selectFiles();
+    const filePaths: Array<string> = await handleIPCResult(() =>
+      window.api.selectFiles()
+    );
 
-    if (!filePaths) {
-      throw new Error("Selected files not valid");
-    }
-
-    if (filePaths?.length) {
+    if (filePaths.length < 1) {
       throw new Error("Select at least one file");
     }
 
     return filePaths;
-  } catch (error) {
-    console.error("An error occurred:", (error as Error).message);
-    log.error(error.message);
+  } catch (err) {
+    log.error("Selected files not valid");
   }
   return null;
 }
@@ -61,12 +58,10 @@ const FileContentSelect = ({
 
   return (
     <Select defaultValue={defaultValue} onChange={handleChange}>
-      <Option value="instruction">
-        {texts.ui_instruction[language.current]}
-      </Option>
-      <Option value="result">{texts.ui_result[language.current]}</Option>
-      <Option value="code">{texts.ui_code[language.current]}</Option>
-      <Option value="data">{texts.ui_data[language.current]}</Option>
+      <Option value="instruction">{parseUICode("ui_instruction")}</Option>
+      <Option value="result">{parseUICode("ui_result")}</Option>
+      <Option value="code">{parseUICode("ui_code")}</Option>
+      <Option value="data">{parseUICode("ui_data")}</Option>
     </Select>
   );
 };
@@ -134,9 +129,9 @@ export default function FileList({
       <ButtonComp
         buttonType="normal"
         onClick={() => handleAddFiles()}
-        ariaLabel={texts.ui_aria_import_files[language.current]}
+        ariaLabel={parseUICode("ui_aria_import_files")}
       >
-        {texts.ui_import_files[language.current]}
+        {parseUICode("ui_import_files")}
       </ButtonComp>
 
       <div className="emptySpace1" />
@@ -144,12 +139,12 @@ export default function FileList({
         <Table borderAxis="xBetween" hoverRow>
           <thead>
             <tr>
-              <th>{texts.ui_name[language.current]}</th>
-              <th>{texts.ui_type[language.current]}</th>
-              <th>{texts.ui_fileContent[language.current]}</th>
-              <th>{texts.ex_solution[language.current]}</th>
-              <th>{texts.ui_show_to_student[language.current]}</th>
-              <th>{texts.ui_actions[language.current]}</th>
+              <th>{parseUICode("ui_name")}</th>
+              <th>{parseUICode("ui_type")}</th>
+              <th>{parseUICode("ui_fileContent")}</th>
+              <th>{parseUICode("ex_solution")}</th>
+              <th>{parseUICode("ui_show_to_student")}</th>
+              <th>{parseUICode("ui_actions")}</th>
             </tr>
           </thead>
           <tbody>

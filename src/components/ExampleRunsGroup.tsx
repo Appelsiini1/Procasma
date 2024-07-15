@@ -1,5 +1,3 @@
-import texts from "../../resource/texts.json";
-import { language } from "../globalsUI";
 import { defaultExampleRun } from "../testData";
 import ButtonComp from "./ButtonComp";
 import { ExampleRunType } from "../types";
@@ -8,6 +6,7 @@ import { addVariation, removeVariation } from "../helpers/variationHelpers";
 import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
 import { AccordionGroup, Box, Stack } from "@mui/joy";
 import ExampleRun from "./ExampleRun";
+import { parseUICode } from "../helpers/translation";
 
 type ComponentProps = {
   exampleRuns: {
@@ -35,9 +34,9 @@ export default function ExampleRunsGroup({
             handleAssignment
           )
         }
-        ariaLabel={texts.ui_aria_add_ex_run[language.current]}
+        ariaLabel={parseUICode("ui_aria_add_ex_run")}
       >
-        {texts.ui_add_ex_run[language.current]}
+        {parseUICode("ui_add_ex_run")}
       </ButtonComp>
       <div className="emptySpace1" />
       <Box
@@ -73,8 +72,8 @@ export default function ExampleRunsGroup({
 
                   <ButtonComp
                     confirmationModal={true}
-                    modalText={`${texts.ui_delete[language.current]} 
-                      ${texts.ex_run[language.current]} 
+                    modalText={`${parseUICode("ui_delete")} 
+                      ${parseUICode("ex_run")} 
                       ${exRunID}`}
                     buttonType="delete"
                     onClick={() =>
@@ -85,9 +84,9 @@ export default function ExampleRunsGroup({
                         handleAssignment
                       )
                     }
-                    ariaLabel={texts.ui_aria_delete_ex_run[language.current]}
+                    ariaLabel={parseUICode("ui_aria_delete_ex_run")}
                   >
-                    {`${texts.ui_delete[language.current]} ${exRunID}`}
+                    {`${parseUICode("ui_delete")} ${exRunID}`}
                   </ButtonComp>
                   <div className="emptySpace1" />
                 </Stack>

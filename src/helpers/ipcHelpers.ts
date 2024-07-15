@@ -19,10 +19,10 @@ export function formatIPCResult(
   return async (event: IpcMainInvokeEvent, ...args: any[]) => {
     try {
       const result = await databaseFunction(...args);
-      return { success: true, content: result };
+      return { content: result };
     } catch (err) {
       log.error("Error in formatIPCResult():", err.message);
-      return { success: false, message: err.message };
+      return { errorMessage: err.message };
     }
   };
 }
@@ -37,9 +37,9 @@ export async function createMainFunctionHandler(
 ): Promise<IpcResult> {
   try {
     const result = await databaseFunction();
-    return { success: true, content: result };
+    return { content: result };
   } catch (err) {
     log.error("Error in formatIPCResult():", err.message);
-    return { success: false, message: err.message };
+    return { errorMessage: err.message };
   }
 }

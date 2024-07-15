@@ -1,9 +1,8 @@
-import { language } from "../globalsUI";
-import texts from "../../resource/texts.json";
-import { Autocomplete, Stack, Typography } from "@mui/joy";
+import { Stack, Typography } from "@mui/joy";
 import ButtonComp from "./ButtonComp";
 import { useState } from "react";
 import InputField from "./InputField";
+import { parseUICode } from "../helpers/translation";
 
 type OptionType = {
   [key: string]: string;
@@ -15,7 +14,7 @@ type OptionType = {
  * "optionLabel" attribute.
  */
 export default function SearchBar({
-  title = texts.ui_search[language.current],
+  title = parseUICode("ui_search"),
   autoFillOptions,
   optionLabel,
   searchFunction,
@@ -52,9 +51,9 @@ export default function SearchBar({
         <ButtonComp
           buttonType="normal"
           onClick={() => searchFunction(text)}
-          ariaLabel={texts.ui_aria_search[language.current]}
+          ariaLabel={parseUICode("ui_aria_search")}
         >
-          {texts.ui_search_button[language.current]}
+          {parseUICode("ui_search_button")}
         </ButtonComp>
       </Stack>
     </>

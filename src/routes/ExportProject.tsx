@@ -1,8 +1,6 @@
 import PageHeaderBar from "../components/PageHeaderBar";
 import { useLoaderData, useNavigate } from "react-router-dom";
-import texts from "../../resource/texts.json";
 import { dividerColor } from "../constantsUI";
-import { language } from "../globalsUI";
 import {
   Card,
   CardContent,
@@ -18,6 +16,7 @@ import { useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import StepperComp from "../components/StepperComp";
 import { CourseData } from "../types";
+import { parseUICode } from "../helpers/translation";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 
@@ -41,8 +40,8 @@ export default function ExportProject({
   const [splitLevels, setSplitLevels] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState("A");
   const stepHeadings: string[] = [
-    texts.ui_choose_project[language.current],
-    texts.ui_cg_config[language.current],
+    parseUICode("ui_choose_project"),
+    parseUICode("ui_cg_config"),
   ];
 
   const handleStepperState = (navigation: number) => {
@@ -58,7 +57,7 @@ export default function ExportProject({
   return (
     <>
       <PageHeaderBar
-        pageName={texts.ui_export_project[language.current]}
+        pageName={parseUICode("ui_export_project")}
         courseID={activeCourse?.ID}
         courseTitle={activeCourse?.title}
       />
@@ -72,16 +71,16 @@ export default function ExportProject({
         {stepperState === 0 ? (
           <>
             <Typography level="h1">
-              {texts.ui_choose_project[language.current]}
+              {parseUICode("ui_choose_project")}
             </Typography>
 
             <div className="emptySpace1" />
             <ButtonComp
               buttonType="normal"
               onClick={null}
-              ariaLabel={texts.ui_aria_choose_project[language.current]}
+              ariaLabel={parseUICode("ui_aria_choose_project")}
             >
-              {texts.ui_select[language.current]}
+              {parseUICode("ui_select")}
             </ButtonComp>
 
             {selectedLevel ? (
@@ -103,7 +102,7 @@ export default function ExportProject({
                   <ButtonComp
                     buttonType="delete"
                     onClick={() => setSelectedLevel(null)}
-                    ariaLabel={texts.ui_aria_delete_level[language.current]}
+                    ariaLabel={parseUICode("ui_aria_delete_level")}
                   >
                     {" "}
                   </ButtonComp>
@@ -119,7 +118,7 @@ export default function ExportProject({
                 <tr key="caFormat">
                   <td style={{ width: "25%" }}>
                     <Typography level="h4">
-                      {texts.ui_format[language.current]}
+                      {parseUICode("ui_format")}
                     </Typography>
                   </td>
                   <td>
@@ -135,7 +134,7 @@ export default function ExportProject({
                 <tr key="caSplitLevels">
                   <td style={{ width: "25%" }}>
                     <Typography level="h4">
-                      {texts.ui_split_levels[language.current]}
+                      {parseUICode("ui_split_levels")}
                     </Typography>
                   </td>
                   <td>
@@ -155,15 +154,15 @@ export default function ExportProject({
         {stepperState === 1 ? (
           <>
             <Typography level="h1">
-              {texts.ui_codegrade_autotest[language.current]}
+              {parseUICode("ui_codegrade_autotest")}
             </Typography>{" "}
             <div className="emptySpace1" />
             <Typography level="h4">
-              {`${
-                texts.ui_project_work[language.current]
-              } ${selectedLevel} - CodeGrade ${
-                texts.ui_assignment[language.current]
-              } ${texts.ui_ids[language.current]}`}
+              {`${parseUICode(
+                "ui_project_work"
+              )} ${selectedLevel} - CodeGrade ${parseUICode(
+                "ui_assignment"
+              )} ${parseUICode("ui_ids")}`}
             </Typography>
             <Table borderAxis="none">
               <tbody>
@@ -196,9 +195,9 @@ export default function ExportProject({
             <ButtonComp
               buttonType="normal"
               onClick={null}
-              ariaLabel={texts.ui_aria_export_cg_configs[language.current]}
+              ariaLabel={parseUICode("ui_aria_export_cg_configs")}
             >
-              {texts.ui_export[language.current]}
+              {parseUICode("ui_export")}
             </ButtonComp>
           ) : (
             ""
@@ -207,9 +206,9 @@ export default function ExportProject({
             <ButtonComp
               buttonType="normal"
               onClick={() => handleStepperState(1)}
-              ariaLabel={texts.ui_aria_nav_next[language.current]}
+              ariaLabel={parseUICode("ui_aria_nav_next")}
             >
-              {texts.ui_next[language.current]}
+              {parseUICode("ui_next")}
             </ButtonComp>
           ) : (
             ""
@@ -218,18 +217,18 @@ export default function ExportProject({
           <ButtonComp
             buttonType="normal"
             onClick={() => navigate(-1)}
-            ariaLabel={texts.ui_aria_close[language.current]}
+            ariaLabel={parseUICode("ui_aria_close")}
           >
-            {texts.ui_close[language.current]}
+            {parseUICode("ui_close")}
           </ButtonComp>
 
           {stepperState > 0 ? (
             <ButtonComp
               buttonType="normal"
               onClick={() => handleStepperState(-1)}
-              ariaLabel={texts.ui_aria_nav_previous[language.current]}
+              ariaLabel={parseUICode("ui_aria_nav_previous")}
             >
-              {texts.ui_previous[language.current]}
+              {parseUICode("ui_previous")}
             </ButtonComp>
           ) : (
             ""

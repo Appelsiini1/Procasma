@@ -92,7 +92,7 @@ export type CourseLoaderData = "create" | "manage";
 
 export type SupportedModuleType = "week" | "module" | null;
 
-export interface Settings {
+export interface SettingsType {
   codeLanguages: Array<CodeLanguage>;
   language: string;
 }
@@ -121,8 +121,7 @@ export type ModuleDatabase = {
 
 export interface IpcResult {
   content?: any;
-  message?: string;
-  success: boolean;
+  errorMessage?: string;
 }
 
 export interface GeneralResult {
@@ -132,21 +131,21 @@ export interface GeneralResult {
 }
 
 export type ContextBridgeAPI = {
-  setTitle: (title: string) => void;
+  setTitle: (title: string) => IpcResult;
   getAppVersion: () => IpcResult; //string;
   saveCourse: (course: CourseData, path: string) => IpcResult; //any;
   updateCourse: (course: CourseData, path: string) => IpcResult; //any;
-  selectDir: () => IpcResult;
+  selectDir: () => IpcResult; //string;
   selectFiles: () => IpcResult; //Array<string>;
   readCourse: (path: string) => IpcResult;
   saveAssignment: (assignment: CodeAssignmentData, path: string) => IpcResult; //any;
   updateAssignment: (assignment: CodeAssignmentData, path: string) => IpcResult; //any;
-  saveProject: (assignment: CodeAssignmentData, path: string) => void;
+  saveProject: (assignment: CodeAssignmentData, path: string) => IpcResult;
   getAssignments: (path: string) => IpcResult; //CodeAssignmentData[];
   deleteAssignment: (coursePath: string, id: string) => IpcResult; //any;
-  saveSettings: (settings: Settings) => IpcResult; //any;
+  saveSettings: (settings: SettingsType) => IpcResult; //any;
   getSettings: () => IpcResult; //Settings;
-  saveModule: (module: ModuleData, path: string) => void;
+  saveModule: (module: ModuleData, path: string) => IpcResult;
   getModules: (path: string) => IpcResult; //ModuleData[];
-  deleteModule: (coursePath: string, id: number) => void;
+  deleteModule: (coursePath: string, id: number) => IpcResult;
 };

@@ -395,6 +395,14 @@
     "FI": "Poista valitut tehtävät listasta",
     "ENG": "Remove the selected tasks from the list"
   },
+  "ui_no_assignment_seleted": {
+    "FI": "Ei valittua tehtävää.",
+    "ENG": "No assignment selected."
+  },
+  "ui_no_module_seleted": {
+    "FI": "Ei valittua moduulia.",
+    "ENG": "No module selected."
+  },
   "ui_remove_selected_modules": {
     "FI": "Poista valitut moduulit listasta",
     "ENG": "Remove the selected modules from the list"
@@ -1091,9 +1099,21 @@
     "FI": "Kurssin kansio",
     "ENG": "Course folder"
   },
+  "ui_course_folder_opened": {
+    "FI": "Kurssi ladattu onnistuneesti.",
+    "ENG": "Course loaded succesfully."
+  },
   "ui_course_folder_invalid": {
     "FI": "Kurssin kansio ei ole validi",
     "ENG": "Course folder invalid"
+  },
+  "ui_no_result_from_ipc_call": {
+    "FI": "IPC kutsu ei palauttanut tulosta.",
+    "ENG": "No result from IPC call."
+  },
+  "ui_load_settings_failed": {
+    "FI": "Asetusten lataaminen tiedostosta epäonnistui.",
+    "ENG": "Could not load settings from file."
   },
   "ui_module_type": {
     "FI": "Moduulin tyyppi",

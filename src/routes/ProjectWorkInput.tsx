@@ -1,7 +1,6 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
-import texts from "../../resource/texts.json";
 import { dividerColor } from "../constantsUI";
-import { language, currentCourse } from "../globalsUI";
+import { currentCourse } from "../globalsUI";
 import { Divider, Grid, Stack, Table, Typography } from "@mui/joy";
 import PageHeaderBar from "../components/PageHeaderBar";
 import InputField from "../components/InputField";
@@ -21,6 +20,8 @@ import SnackbarComp, {
   functionResultToSnackBar,
 } from "../components/SnackBarComp";
 import { deepCopy } from "../helpers/utility";
+import { parseUICode } from "../helpers/translation";
+import { handleIPCResult } from "../helpers/errorHelpers";
 
 export default function ProjectWorkInput({
   activeCourse,
@@ -46,11 +47,11 @@ export default function ProjectWorkInput({
     useState<SnackBarAttributes>({ color: "success", text: "" });
 
   if (pageType === "new") {
-    pageTitle = texts.ui_new_project_work[language.current];
+    pageTitle = parseUICode("ui_new_project_work");
   }
 
   if (pageType === "manage") {
-    pageTitle = texts.ui_edit_project_work[language.current];
+    pageTitle = parseUICode("ui_edit_project_work");
   }
 
   useEffect(() => {
@@ -59,20 +60,34 @@ export default function ProjectWorkInput({
   }, []);
 
   async function handleSaveAssignment() {
-    let result = null;
-    if (pageType === "manage") {
-      result = await window.api.updateAssignment(assignment, activePath);
-    } else {
-      result = await window.api.saveAssignment(assignment, activePath);
+    let snackbarSeverity = "success";
+    let snackbarText = "ui_course_folder_opened";
+    try {
+      if (pageType === "manage") {
+        snackbarText = await handleIPCResult(() =>
+          window.api.updateAssignment(assignment, activePath)
+        );
+      } else {
+        snackbarText = await handleIPCResult(() =>
+          window.api.saveAssignment(assignment, activePath)
+        );
+      }
+    } catch (err) {
+      snackbarText = err.message;
+      snackbarSeverity = "error";
     }
 
-    functionResultToSnackBar(result, setShowSnackbar, setSnackBarAttributes);
+    functionResultToSnackBar(
+      { [snackbarSeverity]: parseUICode(snackbarText) },
+      setShowSnackbar,
+      setSnackBarAttributes
+    );
   }
 
   return (
     <>
       <PageHeaderBar
-        pageName={texts.ui_add_project_work[language.current]}
+        pageName={parseUICode("ui_add_project_work")}
         courseID={activeCourse?.ID}
         courseTitle={activeCourse?.title}
       />
@@ -82,9 +97,7 @@ export default function ProjectWorkInput({
           <tbody>
             <tr key="caTitle">
               <td style={{ width: "25%" }}>
-                <Typography level="h4">
-                  {texts.ui_title[language.current]}
-                </Typography>
+                <Typography level="h4">{parseUICode("ui_title")}</Typography>
               </td>
               <td>
                 <InputField
@@ -99,9 +112,7 @@ export default function ProjectWorkInput({
 
             <tr key="caModule">
               <td>
-                <Typography level="h4">
-                  {texts.ui_module[language.current]}
-                </Typography>
+                <Typography level="h4">{parseUICode("ui_module")}</Typography>
               </td>
               <td>
                 <NumberInput
@@ -124,12 +135,10 @@ export default function ProjectWorkInput({
                   spacing={1}
                 >
                   <Grid xs={10}>
-                    <Typography level="h4">
-                      {texts.ui_tags[language.current]}
-                    </Typography>
+                    <Typography level="h4">{parseUICode("ui_tags")}</Typography>
                   </Grid>
                   <Grid xs={2}>
-                    <HelpText text={texts.help_tags[language.current]} />
+                    <HelpText text={parseUICode("help_tags")} />
                   </Grid>
                 </Grid>
               </td>
@@ -147,7 +156,7 @@ export default function ProjectWorkInput({
             <tr key="caCodeLanguage">
               <td>
                 <Typography level="h4">
-                  {texts.ui_code_lang[language.current]}
+                  {parseUICode("ui_code_lang")}
                 </Typography>
               </td>
               <td>
@@ -178,9 +187,7 @@ export default function ProjectWorkInput({
         <div className="emptySpace2" />
 
         <div style={{ marginLeft: "0.9rem", width: "100%" }}>
-          <Typography level="h3">
-            {texts.ui_levels[language.current]}
-          </Typography>
+          <Typography level="h3">{parseUICode("ui_levels")}</Typography>
           <div className="emptySpace1" />
 
           <VariationsGroup
@@ -199,16 +206,16 @@ export default function ProjectWorkInput({
           <ButtonComp
             buttonType="normal"
             onClick={() => handleSaveAssignment()}
-            ariaLabel={texts.ui_aria_save[language.current]}
+            ariaLabel={parseUICode("ui_aria_save")}
           >
-            {texts.ui_save[language.current]}
+            {parseUICode("ui_save")}
           </ButtonComp>
           <ButtonComp
             buttonType="normal"
             onClick={() => navigate(-1)}
-            ariaLabel={texts.ui_aria_cancel[language.current]}
+            ariaLabel={parseUICode("ui_aria_cancel")}
           >
-            {texts.ui_cancel[language.current]}
+            {parseUICode("ui_cancel")}
           </ButtonComp>
         </Stack>
       </div>

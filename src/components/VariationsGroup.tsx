@@ -1,6 +1,4 @@
 import { AccordionGroup, Box, Stack } from "@mui/joy";
-import texts from "../../resource/texts.json";
-import { language } from "../globalsUI";
 import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
 import { getNextID } from "../helpers/getNextID";
 import { addVariation, removeVariation } from "../helpers/variationHelpers";
@@ -8,6 +6,7 @@ import { defaultVariation } from "../testData";
 import { Variation } from "../types";
 import ButtonComp from "./ButtonComp";
 import VariationComponent from "./VariationComponent";
+import { parseUICode } from "../helpers/translation";
 
 type ComponentProps = {
   variations: {
@@ -33,9 +32,9 @@ export default function VariationsGroup({
             handleAssignment
           )
         }
-        ariaLabel={texts.ui_aria_add_variation[language.current]}
+        ariaLabel={parseUICode("ui_aria_add_variation")}
       >
-        {texts.ui_add_variation[language.current]}
+        {parseUICode("ui_add_variation")}
       </ButtonComp>
 
       <div className="emptySpace2" />
@@ -66,8 +65,8 @@ export default function VariationsGroup({
 
                   <ButtonComp
                     confirmationModal={true}
-                    modalText={`${texts.ui_delete[language.current]} 
-                        ${texts.ui_variation[language.current]} ${varID}`}
+                    modalText={`${parseUICode("ui_delete")} 
+                        ${parseUICode("ui_variation")} ${varID}`}
                     buttonType="delete"
                     onClick={() =>
                       removeVariation(
@@ -77,9 +76,9 @@ export default function VariationsGroup({
                         handleAssignment
                       )
                     }
-                    ariaLabel={texts.ui_aria_delete_variation[language.current]}
+                    ariaLabel={parseUICode("ui_aria_delete_variation")}
                   >
-                    {`${texts.ui_delete[language.current]} ${varID}`}
+                    {`${parseUICode("ui_delete")} ${varID}`}
                   </ButtonComp>
 
                   <div className="emptySpace1" />

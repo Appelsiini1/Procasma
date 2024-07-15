@@ -20,6 +20,8 @@ import SnackbarComp, {
   SnackBarAttributes,
   functionResultToSnackBar,
 } from "../components/SnackBarComp";
+import { parseUICode } from "../helpers/translation";
+import { handleIPCResult } from "../helpers/errorHelpers";
 
 export default function Course({
   activeCourse,
@@ -53,9 +55,11 @@ export default function Course({
       abbreviation: value["abbreviation"],
     };
   });
-  const codeLanguageOptions = defaults.codeLanguages; //get these from settings file later
+  const codeLanguageOptions = defaults.codeLanguages;
+  //get these from settings file later
+
   if (pageType == "create") {
-    pageTitle = texts.course_create[language.current];
+    pageTitle = parseUICode("course_create");
   } else {
     pageTitle = course.ID + " " + course.title;
     disableCourseFolderSelect = true;
@@ -63,12 +67,15 @@ export default function Course({
   const navigate = useNavigate();
 
   async function handleFolderOpen() {
-    const folderPath: string = await window.api.selectDir();
-    if (folderPath) {
-      handlePath(folderPath);
-    } else {
-      // @TODO show an error
-      console.log(folderPath);
+    try {
+      const path: string = await handleIPCResult(() => window.api.selectDir());
+      handlePath(path);
+    } catch (err) {
+      functionResultToSnackBar(
+        { error: parseUICode(err.message) },
+        setShowSnackbar,
+        setSnackBarAttributes
+      );
     }
   }
 
@@ -87,16 +94,12 @@ export default function Course({
 
   const moduleTypeOptions: string[] = ["ui_week", "ui_module", "ui_no_module"];
 
-  /**
-   * Get the moduleType from the Course state. Return
-   * type in correct language.
-   */
   const getModuleTypeUI = () => {
-    const moduleType: string =
-      texts[`ui_${course.moduleType}`]?.[language.current];
+    const code = `ui_${course.moduleType}`;
+    const moduleType = parseUICode(code);
 
-    if (!moduleType) {
-      return texts[`ui_no_module`]?.[language.current];
+    if (moduleType == code) {
+      return parseUICode("ui_no_module");
     }
     return moduleType;
   };
@@ -106,18 +109,26 @@ export default function Course({
    * Course state module type in the correct language/format.
    */
   const handleSetModuleType = (value: string) => {
-    moduleTypeOptions.map((option) => {
-      const translationObj = (texts as any)[option];
-      const translation = (texts as any)[option]?.[language.current];
+    try {
+      moduleTypeOptions.map((option) => {
+        const translationObj = (texts as any)[option];
+        const translation = (texts as any)[option]?.[language.current];
 
-      if (translation === value) {
-        if (translationObj["ENG"] === "No modules") {
-          handleCourse("moduleType", null);
-        } else {
-          handleCourse("moduleType", translationObj["ENG"].toLowerCase());
+        if (translation === value) {
+          if (translationObj["ENG"] === "No modules") {
+            handleCourse("moduleType", null);
+          } else {
+            handleCourse("moduleType", translationObj["ENG"].toLowerCase());
+          }
         }
-      }
-    });
+      });
+    } catch (err) {
+      functionResultToSnackBar(
+        { error: parseUICode(err.message) },
+        setShowSnackbar,
+        setSnackBarAttributes
+      );
+    }
   };
 
   const handleSetLanguage = (value: string) => {
@@ -129,31 +140,45 @@ export default function Course({
   };
 
   async function handleSaveCourse() {
-    if (!path || path.length < 1) {
-      functionResultToSnackBar(
-        { info: "ui_choose_folder_path" },
-        setShowSnackbar,
-        setSnackBarAttributes
-      );
-      return;
+    let snackbarSeverity = "success";
+    let snackbarText = "ui_course_folder_opened";
+    try {
+      if (!path || path.length < 1) {
+        functionResultToSnackBar(
+          { info: "ui_choose_folder_path" },
+          setShowSnackbar,
+          setSnackBarAttributes
+        );
+        return;
+      }
+
+      if (pageType == "manage") {
+        snackbarText = await handleIPCResult(() =>
+          window.api.updateCourse(course, path)
+        );
+
+        handleActiveCourse(course);
+      } else {
+        snackbarText = await handleIPCResult(() =>
+          window.api.saveCourse(course, path)
+        );
+      }
+    } catch (err) {
+      snackbarText = err.message;
+      snackbarSeverity = "error";
     }
 
-    let result = null;
-    if (pageType == "manage") {
-      result = await window.api.updateCourse(course, path);
-
-      handleActiveCourse(course);
-    } else {
-      result = await window.api.saveCourse(course, path);
-    }
-
-    functionResultToSnackBar(result, setShowSnackbar, setSnackBarAttributes);
+    functionResultToSnackBar(
+      { [snackbarSeverity]: parseUICode(snackbarText) },
+      setShowSnackbar,
+      setSnackBarAttributes
+    );
   }
 
   return (
     <>
       <PageHeaderBar
-        pageName={texts.course_create[language.current]}
+        pageName={parseUICode("course_create")}
         courseID={activeCourse?.ID}
         courseTitle={activeCourse?.title}
       />
@@ -164,7 +189,7 @@ export default function Course({
             <tr key="cID">
               <td style={{ width: "25%" }}>
                 <Typography level="h4">
-                  {texts.ui_course_id[language.current]}
+                  {parseUICode("ui_course_id")}
                 </Typography>
               </td>
               <td>
@@ -180,7 +205,7 @@ export default function Course({
             <tr key="cName">
               <td>
                 <Typography level="h4">
-                  {texts.ui_course_name[language.current]}
+                  {parseUICode("ui_course_name")}
                 </Typography>
               </td>
               <td>
@@ -197,7 +222,7 @@ export default function Course({
             <tr key="cFolder">
               <td>
                 <Typography level="h4">
-                  {texts.ui_course_folder[language.current]}
+                  {parseUICode("ui_course_folder")}
                 </Typography>
               </td>
               <td>
@@ -218,9 +243,7 @@ export default function Course({
                     boxShadow: buttonShadow,
                   }}
                   onClick={() => handleFolderOpen()}
-                  aria-label={
-                    texts.ui_aria_open_course_folder[language.current]
-                  }
+                  aria-label={parseUICode("ui_aria_open_course_folder")}
                 >
                   <FolderOpenIcon />
                 </IconButton>
@@ -230,7 +253,7 @@ export default function Course({
             <tr key="cModuleType">
               <td>
                 <Typography level="h4">
-                  {texts.ui_module_type[language.current]}
+                  {parseUICode("ui_module_type")}
                 </Typography>
               </td>
               <td>
@@ -247,7 +270,7 @@ export default function Course({
             <tr key="cModuleAmount">
               <td>
                 <Typography level="h4">
-                  {texts.ui_module_amount[language.current]}
+                  {parseUICode("ui_module_amount")}
                 </Typography>
               </td>
               <td>
@@ -270,13 +293,11 @@ export default function Course({
                 >
                   <Grid xs={10}>
                     <Typography level="h4">
-                      {texts.ui_course_levels[language.current]}
+                      {parseUICode("ui_course_levels")}
                     </Typography>
                   </Grid>
                   <Grid xs={2}>
-                    <HelpText
-                      text={texts.help_course_levels[language.current]}
-                    />
+                    <HelpText text={parseUICode("help_course_levels")} />
                   </Grid>
                 </Grid>
               </td>
@@ -295,7 +316,7 @@ export default function Course({
             <tr key="cLanguage">
               <td>
                 <Typography level="h4">
-                  {texts.ui_course_language[language.current]}
+                  {parseUICode("ui_course_language")}
                 </Typography>
               </td>
               <td>
@@ -316,7 +337,7 @@ export default function Course({
             <tr key="cCodeLanguage">
               <td>
                 <Typography level="h4">
-                  {texts.ui_code_lang[language.current]}
+                  {parseUICode("ui_code_lang")}
                 </Typography>
               </td>
               <td>
@@ -360,23 +381,23 @@ export default function Course({
             onClick={() => {
               handleSaveCourse();
             }}
-            ariaLabel={texts.ui_aria_save[language.current]}
+            ariaLabel={parseUICode("ui_aria_save")}
           >
-            {texts.ui_save[language.current]}
+            {parseUICode("ui_save")}
           </ButtonComp>
           <ButtonComp
             buttonType="normal"
             onClick={() => console.log(course)}
-            ariaLabel={texts.ui_aria_save[language.current]}
+            ariaLabel={parseUICode("ui_aria_save")}
           >
             log course state
           </ButtonComp>
           <ButtonComp
             buttonType="normal"
             onClick={() => navigate(-1)}
-            ariaLabel={texts.ui_aria_cancel[language.current]}
+            ariaLabel={parseUICode("ui_aria_cancel")}
           >
-            {texts.ui_cancel[language.current]}
+            {parseUICode("ui_cancel")}
           </ButtonComp>
         </Stack>
       </div>
