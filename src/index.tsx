@@ -23,7 +23,7 @@ import {
 } from "./types";
 import { language } from "./globalsUI";
 import log from "electron-log/renderer";
-import { handleIPCResult } from "./helpers/errorHelpers";
+import { handleIPCResult } from "./rendererHelpers/errorHelpers";
 
 log.info("-- START OF PROCASMA RENDERER --");
 

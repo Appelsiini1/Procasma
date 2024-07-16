@@ -4,7 +4,7 @@ import {
   handleDirectorySelect,
   handleFileOpen,
   handleFilesOpen,
-} from "./helpers/fileDialog";
+} from "./mainHelpers/fileDialog";
 import { version, DEVMODE } from "./constants";
 import {
   handleGetAssignments,
@@ -17,12 +17,12 @@ import {
   handleUpdateCourse,
   removeAssignmentById,
   removeModuleById,
-} from "./helpers/fileOperations";
-import { initialize } from "./helpers/programInit";
-import { getSettings, saveSettings } from "./helpers/settings";
-import { testDatabase } from "./helpers/testDatabase";
+} from "./mainHelpers/fileOperations";
+import { initialize } from "./mainHelpers/programInit";
+import { getSettings, saveSettings } from "./mainHelpers/settings";
+import { testDatabase } from "./mainHelpers/testDatabase";
 import log from "electron-log";
-import { formatIPCResult } from "./helpers/ipcHelpers";
+import { formatIPCResult } from "./mainHelpers/ipcHelpers";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {

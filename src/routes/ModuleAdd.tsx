@@ -6,10 +6,10 @@ import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
 import ButtonComp from "../components/ButtonComp";
 import { CourseData, ModuleData } from "../types";
-import { useModule } from "../helpers/assignmentHelpers";
+import { useModule } from "../rendererHelpers/assignmentHelpers";
 import { testModule } from "../myTestGlobals";
-import { splitStringToArray } from "../helpers/converters";
-import { parseUICode } from "../helpers/translation";
+import { splitStringToArray } from "../mainHelpers/converters";
+import { parseUICode } from "../rendererHelpers/translation";
 
 export default function ModuleAdd({
   activeCourse,

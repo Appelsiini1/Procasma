@@ -1,12 +1,15 @@
 import { defaultExampleRun } from "../testData";
 import ButtonComp from "./ButtonComp";
 import { ExampleRunType } from "../types";
-import { getNextIDNumeric } from "../helpers/getNextID";
-import { addVariation, removeVariation } from "../helpers/variationHelpers";
-import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
+import { getNextIDNumeric } from "../rendererHelpers/getNextID";
+import {
+  addVariation,
+  removeVariation,
+} from "../rendererHelpers/variationHelpers";
+import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
 import { AccordionGroup, Box, Stack } from "@mui/joy";
 import ExampleRun from "./ExampleRun";
-import { parseUICode } from "../helpers/translation";
+import { parseUICode } from "../rendererHelpers/translation";
 
 type ComponentProps = {
   exampleRuns: {

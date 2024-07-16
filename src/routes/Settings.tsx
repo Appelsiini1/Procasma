@@ -12,8 +12,8 @@ import SnackbarComp, {
   SnackBarAttributes,
   functionResultToSnackBar,
 } from "../components/SnackBarComp";
-import { handleIPCResult } from "../helpers/errorHelpers";
-import { parseUICode } from "../helpers/translation";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import { parseUICode } from "../rendererHelpers/translation";
 
 export default function Settings({
   activeCourse,

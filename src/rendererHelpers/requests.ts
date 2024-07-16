@@ -5,7 +5,7 @@ export const refreshTitle = async () => {
   try {
     const vers = await handleIPCResult(() => window.api.getAppVersion());
     const title = "Procasma " + vers;
-    await handleIPCResult(() => window.api.setTitle(title));
+    window.api.setTitle(title);
   } catch (err) {
     log.error(err);
   }

@@ -3,7 +3,7 @@ import React from "react";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import { buttonShadow } from "../constantsUI";
-import { parseUICode } from "../helpers/translation";
+import { parseUICode } from "../rendererHelpers/translation";
 
 type ButtonProps = {
   min?: number;

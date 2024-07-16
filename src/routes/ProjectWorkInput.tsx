@@ -9,19 +9,19 @@ import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
-import { useAssignment } from "../helpers/assignmentHelpers";
+import { useAssignment } from "../rendererHelpers/assignmentHelpers";
 import { testCurrentProject } from "../myTestGlobals";
 import { CodeAssignmentData, CourseData, Variation } from "../types";
-import { splitStringToArray } from "../helpers/converters";
+import { splitStringToArray } from "../mainHelpers/converters";
 import VariationsGroup from "../components/VariationsGroup";
 import { useEffect, useState } from "react";
 import SnackbarComp, {
   SnackBarAttributes,
   functionResultToSnackBar,
 } from "../components/SnackBarComp";
-import { deepCopy } from "../helpers/utility";
-import { parseUICode } from "../helpers/translation";
-import { handleIPCResult } from "../helpers/errorHelpers";
+import { deepCopy } from "../rendererHelpers/utility";
+import { parseUICode } from "../rendererHelpers/translation";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 
 export default function ProjectWorkInput({
   activeCourse,

@@ -1,4 +1,4 @@
-import * as DatabaseFunc from "../helpers/databaseOperations";
+import * as DatabaseFunc from "./databaseOperations";
 import * as testGlobals from "../myTestGlobals";
 import { createMainFunctionHandler } from "./ipcHelpers";
 

@@ -16,7 +16,7 @@ import { useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import StepperComp from "../components/StepperComp";
 import { CourseData } from "../types";
-import { parseUICode } from "../helpers/translation";
+import { parseUICode } from "../rendererHelpers/translation";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 

@@ -25,13 +25,13 @@ import {
   handleUpdateFilter,
   handleUpdateUniqueTags,
   setSelectedViaChecked,
-} from "../helpers/browseHelpers";
+} from "../rendererHelpers/browseHelpers";
 import SnackbarComp, {
   SnackBarAttributes,
   functionResultToSnackBar,
 } from "../components/SnackBarComp";
-import { parseUICode } from "../helpers/translation";
-import { handleIPCResult } from "../helpers/errorHelpers";
+import { parseUICode } from "../rendererHelpers/translation";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 
 export interface AssignmentWithCheck extends WithCheckWrapper {
   value: CodeAssignmentData;
@@ -40,9 +40,6 @@ export interface AssignmentWithCheck extends WithCheckWrapper {
 /**
  * Generates the list of assignments, filtering based on the given
  * filters.
- * @param assignments
- * @param filters
- * @returns
  */
 export function generateAssignments(
   assignments: AssignmentWithCheck[],
@@ -98,7 +95,7 @@ export function generateAssignments(
 
         return showAssignment ? (
           <ListItem
-            key={assignment.value.assignmentID}
+            key={assignment.value?.assignmentID}
             startAction={
               <Checkbox
                 checked={assignment.isChecked}
@@ -122,7 +119,7 @@ export function generateAssignments(
                 )
               }
             >
-              {assignment.value.title}
+              {assignment.value?.title}
             </ListItemButton>
           </ListItem>
         ) : null;

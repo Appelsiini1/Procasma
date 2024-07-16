@@ -12,16 +12,19 @@ import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
-import { useCourse } from "../helpers/assignmentHelpers";
+import { useCourse } from "../rendererHelpers/assignmentHelpers";
 import { newCourse } from "../myTestGlobals";
-import { courseLevelsToString, splitCourseLevels } from "../helpers/converters";
+import {
+  courseLevelsToString,
+  splitCourseLevels,
+} from "../mainHelpers/converters";
 import { CourseData } from "../types";
 import SnackbarComp, {
   SnackBarAttributes,
   functionResultToSnackBar,
 } from "../components/SnackBarComp";
-import { parseUICode } from "../helpers/translation";
-import { handleIPCResult } from "../helpers/errorHelpers";
+import { parseUICode } from "../rendererHelpers/translation";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 
 export default function Course({
   activeCourse,

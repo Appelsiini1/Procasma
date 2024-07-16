@@ -1,18 +1,18 @@
 import { Checkbox, IconButton, Sheet, Table, Select, Option } from "@mui/joy";
 import { FileData, FileTypes } from "../types";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
+import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
 import ButtonComp from "./ButtonComp";
 import { defaultFile } from "../myTestGlobals";
 import {
   deepCopy,
   getFileNameFromPath,
   getFileTypeUsingExtension,
-} from "../helpers/utility";
+} from "../rendererHelpers/utility";
 import { DropzoneComp } from "./DropzoneComp";
 import log from "electron-log/renderer";
-import { handleIPCResult } from "../helpers/errorHelpers";
-import { parseUICode } from "../helpers/translation";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import { parseUICode } from "../rendererHelpers/translation";
 
 interface FileContentSelectProps {
   fileIndex: number;

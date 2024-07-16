@@ -1,12 +1,15 @@
 import { AccordionGroup, Box, Stack } from "@mui/joy";
-import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
-import { getNextID } from "../helpers/getNextID";
-import { addVariation, removeVariation } from "../helpers/variationHelpers";
+import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
+import { getNextID } from "../rendererHelpers/getNextID";
+import {
+  addVariation,
+  removeVariation,
+} from "../rendererHelpers/variationHelpers";
 import { defaultVariation } from "../testData";
 import { Variation } from "../types";
 import ButtonComp from "./ButtonComp";
 import VariationComponent from "./VariationComponent";
-import { parseUICode } from "../helpers/translation";
+import { parseUICode } from "../rendererHelpers/translation";
 
 type ComponentProps = {
   variations: {

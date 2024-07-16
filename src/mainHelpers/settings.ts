@@ -5,12 +5,13 @@ import { handleReadFileSync } from "./fileOperations";
 import { SettingsType } from "../types";
 
 export function getSettings() {
-  const settingsFromFile = handleReadFileSync(oso.getSettingsFilepath());
-  if (!settingsFromFile) {
-    throw new Error("ui_load_settings_failed");
-  } else {
-    const settings: SettingsType = settingsFromFile.content;
+  try {
+    const settings = handleReadFileSync(oso.getSettingsFilepath());
     return settings;
+  } catch (err) {
+    // "ui_load_settings_failed"
+    log.error("Error in getSettings():", err.message);
+    throw err;
   }
 }
 

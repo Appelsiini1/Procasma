@@ -16,16 +16,16 @@ import { CodeAssignmentData, CourseData, Variation } from "../types";
 import {
   splitStringToArray,
   splitStringToNumberArray,
-} from "../helpers/converters";
-import { useAssignment } from "../helpers/assignmentHelpers";
+} from "../mainHelpers/converters";
+import { useAssignment } from "../rendererHelpers/assignmentHelpers";
 import VariationsGroup from "../components/VariationsGroup";
 import SnackbarComp, {
   SnackBarAttributes,
   functionResultToSnackBar,
 } from "../components/SnackBarComp";
-import { deepCopy } from "../helpers/utility";
-import { parseUICode } from "../helpers/translation";
-import { handleIPCResult } from "../helpers/errorHelpers";
+import { deepCopy } from "../rendererHelpers/utility";
+import { parseUICode } from "../rendererHelpers/translation";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 
 export default function AssignmentInput({
   activeCourse,

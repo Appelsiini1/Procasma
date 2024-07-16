@@ -5,8 +5,8 @@ import Logo from "../../resource/Logo.png";
 import Grid from "@mui/joy/Grid";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { refreshTitle } from "../helpers/requests";
-import { parseUICode } from "../helpers/translation";
+import { refreshTitle } from "../rendererHelpers/requests";
+import { parseUICode } from "../rendererHelpers/translation";
 
 const IconSX = {
   color: "#00000",

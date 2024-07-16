@@ -1,6 +1,6 @@
 import { Modal, ModalClose, ModalDialog, Typography } from "@mui/joy";
 import ButtonComp from "./ButtonComp";
-import { parseUICode } from "../helpers/translation";
+import { parseUICode } from "../rendererHelpers/translation";
 
 type ModalConfirmationProps = {
   open: boolean;

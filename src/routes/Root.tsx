@@ -15,13 +15,13 @@ import { useNavigate } from "react-router-dom";
 import FadeInImage from "../components/FadeInImage";
 import { CodeAssignmentData, CourseData, ModuleData } from "../types";
 import { useEffect, useState } from "react";
-import { refreshTitle } from "../helpers/requests";
+import { refreshTitle } from "../rendererHelpers/requests";
 import SnackbarComp, {
   SnackBarAttributes,
   functionResultToSnackBar,
 } from "../components/SnackBarComp";
-import { handleIPCResult } from "../helpers/errorHelpers";
-import { parseUICode } from "../helpers/translation";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import { parseUICode } from "../rendererHelpers/translation";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 const smallDividerSX = {

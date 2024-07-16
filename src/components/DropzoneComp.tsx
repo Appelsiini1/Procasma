@@ -1,7 +1,7 @@
 import { useDropzone } from "react-dropzone";
 import { CSSProperties, useCallback, useMemo } from "react";
 import { Typography } from "@mui/material";
-import { parseUICode } from "../helpers/translation";
+import { parseUICode } from "../rendererHelpers/translation";
 
 /**
  * Dropzone component for files

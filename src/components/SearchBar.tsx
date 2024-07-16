@@ -2,7 +2,7 @@ import { Stack, Typography } from "@mui/joy";
 import ButtonComp from "./ButtonComp";
 import { useState } from "react";
 import InputField from "./InputField";
-import { parseUICode } from "../helpers/translation";
+import { parseUICode } from "../rendererHelpers/translation";
 
 type OptionType = {
   [key: string]: string;

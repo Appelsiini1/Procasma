@@ -12,10 +12,10 @@ import { spacingSX } from "../constantsUI";
 import HelpText from "./HelpText";
 import InputField from "./InputField";
 import SwitchComp from "./SwitchComp";
-import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
+import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
 import { ExampleRunType } from "../types";
-import { splitStringToArray, arrayToString } from "../helpers/converters";
-import { parseUICode } from "../helpers/translation";
+import { splitStringToArray, arrayToString } from "../mainHelpers/converters";
+import { parseUICode } from "../rendererHelpers/translation";
 
 interface ExampleRunProps {
   exRunID: string;

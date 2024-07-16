@@ -149,7 +149,6 @@ function _doesAssignmentExist(
   coursePath: string
 ): boolean {
   try {
-    // check if assignment with the same name exists
     const assignments = handleGetAssignments(coursePath);
 
     const sameNameAssignment = assignments.find((prevAssignment) => {
@@ -252,9 +251,10 @@ export function handleReadFileSync(filePath: string): GeneralResult {
   try {
     const data = fs.readFileSync(filePath, "utf8");
     const content = JSON.parse(data);
-    return { content };
+    return content;
   } catch (err) {
-    return null;
+    log.error("Error in handleReadFileSync():", err.message);
+    throw err;
   }
 }
 
@@ -271,10 +271,9 @@ export function createFolder(
       fs.mkdirSync(path, options);
     } else {
       if (requireUnique) {
-        return { error: "ui_course_error_duplicate" };
+        throw new Error("ui_course_error_duplicate");
       }
     }
-    return null;
   } catch (err) {
     log.error("Error in createFolder():", err.message);
     throw err;
@@ -318,16 +317,15 @@ export function handleSaveCourse(course: CourseData, coursesPath: string) {
 }
 
 export function handleReadCourse(filePath: string): CourseData {
-  console.log("in handleReadCourse, filePath:", filePath);
   try {
     if (!filePath || filePath.length < 1) {
       return null;
     }
 
     const filePathJoined = path.join(filePath, "course_info.json");
-    const GeneralResult = handleReadFileSync(filePathJoined);
+    const content = handleReadFileSync(filePathJoined);
 
-    const course: CourseData = GeneralResult.content as CourseData;
+    const course: CourseData = content as CourseData;
     return course;
   } catch (err) {
     log.error("Error in handleReadCourse():", err.message);

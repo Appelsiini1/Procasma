@@ -22,13 +22,13 @@ import {
   handleCheckArray,
   handleUpdateUniqueTags,
   setSelectedViaChecked,
-} from "../helpers/browseHelpers";
-import { handleIPCResult } from "../helpers/errorHelpers";
+} from "../rendererHelpers/browseHelpers";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import SnackbarComp, {
   functionResultToSnackBar,
   SnackBarAttributes,
 } from "../components/SnackBarComp";
-import { parseUICode } from "../helpers/translation";
+import { parseUICode } from "../rendererHelpers/translation";
 
 export interface ModuleWithCheck extends WithCheckWrapper {
   value: ModuleData;

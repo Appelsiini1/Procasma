@@ -14,9 +14,9 @@ import InputField from "./InputField";
 import ButtonComp from "./ButtonComp";
 import FileList from "./FileList";
 import { ExampleRunType, Variation } from "../types";
-import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
+import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
 import ExampleRunsGroup from "./ExampleRunsGroup";
-import { parseUICode } from "../helpers/translation";
+import { parseUICode } from "../rendererHelpers/translation";
 
 type ComponentProps = {
   varID: string;
