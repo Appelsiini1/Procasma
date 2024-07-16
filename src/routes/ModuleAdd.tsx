@@ -7,9 +7,15 @@ import HelpText from "../components/HelpText";
 import ButtonComp from "../components/ButtonComp";
 import { CourseData, ModuleData } from "../types";
 import { useModule } from "../rendererHelpers/assignmentHelpers";
-import { testModule } from "../myTestGlobals";
-import { splitStringToArray } from "../mainHelpers/converters";
+import { defaultModule } from "../defaultObjects";
+import { splitStringToArray } from "../generalHelpers/converters";
 import { parseUICode } from "../rendererHelpers/translation";
+import { useState } from "react";
+import SnackbarComp, {
+  functionResultToSnackBar,
+  SnackBarAttributes,
+} from "../components/SnackBarComp";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 
 export default function ModuleAdd({
   activeCourse,
@@ -21,8 +27,11 @@ export default function ModuleAdd({
   activeModule?: ModuleData;
 }) {
   const [module, handleModule] = useModule(
-    activeModule ? activeModule : testModule
+    activeModule ? activeModule : defaultModule
   );
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [snackBarAttributes, setSnackBarAttributes] =
+    useState<SnackBarAttributes>({ color: "success", text: "" });
 
   const pageType = useLoaderData();
   const navigate = useNavigate();
@@ -36,10 +45,37 @@ export default function ModuleAdd({
     pageTitle = parseUICode("ui_edit_module");
   }
 
+  async function handleSaveModule() {
+    let snackbarSeverity = "success";
+    let snackbarText = "ui_module_save_success";
+    try {
+      if (pageType === "manage") {
+        // Update currently just overwrites the existing module
+        // in fileOperations
+        snackbarText = await handleIPCResult(() =>
+          window.api.updateModule(module, activePath)
+        );
+      } else {
+        snackbarText = await handleIPCResult(() =>
+          window.api.saveModule(module, activePath)
+        );
+      }
+    } catch (err) {
+      snackbarText = err.message;
+      snackbarSeverity = "error";
+    }
+
+    functionResultToSnackBar(
+      { [snackbarSeverity]: parseUICode(snackbarText) },
+      setShowSnackbar,
+      setSnackBarAttributes
+    );
+  }
+
   return (
     <>
       <PageHeaderBar
-        pageName={parseUICode("ui_add_assignment")}
+        pageName={parseUICode("ui_add_module")}
         courseID={activeCourse?.ID}
         courseTitle={activeCourse?.title}
       />
@@ -195,7 +231,7 @@ export default function ModuleAdd({
         >
           <ButtonComp
             buttonType="normal"
-            onClick={() => window.api.saveModule(module, activePath)}
+            onClick={() => handleSaveModule()}
             ariaLabel={parseUICode("ui_aria_save")}
           >
             {parseUICode("ui_save")}
@@ -216,6 +252,13 @@ export default function ModuleAdd({
           </ButtonComp>
         </Stack>
       </div>
+      {showSnackbar ? (
+        <SnackbarComp
+          text={snackBarAttributes.text}
+          color={snackBarAttributes.color}
+          setShowSnackbar={setShowSnackbar}
+        ></SnackbarComp>
+      ) : null}
     </>
   );
 }

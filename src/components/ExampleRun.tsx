@@ -14,7 +14,10 @@ import InputField from "./InputField";
 import SwitchComp from "./SwitchComp";
 import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
 import { ExampleRunType } from "../types";
-import { splitStringToArray, arrayToString } from "../mainHelpers/converters";
+import {
+  splitStringToArray,
+  arrayToString,
+} from "../generalHelpers/converters";
 import { parseUICode } from "../rendererHelpers/translation";
 
 interface ExampleRunProps {

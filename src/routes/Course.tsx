@@ -13,11 +13,11 @@ import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import { useCourse } from "../rendererHelpers/assignmentHelpers";
-import { newCourse } from "../myTestGlobals";
+import { defaultCourse } from "../defaultObjects";
 import {
   courseLevelsToString,
   splitCourseLevels,
-} from "../mainHelpers/converters";
+} from "../generalHelpers/converters";
 import { CourseData } from "../types";
 import SnackbarComp, {
   SnackBarAttributes,
@@ -42,7 +42,8 @@ export default function Course({
     pageType = "create";
   }
 
-  const initialCourseState = pageType == "create" ? newCourse : activeCourse;
+  const initialCourseState =
+    pageType == "create" ? defaultCourse : activeCourse;
   const [course, handleCourse] = useCourse(initialCourseState);
   const [path, setPath] = useState(activePath ? activePath : "");
   const [showSnackbar, setShowSnackbar] = useState(false);

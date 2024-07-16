@@ -10,7 +10,7 @@ import {
 import { isExpanding } from "./assignment";
 import log from "electron-log/node";
 
-// --- private --- //
+// General
 
 // Database connection
 function _openDB(coursePath: string) {
@@ -92,44 +92,59 @@ async function _getAll(
   });
 }
 
-// Assignments
-async function _addToAssignments(
-  db: sqlite3.Database,
-  assignmentPath: string,
-  assignment: CodeAssignmentData
-) {
-  return new Promise((resolve, reject) => {
-    db.serialize(() => {
-      db.run(
-        `INSERT INTO assignments(id, type, title, tags, module, position, level, isExpanding, path) 
-      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          assignment.assignmentID,
-          assignment.assignmentType,
-          assignment.title,
-          assignment.tags.toString(),
-          assignment.module,
-          assignment.assignmentNo.toString(),
-          assignment.level,
-          isExpanding(assignment) ? 1 : 0,
-          assignmentPath,
-        ],
-        (err) => {
-          if (err) {
-            log.error("Error in _addToAssignments():", err.message);
-            reject(err);
-          } else {
-            resolve({
-              message: `Assignment ${assignment.assignmentID} inserted successfully`,
+// Database initialization
+export async function initDB(coursePath: string): Promise<GeneralResult> {
+  return _execDBOperation(coursePath, async (db: sqlite3.Database) => {
+    const initQueries: Array<string> = [
+      `CREATE TABLE IF NOT EXISTS assignments (
+                    id TEXT PRIMARY KEY,
+                    type TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    tags TEXT,
+                    module INTEGER,
+                    position TEXT NOT NULL,
+                    level INTEGER,
+                    isExpanding TEXT NOT NULL,
+                    path TEXT NOT NULL);`,
+      `CREATE TABLE IF NOT EXISTS modules (
+                    id INTEGER PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    tags TEXT,
+                    assignments INTEGER,
+                    subjects TEXT,
+                    letters TEXT,
+                    instructions TEXT);`,
+      `CREATE TABLE IF NOT EXISTS tags (
+                    name TEXT PRIMARY KEY,
+                    assignments TEXT NOT NULL);`,
+      `CREATE TABLE IF NOT EXISTS moduleTags (
+                      name TEXT PRIMARY KEY,
+                      modules TEXT NOT NULL);`,
+    ];
+    try {
+      await Promise.all(
+        initQueries.map((query) =>
+          db.serialize(() => {
+            db.run(query, (err: Error) => {
+              if (err) {
+                log.error("Error in initDB():", err.message);
+                throw err;
+              }
             });
-          }
-        }
+          })
+        )
       );
-    });
+
+      return { message: "Tables created successfully" };
+    } catch (err) {
+      log.error("Error in initDB():", err.message);
+      throw err;
+    }
   });
 }
 
-// Tags
+// CRUD Tags
+
 async function _addTag(
   db: sqlite3.Database,
   tag: string,
@@ -384,60 +399,44 @@ async function _addModuleTags(
   });
 }
 
-// --- public --- //
+// CRUD Assignment
 
-// Database initialization
-export async function initDB(coursePath: string): Promise<GeneralResult> {
-  return _execDBOperation(coursePath, async (db: sqlite3.Database) => {
-    const initQueries: Array<string> = [
-      `CREATE TABLE IF NOT EXISTS assignments (
-                    id TEXT PRIMARY KEY,
-                    type TEXT NOT NULL,
-                    title TEXT NOT NULL,
-                    tags TEXT,
-                    module INTEGER,
-                    position TEXT NOT NULL,
-                    level INTEGER,
-                    isExpanding TEXT NOT NULL,
-                    path TEXT NOT NULL);`,
-      `CREATE TABLE IF NOT EXISTS modules (
-                    id INTEGER PRIMARY KEY,
-                    name TEXT NOT NULL,
-                    tags TEXT,
-                    assignments INTEGER,
-                    subjects TEXT,
-                    letters TEXT,
-                    instructions TEXT);`,
-      `CREATE TABLE IF NOT EXISTS tags (
-                    name TEXT PRIMARY KEY,
-                    assignments TEXT NOT NULL);`,
-      `CREATE TABLE IF NOT EXISTS moduleTags (
-                      name TEXT PRIMARY KEY,
-                      modules TEXT NOT NULL);`,
-    ];
-    try {
-      await Promise.all(
-        initQueries.map((query) =>
-          db.serialize(() => {
-            db.run(query, (err: Error) => {
-              if (err) {
-                log.error("Error in initDB():", err.message);
-                throw err;
-              }
+async function _addToAssignments(
+  db: sqlite3.Database,
+  assignmentPath: string,
+  assignment: CodeAssignmentData
+) {
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      db.run(
+        `INSERT INTO assignments(id, type, title, tags, module, position, level, isExpanding, path) 
+      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          assignment.assignmentID,
+          assignment.assignmentType,
+          assignment.title,
+          assignment.tags.toString(),
+          assignment.module,
+          assignment.assignmentNo.toString(),
+          assignment.level,
+          isExpanding(assignment) ? 1 : 0,
+          assignmentPath,
+        ],
+        (err) => {
+          if (err) {
+            log.error("Error in _addToAssignments():", err.message);
+            reject(err);
+          } else {
+            resolve({
+              message: `Assignment ${assignment.assignmentID} inserted successfully`,
             });
-          })
-        )
+          }
+        }
       );
-
-      return { message: "Tables created successfully" };
-    } catch (err) {
-      log.error("Error in initDB():", err.message);
-      throw err;
-    }
+    });
   });
 }
 
-// Assignment
 export async function addAssignmentToDB(
   coursePath: string,
   assignment: CodeAssignmentData
@@ -575,11 +574,6 @@ export async function deleteAssignmentFromDB(
   return _execDBOperation(coursePath, async (db: sqlite3.Database) => {
     try {
       const getResult = await getAssignmentFromDB(coursePath, assignmentID);
-      if (!getResult.content) {
-        throw new Error(
-          `Assignment '${assignmentID}' does not exist in the database, cannot delete.`
-        );
-      }
       const oldAssignment = getResult.content as CodeAssignmentDatabase;
 
       await Promise.all(
@@ -640,7 +634,8 @@ export async function getAllAssignmentTags(coursePath: string) {
   return await _getAll(coursePath, "tags");
 }
 
-// Module
+// CRUD Module
+
 export async function addModuleToDB(
   coursePath: string,
   module: ModuleData
@@ -800,11 +795,6 @@ export async function deleteModule(
   return _execDBOperation(coursePath, async (db: sqlite3.Database) => {
     try {
       const getResult = await getModuleFromDB(coursePath, moduleID);
-      if (!getResult.content) {
-        throw new Error(
-          `Module '${moduleID}' does not exist in the database, cannot delete.`
-        );
-      }
       const oldModule = getResult.content as ModuleData;
 
       await Promise.all(

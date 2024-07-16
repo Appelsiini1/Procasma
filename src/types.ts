@@ -131,21 +131,29 @@ export interface GeneralResult {
 }
 
 export type ContextBridgeAPI = {
+  // General
   setTitle: (title: string) => IpcResult;
   getAppVersion: () => IpcResult; //string;
-  saveCourse: (course: CourseData, path: string) => IpcResult; //any;
-  updateCourse: (course: CourseData, path: string) => IpcResult; //any;
   selectDir: () => IpcResult; //string;
   selectFiles: () => IpcResult; //Array<string>;
-  readCourse: (path: string) => IpcResult;
-  saveAssignment: (assignment: CodeAssignmentData, path: string) => IpcResult; //any;
-  updateAssignment: (assignment: CodeAssignmentData, path: string) => IpcResult; //any;
-  saveProject: (assignment: CodeAssignmentData, path: string) => IpcResult;
-  getAssignments: (path: string) => IpcResult; //CodeAssignmentData[];
-  deleteAssignment: (coursePath: string, id: string) => IpcResult; //any;
   saveSettings: (settings: SettingsType) => IpcResult; //any;
   getSettings: () => IpcResult; //Settings;
+
+  // CRUD Course
+  saveCourse: (course: CourseData, path: string) => IpcResult; //any;
+  readCourse: (path: string) => IpcResult;
+  updateCourse: (course: CourseData, path: string) => IpcResult; //any;
+
+  // CRUD Assignment
+  saveAssignment: (assignment: CodeAssignmentData, path: string) => IpcResult; //any;
+  saveProject: (assignment: CodeAssignmentData, path: string) => IpcResult;
+  getAssignments: (path: string) => IpcResult; //CodeAssignmentData[];
+  updateAssignment: (assignment: CodeAssignmentData, path: string) => IpcResult; //any;
+  deleteAssignment: (coursePath: string, id: string) => IpcResult; //any;
+
+  // CRUD Module
   saveModule: (module: ModuleData, path: string) => IpcResult;
   getModules: (path: string) => IpcResult; //ModuleData[];
+  updateModule: (module: ModuleData, path: string) => IpcResult;
   deleteModule: (coursePath: string, id: number) => IpcResult;
 };

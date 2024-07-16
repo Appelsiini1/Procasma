@@ -11,12 +11,13 @@ import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import SwitchComp from "../components/SwitchComp";
-import { testCurrentAssignment } from "../myTestGlobals";
+import { defaultAssignment } from "../defaultObjects";
 import { CodeAssignmentData, CourseData, Variation } from "../types";
 import {
+  ForceToString,
   splitStringToArray,
   splitStringToNumberArray,
-} from "../mainHelpers/converters";
+} from "../generalHelpers/converters";
 import { useAssignment } from "../rendererHelpers/assignmentHelpers";
 import VariationsGroup from "../components/VariationsGroup";
 import SnackbarComp, {
@@ -37,9 +38,9 @@ export default function AssignmentInput({
   activeAssignment?: CodeAssignmentData;
 }) {
   const [assignment, handleAssignment] = useAssignment(
-    activeAssignment ? activeAssignment : deepCopy(testCurrentAssignment)
+    activeAssignment ? activeAssignment : deepCopy(defaultAssignment)
   );
-  const variations: { [key: string]: Variation } = assignment.variations;
+  const variations: { [key: string]: Variation } = assignment?.variations;
 
   const pageType = useLoaderData();
   const navigate = useNavigate();
@@ -67,7 +68,7 @@ export default function AssignmentInput({
 
   async function handleSaveAssignment() {
     let snackbarSeverity = "success";
-    let snackbarText = "ui_course_folder_opened";
+    let snackbarText = "ui_assignment_save_success";
     try {
       if (pageType === "manage") {
         snackbarText = await handleIPCResult(() =>
@@ -110,7 +111,7 @@ export default function AssignmentInput({
               <td>
                 <InputField
                   fieldKey="caTitleInput"
-                  defaultValue={assignment.title}
+                  defaultValue={ForceToString(assignment?.title)}
                   onChange={(value: string) =>
                     handleAssignment("title", value, true)
                   }
@@ -127,7 +128,7 @@ export default function AssignmentInput({
               <td>
                 <NumberInput
                   disabled={levelsDisable}
-                  value={assignment.level}
+                  value={Number(assignment?.level)}
                   onChange={(value: number) => handleAssignment("level", value)}
                 ></NumberInput>
               </td>
@@ -140,7 +141,7 @@ export default function AssignmentInput({
               <td>
                 <NumberInput
                   disabled={moduleDisable}
-                  value={assignment.module}
+                  value={Number(assignment?.module)}
                   onChange={(value: number) =>
                     handleAssignment("module", value)
                   }
@@ -170,7 +171,7 @@ export default function AssignmentInput({
               <td>
                 <InputField
                   fieldKey="caPositionsInput"
-                  defaultValue={assignment.assignmentNo.toString()}
+                  defaultValue={ForceToString(assignment?.assignmentNo)}
                   onChange={(value: string) =>
                     handleAssignment(
                       "assignmentNo",
@@ -204,7 +205,7 @@ export default function AssignmentInput({
               <td>
                 <InputField
                   fieldKey="caTagsInput"
-                  defaultValue={assignment.tags.toString()}
+                  defaultValue={ForceToString(assignment?.tags)}
                   onChange={(value: string) =>
                     handleAssignment("tags", splitStringToArray(value), true)
                   }
@@ -223,7 +224,7 @@ export default function AssignmentInput({
                   name="caCodeLanguageInput"
                   options={codeLanguageOptions}
                   labelKey="name"
-                  defaultValue={assignment.codeLanguage}
+                  defaultValue={ForceToString(assignment?.codeLanguage)}
                   onChange={(value: string) =>
                     handleAssignment("codeLanguage", value)
                   }
@@ -264,7 +265,7 @@ export default function AssignmentInput({
               <td>
                 <InputField
                   fieldKey="caUsedInInput"
-                  defaultValue={assignment.previous.toString()}
+                  defaultValue={ForceToString(assignment?.previous)}
                   onChange={(value: string) =>
                     handleAssignment(
                       "previous",

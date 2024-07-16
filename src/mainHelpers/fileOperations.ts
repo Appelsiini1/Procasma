@@ -3,18 +3,66 @@ import path from "path";
 import {
   CodeAssignmentData,
   CourseData,
-  GeneralResult,
   FileData,
   ModuleData,
   Variation,
 } from "../types";
-import { spacesToUnderscores } from "./converters";
+import { spacesToUnderscores } from "../generalHelpers/converters";
 import { courseMetaDataFileName } from "../constants";
 import { createHash } from "crypto";
-import { deleteAssignmentFromDB } from "./databaseOperations";
+import {
+  addAssignmentToDB,
+  addModuleToDB,
+  deleteAssignmentFromDB,
+  deleteModule,
+  initDB,
+} from "./databaseOperations";
 import log from "electron-log/node";
 
-// --- private --- //
+// General
+
+/**
+ * Reads a JSON file and uses JSON.parse(), returning the
+ * data.
+ */
+export function handleReadFileSync(
+  filePath: string,
+  returnNullOnFail?: boolean
+): any {
+  try {
+    const data = fs.readFileSync(filePath, "utf8");
+    const content = JSON.parse(data);
+    return content;
+  } catch (err) {
+    if (returnNullOnFail) {
+      return null;
+    }
+    log.error("Error in handleReadFileSync():", err.message);
+    throw err;
+  }
+}
+
+/**
+ * Creat folder at path if it does not already exist.
+ */
+export function createFolder(
+  path: string,
+  requireUnique?: boolean,
+  options: object = null
+) {
+  try {
+    if (!fs.existsSync(path)) {
+      fs.mkdirSync(path, options);
+    } else {
+      if (requireUnique) {
+        throw new Error("ui_course_error_duplicate");
+      }
+    }
+  } catch (err) {
+    log.error("Error in createFolder():", err.message);
+    throw err;
+  }
+}
 
 function _hashSHA(content: string) {
   return createHash("sha256").update(content).digest("hex");
@@ -36,6 +84,100 @@ function _removePathSyncForce(path: string) {
     throw err;
   }
 }
+
+function _getRelativePathToCourse(targetPath: string, coursePath: string) {
+  try {
+    const parts = targetPath.split(coursePath);
+    if (parts?.length < 2) {
+      return null;
+    }
+
+    const relPath = parts[parts.length - 1];
+    return relPath;
+  } catch (err) {
+    log.error("Error in _getRelativePathToCourse():", err.message);
+    throw err;
+  }
+}
+
+// CRUD Course
+
+export async function handleSaveCourse(
+  course: CourseData,
+  coursesPath: string
+) {
+  try {
+    // extract title
+    const courseTitle: string = course?.title;
+    if (!courseTitle) {
+      throw new Error("ui_add_course_title");
+    }
+
+    const courseTitleFormatted = spacesToUnderscores(courseTitle);
+    const coursePath = path.join(coursesPath, courseTitleFormatted);
+
+    // create course folder
+    createFolder(coursePath, true);
+
+    const metadata: string = JSON.stringify(course);
+
+    // create course metadata.json
+    const metadataPath = path.join(coursePath, courseMetaDataFileName);
+    fs.writeFileSync(metadataPath, metadata, "utf8");
+
+    const assignmentDataPath = path.join(coursePath, "assignment_data");
+    createFolder(assignmentDataPath);
+
+    const databasePath = path.join(coursePath, "database");
+    createFolder(databasePath);
+
+    // init db
+    await initDB(coursePath);
+
+    // create weeks.json ?
+
+    // create sets.json ?
+    return "ui_course_save_success";
+  } catch (err) {
+    log.error("Error in handleSaveCourse():", err.message);
+    throw err;
+  }
+}
+
+export function handleReadCourse(filePath: string): CourseData {
+  try {
+    if (!filePath || filePath.length < 1) {
+      return null;
+    }
+
+    const filePathJoined = path.join(filePath, "course_info.json");
+    const content = handleReadFileSync(filePathJoined);
+
+    const course: CourseData = content as CourseData;
+    return course;
+  } catch (err) {
+    log.error("Error in handleReadCourse():", err.message);
+    throw err;
+  }
+}
+
+export function handleUpdateCourse(course: CourseData, coursePath: string) {
+  try {
+    fs.accessSync(coursePath, fs.constants.R_OK | fs.constants.W_OK);
+
+    const metadata: string = JSON.stringify(course);
+
+    // create course metadata.json
+    const metadataPath = path.join(coursePath, courseMetaDataFileName);
+    fs.writeFileSync(metadataPath, metadata, "utf8");
+    return "ui_course_save_success";
+  } catch (err) {
+    log.error("Error in handleUpdateCourse():", err.message);
+    throw err;
+  }
+}
+
+// CRUD Assignment
 
 function _createAssignmentFolderWithHash(
   assignment: CodeAssignmentData,
@@ -80,17 +222,20 @@ function _generateAssignmentHash(assignment: CodeAssignmentData) {
   }
 }
 
-function _getRelativePathToCourse(targetPath: string, coursePath: string) {
+function _doesAssignmentExist(
+  assignmentName: string,
+  coursePath: string
+): boolean {
   try {
-    const parts = targetPath.split(coursePath);
-    if (parts?.length < 2) {
-      return null;
-    }
+    const assignments = handleGetAssignments(coursePath);
 
-    const relPath = parts[parts.length - 1];
-    return relPath;
+    const sameNameAssignment = assignments.find((prevAssignment) => {
+      return prevAssignment?.title === assignmentName ? true : false;
+    });
+
+    return sameNameAssignment ? true : false;
   } catch (err) {
-    log.error("Error in _getRelativePathToCourse():", err.message);
+    log.error("Error in _doesAssignmentExist():", err.message);
     throw err;
   }
 }
@@ -144,24 +289,6 @@ function _copyVariationFiles(
   }
 }
 
-function _doesAssignmentExist(
-  assignmentName: string,
-  coursePath: string
-): boolean {
-  try {
-    const assignments = handleGetAssignments(coursePath);
-
-    const sameNameAssignment = assignments.find((prevAssignment) => {
-      return prevAssignment?.title === assignmentName ? true : false;
-    });
-
-    return sameNameAssignment ? true : false;
-  } catch (err) {
-    log.error("Error in _doesAssignmentExist():", err.message);
-    throw err;
-  }
-}
-
 async function _removeOldFilesFromVariations(
   variations: {
     [key: string]: Variation;
@@ -198,8 +325,9 @@ async function _handleSaveOrUpdateAssignment(
   oldAssignment: boolean
 ) {
   try {
-    if (!coursePath || coursePath.length === 0) {
-      throw new Error("ui_no_course_path_selected");
+    const title = assignment?.title;
+    if (!title || title.length < 1) {
+      throw new Error("ui_add_assignment_title");
     }
 
     const assignmentDataPath = path.join(coursePath, "assignment_data");
@@ -228,7 +356,7 @@ async function _handleSaveOrUpdateAssignment(
     const variations: { [key: string]: Variation } = assignment.variations;
     _copyVariationFiles(variations, hashFolderPath, coursePath);
 
-    // clean the variation folder of deleted files (fire and forget)
+    // clean the variation folder of deleted files
     _removeOldFilesFromVariations(variations, hashFolderPath);
 
     // save assignment data
@@ -238,6 +366,8 @@ async function _handleSaveOrUpdateAssignment(
 
     fs.writeFileSync(hashFilePath, assignmentJSON, "utf8");
 
+    await addAssignmentToDB(coursePath, assignment);
+
     return "ui_assignment_save_success";
   } catch (err) {
     log.error("Error in _handleSaveOrUpdateAssignment():", err.message);
@@ -245,108 +375,11 @@ async function _handleSaveOrUpdateAssignment(
   }
 }
 
-// --- public --- //
-
-export function handleReadFileSync(filePath: string): GeneralResult {
-  try {
-    const data = fs.readFileSync(filePath, "utf8");
-    const content = JSON.parse(data);
-    return content;
-  } catch (err) {
-    log.error("Error in handleReadFileSync():", err.message);
-    throw err;
-  }
-}
-
-/**
- * Creat folder at path if it does not already exist.
- */
-export function createFolder(
-  path: string,
-  requireUnique?: boolean,
-  options: object = null
+export async function handleSaveAssignment(
+  assignment: CodeAssignmentData,
+  coursePath: string
 ) {
-  try {
-    if (!fs.existsSync(path)) {
-      fs.mkdirSync(path, options);
-    } else {
-      if (requireUnique) {
-        throw new Error("ui_course_error_duplicate");
-      }
-    }
-  } catch (err) {
-    log.error("Error in createFolder():", err.message);
-    throw err;
-  }
-}
-
-export function handleSaveCourse(course: CourseData, coursesPath: string) {
-  try {
-    // extract title
-    const courseTitle: string = course?.title;
-    if (!courseTitle) {
-      throw new Error("Course title not found");
-    }
-
-    const courseTitleFormatted = spacesToUnderscores(courseTitle);
-    const coursePath = path.join(coursesPath, courseTitleFormatted);
-
-    // create course folder
-    createFolder(coursePath, true);
-
-    const metadata: string = JSON.stringify(course);
-
-    // create course metadata.json
-    const metadataPath = path.join(coursePath, courseMetaDataFileName);
-    fs.writeFileSync(metadataPath, metadata, "utf8");
-
-    const assignmentDataPath = path.join(coursePath, "assignment_data");
-    createFolder(assignmentDataPath);
-
-    const databasePath = path.join(coursePath, "database");
-    createFolder(databasePath);
-
-    // create weeks.json
-
-    // create sets.json
-    return "ui_course_save_success";
-  } catch (err) {
-    log.error("Error in handleSaveCourse():", err.message);
-    throw err;
-  }
-}
-
-export function handleReadCourse(filePath: string): CourseData {
-  try {
-    if (!filePath || filePath.length < 1) {
-      return null;
-    }
-
-    const filePathJoined = path.join(filePath, "course_info.json");
-    const content = handleReadFileSync(filePathJoined);
-
-    const course: CourseData = content as CourseData;
-    return course;
-  } catch (err) {
-    log.error("Error in handleReadCourse():", err.message);
-    throw err;
-  }
-}
-
-export function handleUpdateCourse(course: CourseData, coursePath: string) {
-  try {
-    fs.accessSync(coursePath, fs.constants.R_OK | fs.constants.W_OK);
-
-    const metadata: string = JSON.stringify(course);
-
-    // create course metadata.json
-    const metadataPath = path.join(coursePath, courseMetaDataFileName);
-    fs.writeFileSync(metadataPath, metadata, "utf8");
-    return "ui_course_save_success";
-  } catch (err) {
-    log.error("Error in handleUpdateCourse():", err.message);
-    throw err;
-  }
+  return _handleSaveOrUpdateAssignment(assignment, coursePath, false);
 }
 
 export function handleGetAssignments(
@@ -371,8 +404,8 @@ export function handleGetAssignments(
         hashFile
       );
 
-      const GeneralResult = handleReadFileSync(assignmentPath);
-      const assignment = GeneralResult.content as CodeAssignmentData;
+      const result = handleReadFileSync(assignmentPath);
+      const assignment = result as CodeAssignmentData;
 
       assignments.push(assignment);
     });
@@ -384,13 +417,6 @@ export function handleGetAssignments(
   }
 }
 
-export async function handleSaveAssignment(
-  assignment: CodeAssignmentData,
-  coursePath: string
-) {
-  return _handleSaveOrUpdateAssignment(assignment, coursePath, false);
-}
-
 export async function handleUpdateAssignment(
   assignment: CodeAssignmentData,
   coursePath: string
@@ -398,33 +424,47 @@ export async function handleUpdateAssignment(
   return _handleSaveOrUpdateAssignment(assignment, coursePath, true);
 }
 
-export function removeAssignmentById(coursePath: string, id: string) {
+export async function removeAssignmentById(coursePath: string, id: string) {
   try {
     // remove the file hash folder and its contents
     const assignmentPath = path.join(coursePath, "assignment_data", id);
 
     _removePathSyncForce(assignmentPath);
 
-    deleteAssignmentFromDB(coursePath, id);
+    await deleteAssignmentFromDB(coursePath, id);
+
+    return "ui_del_ok";
   } catch (err) {
     log.error("Error in removeAssignmentById():", err.message);
     throw err;
   }
 }
 
-export function handleSaveModule(module: ModuleData, coursePath: string) {
+// CRUD Module
+
+// Update currently just overwrites the existing module
+async function _handleSaveOrUpdateModule(
+  module: ModuleData,
+  coursePath: string,
+  oldModule: boolean
+) {
   try {
+    const name = module?.name;
+    if (!name || name.length < 1) {
+      throw new Error("ui_add_module_name");
+    }
+
     // create modules.json if does not exist
     const modulesPath = path.join(coursePath, "modules.json");
 
     // read modules.json
-    const GeneralResult = handleReadFileSync(modulesPath);
+    const result = handleReadFileSync(modulesPath, true);
 
     // if no previous modules
-    if (!GeneralResult?.content) {
+    if (!result) {
       fs.writeFileSync(modulesPath, JSON.stringify([module]), "utf8");
     } else {
-      const previousModules = GeneralResult.content as ModuleData[];
+      const previousModules = result as ModuleData[];
       let foundSameId = false;
 
       // check if same id exists if the module array exists
@@ -446,10 +486,25 @@ export function handleSaveModule(module: ModuleData, coursePath: string) {
         fs.writeFileSync(modulesPath, JSON.stringify(previousModules), "utf8");
       }
     }
+
+    await addModuleToDB(coursePath, module);
+
+    return "ui_module_save_success";
   } catch (err) {
     log.error("Error in handleSaveModule():", err.message);
     throw err;
   }
+}
+
+export function handleSaveModule(module: ModuleData, coursePath: string) {
+  return _handleSaveOrUpdateModule(module, coursePath, false);
+}
+
+export async function handleUpdateModule(
+  module: ModuleData,
+  coursePath: string
+) {
+  return _handleSaveOrUpdateModule(module, coursePath, false);
 }
 
 export function handleGetModules(coursePath: string): ModuleData[] | null {
@@ -457,9 +512,11 @@ export function handleGetModules(coursePath: string): ModuleData[] | null {
     const modulesPath = path.join(coursePath, "modules.json");
 
     // read modules.json
-    const GeneralResult = handleReadFileSync(modulesPath);
-
-    const modules = GeneralResult.content as ModuleData[];
+    const result = handleReadFileSync(modulesPath, true);
+    if (!result) {
+      return [] as ModuleData[];
+    }
+    const modules = result as ModuleData[];
 
     return modules;
   } catch (err) {
@@ -468,7 +525,7 @@ export function handleGetModules(coursePath: string): ModuleData[] | null {
   }
 }
 
-export function removeModuleById(coursePath: string, id: number): void {
+export async function removeModuleById(coursePath: string, id: number) {
   try {
     const prevModules = handleGetModules(coursePath);
     const newModules = prevModules.filter((module) => {
@@ -479,6 +536,10 @@ export function removeModuleById(coursePath: string, id: number): void {
     const modulesPath = path.join(coursePath, "modules.json");
 
     fs.writeFileSync(modulesPath, JSON.stringify(newModules), "utf8");
+
+    await deleteModule(coursePath, id);
+
+    return "ui_module_delete_success";
   } catch (err) {
     log.error("Error in removeModuleById():", err.message);
     throw err;

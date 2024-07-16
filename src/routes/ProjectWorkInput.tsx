@@ -10,9 +10,12 @@ import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import { useAssignment } from "../rendererHelpers/assignmentHelpers";
-import { testCurrentProject } from "../myTestGlobals";
+import { defaultProject } from "../defaultObjects";
 import { CodeAssignmentData, CourseData, Variation } from "../types";
-import { splitStringToArray } from "../mainHelpers/converters";
+import {
+  ForceToString,
+  splitStringToArray,
+} from "../generalHelpers/converters";
 import VariationsGroup from "../components/VariationsGroup";
 import { useEffect, useState } from "react";
 import SnackbarComp, {
@@ -33,9 +36,9 @@ export default function ProjectWorkInput({
   activeAssignment?: CodeAssignmentData;
 }) {
   const [assignment, handleAssignment] = useAssignment(
-    activeAssignment ? activeAssignment : deepCopy(testCurrentProject)
+    activeAssignment ? activeAssignment : deepCopy(defaultProject)
   );
-  const variations: { [key: string]: Variation } = assignment.variations;
+  const variations: { [key: string]: Variation } = assignment?.variations;
 
   const pageType = useLoaderData();
   const navigate = useNavigate();
@@ -61,7 +64,7 @@ export default function ProjectWorkInput({
 
   async function handleSaveAssignment() {
     let snackbarSeverity = "success";
-    let snackbarText = "ui_course_folder_opened";
+    let snackbarText = "ui_assignment_save_success";
     try {
       if (pageType === "manage") {
         snackbarText = await handleIPCResult(() =>
@@ -102,7 +105,7 @@ export default function ProjectWorkInput({
               <td>
                 <InputField
                   fieldKey="caTitleInput"
-                  defaultValue={assignment.title}
+                  defaultValue={ForceToString(assignment?.title)}
                   onChange={(value: string) =>
                     handleAssignment("title", value, true)
                   }
@@ -117,7 +120,7 @@ export default function ProjectWorkInput({
               <td>
                 <NumberInput
                   disabled={moduleDisable}
-                  value={assignment.module}
+                  value={Number(assignment?.module)}
                   onChange={(value: number) =>
                     handleAssignment("module", value)
                   }
@@ -145,7 +148,7 @@ export default function ProjectWorkInput({
               <td>
                 <InputField
                   fieldKey="caTagsInput"
-                  defaultValue={assignment.tags.toString()}
+                  defaultValue={ForceToString(assignment?.tags)}
                   onChange={(value: string) =>
                     handleAssignment("tags", splitStringToArray(value), true)
                   }
@@ -164,7 +167,7 @@ export default function ProjectWorkInput({
                   name="caCodeLanguageInput"
                   options={codeLanguageOptions}
                   labelKey="name"
-                  defaultValue={assignment.codeLanguage}
+                  defaultValue={ForceToString(assignment?.codeLanguage)}
                   onChange={(value: string) =>
                     handleAssignment("codeLanguage", value)
                   }
