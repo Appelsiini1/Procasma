@@ -2,7 +2,6 @@ import { app, BrowserWindow, Menu, ipcMain } from "electron";
 import path from "path";
 import {
   handleDirectorySelect,
-  handleFileOpen,
   handleFilesOpen,
 } from "./mainHelpers/fileDialog";
 import { version, DEVMODE } from "./constants";
@@ -15,6 +14,7 @@ import {
   handleSaveModule,
   handleUpdateAssignment,
   handleUpdateCourse,
+  handleUpdateModule,
   removeAssignmentById,
   removeModuleById,
 } from "./mainHelpers/fileOperations";
@@ -102,29 +102,34 @@ ipcMain.on("set-title", (event, title) => {
   const win = BrowserWindow.fromWebContents(webContents);
   win.setTitle(title);
 });
-ipcMain.on("set-title", (event, title) => {
-  const webContents = event.sender;
-  const win = BrowserWindow.fromWebContents(webContents);
-  win.setTitle(title);
-});
 
 // Bidirectional, renderer to main to renderer
-ipcMain.handle(
-  "dialog:openFile",
-  formatIPCResult(() => handleFileOpen())
-);
+
+// General
+
 ipcMain.handle(
   "getAppVersion",
   formatIPCResult(() => getVersion())
 );
 ipcMain.handle(
-  "getSettings",
-  formatIPCResult(() => getSettings())
-);
-ipcMain.handle(
   "selectDir",
   formatIPCResult(() => handleDirectorySelect())
 );
+ipcMain.handle(
+  "selectFiles",
+  formatIPCResult(() => handleFilesOpen())
+);
+ipcMain.handle(
+  "saveSettings",
+  formatIPCResult((settings) => saveSettings(settings))
+);
+ipcMain.handle(
+  "getSettings",
+  formatIPCResult(() => getSettings())
+);
+
+// CRUD Course
+
 ipcMain.handle(
   "saveCourse",
   formatIPCResult((course, path) => handleSaveCourse(course, path))
@@ -137,6 +142,9 @@ ipcMain.handle(
   "updateCourse",
   formatIPCResult((fileName, path) => handleUpdateCourse(fileName, path))
 );
+
+// CRUD Assignment
+
 ipcMain.handle(
   "saveAssignment",
   formatIPCResult((assignment, path) => handleSaveAssignment(assignment, path))
@@ -146,9 +154,18 @@ ipcMain.handle(
   formatIPCResult((path) => handleGetAssignments(path))
 );
 ipcMain.handle(
+  "updateAssignment",
+  formatIPCResult((assignment, path) =>
+    handleUpdateAssignment(assignment, path)
+  )
+);
+ipcMain.handle(
   "deleteAssignment",
   formatIPCResult((coursePath, id) => removeAssignmentById(coursePath, id))
 );
+
+// CRUD Module
+
 ipcMain.handle(
   "saveModule",
   formatIPCResult((module, path) => handleSaveModule(module, path))
@@ -158,22 +175,12 @@ ipcMain.handle(
   formatIPCResult((path) => handleGetModules(path))
 );
 ipcMain.handle(
+  "updateModule",
+  formatIPCResult((module, path) => handleUpdateModule(module, path))
+);
+ipcMain.handle(
   "deleteModule",
   formatIPCResult((coursePath, id) => removeModuleById(coursePath, id))
-);
-ipcMain.handle(
-  "saveSettings",
-  formatIPCResult((settings) => saveSettings(settings))
-);
-ipcMain.handle(
-  "selectFiles",
-  formatIPCResult(() => handleFilesOpen())
-);
-ipcMain.handle(
-  "updateAssignment",
-  formatIPCResult((assignment, path) =>
-    handleUpdateAssignment(assignment, path)
-  )
 );
 
 testDatabase();

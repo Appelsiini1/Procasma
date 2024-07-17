@@ -146,7 +146,7 @@ export type ContextBridgeAPI = {
 
   // CRUD Assignment
   saveAssignment: (assignment: CodeAssignmentData, path: string) => IpcResult; //any;
-  saveProject: (assignment: CodeAssignmentData, path: string) => IpcResult;
+  //saveProject: (assignment: CodeAssignmentData, path: string) => IpcResult;
   getAssignments: (path: string) => IpcResult; //CodeAssignmentData[];
   updateAssignment: (assignment: CodeAssignmentData, path: string) => IpcResult; //any;
   deleteAssignment: (coursePath: string, id: string) => IpcResult; //any;

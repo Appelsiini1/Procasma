@@ -86,7 +86,7 @@ export default function ModuleAdd({
             <tr key="mTitle">
               <td style={{ width: "25%" }}>
                 <Typography level="h4">
-                  {parseUICode("ui_assignment_title")}
+                  {parseUICode("ui_module_title")}
                 </Typography>
               </td>
               <td>
