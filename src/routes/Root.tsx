@@ -1,7 +1,5 @@
 import PageHeaderBar from "../components/PageHeaderBar";
-import texts from "../../resource/texts.json";
 import { dividerColor } from "../constantsUI";
-import { language } from "../globalsUI";
 import LogoText from "../../resource/LogoText.png";
 import {
   Accordion,
@@ -17,11 +15,13 @@ import { useNavigate } from "react-router-dom";
 import FadeInImage from "../components/FadeInImage";
 import { CodeAssignmentData, CourseData, ModuleData } from "../types";
 import { useEffect, useState } from "react";
-import { getAssignments, refreshTitle } from "../helpers/requests";
+import { refreshTitle } from "../rendererHelpers/requests";
 import SnackbarComp, {
   SnackBarAttributes,
   functionResultToSnackBar,
 } from "../components/SnackBarComp";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import { parseUICode } from "../rendererHelpers/translation";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 const smallDividerSX = {
@@ -63,20 +63,26 @@ export default function Root({
     useState<SnackBarAttributes>({ color: "success", text: "" });
 
   const refreshAssignmentsInIndex = async () => {
-    const assignments: CodeAssignmentData[] = await getAssignments(activePath);
+    try {
+      const assignments: CodeAssignmentData[] = await handleIPCResult(() =>
+        window.api.getAssignments(activePath)
+      );
 
-    if (!assignments) {
-      return;
+      const numAssignments: number = assignments.reduce(
+        (accumulator, currentValue) => {
+          return accumulator + (currentValue ? 1 : 0);
+        },
+        0
+      );
+
+      setAssignmentsInIndex(numAssignments);
+    } catch (err) {
+      functionResultToSnackBar(
+        { error: parseUICode(err.message) },
+        setShowSnackbar,
+        setSnackBarAttributes
+      );
     }
-
-    const numAssignments: number = assignments.reduce(
-      (accumulator, currentValue) => {
-        return accumulator + (currentValue ? 1 : 0);
-      },
-      0
-    );
-
-    setAssignmentsInIndex(numAssignments);
   };
 
   useEffect(() => {
@@ -114,32 +120,37 @@ export default function Root({
     }
   }, [activeModule, navigateToModule]);
 
-  const pageName = texts.ui_main[language.current];
+  const pageName = parseUICode("ui_main");
   const navigate = useNavigate();
 
   async function handleSelectCourseFolder() {
+    let snackbarSeverity = "success";
+    let snackbarText = "ui_course_folder_opened";
     try {
-      const coursePath: string = await window.api.selectDir();
+      const coursePath: string = await handleIPCResult(() =>
+        window.api.selectDir()
+      );
 
-      const course: CourseData = await window.api.readCourse(coursePath);
+      const course: CourseData = await handleIPCResult(() =>
+        window.api.readCourse(coursePath)
+      );
 
       if (course) {
         handleActiveCourse(course);
         handleActivePath(coursePath);
       } else {
-        functionResultToSnackBar(
-          { info: "ui_course_folder_invalid" },
-          setShowSnackbar,
-          setSnackBarAttributes
-        );
+        snackbarSeverity = "info";
+        snackbarText = "ui_course_folder_invalid";
       }
     } catch (err) {
-      functionResultToSnackBar(
-        { error: (err as Error).message },
-        setShowSnackbar,
-        setSnackBarAttributes
-      );
+      snackbarSeverity = "error";
+      snackbarText = err.message;
     }
+    functionResultToSnackBar(
+      { [snackbarSeverity]: parseUICode(snackbarText) },
+      setShowSnackbar,
+      setSnackBarAttributes
+    );
   }
 
   return (
@@ -155,7 +166,7 @@ export default function Root({
         </div>
 
         <Typography level="h4" sx={{ paddingBottom: "2rem" }}>
-          {texts.ui_no_assignments_index[language.current] +
+          {parseUICode("ui_no_assignments_index") +
             ": " +
             `${assignmentsInIndex ? String(assignmentsInIndex) : "0"}`}
         </Typography>
@@ -174,34 +185,30 @@ export default function Root({
                 onClick={() => {
                   navigate("/createCourse");
                 }}
-                ariaLabel={texts.ui_aria_nav_course_create[language.current]}
+                ariaLabel={parseUICode("ui_aria_nav_course_create")}
               >
-                {texts.course_create[language.current]}
+                {parseUICode("course_create")}
               </ButtonComp>
             </Grid>
             <Grid>
               <ButtonComp
                 buttonType="openCourse"
                 onClick={() => handleSelectCourseFolder()}
-                ariaLabel={texts.ui_aria_nav_open_course[language.current]}
+                ariaLabel={parseUICode("ui_aria_nav_open_course")}
               >
-                {texts.course_open[language.current]}
+                {parseUICode("course_open")}
               </ButtonComp>
             </Grid>
             <Grid>
               <ButtonComp
                 buttonType="settings"
-                onClick={() => {
-                  if (activeCourse) {
-                    navigate("/manageCourse");
-                  } else {
-                    console.log("Select a course first");
-                  }
-                }}
-                ariaLabel={texts.ui_aria_nav_manage_course[language.current]}
+                onClick={() =>
+                  activeCourse ? navigate("/manageCourse") : null
+                }
+                ariaLabel={parseUICode("ui_aria_nav_manage_course")}
                 disabled={activeCourse ? false : true}
               >
-                {texts.course_manage[language.current]}
+                {parseUICode("course_manage")}
               </ButtonComp>
             </Grid>
           </Grid>
@@ -221,10 +228,10 @@ export default function Root({
                 onClick={() => {
                   setAddingAssignment(!addingAssignment);
                 }}
-                ariaLabel={texts.ui_aria_nav_add_assignment[language.current]}
+                ariaLabel={parseUICode("ui_aria_nav_add_assignment")}
                 disabled={activeCourse ? false : true}
               >
-                {texts.ui_assignment[language.current]}
+                {parseUICode("ui_assignment")}
               </ButtonComp>
             </Grid>
             <Grid>
@@ -233,12 +240,10 @@ export default function Root({
                 onClick={() => {
                   navigate("/AssignmentBrowse");
                 }}
-                ariaLabel={
-                  texts.ui_aria_nav_browse_assignments[language.current]
-                }
+                ariaLabel={parseUICode("ui_aria_nav_browse_assignments")}
                 disabled={activeCourse ? false : true}
               >
-                {texts.ui_assignment_management[language.current]}
+                {parseUICode("ui_assignment_management")}
               </ButtonComp>
             </Grid>
           </Grid>
@@ -267,11 +272,9 @@ export default function Root({
                             ? handleActiveAssignment(null)
                             : navigate("/inputCodeAssignment");
                         }}
-                        ariaLabel={
-                          texts.ui_aria_nav_add_assignment[language.current]
-                        }
+                        ariaLabel={parseUICode("ui_aria_nav_add_assignment")}
                       >
-                        {texts.ui_code_assignment[language.current]}
+                        {parseUICode("ui_code_assignment")}
                       </ButtonComp>
                     </Grid>
 
@@ -286,11 +289,9 @@ export default function Root({
                             ? handleActiveAssignment(null)
                             : navigate("/inputCodeProjectWork");
                         }}
-                        ariaLabel={
-                          texts.ui_aria_nav_add_project[language.current]
-                        }
+                        ariaLabel={parseUICode("ui_aria_nav_add_project")}
                       >
-                        {texts.ui_project_work[language.current]}
+                        {parseUICode("ui_project_work")}
                       </ButtonComp>
                     </Grid>
 
@@ -300,9 +301,9 @@ export default function Root({
                         onClick={() => {
                           console.log("Add other");
                         }}
-                        ariaLabel={texts.ui_add[language.current]}
+                        ariaLabel={parseUICode("ui_add")}
                       >
-                        {texts.ui_other[language.current]}
+                        {parseUICode("ui_other")}
                       </ButtonComp>
                     </Grid>
                   </Grid>
@@ -331,10 +332,10 @@ export default function Root({
                     ? handleActiveModule(null)
                     : navigate("/newModule");
                 }}
-                ariaLabel={texts.ui_aria_nav_add_module[language.current]}
+                ariaLabel={parseUICode("ui_aria_nav_add_module")}
                 disabled={activeCourse ? false : true}
               >
-                {texts.ui_module[language.current]}
+                {parseUICode("ui_module")}
               </ButtonComp>
             </Grid>
             <Grid>
@@ -343,10 +344,10 @@ export default function Root({
                 onClick={() => {
                   navigate("/moduleBrowse");
                 }}
-                ariaLabel={texts.ui_aria_nav_browse_modules[language.current]}
+                ariaLabel={parseUICode("ui_aria_nav_browse_modules")}
                 disabled={activeCourse ? false : true}
               >
-                {texts.ui_module_management[language.current]}
+                {parseUICode("ui_module_management")}
               </ButtonComp>
             </Grid>
           </Grid>
@@ -366,30 +367,30 @@ export default function Root({
                 onClick={() => {
                   navigate("/setCreator");
                 }}
-                ariaLabel={texts.ui_aria_nav_add_set[language.current]}
+                ariaLabel={parseUICode("ui_aria_nav_add_set")}
                 disabled={activeCourse ? false : true}
               >
-                {texts.ui_assignment_set[language.current]}
+                {parseUICode("ui_assignment_set")}
               </ButtonComp>
             </Grid>
             <Grid>
               <ButtonComp
                 buttonType="openCourse"
                 onClick={() => navigate("/SetBrowse")}
-                ariaLabel={texts.ui_aria_nav_browse_sets[language.current]}
+                ariaLabel={parseUICode("ui_aria_nav_browse_sets")}
                 disabled={activeCourse ? false : true}
               >
-                {texts.ui_assignment_sets[language.current]}
+                {parseUICode("ui_assignment_sets")}
               </ButtonComp>
             </Grid>
             <Grid>
               <ButtonComp
                 buttonType="export"
                 onClick={() => navigate("/exportProject")}
-                ariaLabel={texts.ui_aria_nav_export_project[language.current]}
+                ariaLabel={parseUICode("ui_aria_nav_export_project")}
                 disabled={activeCourse ? false : true}
               >
-                {texts.ui_export_project[language.current]}
+                {parseUICode("ui_export_project")}
               </ButtonComp>
             </Grid>
           </Grid>
@@ -407,9 +408,9 @@ export default function Root({
               <ButtonComp
                 buttonType="settings"
                 onClick={() => navigate("/settings")}
-                ariaLabel={texts.ui_delete[language.current]}
+                ariaLabel={parseUICode("ui_delete")}
               >
-                {texts.ui_settings[language.current]}
+                {parseUICode("ui_settings")}
               </ButtonComp>
             </Grid>
           </Grid>

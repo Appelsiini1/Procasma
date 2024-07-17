@@ -8,15 +8,17 @@ import {
   Stack,
   Typography,
 } from "@mui/joy";
-import texts from "../../resource/texts.json";
 import { spacingSX } from "../constantsUI";
-import { language } from "../globalsUI";
 import HelpText from "./HelpText";
 import InputField from "./InputField";
 import SwitchComp from "./SwitchComp";
-import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
+import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
 import { ExampleRunType } from "../types";
-import { splitStringToArray, arrayToString } from "../helpers/converters";
+import {
+  splitStringToArray,
+  arrayToString,
+} from "../generalHelpers/converters";
+import { parseUICode } from "../rendererHelpers/translation";
 
 interface ExampleRunProps {
   exRunID: string;
@@ -37,7 +39,7 @@ export default function ExampleRun({
         <Avatar color="primary">{exRunID}</Avatar>
         <ListItemContent>
           <Typography level="title-md">
-            {texts.ex_run[language.current] + " " + exRunID}
+            {parseUICode("ex_run") + " " + exRunID}
           </Typography>
         </ListItemContent>
       </AccordionSummary>
@@ -50,10 +52,8 @@ export default function ExampleRun({
             spacing={2}
             sx={spacingSX}
           >
-            <Typography level="h4">
-              {texts.ex_input[language.current]}
-            </Typography>
-            <HelpText text={texts.help_inputs[language.current]} />
+            <Typography level="h4">{parseUICode("ex_input")}</Typography>
+            <HelpText text={parseUICode("help_inputs")} />
           </Stack>
           <InputField
             fieldKey={exRunID + "eInputsInput"}
@@ -76,10 +76,8 @@ export default function ExampleRun({
             spacing={2}
             sx={spacingSX}
           >
-            <Typography level="h4">
-              {texts.cmd_input[language.current]}
-            </Typography>
-            <HelpText text={texts.help_cmd_inputs[language.current]} />
+            <Typography level="h4">{parseUICode("cmd_input")}</Typography>
+            <HelpText text={parseUICode("help_cmd_inputs")} />
           </Stack>
           <InputField
             fieldKey={exRunID + "eCMDInput"}
@@ -102,9 +100,9 @@ export default function ExampleRun({
             sx={spacingSX}
           >
             <Typography level="h4">
-              {texts.ui_gen_ex_checkbox[language.current]}
+              {parseUICode("ui_gen_ex_checkbox")}
             </Typography>
-            <HelpText text={texts.help_gen_ex_checkbox[language.current]} />
+            <HelpText text={parseUICode("help_gen_ex_checkbox")} />
             <Box sx={{ width: "2rem" }} />
             <SwitchComp
               checked={exampleRun.generate}
@@ -121,10 +119,8 @@ export default function ExampleRun({
             spacing={2}
             sx={spacingSX}
           >
-            <Typography level="h4">
-              {texts.ex_output[language.current]}
-            </Typography>
-            <HelpText text={texts.help_ex_output[language.current]} />
+            <Typography level="h4">{parseUICode("ex_output")}</Typography>
+            <HelpText text={parseUICode("help_ex_output")} />
           </Stack>
           <InputField
             fieldKey={exRunID + "eOutputInput"}

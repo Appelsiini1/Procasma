@@ -12,8 +12,8 @@ export interface SnackBarAttributes {
 }
 
 /**
- * Takes a result object containing an error or success
- * message and activates a given snackbar using the message
+ * Takes an object with a severity key and text value
+ * and activates a snackbar.
  */
 export function functionResultToSnackBar(
   result: {

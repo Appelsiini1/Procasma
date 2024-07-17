@@ -93,4 +93,4 @@ out/
 
 # Testaus
 testiKurssit/
-testDB/
+database/

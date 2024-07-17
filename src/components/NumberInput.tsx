@@ -3,8 +3,7 @@ import React from "react";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import { buttonShadow } from "../constantsUI";
-import { language } from "../globalsUI";
-import texts from "../../resource/texts.json";
+import { parseUICode } from "../rendererHelpers/translation";
 
 type ButtonProps = {
   min?: number;
@@ -78,7 +77,7 @@ export default function NumberInput({
         }}
         onClick={handleIncrement}
         disabled={disabled}
-        aria-label={texts.ui_aria_increment[language.current]}
+        aria-label={parseUICode("ui_aria_increment")}
       >
         <AddIcon />
       </IconButton>
@@ -94,7 +93,7 @@ export default function NumberInput({
         }}
         onClick={handleDecrement}
         disabled={disabled}
-        aria-label={texts.ui_aria_decrement[language.current]}
+        aria-label={parseUICode("ui_aria_decrement")}
       >
         <RemoveIcon />
       </IconButton>

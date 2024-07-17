@@ -4,7 +4,7 @@ import {
   handleDirectorySelect,
   handleFileOpen,
   handleFilesOpen,
-} from "./helpers/fileDialog";
+} from "./mainHelpers/fileDialog";
 import { version, DEVMODE } from "./constants";
 import {
   handleGetAssignments,
@@ -17,12 +17,12 @@ import {
   handleUpdateCourse,
   removeAssignmentById,
   removeModuleById,
-} from "./helpers/fileOperations";
-import { initialize } from "./helpers/programInit";
-import { getSettings, saveSettings } from "./helpers/settings";
-import { testDatabase } from "./helpers/testDatabase";
+} from "./mainHelpers/fileOperations";
+import { initialize } from "./mainHelpers/programInit";
+import { getSettings, saveSettings } from "./mainHelpers/settings";
+import { testDatabase } from "./mainHelpers/testDatabase";
 import log from "electron-log";
-
+import { formatIPCResult } from "./mainHelpers/ipcHelpers";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -39,7 +39,7 @@ const getVersion = () => {
 
 const createWindow = () => {
   // Create the browser window.
-  /*
+
   const mainWindow = new BrowserWindow({
     width: 1600,
     height: 1000,
@@ -62,7 +62,6 @@ const createWindow = () => {
   if (DEVMODE) {
     mainWindow.webContents.openDevTools();
   }
-    */
 };
 
 // Disable default menu early for performance, see https://github.com/electron/electron/issues/35512
@@ -110,36 +109,71 @@ ipcMain.on("set-title", (event, title) => {
 });
 
 // Bidirectional, renderer to main to renderer
-ipcMain.handle("dialog:openFile", handleFileOpen);
-ipcMain.handle("getAppVersion", getVersion);
-ipcMain.handle("getSettings", getSettings);
-ipcMain.handle("selectDir", handleDirectorySelect);
-ipcMain.handle("saveCourse", (event, course, path) =>
-  handleSaveCourse(course, path)
+ipcMain.handle(
+  "dialog:openFile",
+  formatIPCResult(() => handleFileOpen())
 );
-ipcMain.handle("readCourse", (event, path) => handleReadCourse(path));
-ipcMain.handle("updateCourse", (event, fileName, path) =>
-  handleUpdateCourse(fileName, path)
+ipcMain.handle(
+  "getAppVersion",
+  formatIPCResult(() => getVersion())
 );
-ipcMain.handle("saveAssignment", (event, assignment, path) =>
-  handleSaveAssignment(assignment, path)
+ipcMain.handle(
+  "getSettings",
+  formatIPCResult(() => getSettings())
 );
-ipcMain.handle("getAssignments", (event, path) => handleGetAssignments(path));
-ipcMain.handle("deleteAssignment", (event, coursePath, id) =>
-  removeAssignmentById(coursePath, id)
+ipcMain.handle(
+  "selectDir",
+  formatIPCResult(() => handleDirectorySelect())
 );
-
-ipcMain.handle("saveModule", (event, module, path) =>
-  handleSaveModule(module, path)
+ipcMain.handle(
+  "saveCourse",
+  formatIPCResult((course, path) => handleSaveCourse(course, path))
 );
-ipcMain.handle("getModules", (event, path) => handleGetModules(path));
-ipcMain.handle("deleteModule", (event, coursePath, id) =>
-  removeModuleById(coursePath, id)
+ipcMain.handle(
+  "readCourse",
+  formatIPCResult((path) => handleReadCourse(path))
 );
-ipcMain.handle("saveSettings", (event, settings) => saveSettings(settings));
-ipcMain.handle("selectFiles", handleFilesOpen);
-ipcMain.handle("updateAssignment", (event, assignment, path) =>
-  handleUpdateAssignment(assignment, path)
+ipcMain.handle(
+  "updateCourse",
+  formatIPCResult((fileName, path) => handleUpdateCourse(fileName, path))
+);
+ipcMain.handle(
+  "saveAssignment",
+  formatIPCResult((assignment, path) => handleSaveAssignment(assignment, path))
+);
+ipcMain.handle(
+  "getAssignments",
+  formatIPCResult((path) => handleGetAssignments(path))
+);
+ipcMain.handle(
+  "deleteAssignment",
+  formatIPCResult((coursePath, id) => removeAssignmentById(coursePath, id))
+);
+ipcMain.handle(
+  "saveModule",
+  formatIPCResult((module, path) => handleSaveModule(module, path))
+);
+ipcMain.handle(
+  "getModules",
+  formatIPCResult((path) => handleGetModules(path))
+);
+ipcMain.handle(
+  "deleteModule",
+  formatIPCResult((coursePath, id) => removeModuleById(coursePath, id))
+);
+ipcMain.handle(
+  "saveSettings",
+  formatIPCResult((settings) => saveSettings(settings))
+);
+ipcMain.handle(
+  "selectFiles",
+  formatIPCResult(() => handleFilesOpen())
+);
+ipcMain.handle(
+  "updateAssignment",
+  formatIPCResult((assignment, path) =>
+    handleUpdateAssignment(assignment, path)
+  )
 );
 
 testDatabase();

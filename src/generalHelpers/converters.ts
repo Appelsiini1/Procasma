@@ -1,3 +1,4 @@
+import { ConnectingAirportsOutlined } from "@mui/icons-material";
 import { LevelsType } from "../types";
 
 export function splitStringToArray(input: string): string[] {
@@ -66,4 +67,12 @@ export function courseLevelsToString(levels: LevelsType): string {
 
 export function spacesToUnderscores(input: string): string {
   return input.replace(/ /g, "_");
+}
+
+/**
+ * Try to convert anything to string. Return empty string on fail.
+ */
+export function ForceToString(input: any) {
+  const convert = String(input);
+  return convert && convert != "null" ? convert : "";
 }

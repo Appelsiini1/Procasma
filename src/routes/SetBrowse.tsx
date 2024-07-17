@@ -119,7 +119,7 @@ export default function SetBrowse({
   return (
     <>
       <PageHeaderBar
-        pageName={texts.ui_set_browser[language.current]}
+        pageName={parseUICode("ui_set_browser")}
         courseID={activeCourse?.ID}
         courseTitle={activeCourse?.title}
       />
@@ -144,23 +144,23 @@ export default function SetBrowse({
           <ButtonComp
             buttonType="normal"
             onClick={null}
-            ariaLabel={texts.ui_aria_export_sets[language.current]}
+            ariaLabel={parseUICode("ui_aria_export_sets")}
           >
-            {texts.ui_export[language.current]}
+            {parseUICode("ui_export")}
           </ButtonComp>
           <ButtonComp
             buttonType="normal"
             onClick={null}
-            ariaLabel={texts.ui_aria_delete_sets[language.current]}
+            ariaLabel={parseUICode("ui_aria_delete_sets")}
           >
-            {texts.ui_delete[language.current]}
+            {parseUICode("ui_delete")}
           </ButtonComp>
           <ButtonComp
             buttonType="normal"
             onClick={null}
-            ariaLabel={texts.ui_aria_modify_sets[language.current]}
+            ariaLabel={parseUICode("ui_aria_modify_sets")}
           >
-            {texts.ui_modify[language.current]}
+            {parseUICode("ui_modify")}
           </ButtonComp>
         </Stack>
 
@@ -174,7 +174,7 @@ export default function SetBrowse({
           sx={{ width: "100%" }}
         >
           <Typography level="h3">
-            {texts.ui_assignment_sets[language.current]}
+            {parseUICode("ui_assignment_sets")}
           </Typography>
 
           <Box
@@ -193,9 +193,9 @@ export default function SetBrowse({
         <ButtonComp
           buttonType="normal"
           onClick={() => navigate(-1)}
-          ariaLabel={texts.ui_aria_cancel[language.current]}
+          ariaLabel={parseUICode("ui_aria_cancel")}
         >
-          {texts.ui_close[language.current]}
+          {parseUICode("ui_close")}
         </ButtonComp>
       </div>
     </>

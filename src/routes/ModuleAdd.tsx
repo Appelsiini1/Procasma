@@ -1,17 +1,21 @@
 import PageHeaderBar from "../components/PageHeaderBar";
 import { useLoaderData, useNavigate } from "react-router-dom";
-import texts from "../../resource/texts.json";
-import { language } from "../globalsUI";
 import { Grid, Stack, Table, Typography } from "@mui/joy";
 import InputField from "../components/InputField";
-import { useState } from "react";
 import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
 import ButtonComp from "../components/ButtonComp";
 import { CourseData, ModuleData } from "../types";
-import { useModule } from "../helpers/assignmentHelpers";
-import { testModule } from "../myTestGlobals";
-import { splitStringToArray } from "../helpers/converters";
+import { useModule } from "../rendererHelpers/assignmentHelpers";
+import { defaultModule } from "../defaultObjects";
+import { splitStringToArray } from "../generalHelpers/converters";
+import { parseUICode } from "../rendererHelpers/translation";
+import { useState } from "react";
+import SnackbarComp, {
+  functionResultToSnackBar,
+  SnackBarAttributes,
+} from "../components/SnackBarComp";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 
 export default function ModuleAdd({
   activeCourse,
@@ -23,25 +27,55 @@ export default function ModuleAdd({
   activeModule?: ModuleData;
 }) {
   const [module, handleModule] = useModule(
-    activeModule ? activeModule : testModule
+    activeModule ? activeModule : defaultModule
   );
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [snackBarAttributes, setSnackBarAttributes] =
+    useState<SnackBarAttributes>({ color: "success", text: "" });
 
   const pageType = useLoaderData();
   const navigate = useNavigate();
   let pageTitle: string = null;
 
   if (pageType === "new") {
-    pageTitle = texts.ui_new_module[language.current];
+    pageTitle = parseUICode("ui_new_module");
   }
 
   if (pageType === "manage") {
-    pageTitle = texts.ui_edit_module[language.current];
+    pageTitle = parseUICode("ui_edit_module");
+  }
+
+  async function handleSaveModule() {
+    let snackbarSeverity = "success";
+    let snackbarText = "ui_module_save_success";
+    try {
+      if (pageType === "manage") {
+        // Update currently just overwrites the existing module
+        // in fileOperations
+        snackbarText = await handleIPCResult(() =>
+          window.api.updateModule(module, activePath)
+        );
+      } else {
+        snackbarText = await handleIPCResult(() =>
+          window.api.saveModule(module, activePath)
+        );
+      }
+    } catch (err) {
+      snackbarText = err.message;
+      snackbarSeverity = "error";
+    }
+
+    functionResultToSnackBar(
+      { [snackbarSeverity]: parseUICode(snackbarText) },
+      setShowSnackbar,
+      setSnackBarAttributes
+    );
   }
 
   return (
     <>
       <PageHeaderBar
-        pageName={texts.ui_add_assignment[language.current]}
+        pageName={parseUICode("ui_add_module")}
         courseID={activeCourse?.ID}
         courseTitle={activeCourse?.title}
       />
@@ -52,7 +86,7 @@ export default function ModuleAdd({
             <tr key="mTitle">
               <td style={{ width: "25%" }}>
                 <Typography level="h4">
-                  {texts.ui_assignment_title[language.current]}
+                  {parseUICode("ui_assignment_title")}
                 </Typography>
               </td>
               <td>
@@ -69,7 +103,7 @@ export default function ModuleAdd({
             <tr key="mModuleNumber">
               <td>
                 <Typography level="h4">
-                  {texts.ui_module_amount[language.current]}
+                  {parseUICode("ui_module_amount")}
                 </Typography>
               </td>
               <td>
@@ -85,9 +119,7 @@ export default function ModuleAdd({
 
             <tr key="mAssignmentAmount">
               <td>
-                <Typography level="h4">
-                  {texts.ui_module[language.current]}
-                </Typography>
+                <Typography level="h4">{parseUICode("ui_module")}</Typography>
               </td>
               <td>
                 <NumberInput
@@ -109,11 +141,11 @@ export default function ModuleAdd({
                 >
                   <Grid xs={10}>
                     <Typography level="h4">
-                      {texts.ui_week_topics[language.current]}
+                      {parseUICode("ui_week_topics")}
                     </Typography>
                   </Grid>
                   <Grid xs={2}>
-                    <HelpText text={texts.help_week_topics[language.current]} />
+                    <HelpText text={parseUICode("help_week_topics")} />
                   </Grid>
                 </Grid>
               </td>
@@ -139,12 +171,10 @@ export default function ModuleAdd({
                   spacing={1}
                 >
                   <Grid xs={10}>
-                    <Typography level="h4">
-                      {texts.ui_inst[language.current]}
-                    </Typography>
+                    <Typography level="h4">{parseUICode("ui_inst")}</Typography>
                   </Grid>
                   <Grid xs={2}>
-                    <HelpText text={texts.help_week_inst[language.current]} />
+                    <HelpText text={parseUICode("help_week_inst")} />
                   </Grid>
                 </Grid>
               </td>
@@ -171,11 +201,11 @@ export default function ModuleAdd({
                 >
                   <Grid xs={10}>
                     <Typography level="h4">
-                      {texts.ui_week_tags[language.current]}
+                      {parseUICode("ui_week_tags")}
                     </Typography>
                   </Grid>
                   <Grid xs={2}>
-                    <HelpText text={texts.help_week_tags[language.current]} />
+                    <HelpText text={parseUICode("help_week_tags")} />
                   </Grid>
                 </Grid>
               </td>
@@ -201,27 +231,34 @@ export default function ModuleAdd({
         >
           <ButtonComp
             buttonType="normal"
-            onClick={() => window.api.saveModule(module, activePath)}
-            ariaLabel={texts.ui_aria_save[language.current]}
+            onClick={() => handleSaveModule()}
+            ariaLabel={parseUICode("ui_aria_save")}
           >
-            {texts.ui_save[language.current]}
+            {parseUICode("ui_save")}
           </ButtonComp>
           <ButtonComp
             buttonType="normal"
             onClick={() => console.log(module)}
-            ariaLabel={texts.ui_aria_save[language.current]}
+            ariaLabel={parseUICode("ui_aria_save")}
           >
             log module state
           </ButtonComp>
           <ButtonComp
             buttonType="normal"
             onClick={() => navigate(-1)}
-            ariaLabel={texts.ui_aria_cancel[language.current]}
+            ariaLabel={parseUICode("ui_aria_cancel")}
           >
-            {texts.ui_cancel[language.current]}
+            {parseUICode("ui_cancel")}
           </ButtonComp>
         </Stack>
       </div>
+      {showSnackbar ? (
+        <SnackbarComp
+          text={snackBarAttributes.text}
+          color={snackBarAttributes.color}
+          setShowSnackbar={setShowSnackbar}
+        ></SnackbarComp>
+      ) : null}
     </>
   );
 }

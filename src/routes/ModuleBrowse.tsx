@@ -1,7 +1,5 @@
 import PageHeaderBar from "../components/PageHeaderBar";
-import texts from "../../resource/texts.json";
-import { language } from "../globalsUI";
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Checkbox,
@@ -24,9 +22,13 @@ import {
   handleCheckArray,
   handleUpdateUniqueTags,
   setSelectedViaChecked,
-} from "../helpers/browseHelpers";
-import { getModules } from "../helpers/requests";
-import log from "electron-log/renderer";
+} from "../rendererHelpers/browseHelpers";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import SnackbarComp, {
+  functionResultToSnackBar,
+  SnackBarAttributes,
+} from "../components/SnackBarComp";
+import { parseUICode } from "../rendererHelpers/translation";
 
 export interface ModuleWithCheck extends WithCheckWrapper {
   value: ModuleData;
@@ -35,15 +37,11 @@ export interface ModuleWithCheck extends WithCheckWrapper {
 /**
  * Generates the list of modules, filtering based on the given
  * filters.
- * @param modules
- * @param filters
- * @returns
  */
 export function generateModules(
   modules: ModuleWithCheck[],
   setCourseModules: React.Dispatch<React.SetStateAction<ModuleWithCheck[]>>,
-  filters: filterType[],
-  searchTerm: string
+  filters: filterType[]
 ) {
   const filteredModules = modules
     ? modules.map((module: ModuleWithCheck) => {
@@ -60,14 +58,6 @@ export function generateModules(
         showModule = checkIfShouldFilter(tags, tagFilter.filters)
           ? showModule
           : false;
-
-        // check search term filtration
-        if (searchTerm && searchTerm.length > 0) {
-          const titleFormatted = module.value.name.toLowerCase();
-          const searchFormatted = searchTerm.toLowerCase();
-
-          showModule = titleFormatted.includes(searchFormatted) ? true : false;
-        }
 
         return showModule ? (
           <ListItem
@@ -104,27 +94,6 @@ export function generateModules(
   return filteredModules;
 }
 
-export async function handleDeleteSelected(
-  selectedModules: ModuleData[],
-  activePath: string,
-  refreshModules: () => void
-) {
-  try {
-    const deletePromises = selectedModules.map(async (module) => {
-      const result = await window.api.deleteModule(activePath, module.ID);
-      return result;
-    });
-
-    const results = await Promise.all(deletePromises);
-
-    // get the remaining modules
-    refreshModules();
-  } catch (error) {
-    console.error("Error deleting modules:", error);
-    log.error(`Error deleting modules: ${error}`);
-  }
-}
-
 export default function ModuleBrowse({
   activeCourse,
   activePath,
@@ -148,6 +117,9 @@ export default function ModuleBrowse({
   const [navigateToModule, setNavigateToModule] = useState(false);
   const [numSelected, setNumSelected] = useState(0);
   const [uniqueTags, setUniqueTags] = useState<Array<filterState>>([]);
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [snackBarAttributes, setSnackBarAttributes] =
+    useState<SnackBarAttributes>({ color: "success", text: "" });
 
   function getTagsFromModules(modules: ModuleData[]): Array<string> {
     const tags: Array<string> = [];
@@ -158,31 +130,37 @@ export default function ModuleBrowse({
   }
 
   const refreshModules = async () => {
-    if (!activePath) {
-      return;
-    }
+    try {
+      if (!activePath) {
+        return;
+      }
 
-    const modules: ModuleData[] = await getModules(activePath);
+      const modules: ModuleData[] = await handleIPCResult(() =>
+        window.api.getModules(activePath)
+      );
 
-    if (!modules) {
-      return;
-    }
+      // wrap the fetched modules to store checked state
+      const modulesWithCheck = modules.map((module) => {
+        const ModuleCheck: ModuleWithCheck = {
+          isChecked: false,
+          value: module,
+        };
 
-    // wrap the fetched modules to store checked state
-    const modulesWithCheck = modules.map((module) => {
-      const ModuleCheck: ModuleWithCheck = {
-        isChecked: false,
-        value: module,
-      };
+        return ModuleCheck;
+      });
 
-      return ModuleCheck;
-    });
-
-    if (modulesWithCheck) {
-      // update assignments and filters
-      setCourseModules(modulesWithCheck);
-      const tags: Array<string> = getTagsFromModules(modules);
-      handleUpdateUniqueTags(tags, setUniqueTags);
+      if (modulesWithCheck) {
+        // update assignments and filters
+        setCourseModules(modulesWithCheck);
+        const tags: Array<string> = getTagsFromModules(modules);
+        handleUpdateUniqueTags(tags, setUniqueTags);
+      }
+    } catch (err) {
+      functionResultToSnackBar(
+        { error: parseUICode(err.message) },
+        setShowSnackbar,
+        setSnackBarAttributes
+      );
     }
   };
 
@@ -190,6 +168,31 @@ export default function ModuleBrowse({
   useEffect(() => {
     refreshModules();
   }, []);
+
+  async function handleDeleteSelected() {
+    let snackbarSeverity = "success";
+    let snackbarText = "ui_delete_success";
+    try {
+      const deletePromises = selectedModules.map(async (module) => {
+        await handleIPCResult(() =>
+          window.api.deleteModule(activePath, module.ID)
+        );
+      });
+      await Promise.all(deletePromises);
+
+      // get the remaining modules
+      refreshModules();
+    } catch (err) {
+      snackbarText = err.message;
+      snackbarSeverity = "error";
+    }
+
+    functionResultToSnackBar(
+      { [snackbarSeverity]: parseUICode(snackbarText) },
+      setShowSnackbar,
+      setSnackBarAttributes
+    );
+  }
 
   // Update the selected modules counter
   useEffect(() => {
@@ -200,13 +203,17 @@ export default function ModuleBrowse({
 
   const tagsFilter: filterType = { name: "tags", filters: uniqueTags };
 
-  modules = generateModules(courseModules, setCourseModules, [tagsFilter], "");
+  modules = generateModules(courseModules, setCourseModules, [tagsFilter]);
   tags = generateFilter(uniqueTags, setUniqueTags);
 
   async function handleOpenModule() {
     // set the first selected module as global
     if (!selectedModules || selectedModules.length < 1) {
-      console.log("no module selected");
+      functionResultToSnackBar(
+        { info: parseUICode("ui_no_module_seleted") },
+        setShowSnackbar,
+        setSnackBarAttributes
+      );
       return;
     }
     setNavigateToModule(true);
@@ -223,7 +230,7 @@ export default function ModuleBrowse({
   return (
     <>
       <PageHeaderBar
-        pageName={texts.ui_module_browser[language.current]}
+        pageName={parseUICode("ui_module_browser")}
         courseID={activeCourse?.ID}
         courseTitle={activeCourse?.title}
       />
@@ -237,24 +244,22 @@ export default function ModuleBrowse({
         >
           <ButtonComp
             confirmationModal={true}
-            modalText={`${texts.ui_delete[language.current]} 
+            modalText={`${parseUICode("ui_delete")} 
             ${numSelected}`}
             buttonType="normal"
-            onClick={() =>
-              handleDeleteSelected(selectedModules, activePath, refreshModules)
-            }
-            ariaLabel={texts.ui_remove_selected_modules[language.current]}
+            onClick={() => handleDeleteSelected()}
+            ariaLabel={parseUICode("ui_remove_selected_modules")}
           >
-            {`${texts.ui_delete[language.current]} ${numSelected}`}
+            {`${parseUICode("ui_delete")} ${numSelected}`}
           </ButtonComp>
           <ButtonComp
             buttonType="normal"
             onClick={() => {
               handleOpenModule();
             }}
-            ariaLabel={texts.ui_aria_show_edit[language.current]}
+            ariaLabel={parseUICode("ui_aria_show_edit")}
           >
-            {texts.ui_show_edit[language.current]}
+            {parseUICode("ui_show_edit")}
           </ButtonComp>
           <Typography>
             {selectedModules && selectedModules.length > 0
@@ -279,9 +284,7 @@ export default function ModuleBrowse({
               alignItems="flex-start"
               spacing={2}
             >
-              <Typography level="h3">
-                {texts.assignments[language.current]}
-              </Typography>
+              <Typography level="h3">{parseUICode("assignments")}</Typography>
 
               <Box
                 height="40rem"
@@ -304,9 +307,7 @@ export default function ModuleBrowse({
               alignItems="flex-start"
               spacing={2}
             >
-              <Typography level="h3">
-                {texts.ui_filter[language.current]}
-              </Typography>
+              <Typography level="h3">{parseUICode("ui_filter")}</Typography>
 
               <Box
                 height="40rem"
@@ -328,11 +329,18 @@ export default function ModuleBrowse({
         <ButtonComp
           buttonType="normal"
           onClick={() => navigate(-1)}
-          ariaLabel={texts.ui_aria_cancel[language.current]}
+          ariaLabel={parseUICode("ui_aria_cancel")}
         >
-          {texts.ui_cancel[language.current]}
+          {parseUICode("ui_cancel")}
         </ButtonComp>
       </div>
+      {showSnackbar ? (
+        <SnackbarComp
+          text={snackBarAttributes.text}
+          color={snackBarAttributes.color}
+          setShowSnackbar={setShowSnackbar}
+        ></SnackbarComp>
+      ) : null}
     </>
   );
 }

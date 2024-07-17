@@ -1,8 +1,6 @@
 import PageHeaderBar from "../components/PageHeaderBar";
 import { useLoaderData, useNavigate } from "react-router-dom";
-import texts from "../../resource/texts.json";
 import { dividerColor } from "../constantsUI";
-import { language } from "../globalsUI";
 import {
   Box,
   Checkbox,
@@ -22,6 +20,7 @@ import ButtonComp from "../components/ButtonComp";
 import SwitchComp from "../components/SwitchComp";
 import StepperComp from "../components/StepperComp";
 import { CourseData } from "../types";
+import { parseUICode } from "../rendererHelpers/translation";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 
@@ -52,10 +51,10 @@ export default function SetCreator({
     []
   );
   const stepHeadings: string[] = [
-    texts.ui_module_selection[language.current],
-    texts.ui_set_details[language.current],
-    texts.ui_choose_tasks[language.current],
-    texts.ui_cg_config[language.current],
+    parseUICode("ui_module_selection"),
+    parseUICode("ui_set_details"),
+    parseUICode("ui_choose_tasks"),
+    parseUICode("ui_cg_config"),
   ];
   let assignments: Array<React.JSX.Element> = null;
 
@@ -70,7 +69,7 @@ export default function SetCreator({
   };
 
   if (pageType === "new") {
-    pageTitle = texts.ui_create_new_set[language.current];
+    pageTitle = parseUICode("ui_create_new_set");
   }
 
   function handleSelectedAssignments(
@@ -118,7 +117,7 @@ export default function SetCreator({
   return (
     <>
       <PageHeaderBar
-        pageName={texts.ui_create_new_set[language.current]}
+        pageName={parseUICode("ui_create_new_set")}
         courseID={activeCourse?.ID}
         courseTitle={activeCourse?.title}
       />
@@ -132,14 +131,14 @@ export default function SetCreator({
         {stepperState === 0 ? (
           <>
             <Typography level="h1">
-              {texts.ui_module_selection[language.current]}
+              {parseUICode("ui_module_selection")}
             </Typography>
             <Table borderAxis="none">
               <tbody>
                 <tr key="caTitle">
                   <td style={{ width: "25%" }}>
                     <Typography level="h4">
-                      {texts.ui_full_course[language.current]}
+                      {parseUICode("ui_full_course")}
                     </Typography>
                   </td>
                   <td>
@@ -153,7 +152,7 @@ export default function SetCreator({
                 <tr key="caModule">
                   <td>
                     <Typography level="h4">
-                      {texts.ui_module[language.current]}
+                      {parseUICode("ui_module")}
                     </Typography>
                   </td>
                   <td>
@@ -174,15 +173,13 @@ export default function SetCreator({
 
         {stepperState === 1 ? (
           <>
-            <Typography level="h1">
-              {texts.ui_set_details[language.current]}
-            </Typography>
+            <Typography level="h1">{parseUICode("ui_set_details")}</Typography>
             <Table borderAxis="none">
               <tbody>
                 <tr key="caSetName">
                   <td style={{ width: "25%" }}>
                     <Typography level="h4">
-                      {texts.ui_set_name[language.current]}
+                      {parseUICode("ui_set_name")}
                     </Typography>
                   </td>
                   <td>
@@ -192,9 +189,7 @@ export default function SetCreator({
 
                 <tr key="caYear">
                   <td>
-                    <Typography level="h4">
-                      {texts.ui_year[language.current]}
-                    </Typography>
+                    <Typography level="h4">{parseUICode("ui_year")}</Typography>
                   </td>
                   <td>
                     <NumberInput
@@ -208,7 +203,7 @@ export default function SetCreator({
                 <tr key="caPeriod">
                   <td>
                     <Typography level="h4">
-                      {texts.ui_study_period[language.current]}
+                      {parseUICode("ui_study_period")}
                     </Typography>
                   </td>
                   <td>
@@ -223,7 +218,7 @@ export default function SetCreator({
                 <tr key="caExportSet">
                   <td style={{ width: "25%" }}>
                     <Typography level="h4">
-                      {texts.ui_export_set[language.current]}
+                      {parseUICode("ui_export_set")}
                     </Typography>
                   </td>
                   <td>
@@ -234,7 +229,7 @@ export default function SetCreator({
                 <tr key="caFormat">
                   <td>
                     <Typography level="h4">
-                      {texts.ui_format[language.current]}
+                      {parseUICode("ui_format")}
                     </Typography>
                   </td>
                   <td>
@@ -250,7 +245,7 @@ export default function SetCreator({
                 <tr key="caExportCodeGrade">
                   <td style={{ width: "25%" }}>
                     <Typography level="h4">
-                      {texts.ui_export_codegrade_config[language.current]}
+                      {parseUICode("ui_export_codegrade_config")}
                     </Typography>
                   </td>
                   <td>
@@ -269,15 +264,13 @@ export default function SetCreator({
 
         {stepperState === 2 ? (
           <>
-            <Typography level="h1">
-              {texts.ui_choose_tasks[language.current]}
-            </Typography>
+            <Typography level="h1">{parseUICode("ui_choose_tasks")}</Typography>
             <Table borderAxis="none">
               <tbody>
                 <tr key="caSetName">
                   <td style={{ width: "25%" }}>
                     <Typography level="h4">
-                      {`${texts.ui_module[language.current]} ${moduleNumber}`}
+                      {`${parseUICode("ui_module")} ${moduleNumber}`}
                     </Typography>
                   </td>
                 </tr>
@@ -315,38 +308,30 @@ export default function SetCreator({
                       <ButtonComp
                         buttonType="normal"
                         onClick={null}
-                        ariaLabel={
-                          texts.ui_aria_show_assignment[language.current]
-                        }
+                        ariaLabel={parseUICode("ui_aria_show_assignment")}
                       >
-                        {texts.ui_show[language.current]}
+                        {parseUICode("ui_show")}
                       </ButtonComp>
                       <ButtonComp
                         buttonType="normal"
                         onClick={null}
-                        ariaLabel={
-                          texts.ui_aria_delete_assignment[language.current]
-                        }
+                        ariaLabel={parseUICode("ui_aria_delete_assignment")}
                       >
-                        {texts.ui_delete[language.current]}
+                        {parseUICode("ui_delete")}
                       </ButtonComp>
                       <ButtonComp
                         buttonType="normal"
                         onClick={null}
-                        ariaLabel={
-                          texts.ui_aria_add_assignment[language.current]
-                        }
+                        ariaLabel={parseUICode("ui_aria_add_assignment")}
                       >
-                        {texts.ui_add[language.current]}
+                        {parseUICode("ui_add")}
                       </ButtonComp>
                       <ButtonComp
                         buttonType="normal"
                         onClick={null}
-                        ariaLabel={
-                          texts.ui_aria_change_assignment[language.current]
-                        }
+                        ariaLabel={parseUICode("ui_aria_change_assignment")}
                       >
-                        {texts.ui_change[language.current]}
+                        {parseUICode("ui_change")}
                       </ButtonComp>
                     </Stack>
                   </td>
@@ -364,18 +349,18 @@ export default function SetCreator({
         {stepperState === 3 ? (
           <>
             <Typography level="h1">
-              {texts.ui_codegrade_autotest[language.current]}
+              {parseUICode("ui_codegrade_autotest")}
             </Typography>
             {exportCGConfigs ? (
               <>
                 {" "}
                 <div className="emptySpace1" />
                 <Typography level="h4">
-                  {`${
-                    texts.ui_module[language.current]
-                  } ${moduleNumber} - CodeGrade ${
-                    texts.ui_assignment[language.current]
-                  } ${texts.ui_ids[language.current]}`}
+                  {`${parseUICode(
+                    "ui_module"
+                  )} ${moduleNumber} - CodeGrade ${parseUICode(
+                    "ui_assignment"
+                  )} ${parseUICode("ui_ids")}`}
                 </Typography>
                 <Table borderAxis="none">
                   <tbody>
@@ -412,9 +397,9 @@ export default function SetCreator({
             <ButtonComp
               buttonType="normal"
               onClick={null}
-              ariaLabel={texts.ui_aria_export_cg_configs[language.current]}
+              ariaLabel={parseUICode("ui_aria_export_cg_configs")}
             >
-              {texts.ui_export[language.current]}
+              {parseUICode("ui_export")}
             </ButtonComp>
           ) : (
             ""
@@ -423,9 +408,9 @@ export default function SetCreator({
             <ButtonComp
               buttonType="normal"
               onClick={() => handleStepperState(1)}
-              ariaLabel={texts.ui_aria_nav_next[language.current]}
+              ariaLabel={parseUICode("ui_aria_nav_next")}
             >
-              {texts.ui_next[language.current]}
+              {parseUICode("ui_next")}
             </ButtonComp>
           ) : (
             ""
@@ -434,18 +419,18 @@ export default function SetCreator({
           <ButtonComp
             buttonType="normal"
             onClick={() => navigate(-1)}
-            ariaLabel={texts.ui_aria_close[language.current]}
+            ariaLabel={parseUICode("ui_aria_close")}
           >
-            {texts.ui_close[language.current]}
+            {parseUICode("ui_close")}
           </ButtonComp>
 
           {stepperState > 0 ? (
             <ButtonComp
               buttonType="normal"
               onClick={() => handleStepperState(-1)}
-              ariaLabel={texts.ui_aria_nav_previous[language.current]}
+              ariaLabel={parseUICode("ui_aria_nav_previous")}
             >
-              {texts.ui_previous[language.current]}
+              {parseUICode("ui_previous")}
             </ButtonComp>
           ) : (
             ""

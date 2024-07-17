@@ -1,6 +1,4 @@
 import PageHeaderBar from "../components/PageHeaderBar";
-import texts from "../../resource/texts.json";
-import { language } from "../globalsUI";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -17,7 +15,6 @@ import { useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
 import { CodeAssignmentData, CourseData } from "../types";
-import { getAssignments } from "../helpers/requests";
 import {
   WithCheckWrapper,
   checkIfShouldFilter,
@@ -28,12 +25,13 @@ import {
   handleUpdateFilter,
   handleUpdateUniqueTags,
   setSelectedViaChecked,
-} from "../helpers/browseHelpers";
+} from "../rendererHelpers/browseHelpers";
 import SnackbarComp, {
   SnackBarAttributes,
   functionResultToSnackBar,
 } from "../components/SnackBarComp";
-import log from "electron-log/renderer";
+import { parseUICode } from "../rendererHelpers/translation";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 
 export interface AssignmentWithCheck extends WithCheckWrapper {
   value: CodeAssignmentData;
@@ -42,9 +40,6 @@ export interface AssignmentWithCheck extends WithCheckWrapper {
 /**
  * Generates the list of assignments, filtering based on the given
  * filters.
- * @param assignments
- * @param filters
- * @returns
  */
 export function generateAssignments(
   assignments: AssignmentWithCheck[],
@@ -100,7 +95,7 @@ export function generateAssignments(
 
         return showAssignment ? (
           <ListItem
-            key={assignment.value.assignmentID}
+            key={assignment.value?.assignmentID}
             startAction={
               <Checkbox
                 checked={assignment.isChecked}
@@ -124,7 +119,7 @@ export function generateAssignments(
                 )
               }
             >
-              {assignment.value.title}
+              {assignment.value?.title}
             </ListItemButton>
           </ListItem>
         ) : null;
@@ -184,42 +179,48 @@ export default function AssignmentBrowse({
   }
 
   const refreshAssignments = async () => {
-    if (!activePath) {
-      return;
-    }
+    try {
+      if (!activePath) {
+        return;
+      }
 
-    const assignments: CodeAssignmentData[] = await getAssignments(activePath);
+      const assignments: CodeAssignmentData[] = await handleIPCResult(() =>
+        window.api.getAssignments(activePath)
+      );
 
-    if (!assignments) {
-      return;
-    }
+      // wrap the fetched assignments to store checked state
+      const assignentsWithCheck = assignments.map((assignment) => {
+        const assignmentCheck: AssignmentWithCheck = {
+          isChecked: false,
+          value: assignment,
+        };
 
-    // wrap the fetched assignments to store checked state
-    const assignentsWithCheck = assignments.map((assignment) => {
-      const assignmentCheck: AssignmentWithCheck = {
-        isChecked: false,
-        value: assignment,
-      };
-
-      return assignmentCheck;
-    });
-
-    if (assignentsWithCheck) {
-      // update assignments and filters
-      setCourseAssignments(assignentsWithCheck);
-      const tags: Array<string> = getTagsFromAssignments(assignments);
-      handleUpdateUniqueTags(tags, setUniqueTags);
-
-      const modules: Array<string> = assignments.map((assignment) => {
-        return String(assignment.module);
+        return assignmentCheck;
       });
 
-      const types: Array<string> = assignments.map((assignment) => {
-        return String(assignment.assignmentType);
-      });
+      if (assignentsWithCheck) {
+        // update assignments and filters
+        setCourseAssignments(assignentsWithCheck);
+        const tags: Array<string> = getTagsFromAssignments(assignments);
+        handleUpdateUniqueTags(tags, setUniqueTags);
 
-      handleUpdateFilter(modules, setUniqueModules);
-      handleUpdateFilter(types, setUniqueTypes);
+        const modules: Array<string> = assignments.map((assignment) => {
+          return String(assignment.module);
+        });
+
+        const types: Array<string> = assignments.map((assignment) => {
+          return String(assignment.assignmentType);
+        });
+
+        handleUpdateFilter(modules, setUniqueModules);
+        handleUpdateFilter(types, setUniqueTypes);
+      }
+    } catch (err) {
+      functionResultToSnackBar(
+        { error: parseUICode(err.message) },
+        setShowSnackbar,
+        setSnackBarAttributes
+      );
     }
   };
 
@@ -229,42 +230,28 @@ export default function AssignmentBrowse({
   }, []);
 
   async function handleDeleteSelected() {
+    let snackbarSeverity = "success";
+    let snackbarText = "ui_delete_success";
     try {
       const deletePromises = selectedAssignments.map(async (assignment) => {
-        const result = await window.api.deleteAssignment(
-          activePath,
-          assignment.assignmentID
+        await handleIPCResult(() =>
+          window.api.deleteAssignment(activePath, assignment.assignmentID)
         );
-        return result;
       });
-
-      const results = await Promise.all(deletePromises);
-
-      const foundError = results.find((result) => {
-        return result?.error ? true : false;
-      });
-
-      // display the first error as a snackbar
-      if (foundError) {
-        functionResultToSnackBar(
-          foundError,
-          setShowSnackbar,
-          setSnackBarAttributes
-        );
-      } else {
-        functionResultToSnackBar(
-          { success: "ui_delete_success" },
-          setShowSnackbar,
-          setSnackBarAttributes
-        );
-      }
+      await Promise.all(deletePromises);
 
       // get the remaining assignments
       refreshAssignments();
-    } catch (error) {
-      console.error("Error deleting assignments:", error);
-      log.error(`Error deleting assignments: ${error}`);
+    } catch (err) {
+      snackbarText = err.message;
+      snackbarSeverity = "error";
     }
+
+    functionResultToSnackBar(
+      { [snackbarSeverity]: parseUICode(snackbarText) },
+      setShowSnackbar,
+      setSnackBarAttributes
+    );
   }
 
   // Update the selected assignments counter
@@ -282,7 +269,7 @@ export default function AssignmentBrowse({
    * the identifier within an assignment.
    */
   function formAssignmentTypeText(type: string): string {
-    return (texts as any)[`ui_${type}`]?.[language?.current] ?? "";
+    return parseUICode(`ui_${type}`);
   }
 
   const modulesFilter: filterType = { name: "module", filters: uniqueModules };
@@ -305,7 +292,11 @@ export default function AssignmentBrowse({
   async function handleOpenAssignment() {
     // set the first selected assignment as global
     if (!selectedAssignments || selectedAssignments.length < 1) {
-      console.log("no assignment selected");
+      functionResultToSnackBar(
+        { info: parseUICode("ui_no_assignment_seleted") },
+        setShowSnackbar,
+        setSnackBarAttributes
+      );
       return;
     }
     setNavigateToAssignment(true);
@@ -346,22 +337,22 @@ export default function AssignmentBrowse({
         >
           <ButtonComp
             confirmationModal={true}
-            modalText={`${texts.ui_delete[language.current]} 
+            modalText={`${parseUICode("ui_delete")} 
               ${numSelected}`}
             buttonType="normal"
             onClick={() => handleDeleteSelected()}
-            ariaLabel={texts.ui_aria_remove_selected[language.current]}
+            ariaLabel={parseUICode("ui_aria_remove_selected")}
           >
-            {`${texts.ui_delete[language.current]} ${numSelected}`}
+            {`${parseUICode("ui_delete")} ${numSelected}`}
           </ButtonComp>
           <ButtonComp
             buttonType="normal"
             onClick={() => {
               handleOpenAssignment();
             }}
-            ariaLabel={texts.ui_aria_show_edit[language.current]}
+            ariaLabel={parseUICode("ui_aria_show_edit")}
           >
-            {texts.ui_show_edit[language.current]}
+            {parseUICode("ui_show_edit")}
           </ButtonComp>
           <Typography>
             {selectedAssignments && selectedAssignments.length > 0
@@ -376,16 +367,16 @@ export default function AssignmentBrowse({
         {/*<ButtonComp
           buttonType="normal"
           onClick={null}
-          ariaLabel={texts.ui_aria_save[language.current]}
+          ariaLabel={parseUICode("ui_aria_save")}
         >
-          {texts.ui_save[language.current]}
+          {parseUICode("ui_save")}
         </ButtonComp>*/}
         <ButtonComp
           buttonType="normal"
           onClick={() => navigate(-1)}
-          ariaLabel={texts.ui_aria_cancel[language.current]}
+          ariaLabel={parseUICode("ui_aria_cancel")}
         >
-          {texts.ui_cancel[language.current]}
+          {parseUICode("ui_cancel")}
         </ButtonComp>
       </>
     );
@@ -393,7 +384,7 @@ export default function AssignmentBrowse({
   return (
     <>
       <PageHeaderBar
-        pageName={texts.ui_assignment_browser[language.current]}
+        pageName={parseUICode("ui_assignment_browser")}
         courseID={activeCourse?.ID}
         courseTitle={activeCourse?.title}
       />
@@ -416,9 +407,7 @@ export default function AssignmentBrowse({
               alignItems="flex-start"
               spacing={2}
             >
-              <Typography level="h3">
-                {texts.assignments[language.current]}
-              </Typography>
+              <Typography level="h3">{parseUICode("assignments")}</Typography>
 
               <Box
                 height="40rem"
@@ -441,9 +430,7 @@ export default function AssignmentBrowse({
               alignItems="flex-start"
               spacing={2}
             >
-              <Typography level="h3">
-                {texts.ui_filter[language.current]}
-              </Typography>
+              <Typography level="h3">{parseUICode("ui_filter")}</Typography>
 
               <Box
                 height="40rem"
@@ -457,21 +444,15 @@ export default function AssignmentBrowse({
               >
                 <List>
                   <ListItem nested>
-                    <ListSubheader>
-                      {texts.ui_type[language.current]}
-                    </ListSubheader>
+                    <ListSubheader>{parseUICode("ui_type")}</ListSubheader>
                     <List>{types}</List>
                   </ListItem>
                   <ListItem nested>
-                    <ListSubheader>
-                      {texts.ui_modules[language.current]}
-                    </ListSubheader>
+                    <ListSubheader>{parseUICode("ui_modules")}</ListSubheader>
                     <List>{modules}</List>
                   </ListItem>
                   <ListItem nested>
-                    <ListSubheader>
-                      {texts.ui_tags[language.current]}
-                    </ListSubheader>
+                    <ListSubheader>{parseUICode("ui_tags")}</ListSubheader>
                     <List>{tags}</List>
                   </ListItem>
                 </List>

@@ -1,4 +1,4 @@
-import { HandleAssignmentFn } from "../helpers/assignmentHelpers";
+import { HandleAssignmentFn } from "./assignmentHelpers";
 
 /**
  * Takes in any variation object (most likely

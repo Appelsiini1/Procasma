@@ -4,10 +4,9 @@ import HomeIcon from "@mui/icons-material/Home";
 import Logo from "../../resource/Logo.png";
 import Grid from "@mui/joy/Grid";
 import { useNavigate } from "react-router-dom";
-import texts from "../../resource/texts.json";
-import { language } from "../globalsUI";
 import { useEffect, useState } from "react";
-import { refreshTitle } from "../helpers/requests";
+import { refreshTitle } from "../rendererHelpers/requests";
+import { parseUICode } from "../rendererHelpers/translation";
 
 const IconSX = {
   color: "#00000",
@@ -35,7 +34,7 @@ export default function PageHeaderBar({
     if (ID && title) {
       setCourseName(`${ID} ${title}`);
     } else {
-      setCourseName(texts.ui_no_course[language.current]);
+      setCourseName(parseUICode("ui_no_course"));
     }
   };
 

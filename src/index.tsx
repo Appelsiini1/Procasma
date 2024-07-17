@@ -18,30 +18,31 @@ import {
   CodeAssignmentData,
   CourseData,
   ModuleData,
+  SettingsType,
   SupportedLanguages,
 } from "./types";
 import { language } from "./globalsUI";
 import log from "electron-log/renderer";
+import { handleIPCResult } from "./rendererHelpers/errorHelpers";
 
 log.info("-- START OF PROCASMA RENDERER --");
 
 const updateLanguageInit = async () => {
   try {
-    const settings = await window.api.getSettings();
-
-    if (!settings?.language) {
-      throw new Error("Failed to get settings");
+    const settings: SettingsType = await handleIPCResult(() =>
+      window.api.getSettings()
+    );
+    if (!settings.language) {
+      throw new Error("ui_load_settings_failed");
     }
 
     const abbreviation: SupportedLanguages =
       settings.language as SupportedLanguages;
 
     language.current = abbreviation;
-  } catch (error) {
-    console.error(error);
-    log.error(error);
+  } catch (err) {
+    log.error("Error in updateLanguageInit():", err.message);
   }
-
   return;
 };
 

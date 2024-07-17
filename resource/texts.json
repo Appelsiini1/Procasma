@@ -235,6 +235,10 @@
     "FI": "Lisää tehtävä",
     "ENG": "Add assignment"
   },
+  "ui_add_module": {
+    "FI": "Lisää moduuli",
+    "ENG": "Add module"
+  },
   "ui_dropzone_text_default": {
     "FI": "Raahaa tähän tiedostoja",
     "ENG": "Drag files here"
@@ -394,6 +398,14 @@
   "ui_aria_remove_selected": {
     "FI": "Poista valitut tehtävät listasta",
     "ENG": "Remove the selected tasks from the list"
+  },
+  "ui_no_assignment_seleted": {
+    "FI": "Ei valittua tehtävää.",
+    "ENG": "No assignment selected."
+  },
+  "ui_no_module_seleted": {
+    "FI": "Ei valittua moduulia.",
+    "ENG": "No module selected."
   },
   "ui_remove_selected_modules": {
     "FI": "Poista valitut moduulit listasta",
@@ -903,6 +915,14 @@
     "FI": "Tehtävä tallennettu.",
     "ENG": "Assignment saved."
   },
+  "ui_module_save_success": {
+    "FI": "Moduuli tallennettu.",
+    "ENG": "Module saved."
+  },
+  "ui_module_delete_success": {
+    "FI": "Moduuli poistettu onnistuneesti.",
+    "ENG": "Module removed succesfully."
+  },
   "ui_course_save_success": {
     "FI": "Kurssi tallennettu.",
     "ENG": "Course saved."
@@ -1091,9 +1111,37 @@
     "FI": "Kurssin kansio",
     "ENG": "Course folder"
   },
+  "ui_course_folder_opened": {
+    "FI": "Kurssi ladattu onnistuneesti.",
+    "ENG": "Course loaded succesfully."
+  },
   "ui_course_folder_invalid": {
     "FI": "Kurssin kansio ei ole validi",
     "ENG": "Course folder invalid"
+  },
+  "ui_ass": {
+    "FI": "Kurssi ladattu onnistuneesti.",
+    "ENG": "Course loaded succesfully."
+  },
+  "ui_add_course_title": {
+    "FI": "Syötä kurssille nimi.",
+    "ENG": "Add a title to the course."
+  },
+  "ui_add_assignment_title": {
+    "FI": "Syötä tehtävälle nimi.",
+    "ENG": "Add a title to the assignment."
+  },
+  "ui_add_module_name": {
+    "FI": "Syötä moduulille nimi.",
+    "ENG": "Add a name to the module."
+  },
+  "ui_no_result_from_ipc_call": {
+    "FI": "IPC kutsu ei palauttanut tulosta.",
+    "ENG": "No result from IPC call."
+  },
+  "ui_load_settings_failed": {
+    "FI": "Asetusten lataaminen tiedostosta epäonnistui.",
+    "ENG": "Could not load settings from file."
   },
   "ui_module_type": {
     "FI": "Moduulin tyyppi",

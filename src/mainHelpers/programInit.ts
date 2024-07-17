@@ -10,20 +10,20 @@ export function initialize() {
   try {
     log.info("Initializing folders...");
     if (!fs.existsSync(oso.getApplicationDir())) {
-      createFolder(oso.getApplicationDir(), { recursive: true });
+      createFolder(oso.getApplicationDir());
     }
     if (!fs.existsSync(oso.getCacheDir())) {
-      createFolder(oso.getCacheDir(), { recursive: true });
+      createFolder(oso.getCacheDir());
     }
     if (platform === "darwin") {
       if (!fs.existsSync(oso.getDarwinSettingsDir())) {
-        createFolder(oso.getDarwinSettingsDir(), { recursive: true });
+        createFolder(oso.getDarwinSettingsDir());
       }
     }
     if (!fs.existsSync(oso.getSettingsFilepath())) {
       saveSettings(defaults);
-    } else {
-    }
+    } /* else {
+    }*/
   } catch (err) {
     console.log(err);
     log.error(err);

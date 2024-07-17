@@ -1,7 +1,6 @@
 import { Modal, ModalClose, ModalDialog, Typography } from "@mui/joy";
 import ButtonComp from "./ButtonComp";
-import texts from "../../resource/texts.json";
-import { language } from "../globalsUI";
+import { parseUICode } from "../rendererHelpers/translation";
 
 type ModalConfirmationProps = {
   open: boolean;
@@ -21,16 +20,14 @@ export default function ModalConfirmation({
       <Modal open={open} onClose={() => close()} aria-labelledby="modal-title">
         <ModalDialog>
           <ModalClose />
-          <Typography id="modal-title">
-            {texts.ui_confirm[language.current]}
-          </Typography>
+          <Typography id="modal-title">{parseUICode("ui_confirm")}</Typography>
           <ButtonComp
             buttonType="delete"
             onClick={() => {
               confirmFunction();
               close();
             }}
-            ariaLabel={texts.ui_confirm[language.current]}
+            ariaLabel={parseUICode("ui_confirm")}
           >
             {text}
           </ButtonComp>

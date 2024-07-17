@@ -6,12 +6,14 @@ import { Stack, Table, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
-import { CourseData, Settings, SupportedLanguages } from "../types";
+import { CourseData, SettingsType, SupportedLanguages } from "../types";
 import { useState } from "react";
 import SnackbarComp, {
   SnackBarAttributes,
   functionResultToSnackBar,
 } from "../components/SnackBarComp";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import { parseUICode } from "../rendererHelpers/translation";
 
 export default function Settings({
   activeCourse,
@@ -19,7 +21,7 @@ export default function Settings({
   activeCourse: CourseData;
 }) {
   const navigate = useNavigate();
-  const [settings, setSettings] = useState<Settings>({
+  const [settings, setSettings] = useState<SettingsType>({
     codeLanguages: [],
     language: "ENG",
   });
@@ -35,9 +37,9 @@ export default function Settings({
   });
 
   function handleSetLanguage(value: string) {
-    languageOptions.map((option) => {
-      if (option?.languageName === value) {
-        try {
+    try {
+      languageOptions.map((option) => {
+        if (option?.languageName === value) {
           // attempt cast
           const abbreviation: SupportedLanguages =
             option.abbreviation as SupportedLanguages;
@@ -50,36 +52,50 @@ export default function Settings({
             newSettings.language = abbreviation;
             return newSettings;
           });
-        } catch (error) {
-          console.log(error);
         }
-      }
-    });
+      });
+    } catch (err) {
+      functionResultToSnackBar(
+        { error: parseUICode(err.message) },
+        setShowSnackbar,
+        setSnackBarAttributes
+      );
+    }
   }
 
   async function handleSaveSettings() {
-    const result = await window.api.saveSettings(settings);
-
-    functionResultToSnackBar(result, setShowSnackbar, setSnackBarAttributes);
+    let snackbarSeverity = "success";
+    let snackbarText = "";
+    try {
+      snackbarText = await handleIPCResult(() =>
+        window.api.saveSettings(settings)
+      );
+    } catch (err) {
+      snackbarText = err.message;
+      snackbarSeverity = "error";
+    }
+    functionResultToSnackBar(
+      { [snackbarSeverity]: snackbarText },
+      setShowSnackbar,
+      setSnackBarAttributes
+    );
   }
 
   return (
     <>
       <PageHeaderBar
-        pageName={texts.ui_settings[language.current]}
+        pageName={parseUICode("ui_settings")}
         courseID={activeCourse?.ID}
         courseTitle={activeCourse?.title}
       />
       <div className="content" style={{ height: "40rem", maxHeight: "80vh" }}>
-        <Typography level="h1">
-          {texts.ui_settings[language.current]}
-        </Typography>
+        <Typography level="h1">{parseUICode("ui_settings")}</Typography>
         <Table borderAxis="none" sx={{ width: "70%" }}>
           <tbody>
             <tr key="caUsername">
               <td style={{ width: "40%" }}>
                 <Typography level="h4">
-                  {`CodeGrade ${texts.ui_username[language.current]}`}
+                  {`CodeGrade ${parseUICode("ui_username")}`}
                 </Typography>
               </td>
               <td>
@@ -90,7 +106,7 @@ export default function Settings({
             <tr key="caPassword">
               <td style={{ width: "25%" }}>
                 <Typography level="h4">
-                  {`CodeGrade ${texts.ui_password[language.current]}`}
+                  {`CodeGrade ${parseUICode("ui_password")}`}
                 </Typography>
               </td>
               <td>
@@ -101,7 +117,7 @@ export default function Settings({
             <tr key="caOrganisation">
               <td style={{ width: "25%" }}>
                 <Typography level="h4">
-                  {`CodeGrade ${texts.ui_organisation[language.current]}`}
+                  {`CodeGrade ${parseUICode("ui_organisation")}`}
                 </Typography>
               </td>
               <td>
@@ -114,9 +130,9 @@ export default function Settings({
                 <ButtonComp
                   buttonType="normalAlt"
                   onClick={null}
-                  ariaLabel={texts.ui_aria_cg_sign_in[language.current]}
+                  ariaLabel={parseUICode("ui_aria_cg_sign_in")}
                 >
-                  {texts.ui_sign_in[language.current]}
+                  {parseUICode("ui_sign_in")}
                 </ButtonComp>
               </td>
             </tr>
@@ -124,7 +140,7 @@ export default function Settings({
             <tr key="caLanguage">
               <td>
                 <Typography level="h4">
-                  {texts.ui_interface_language[language.current]}
+                  {parseUICode("ui_interface_language")}
                 </Typography>
               </td>
               <td>
@@ -154,16 +170,16 @@ export default function Settings({
           <ButtonComp
             buttonType="normal"
             onClick={() => handleSaveSettings()}
-            ariaLabel={texts.ui_aria_save[language.current]}
+            ariaLabel={parseUICode("ui_aria_save")}
           >
-            {texts.ui_save[language.current]}
+            {parseUICode("ui_save")}
           </ButtonComp>
           <ButtonComp
             buttonType="normal"
             onClick={() => navigate(-1)}
-            ariaLabel={texts.ui_aria_cancel[language.current]}
+            ariaLabel={parseUICode("ui_aria_cancel")}
           >
-            {texts.ui_cancel[language.current]}
+            {parseUICode("ui_cancel")}
           </ButtonComp>
         </Stack>
       </div>
