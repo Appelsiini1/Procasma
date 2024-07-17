@@ -1,5 +1,5 @@
 import * as oso from "./osOperations";
-import { createFolder } from "./fileOperations";
+import { createFolderFS } from "./fileOperations";
 import fs from "fs";
 import { platform } from "node:process";
 import defaults from "../../resource/defaults.json";
@@ -10,14 +10,14 @@ export function initialize() {
   try {
     log.info("Initializing folders...");
     if (!fs.existsSync(oso.getApplicationDir())) {
-      createFolder(oso.getApplicationDir());
+      createFolderFS(oso.getApplicationDir());
     }
     if (!fs.existsSync(oso.getCacheDir())) {
-      createFolder(oso.getCacheDir());
+      createFolderFS(oso.getCacheDir());
     }
     if (platform === "darwin") {
       if (!fs.existsSync(oso.getDarwinSettingsDir())) {
-        createFolder(oso.getDarwinSettingsDir());
+        createFolderFS(oso.getDarwinSettingsDir());
       }
     }
     if (!fs.existsSync(oso.getSettingsFilepath())) {

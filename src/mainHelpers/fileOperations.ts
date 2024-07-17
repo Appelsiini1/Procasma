@@ -11,10 +11,10 @@ import { spacesToUnderscores } from "../generalHelpers/converters";
 import { courseMetaDataFileName } from "../constants";
 import { createHash } from "crypto";
 import {
-  addAssignmentToDB,
-  addModuleToDB,
-  deleteAssignmentFromDB,
-  deleteModule,
+  addAssignmentDB,
+  addModuleDB,
+  deleteAssignmentDB,
+  deleteModuleDB,
   initDB,
 } from "./databaseOperations";
 import log from "electron-log/node";
@@ -25,7 +25,7 @@ import log from "electron-log/node";
  * Reads a JSON file and uses JSON.parse(), returning the
  * data.
  */
-export function handleReadFileSync(
+export function handleReadFileFS(
   filePath: string,
   returnNullOnFail?: boolean
 ): any {
@@ -37,7 +37,7 @@ export function handleReadFileSync(
     if (returnNullOnFail) {
       return null;
     }
-    log.error("Error in handleReadFileSync():", err.message);
+    log.error("Error in handleReadFileFS():", err.message);
     throw err;
   }
 }
@@ -45,7 +45,7 @@ export function handleReadFileSync(
 /**
  * Creat folder at path if it does not already exist.
  */
-export function createFolder(
+export function createFolderFS(
   path: string,
   requireUnique?: boolean,
   options: object = null
@@ -59,12 +59,12 @@ export function createFolder(
       }
     }
   } catch (err) {
-    log.error("Error in createFolder():", err.message);
+    log.error("Error in createFolderFS():", err.message);
     throw err;
   }
 }
 
-function _hashSHA(content: string) {
+function _SHAhashFS(content: string) {
   return createHash("sha256").update(content).digest("hex");
 }
 
@@ -72,7 +72,7 @@ function _hashSHA(content: string) {
  * Remove a file or folder by force, checks if the path
  * contains "Procasma".
  */
-function _removePathSyncForce(path: string) {
+function _removePathFS(path: string) {
   try {
     if (!path.includes("Procasma")) {
       throw new Error("ui_path_to_delete_not_in_project");
@@ -80,12 +80,12 @@ function _removePathSyncForce(path: string) {
     fs.rmSync(path, { recursive: true, force: true });
     return;
   } catch (err) {
-    log.error("Error in _removePathSyncForce():", err.message);
+    log.error("Error in _removePathFS():", err.message);
     throw err;
   }
 }
 
-function _getRelativePathToCourse(targetPath: string, coursePath: string) {
+function _getCourseRelativePathFS(targetPath: string, coursePath: string) {
   try {
     const parts = targetPath.split(coursePath);
     if (parts?.length < 2) {
@@ -95,14 +95,14 @@ function _getRelativePathToCourse(targetPath: string, coursePath: string) {
     const relPath = parts[parts.length - 1];
     return relPath;
   } catch (err) {
-    log.error("Error in _getRelativePathToCourse():", err.message);
+    log.error("Error in _getCourseRelativePathFS():", err.message);
     throw err;
   }
 }
 
 // CRUD Course
 
-export async function handleSaveCourse(
+export async function handleAddCourseFS(
   course: CourseData,
   coursesPath: string
 ) {
@@ -117,7 +117,7 @@ export async function handleSaveCourse(
     const coursePath = path.join(coursesPath, courseTitleFormatted);
 
     // create course folder
-    createFolder(coursePath, true);
+    createFolderFS(coursePath, true);
 
     const metadata: string = JSON.stringify(course);
 
@@ -126,10 +126,10 @@ export async function handleSaveCourse(
     fs.writeFileSync(metadataPath, metadata, "utf8");
 
     const assignmentDataPath = path.join(coursePath, "assignment_data");
-    createFolder(assignmentDataPath);
+    createFolderFS(assignmentDataPath);
 
     const databasePath = path.join(coursePath, "database");
-    createFolder(databasePath);
+    createFolderFS(databasePath);
 
     // init db
     await initDB(coursePath);
@@ -139,29 +139,29 @@ export async function handleSaveCourse(
     // create sets.json ?
     return "ui_course_save_success";
   } catch (err) {
-    log.error("Error in handleSaveCourse():", err.message);
+    log.error("Error in handleAddCourseFS():", err.message);
     throw err;
   }
 }
 
-export function handleReadCourse(filePath: string): CourseData {
+export function handleGetCourseFS(filePath: string): CourseData {
   try {
     if (!filePath || filePath.length < 1) {
       return null;
     }
 
     const filePathJoined = path.join(filePath, "course_info.json");
-    const content = handleReadFileSync(filePathJoined);
+    const content = handleReadFileFS(filePathJoined);
 
     const course: CourseData = content as CourseData;
     return course;
   } catch (err) {
-    log.error("Error in handleReadCourse():", err.message);
+    log.error("Error in handleGetCourseFS():", err.message);
     throw err;
   }
 }
 
-export function handleUpdateCourse(course: CourseData, coursePath: string) {
+export function handleUpdateCourseFS(course: CourseData, coursePath: string) {
   try {
     fs.accessSync(coursePath, fs.constants.R_OK | fs.constants.W_OK);
 
@@ -172,14 +172,14 @@ export function handleUpdateCourse(course: CourseData, coursePath: string) {
     fs.writeFileSync(metadataPath, metadata, "utf8");
     return "ui_course_save_success";
   } catch (err) {
-    log.error("Error in handleUpdateCourse():", err.message);
+    log.error("Error in handleUpdateCourseFS():", err.message);
     throw err;
   }
 }
 
 // CRUD Assignment
 
-function _createAssignmentFolderWithHash(
+function _createAssignmentFolderFS(
   assignment: CodeAssignmentData,
   assignmentDataPath: string,
   hash: string
@@ -188,9 +188,9 @@ function _createAssignmentFolderWithHash(
     // create hash folder (overwrite if exists)
     const hashPath = path.join(assignmentDataPath, hash);
     if (fs.existsSync(hashPath)) {
-      _removePathSyncForce(hashPath);
+      _removePathFS(hashPath);
     }
-    createFolder(hashPath);
+    createFolderFS(hashPath);
 
     // save metadata
     const hashFile = `${hash}.json`;
@@ -201,41 +201,23 @@ function _createAssignmentFolderWithHash(
 
     return;
   } catch (err) {
-    log.error("Error in _createAssignmentFolderWithHash():", err.message);
+    log.error("Error in _createAssignmentFolderFS():", err.message);
     throw err;
   }
 }
 
-function _generateAssignmentHash(assignment: CodeAssignmentData) {
+function _generateAssignmentHashFS(assignment: CodeAssignmentData) {
   try {
     // generate hash from assignment metadata
     const metadata: string = JSON.stringify(assignment);
-    const hash: string = _hashSHA(metadata);
+    const hash: string = _SHAhashFS(metadata);
 
     // set assignmentID to hash
     assignment.assignmentID = hash;
 
     return hash;
   } catch (err) {
-    log.error("Error in _generateAssignmentHash():", err.message);
-    throw err;
-  }
-}
-
-function _doesAssignmentExist(
-  assignmentName: string,
-  coursePath: string
-): boolean {
-  try {
-    const assignments = handleGetAssignments(coursePath);
-
-    const sameNameAssignment = assignments.find((prevAssignment) => {
-      return prevAssignment?.title === assignmentName ? true : false;
-    });
-
-    return sameNameAssignment ? true : false;
-  } catch (err) {
-    log.error("Error in _doesAssignmentExist():", err.message);
+    log.error("Error in _generateAssignmentHashFS():", err.message);
     throw err;
   }
 }
@@ -244,7 +226,7 @@ function _doesAssignmentExist(
  * Create folders for variations and copy material files into them.
  * Also update the paths of files to be relative to course root.
  */
-function _copyVariationFiles(
+function _copyVariationFilesFS(
   variations: {
     [key: string]: Variation;
   },
@@ -254,7 +236,7 @@ function _copyVariationFiles(
   try {
     Object.keys(variations).map((varID) => {
       const variantPath: string = path.join(hashFolderPath, varID);
-      createFolder(variantPath);
+      createFolderFS(variantPath);
 
       // copy related files to the variation folder
       // paths may be relative or absolute
@@ -263,7 +245,7 @@ function _copyVariationFiles(
       files.map((file) => {
         const fileName = path.basename(file.path);
         const newFilePath = path.join(variantPath, fileName);
-        const newFilePathRelative = _getRelativePathToCourse(
+        const newFilePathRelative = _getCourseRelativePathFS(
           newFilePath,
           coursePath
         );
@@ -284,12 +266,12 @@ function _copyVariationFiles(
       });
     });
   } catch (err) {
-    log.error("Error in _copyVariationFiles():", err.message);
+    log.error("Error in _copyVariationFilesFS():", err.message);
     throw err;
   }
 }
 
-async function _removeOldFilesFromVariations(
+async function _deleteOldFilesFromVariationsFS(
   variations: {
     [key: string]: Variation;
   },
@@ -309,17 +291,17 @@ async function _removeOldFilesFromVariations(
         );
 
         if (!foundFile) {
-          _removePathSyncForce(path.join(variationPath, fileName));
+          _removePathFS(path.join(variationPath, fileName));
         }
       });
     });
   } catch (err) {
-    log.error("Error in _removeOldFilesFromVariations():", err.message);
+    log.error("Error in _deleteOldFilesFromVariationsFS():", err.message);
     throw err;
   }
 }
 
-async function _handleSaveOrUpdateAssignment(
+async function _handleAddOrUpdateAssignmentFS(
   assignment: CodeAssignmentData,
   coursePath: string,
   oldAssignment: boolean
@@ -333,31 +315,27 @@ async function _handleSaveOrUpdateAssignment(
     const assignmentDataPath = path.join(coursePath, "assignment_data");
     let assignmentHash: string | null = assignment?.assignmentID;
     if (!assignmentHash) {
-      assignmentHash = _generateAssignmentHash(assignment);
+      assignmentHash = _generateAssignmentHashFS(assignment);
     }
 
     if (!oldAssignment) {
       // if saving new assignment, return if
       // identically named one exists
-      if (_doesAssignmentExist(assignment?.title, coursePath)) {
+      if (_AssignmentExistsFS(assignment?.title, coursePath)) {
         throw new Error("ui_assignment_error_duplicate_title");
       }
 
-      _createAssignmentFolderWithHash(
-        assignment,
-        assignmentDataPath,
-        assignmentHash
-      );
+      _createAssignmentFolderFS(assignment, assignmentDataPath, assignmentHash);
     }
 
     const hashFolderPath = path.join(assignmentDataPath, assignmentHash);
 
     // create variant folders and copy files
     const variations: { [key: string]: Variation } = assignment.variations;
-    _copyVariationFiles(variations, hashFolderPath, coursePath);
+    _copyVariationFilesFS(variations, hashFolderPath, coursePath);
 
     // clean the variation folder of deleted files
-    _removeOldFilesFromVariations(variations, hashFolderPath);
+    _deleteOldFilesFromVariationsFS(variations, hashFolderPath);
 
     // save assignment data
     assignment.assignmentID = assignmentHash;
@@ -366,24 +344,25 @@ async function _handleSaveOrUpdateAssignment(
 
     fs.writeFileSync(hashFilePath, assignmentJSON, "utf8");
 
-    await addAssignmentToDB(coursePath, assignment);
+    await addAssignmentDB(coursePath, assignment);
 
     return "ui_assignment_save_success";
   } catch (err) {
-    log.error("Error in _handleSaveOrUpdateAssignment():", err.message);
+    log.error("Error in _handleAddOrUpdateAssignmentFS():", err.message);
     throw err;
   }
 }
 
-export async function handleSaveAssignment(
+export async function handleAddAssignmentFS(
   assignment: CodeAssignmentData,
   coursePath: string
 ) {
-  return _handleSaveOrUpdateAssignment(assignment, coursePath, false);
+  return _handleAddOrUpdateAssignmentFS(assignment, coursePath, false);
 }
 
-export function handleGetAssignments(
-  coursePath: string
+export function handleGetAssignmentsFS(
+  coursePath: string,
+  id?: string
 ): CodeAssignmentData[] | null {
   try {
     if (!coursePath || coursePath.length === 0) {
@@ -397,6 +376,12 @@ export function handleGetAssignments(
     const files = fs.readdirSync(assignmentDataPath);
 
     files.forEach(function (file) {
+      if (id) {
+        // if id provided, only get the specific assignment
+        if (file == id) {
+        }
+        return;
+      }
       const hashFile = `${file}.json`;
       const assignmentPath: string = path.join(
         assignmentDataPath,
@@ -404,7 +389,7 @@ export function handleGetAssignments(
         hashFile
       );
 
-      const result = handleReadFileSync(assignmentPath);
+      const result = handleReadFileFS(assignmentPath);
       const assignment = result as CodeAssignmentData;
 
       assignments.push(assignment);
@@ -412,30 +397,48 @@ export function handleGetAssignments(
 
     return assignments;
   } catch (err) {
-    log.error("Error in handleGetAssignments():", err.message);
+    log.error("Error in handleGetAssignmentsFS():", err.message);
     throw err;
   }
 }
 
-export async function handleUpdateAssignment(
+function _AssignmentExistsFS(
+  assignmentName: string,
+  coursePath: string
+): boolean {
+  try {
+    const assignments = handleGetAssignmentsFS(coursePath);
+
+    const sameNameAssignment = assignments.find((prevAssignment) => {
+      return prevAssignment?.title === assignmentName ? true : false;
+    });
+
+    return sameNameAssignment ? true : false;
+  } catch (err) {
+    log.error("Error in _AssignmentExistsFS():", err.message);
+    throw err;
+  }
+}
+
+export async function handleUpdateAssignmentFS(
   assignment: CodeAssignmentData,
   coursePath: string
 ) {
-  return _handleSaveOrUpdateAssignment(assignment, coursePath, true);
+  return _handleAddOrUpdateAssignmentFS(assignment, coursePath, true);
 }
 
-export async function removeAssignmentById(coursePath: string, id: string) {
+export async function handleDeleteAssignmentFS(coursePath: string, id: string) {
   try {
     // remove the file hash folder and its contents
     const assignmentPath = path.join(coursePath, "assignment_data", id);
 
-    _removePathSyncForce(assignmentPath);
+    _removePathFS(assignmentPath);
 
-    await deleteAssignmentFromDB(coursePath, id);
+    await deleteAssignmentDB(coursePath, id);
 
     return "ui_del_ok";
   } catch (err) {
-    log.error("Error in removeAssignmentById():", err.message);
+    log.error("Error in handleDeleteAssignmentFS():", err.message);
     throw err;
   }
 }
@@ -443,7 +446,7 @@ export async function removeAssignmentById(coursePath: string, id: string) {
 // CRUD Module
 
 // Update currently just overwrites the existing module
-async function _handleSaveOrUpdateModule(
+async function _handleAddOrUpdateModuleFS(
   module: ModuleData,
   coursePath: string,
   oldModule: boolean
@@ -458,7 +461,7 @@ async function _handleSaveOrUpdateModule(
     const modulesPath = path.join(coursePath, "modules.json");
 
     // read modules.json
-    const result = handleReadFileSync(modulesPath, true);
+    const result = handleReadFileFS(modulesPath, true);
 
     // if no previous modules
     if (!result) {
@@ -487,32 +490,32 @@ async function _handleSaveOrUpdateModule(
       }
     }
 
-    await addModuleToDB(coursePath, module);
+    await addModuleDB(coursePath, module);
 
     return "ui_module_save_success";
   } catch (err) {
-    log.error("Error in handleSaveModule():", err.message);
+    log.error("Error in _handleAddOrUpdateModuleFS():", err.message);
     throw err;
   }
 }
 
-export function handleSaveModule(module: ModuleData, coursePath: string) {
-  return _handleSaveOrUpdateModule(module, coursePath, false);
+export function handleAddModuleFS(module: ModuleData, coursePath: string) {
+  return _handleAddOrUpdateModuleFS(module, coursePath, false);
 }
 
-export async function handleUpdateModule(
+export async function handleUpdateModuleFS(
   module: ModuleData,
   coursePath: string
 ) {
-  return _handleSaveOrUpdateModule(module, coursePath, false);
+  return _handleAddOrUpdateModuleFS(module, coursePath, false);
 }
 
-export function handleGetModules(coursePath: string): ModuleData[] | null {
+export function handleGetModulesFS(coursePath: string): ModuleData[] | null {
   try {
     const modulesPath = path.join(coursePath, "modules.json");
 
     // read modules.json
-    const result = handleReadFileSync(modulesPath, true);
+    const result = handleReadFileFS(modulesPath, true);
     if (!result) {
       return [] as ModuleData[];
     }
@@ -520,14 +523,14 @@ export function handleGetModules(coursePath: string): ModuleData[] | null {
 
     return modules;
   } catch (err) {
-    log.error("Error in handleGetModules():", err.message);
+    log.error("Error in handleGetModulesFS():", err.message);
     throw err;
   }
 }
 
-export async function removeModuleById(coursePath: string, id: number) {
+export async function handleDeleteModuleFS(coursePath: string, id: number) {
   try {
-    const prevModules = handleGetModules(coursePath);
+    const prevModules = handleGetModulesFS(coursePath);
     const newModules = prevModules.filter((module) => {
       return module.ID === id ? null : module;
     });
@@ -537,11 +540,11 @@ export async function removeModuleById(coursePath: string, id: number) {
 
     fs.writeFileSync(modulesPath, JSON.stringify(newModules), "utf8");
 
-    await deleteModule(coursePath, id);
+    await deleteModuleDB(coursePath, id);
 
     return "ui_module_delete_success";
   } catch (err) {
-    log.error("Error in removeModuleById():", err.message);
+    log.error("Error in handleDeleteModuleFS():", err.message);
     throw err;
   }
 }

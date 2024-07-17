@@ -158,13 +158,13 @@ export default function Course({
 
       if (pageType == "manage") {
         snackbarText = await handleIPCResult(() =>
-          window.api.updateCourse(course, path)
+          window.api.handleUpdateCourseFS(course, path)
         );
 
         handleActiveCourse(course);
       } else {
         snackbarText = await handleIPCResult(() =>
-          window.api.saveCourse(course, path)
+          window.api.handleAddCourseFS(course, path)
         );
       }
     } catch (err) {

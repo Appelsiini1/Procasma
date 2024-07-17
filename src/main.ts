@@ -6,23 +6,31 @@ import {
 } from "./mainHelpers/fileDialog";
 import { version, DEVMODE } from "./constants";
 import {
-  handleGetAssignments,
-  handleGetModules,
-  handleReadCourse,
-  handleSaveAssignment,
-  handleSaveCourse,
-  handleSaveModule,
-  handleUpdateAssignment,
-  handleUpdateCourse,
-  handleUpdateModule,
-  removeAssignmentById,
-  removeModuleById,
+  handleGetAssignmentsFS,
+  handleGetModulesFS,
+  handleGetCourseFS,
+  handleAddAssignmentFS,
+  handleAddCourseFS,
+  handleAddModuleFS,
+  handleUpdateAssignmentFS,
+  handleUpdateCourseFS,
+  handleUpdateModuleFS,
+  handleDeleteAssignmentFS,
+  handleDeleteModuleFS,
 } from "./mainHelpers/fileOperations";
 import { initialize } from "./mainHelpers/programInit";
 import { getSettings, saveSettings } from "./mainHelpers/settings";
 import { testDatabase } from "./mainHelpers/testDatabase";
 import log from "electron-log";
 import { formatIPCResult } from "./mainHelpers/ipcHelpers";
+import {
+  getAssignmentsDB,
+  getAssignmentTagsDB,
+  getModuleTagsDB,
+  getAssignmentCountDB,
+  getModuleCountDB,
+  getAssignmentsByTagsDB,
+} from "./mainHelpers/databaseOperations";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -131,56 +139,82 @@ ipcMain.handle(
 // CRUD Course
 
 ipcMain.handle(
-  "saveCourse",
-  formatIPCResult((course, path) => handleSaveCourse(course, path))
+  "handleAddCourseFS",
+  formatIPCResult((course, path) => handleAddCourseFS(course, path))
 );
 ipcMain.handle(
-  "readCourse",
-  formatIPCResult((path) => handleReadCourse(path))
+  "handleGetCourseFS",
+  formatIPCResult((path) => handleGetCourseFS(path))
 );
 ipcMain.handle(
-  "updateCourse",
-  formatIPCResult((fileName, path) => handleUpdateCourse(fileName, path))
+  "handleUpdateCourseFS",
+  formatIPCResult((fileName, path) => handleUpdateCourseFS(fileName, path))
 );
 
 // CRUD Assignment
 
 ipcMain.handle(
-  "saveAssignment",
-  formatIPCResult((assignment, path) => handleSaveAssignment(assignment, path))
+  "handleAddAssignmentFS",
+  formatIPCResult((assignment, path) => handleAddAssignmentFS(assignment, path))
 );
 ipcMain.handle(
-  "getAssignments",
-  formatIPCResult((path) => handleGetAssignments(path))
+  "handleGetAssignmentsFS",
+  formatIPCResult((path) => handleGetAssignmentsFS(path))
 );
 ipcMain.handle(
-  "updateAssignment",
+  "getAssignmentsDB",
+  formatIPCResult((path) => getAssignmentsDB(path))
+);
+ipcMain.handle(
+  "handleUpdateAssignmentFS",
   formatIPCResult((assignment, path) =>
-    handleUpdateAssignment(assignment, path)
+    handleUpdateAssignmentFS(assignment, path)
   )
 );
 ipcMain.handle(
-  "deleteAssignment",
-  formatIPCResult((coursePath, id) => removeAssignmentById(coursePath, id))
+  "handleDeleteAssignmentFS",
+  formatIPCResult((coursePath, id) => handleDeleteAssignmentFS(coursePath, id))
+);
+ipcMain.handle(
+  "getAssignmentCountDB",
+  formatIPCResult((path) => getAssignmentCountDB(path))
+);
+ipcMain.handle(
+  "getAssignmentsByTagsDB",
+  formatIPCResult((path, tagNames) => getAssignmentsByTagsDB(path, tagNames))
 );
 
 // CRUD Module
 
 ipcMain.handle(
-  "saveModule",
-  formatIPCResult((module, path) => handleSaveModule(module, path))
+  "handleAddModuleFS",
+  formatIPCResult((module, path) => handleAddModuleFS(module, path))
 );
 ipcMain.handle(
-  "getModules",
-  formatIPCResult((path) => handleGetModules(path))
+  "handleGetModulesFS",
+  formatIPCResult((path) => handleGetModulesFS(path))
 );
 ipcMain.handle(
-  "updateModule",
-  formatIPCResult((module, path) => handleUpdateModule(module, path))
+  "handleUpdateModuleFS",
+  formatIPCResult((module, path) => handleUpdateModuleFS(module, path))
 );
 ipcMain.handle(
-  "deleteModule",
-  formatIPCResult((coursePath, id) => removeModuleById(coursePath, id))
+  "handleDeleteModuleFS",
+  formatIPCResult((coursePath, id) => handleDeleteModuleFS(coursePath, id))
+);
+ipcMain.handle(
+  "getModuleCountDB",
+  formatIPCResult((path) => getModuleCountDB(path))
+);
+
+// CRUD Tag
+ipcMain.handle(
+  "getAssignmentTagsDB",
+  formatIPCResult((path) => getAssignmentTagsDB(path))
+);
+ipcMain.handle(
+  "getModuleTagsDB",
+  formatIPCResult((path) => getModuleTagsDB(path))
 );
 
 testDatabase();

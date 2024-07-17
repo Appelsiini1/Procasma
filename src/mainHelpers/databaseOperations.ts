@@ -3,7 +3,6 @@ import path from "path";
 import {
   CodeAssignmentData,
   CodeAssignmentDatabase,
-  GeneralResult,
   ModuleData,
   ModuleDatabase,
 } from "../types";
@@ -13,7 +12,7 @@ import log from "electron-log/node";
 // General
 
 // Database connection
-function _openDB(coursePath: string) {
+function _openDB(coursePath: string): Promise<sqlite3.Database> {
   const dbPath = path.join(coursePath, "database", "database.db");
   return new Promise((resolve, reject) => {
     const db = new sqlite3.Database(dbPath, (err) => {
@@ -21,22 +20,22 @@ function _openDB(coursePath: string) {
         log.error("Error in _openDB():", err.message);
         reject(err);
       } else {
-        //console.log("Connected to the database.");
-        resolve({ content: db });
+        //log.info("Connected to the database.");
+        resolve(db);
       }
     });
   });
 }
 
-async function _closeDB(db: sqlite3.Database) {
+async function _closeDB(db: sqlite3.Database): Promise<string> {
   return new Promise((resolve, reject) => {
     db.close((err) => {
       if (err) {
         log.error("Error in _closeDB():", err.message);
         reject(err);
       }
-      //console.log("Closed the database connection.");
-      resolve({ message: "Closed the database connection." });
+      //log.info("Closed the database connection.");
+      resolve("Closed the database connection.");
     });
   });
 }
@@ -45,23 +44,19 @@ async function _closeDB(db: sqlite3.Database) {
  * A wrapper for all db operations. Opens the db, performs
  * the supplied function, and finally closes the db.
  */
-async function _execDBOperation(
+async function _execOperationDB(
   coursePath: string,
-  operation: (db: sqlite3.Database) => Promise<GeneralResult>
-): Promise<GeneralResult> {
-  let db: sqlite3.Database;
-
+  operation: (db: sqlite3.Database) => Promise<any>
+): Promise<any> {
+  let db: sqlite3.Database = null;
   try {
-    const openResult: GeneralResult = await _openDB(coursePath);
-    db = openResult.content as sqlite3.Database;
-
+    db = await _openDB(coursePath);
     const result = await operation(db);
-
     await _closeDB(db);
 
     return result;
   } catch (err) {
-    log.error("Error in _execDBOperation():", err.message);
+    log.error("Error in _execOperationDB():", err.message);
     throw err;
   }
 }
@@ -69,20 +64,17 @@ async function _execDBOperation(
 /**
  * Performs 'select * from' for the supplied table, returning the content.
  */
-async function _getAll(
-  coursePath: string,
-  table: string
-): Promise<GeneralResult> {
-  return _execDBOperation(coursePath, (db: sqlite3.Database) => {
+async function _getAllDB(coursePath: string, table: string): Promise<any> {
+  return _execOperationDB(coursePath, (db: sqlite3.Database) => {
     return new Promise((resolve, reject) => {
       db.serialize(() => {
         db.all(`SELECT * FROM ${table}`, (err, rows) => {
           if (err) {
-            log.error("Error in _getAll():", err.message);
+            log.error("Error in _getAllDB():", err.message);
             reject(err);
           } else if (rows) {
             const content = rows;
-            resolve({ content: content });
+            resolve(content);
           } else {
             reject(new Error(`Could not find items in table ${table}.`));
           }
@@ -93,33 +85,33 @@ async function _getAll(
 }
 
 // Database initialization
-export async function initDB(coursePath: string): Promise<GeneralResult> {
-  return _execDBOperation(coursePath, async (db: sqlite3.Database) => {
+export async function initDB(coursePath: string): Promise<string> {
+  return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
     const initQueries: Array<string> = [
       `CREATE TABLE IF NOT EXISTS assignments (
-                    id TEXT PRIMARY KEY,
-                    type TEXT NOT NULL,
-                    title TEXT NOT NULL,
-                    tags TEXT,
-                    module INTEGER,
-                    position TEXT NOT NULL,
-                    level INTEGER,
-                    isExpanding TEXT NOT NULL,
-                    path TEXT NOT NULL);`,
+        id TEXT PRIMARY KEY,
+        type TEXT NOT NULL,
+        title TEXT NOT NULL,
+        tags TEXT,
+        module INTEGER,
+        position TEXT NOT NULL,
+        level INTEGER,
+        isExpanding TEXT NOT NULL,
+        path TEXT NOT NULL);`,
       `CREATE TABLE IF NOT EXISTS modules (
-                    id INTEGER PRIMARY KEY,
-                    name TEXT NOT NULL,
-                    tags TEXT,
-                    assignments INTEGER,
-                    subjects TEXT,
-                    letters TEXT,
-                    instructions TEXT);`,
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        tags TEXT,
+        assignments INTEGER,
+        subjects TEXT,
+        letters TEXT,
+        instructions TEXT);`,
       `CREATE TABLE IF NOT EXISTS tags (
-                    name TEXT PRIMARY KEY,
-                    assignments TEXT NOT NULL);`,
+        name TEXT PRIMARY KEY,
+        assignments TEXT NOT NULL);`,
       `CREATE TABLE IF NOT EXISTS moduleTags (
-                      name TEXT PRIMARY KEY,
-                      modules TEXT NOT NULL);`,
+        name TEXT PRIMARY KEY,
+        modules TEXT NOT NULL);`,
     ];
     try {
       await Promise.all(
@@ -135,7 +127,7 @@ export async function initDB(coursePath: string): Promise<GeneralResult> {
         )
       );
 
-      return { message: "Tables created successfully" };
+      return "Tables created successfully";
     } catch (err) {
       log.error("Error in initDB():", err.message);
       throw err;
@@ -145,12 +137,12 @@ export async function initDB(coursePath: string): Promise<GeneralResult> {
 
 // CRUD Tags
 
-async function _addTag(
+async function _addTagDB(
   db: sqlite3.Database,
   tag: string,
   id: string,
   assignment = true
-) {
+): Promise<string> {
   let table = "tags";
   let key = "assignments";
   if (!assignment) {
@@ -165,7 +157,7 @@ async function _addTag(
         (err, row: { rowKey?: string }) => {
           try {
             if (err) {
-              log.error("Error in _addTag():", err.message);
+              log.error("Error in _addTagDB():", err.message);
               reject(err);
             } else if (row) {
               const oldRow = row.rowKey.split(",");
@@ -180,31 +172,25 @@ async function _addTag(
                   [newRow, tag],
                   (err) => {
                     if (err) {
-                      log.error("Error in _addTag():", err.message);
+                      log.error("Error in _addTagDB():", err.message);
                       reject(err);
                     }
-                    resolve({
-                      message: `Tag '${tag}' updated in '${table}' successfully`,
-                    });
+                    resolve(`Tag '${tag}' updated in '${table}' successfully`);
                   }
                 );
               }
-              resolve({
-                message: `ID already exists on row '${tag}' in '${table}'`,
-              });
+              resolve(`ID already exists on row '${tag}' in '${table}'`);
             } else {
               db.run(`INSERT INTO ${table} VALUES (?, ?)`, [tag, id], (err) => {
                 if (err) {
-                  log.error("Error in _addTag():", err.message);
+                  log.error("Error in _addTagDB():", err.message);
                   reject(err);
                 }
-                resolve({
-                  message: `Tag '${tag}' added to '${table}' successfully`,
-                });
+                resolve(`Tag '${tag}' added to '${table}' successfully`);
               });
             }
           } catch (err) {
-            log.error("Error in _addTag():", err.message);
+            log.error("Error in _addTagDB():", err.message);
             reject(err);
           }
         }
@@ -213,7 +199,11 @@ async function _addTag(
   });
 }
 
-function _getTag(db: sqlite3.Database, name: string, assignment = true) {
+async function _getTagDB(
+  db: sqlite3.Database,
+  name: string,
+  assignment = true
+): Promise<string> {
   let table = "tags";
   let key = "assignments";
   if (!assignment) {
@@ -225,45 +215,45 @@ function _getTag(db: sqlite3.Database, name: string, assignment = true) {
       db.get(
         `SELECT ${key} rowKey FROM ${table} WHERE name = ?`,
         [name],
-        (err, row: { rowKey?: string }) => {
+        (err, row: any) => {
           if (err) {
             reject(err);
           } else if (row) {
-            resolve({ content: row.rowKey });
+            resolve(row.rowKey);
           }
-          resolve({ message: `Tag ${name} not in database.` });
+          resolve(`Tag ${name} not in database.`);
         }
       );
     });
   });
 }
 
-async function _addAssignmentTags(
+async function _addAssignmentTagsDB(
   db: sqlite3.Database,
   tags: Array<string>,
   assignmentID: string
-): Promise<GeneralResult> {
+): Promise<string[]> {
   return new Promise((resolve, reject) => {
     db.serialize(async () => {
       try {
         const results = await Promise.all(
-          tags.map((tag) => _addTag(db, tag, assignmentID))
+          tags.map((tag) => _addTagDB(db, tag, assignmentID))
         );
-        resolve({ content: results });
+        resolve(results);
       } catch (err) {
-        log.error("Error in _addAssignmentTags():", err.message);
+        log.error("Error in _addAssignmentTagsDB():", err.message);
         reject(err);
       }
     });
   });
 }
 
-function _updateTag(
+function _updateTagDB(
   db: sqlite3.Database,
   name: string,
   newRow: string,
   assignment = true
-) {
+): Promise<string> {
   let table = "tags";
   let key = "assignments";
   if (!assignment) {
@@ -277,10 +267,10 @@ function _updateTag(
         [newRow, name],
         (err) => {
           if (err) {
-            log.error("Error in _updateTag():", err.message);
+            log.error("Error in _updateTagDB():", err.message);
             reject(err);
           } else {
-            resolve({ content: "Tag updated succesfully." });
+            resolve("Tag updated succesfully.");
           }
         }
       );
@@ -288,41 +278,35 @@ function _updateTag(
   });
 }
 
-async function _deleteFromTags(
+async function _deleteTagDB(
   db: sqlite3.Database,
   name: string,
   id: string,
   assignment = true
-) {
+): Promise<string> {
   let table = "tags";
   if (!assignment) {
     table = "moduleTags";
   }
   try {
-    const row: GeneralResult = await _getTag(db, name);
+    const tag = await _getTagDB(db, name);
 
-    if (row.message) {
-      return row;
+    if (!tag.split(",").includes(id)) {
+      return `${
+        assignment ? "Assignment" : "Module"
+      } '${id}' not in tag '${name}', no changes made to database`;
     }
 
-    if (!row.content.split(",").includes(id)) {
-      return {
-        message: `${
-          assignment ? "Assignment" : "Module"
-        } '${id}' not in tag '${name}', no changes made to database`,
-      };
-    }
-
-    const newRow = row.content
+    const newRow = tag
       .split(",")
       .filter((value: string) => {
         value !== id;
       })
       .toString();
 
-    let result: GeneralResult = {};
+    let result = "";
     if (newRow.length !== 0) {
-      result = await _updateTag(db, name, newRow);
+      result = await _updateTagDB(db, name, newRow);
     } else {
       result = await new Promise((resolve, reject) => {
         db.serialize(() => {
@@ -330,11 +314,11 @@ async function _deleteFromTags(
             if (err) {
               reject(err);
             } else {
-              resolve({
-                message: `Succesfully removed ${
+              resolve(
+                `Succesfully removed ${
                   assignment ? "assignment" : "module"
-                } '${id}' from tag '${name}' in database.`,
-              });
+                } '${id}' from tag '${name}' in database.`
+              );
             }
           });
         });
@@ -342,18 +326,18 @@ async function _deleteFromTags(
     }
     return result;
   } catch (err) {
-    log.error("Error in _deleteFromTags():", err.message);
+    log.error("Error in _deleteTagDB():", err.message);
     throw err;
   }
 }
 
-async function _updateTags(
+async function _updateTagsDB(
   db: sqlite3.Database,
   oldTags: string,
   newTags: Array<string>,
   id: string,
   assignment = true
-) {
+): Promise<string> {
   try {
     const oldTagsArray = oldTags.split(",");
 
@@ -371,29 +355,31 @@ async function _updateTags(
     });
 
     await Promise.all(
-      toDelete.map((value) => _deleteFromTags(db, value, id, assignment))
+      toDelete.map((value) => _deleteTagDB(db, value, id, assignment))
     );
 
-    await Promise.all(toAdd.map((value) => _addTag(db, value, id, assignment)));
+    await Promise.all(
+      toAdd.map((value) => _addTagDB(db, value, id, assignment))
+    );
 
-    return { message: "Tags updated." };
+    return "Tags updated.";
   } catch (err) {
-    log.error("Error in _updateTags():", err.message);
+    log.error("Error in _updateTagsDB():", err.message);
     throw err;
   }
 }
 
-async function _addModuleTags(
+async function _addModuleTagsDB(
   db: sqlite3.Database,
   tags: Array<string>,
   moduleID: string
-) {
+): Promise<string> {
   return await new Promise((resolve, reject) => {
     db.serialize(() => {
-      const promises = tags.map((tag) => _addTag(db, tag, moduleID, false));
+      const promises = tags.map((tag) => _addTagDB(db, tag, moduleID, false));
 
       Promise.all(promises)
-        .then(() => resolve({ message: "Module tags added." }))
+        .then(() => resolve("Module tags added."))
         .catch((err) => reject(err));
     });
   });
@@ -401,11 +387,11 @@ async function _addModuleTags(
 
 // CRUD Assignment
 
-async function _addToAssignments(
+async function _addAssignmentDB(
   db: sqlite3.Database,
   assignmentPath: string,
   assignment: CodeAssignmentData
-) {
+): Promise<string> {
   return new Promise((resolve, reject) => {
     db.serialize(() => {
       db.run(
@@ -424,12 +410,12 @@ async function _addToAssignments(
         ],
         (err) => {
           if (err) {
-            log.error("Error in _addToAssignments():", err.message);
+            log.error("Error in _addAssignmentDB():", err.message);
             reject(err);
           } else {
-            resolve({
-              message: `Assignment ${assignment.assignmentID} inserted successfully`,
-            });
+            resolve(
+              `Assignment ${assignment.assignmentID} inserted successfully`
+            );
           }
         }
       );
@@ -437,11 +423,11 @@ async function _addToAssignments(
   });
 }
 
-export async function addAssignmentToDB(
+export async function addAssignmentDB(
   coursePath: string,
   assignment: CodeAssignmentData
-): Promise<GeneralResult> {
-  return _execDBOperation(coursePath, async (db: sqlite3.Database) => {
+): Promise<string> {
+  return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
     try {
       // This may need to be changed in the future!!
       const assignmentPath = path.join(
@@ -449,72 +435,72 @@ export async function addAssignmentToDB(
         assignment.assignmentID
       );
 
-      const result: GeneralResult = await _addToAssignments(
-        db,
-        assignmentPath,
-        assignment
-      );
+      const result = await _addAssignmentDB(db, assignmentPath, assignment);
 
-      await _addAssignmentTags(db, assignment.tags, assignment.assignmentID);
+      await _addAssignmentTagsDB(db, assignment.tags, assignment.assignmentID);
       return result;
     } catch (err) {
-      log.error("Error in addAssignmentToDB():", err.message);
+      log.error("Error in addAssignmentDB():", err.message);
       throw err;
     }
   });
 }
 
-export async function getAssignmentFromDB(
+export async function getAssignmentDB(
   coursePath: string,
-  id: string
-): Promise<GeneralResult> {
-  return _execDBOperation(coursePath, (db: sqlite3.Database) => {
+  ids: string[]
+): Promise<CodeAssignmentDatabase[]> {
+  return _execOperationDB(coursePath, (db: sqlite3.Database) => {
     return new Promise((resolve, reject) => {
+      const placeholders = ids.map(() => "?").join(",");
       db.serialize(() => {
-        db.get(`SELECT * FROM assignments WHERE id = ?`, [id], (err, row) => {
-          if (err) {
-            log.error("Error in getAssignmentFromDB():", err.message);
-            reject(err);
-          } else if (row) {
-            const content = row as CodeAssignmentDatabase;
-            content.isExpanding = content.isExpanding ? true : false;
-            resolve({ content: content });
-          } else {
-            reject(new Error("Could not find assignment in database."));
+        db.all(
+          `SELECT * FROM assignments WHERE id IN (${placeholders})`,
+          ids,
+          (err, row) => {
+            if (err) {
+              log.error("Error in getAssignmentDB():", err.message);
+              reject(err);
+            } else if (row) {
+              /*const content = row as CodeAssignmentDatabase;
+            content.isExpanding = content.isExpanding ? true : false;*/
+              resolve(row); //content);
+            } else {
+              reject(new Error("Could not find assignment in database."));
+            }
           }
-        });
+        );
       });
     });
   });
 }
 
-export async function updateAssignmentInDB(
+export async function updateAssignmentDB(
   coursePath: string,
   assignment: CodeAssignmentData
-): Promise<GeneralResult> {
-  return _execDBOperation(coursePath, async (db: sqlite3.Database) => {
+): Promise<string> {
+  return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
     try {
-      const getResult = await getAssignmentFromDB(
-        coursePath,
-        assignment.assignmentID
-      );
-      if (!getResult.content) {
+      const getResult = await getAssignmentDB(coursePath, [
+        assignment.assignmentID,
+      ]);
+      if (!getResult) {
         throw new Error(
           "Assignment does not exist in the database, cannot update."
         );
       }
-      const oldAssignment = getResult.content as CodeAssignmentDatabase;
+      const oldAssignment = getResult[0];
 
       let sql = `UPDATE assignments SET `;
       const params: any = [];
-      let result = {} as GeneralResult;
+      let result = "";
 
       if (oldAssignment.title !== assignment.title) {
         sql += `title = ?,`;
         params.push(assignment.title);
       }
       if (oldAssignment.tags !== assignment.tags.toString()) {
-        result = await _updateTags(
+        result = await _updateTagsDB(
           db,
           oldAssignment.tags,
           assignment.tags,
@@ -551,9 +537,7 @@ export async function updateAssignmentInDB(
               if (err) {
                 reject(err);
               } else {
-                resolve({
-                  message: `Assignment '${assignment.assignmentID}' updated.`,
-                });
+                resolve(`Assignment '${assignment.assignmentID}' updated.`);
               }
             });
           });
@@ -561,27 +545,27 @@ export async function updateAssignmentInDB(
       }
       return result;
     } catch (err) {
-      log.error("Error in updateAssignmentInDB():", err.message);
+      log.error("Error in updateAssignmentDB():", err.message);
       throw err;
     }
   });
 }
 
-export async function deleteAssignmentFromDB(
+export async function deleteAssignmentDB(
   coursePath: string,
   assignmentID: string
-): Promise<GeneralResult> {
-  return _execDBOperation(coursePath, async (db: sqlite3.Database) => {
+): Promise<string> {
+  return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
     try {
-      const getResult = await getAssignmentFromDB(coursePath, assignmentID);
-      const oldAssignment = getResult.content as CodeAssignmentDatabase;
+      const getResult = await getAssignmentDB(coursePath, [assignmentID]);
+      const oldAssignment = getResult[0];
 
       await Promise.all(
         oldAssignment.tags
           .split(",")
-          .map((tag) => _deleteFromTags(db, tag, assignmentID))
+          .map((tag) => _deleteTagDB(db, tag, assignmentID))
       );
-      const result: GeneralResult = await new Promise((resolve, reject) => {
+      const result = await new Promise((resolve, reject) => {
         db.serialize(() => {
           db.run(
             `DELETE FROM assignments WHERE id = ?`,
@@ -590,9 +574,7 @@ export async function deleteAssignmentFromDB(
               if (err) {
                 reject(err);
               } else {
-                resolve({
-                  message: `Deleted assignment '${assignmentID}' from database`,
-                });
+                resolve(`Deleted assignment '${assignmentID}' from database`);
               }
             }
           );
@@ -601,28 +583,28 @@ export async function deleteAssignmentFromDB(
 
       return result;
     } catch (err) {
-      log.error("Error in deleteAssignmentFromDB():", err.message);
+      log.error("Error in deleteAssignmentDB():", err.message);
       throw err;
     }
   });
 }
 
-export async function getAllAssignments(coursePath: string) {
-  return await _getAll(coursePath, "assignments");
+export async function getAssignmentsDB(coursePath: string) {
+  return await _getAllDB(coursePath, "assignments");
 }
 
-export async function getAssignmentCount(
+export async function getAssignmentCountDB(
   coursePath: string
-): Promise<GeneralResult> {
-  return _execDBOperation(coursePath, (db: sqlite3.Database) => {
+): Promise<number> {
+  return _execOperationDB(coursePath, (db: sqlite3.Database) => {
     return new Promise((resolve, reject) => {
       db.serialize(() => {
-        db.get(`SELECT COUNT(*) FROM assignments`, (err, count) => {
+        db.get(`SELECT COUNT(*) AS count FROM assignments`, (err, row: any) => {
           if (err) {
-            log.error("Error in getAssignmentCount():", err.message);
+            log.error("Error in getAssignmentCountDB():", err.message);
             reject(err);
           } else {
-            resolve({ content: count });
+            resolve(row.count);
           }
         });
       });
@@ -630,17 +612,57 @@ export async function getAssignmentCount(
   });
 }
 
-export async function getAllAssignmentTags(coursePath: string) {
-  return await _getAll(coursePath, "tags");
+export async function getAssignmentTagsDB(coursePath: string) {
+  return await _getAllDB(coursePath, "tags");
+}
+
+export async function getAssignmentsByTagsDB(
+  coursePath: string,
+  tagNames: string[]
+): Promise<CodeAssignmentDatabase[]> {
+  return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
+    try {
+      // get assignment ids from the tags table
+      const tagsPlaceholder = tagNames.map(() => "?").join(",");
+      const query = `SELECT assignments FROM tags
+        WHERE name IN (${tagsPlaceholder})`;
+
+      const result: { assignments: string }[] = await new Promise(
+        (resolve, reject) => {
+          db.serialize(() => {
+            db.all(query, tagNames, (err, rows: any) => {
+              err ? reject(err) : resolve(rows);
+            });
+          });
+        }
+      );
+
+      // then get the assignments whose ids were found in the tags query
+      const assignmentIds: string[] = [];
+      result.forEach((row) => {
+        row.assignments.split(",").forEach((assignmentId) => {
+          const newId = assignmentId.trim();
+          const duplicateId: string = assignmentIds.find(
+            (value) => value == newId
+          );
+          !duplicateId ? assignmentIds.push(assignmentId.trim()) : null;
+        });
+      });
+      return await getAssignmentDB(coursePath, assignmentIds);
+    } catch (err) {
+      log.error("Error in getAssignmentsByTagsDB():", err.message);
+      throw err;
+    }
+  });
 }
 
 // CRUD Module
 
-export async function addModuleToDB(
+export async function addModuleDB(
   coursePath: string,
   module: ModuleData
-): Promise<GeneralResult> {
-  return _execDBOperation(coursePath, async (db: sqlite3.Database) => {
+): Promise<string> {
+  return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
     try {
       const result = await new Promise((resolve, reject) => {
         db.serialize(() => {
@@ -658,31 +680,28 @@ export async function addModuleToDB(
             ],
             (err) => {
               if (err) {
-                log.error("Error in addModuleToDB():", err.message);
                 reject(err);
               } else {
-                resolve({
-                  message: `Added module '${module.ID}' to database`,
-                });
+                resolve(`Added module '${module.ID}' to database`);
               }
             }
           );
         });
       });
-      await _addModuleTags(db, module.tags, module.ID.toString());
+      await _addModuleTagsDB(db, module.tags, module.ID.toString());
       return result;
     } catch (err) {
-      log.error("Error in addModuleToDB():", err.message);
+      log.error("Error in addModuleDB():", err.message);
       throw err;
     }
   });
 }
 
-export async function getModuleFromDB(
+export async function getModuleDB(
   coursePath: string,
   moduleId: number
-): Promise<GeneralResult> {
-  return _execDBOperation(coursePath, (db: sqlite3.Database) => {
+): Promise<ModuleData> {
+  return _execOperationDB(coursePath, (db: sqlite3.Database) => {
     return new Promise((resolve, reject) => {
       db.serialize(() => {
         db.get(
@@ -690,7 +709,7 @@ export async function getModuleFromDB(
           [moduleId],
           (err, row: ModuleDatabase) => {
             if (err) {
-              log.error("Error in getModuleFromDB():", err.message);
+              log.error("Error in getModuleDB():", err.message);
               reject(err);
             } else if (row) {
               const content = {} as ModuleData;
@@ -701,7 +720,7 @@ export async function getModuleFromDB(
               content.subjects = row.subjects;
               content.letters = row.letters ? true : false;
               content.instructions = row.instructions;
-              resolve({ content: content });
+              resolve(content);
             } else {
               reject(new Error("Could not find module in database."));
             }
@@ -712,30 +731,30 @@ export async function getModuleFromDB(
   });
 }
 
-export async function updateModuleInDB(
+export async function updateModuleDB(
   coursePath: string,
   module: ModuleData
-): Promise<GeneralResult> {
-  return _execDBOperation(coursePath, async (db: sqlite3.Database) => {
+): Promise<string> {
+  return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
     try {
-      const getResult = await getModuleFromDB(coursePath, module.ID);
-      if (!getResult.content) {
+      const getResult = await getModuleDB(coursePath, module.ID);
+      if (!getResult) {
         return {
           error: "Module does not exist in the database, cannot update.",
         };
       }
-      const oldModule = getResult.content;
+      const oldModule = getResult;
 
       let sql = `UPDATE modules SET `;
       const params: any = [];
-      let result = {} as GeneralResult;
+      let result = "";
 
       if (oldModule.name !== module.name) {
         sql += `name = ?,`;
         params.push(module.name);
       }
       if (oldModule.tags.toString() !== module.tags.toString()) {
-        result = await _updateTags(
+        result = await _updateTagsDB(
           db,
           oldModule.tags.toString(),
           module.tags,
@@ -773,7 +792,7 @@ export async function updateModuleInDB(
               if (err) {
                 reject(err);
               } else {
-                resolve({ message: `Module '${module.ID}' updated.` });
+                resolve(`Module '${module.ID}' updated.`);
               }
             });
           });
@@ -782,36 +801,34 @@ export async function updateModuleInDB(
 
       return result;
     } catch (err) {
-      log.error("Error in updateModuleInDB():", err.message);
+      log.error("Error in updateModuleDB():", err.message);
       throw err;
     }
   });
 }
 
-export async function deleteModule(
+export async function deleteModuleDB(
   coursePath: string,
   moduleID: number
-): Promise<GeneralResult> {
-  return _execDBOperation(coursePath, async (db: sqlite3.Database) => {
+): Promise<string> {
+  return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
     try {
-      const getResult = await getModuleFromDB(coursePath, moduleID);
-      const oldModule = getResult.content as ModuleData;
+      const getResult = await getModuleDB(coursePath, moduleID);
+      const oldModule = getResult as ModuleData;
 
       await Promise.all(
         oldModule.tags.map((tag) =>
-          _deleteFromTags(db, tag, moduleID.toString(), false)
+          _deleteTagDB(db, tag, moduleID.toString(), false)
         )
       );
 
-      const result: GeneralResult = await new Promise((resolve, reject) => {
+      const result = await new Promise((resolve, reject) => {
         db.serialize(() => {
           db.run(`DELETE FROM modules WHERE id = ?`, [moduleID], (err) => {
             if (err) {
               reject(err.message);
             } else {
-              resolve({
-                message: `Deleted module '${moduleID}' from database`,
-              });
+              resolve(`Deleted module '${moduleID}' from database`);
             }
           });
         });
@@ -819,28 +836,26 @@ export async function deleteModule(
 
       return result;
     } catch (err) {
-      log.error("Error in deleteModule():", err.message);
+      log.error("Error in deleteModuleDB():", err.message);
       throw err;
     }
   });
 }
 
-export async function getAllModules(coursePath: string) {
-  return await _getAll(coursePath, "modules");
+export async function getModulesDB(coursePath: string) {
+  return await _getAllDB(coursePath, "modules");
 }
 
-export async function getModuleCount(
-  coursePath: string
-): Promise<GeneralResult> {
-  return _execDBOperation(coursePath, (db: sqlite3.Database) => {
+export async function getModuleCountDB(coursePath: string): Promise<number> {
+  return _execOperationDB(coursePath, (db: sqlite3.Database) => {
     return new Promise((resolve, reject) => {
       db.serialize(() => {
-        db.get("SELECT COUNT(*) AS count FROM modules", (err, row) => {
+        db.get("SELECT COUNT(*) AS count FROM modules", (err, row: any) => {
           if (err) {
-            log.error("Error in getModuleCount():", err.message);
+            log.error("Error in getModuleCountDB():", err.message);
             reject(err);
           } else {
-            resolve({ content: row }); // should it be row.count?
+            resolve({ content: row.count });
           }
         });
       });
@@ -848,6 +863,6 @@ export async function getModuleCount(
   });
 }
 
-export async function getAllModuleTags(coursePath: string) {
-  return await _getAll(coursePath, "moduleTags");
+export async function getModuleTagsDB(coursePath: string) {
+  return await _getAllDB(coursePath, "moduleTags");
 }

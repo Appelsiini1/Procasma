@@ -136,7 +136,7 @@ export default function ModuleBrowse({
       }
 
       const modules: ModuleData[] = await handleIPCResult(() =>
-        window.api.getModules(activePath)
+        window.api.handleGetModulesFS(activePath)
       );
 
       // wrap the fetched modules to store checked state
@@ -175,7 +175,7 @@ export default function ModuleBrowse({
     try {
       const deletePromises = selectedModules.map(async (module) => {
         await handleIPCResult(() =>
-          window.api.deleteModule(activePath, module.ID)
+          window.api.deleteModuleDB(activePath, module.ID)
         );
       });
       await Promise.all(deletePromises);

@@ -53,11 +53,11 @@ export default function ModuleAdd({
         // Update currently just overwrites the existing module
         // in fileOperations
         snackbarText = await handleIPCResult(() =>
-          window.api.updateModule(module, activePath)
+          window.api.handleUpdateModuleFS(module, activePath)
         );
       } else {
         snackbarText = await handleIPCResult(() =>
-          window.api.saveModule(module, activePath)
+          window.api.handleAddModuleFS(module, activePath)
         );
       }
     } catch (err) {
