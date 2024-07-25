@@ -15,10 +15,9 @@ import ButtonComp from "../components/ButtonComp";
 import { CourseData, ModuleData } from "../types";
 import {
   WithCheckWrapper,
-  checkIfShouldFilter,
   filterState,
   filterType,
-  generateFilter,
+  generateFilterList,
   handleCheckArray,
   handleUpdateUniqueTags,
   setSelectedViaChecked,
@@ -45,50 +44,35 @@ export function generateModules(
 ) {
   const filteredModules = modules
     ? modules.map((module: ModuleWithCheck) => {
-        let showModule = true;
-
-        // get module attributes to filter by
-        // and the respective filters
-        const tags: Array<string> = module.value?.tags;
-        const tagFilter = filters.find((filter) => {
-          return filter.name === "tags" ? true : false;
-        });
-
-        // check filtration
-        showModule = checkIfShouldFilter(tags, tagFilter.filters)
-          ? showModule
-          : false;
-
-        return showModule ? (
-          <ListItem
-            key={module.value.ID}
-            startAction={
-              <Checkbox
-                checked={module.isChecked}
-                onChange={() =>
-                  handleCheckArray(
-                    module.value,
-                    !module.isChecked,
-                    setCourseModules
-                  )
-                }
-              ></Checkbox>
-            }
-          >
-            <ListItemButton
-              selected={module.isChecked}
-              onClick={() =>
+        return;
+        <ListItem
+          key={module.value.ID}
+          startAction={
+            <Checkbox
+              checked={module.isChecked}
+              onChange={() =>
                 handleCheckArray(
                   module.value,
                   !module.isChecked,
                   setCourseModules
                 )
               }
-            >
-              {module.value.name}
-            </ListItemButton>
-          </ListItem>
-        ) : null;
+            ></Checkbox>
+          }
+        >
+          <ListItemButton
+            selected={module.isChecked}
+            onClick={() =>
+              handleCheckArray(
+                module.value,
+                !module.isChecked,
+                setCourseModules
+              )
+            }
+          >
+            {module.value.name}
+          </ListItemButton>
+        </ListItem>;
       })
     : null;
   return filteredModules;
@@ -204,7 +188,7 @@ export default function ModuleBrowse({
   const tagsFilter: filterType = { name: "tags", filters: uniqueTags };
 
   modules = generateModules(courseModules, setCourseModules, [tagsFilter]);
-  tags = generateFilter(uniqueTags, setUniqueTags);
+  tags = generateFilterList(uniqueTags, setUniqueTags);
 
   async function handleOpenModule() {
     // set the first selected module as global

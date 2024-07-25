@@ -6,11 +6,6 @@ export type filterState = {
   value: string;
 };
 
-export type filterType = {
-  name: string;
-  filters: filterState[];
-};
-
 export type WithCheckWrapper = {
   isChecked: boolean;
   value: unknown;
@@ -90,50 +85,12 @@ export function setSelectedViaChecked(
   return checked.length;
 }
 
-export function checkIfAnyCommonItems(array1: string[], array2: string[]) {
-  return array1.some((item) => array2.includes(item));
-}
-
-export function checkIfShouldFilter(
-  values: Array<string>,
-  filterElements: filterState[]
-): boolean {
-  let shouldShow = true;
-  let checkedCount = 0;
-
-  const match = filterElements.find((filter) => {
-    if (!filter.isChecked) {
-      return false;
-    }
-
-    checkedCount = checkedCount + 1;
-    const valuesArray: Array<string> = values as Array<string>;
-    if (checkIfAnyCommonItems(valuesArray, [filter.value])) {
-      return true;
-    }
-
-    return false;
-  });
-
-  if (!match) {
-    shouldShow = false;
-  }
-
-  // if no filters, show all
-  if (checkedCount === 0) {
-    shouldShow = true;
-  }
-
-  return shouldShow;
-}
-
 /**
  * @returns A JSX list of unique filters with checkboxes
  */
-export function generateFilter(
+export function generateFilterList(
   uniques: filterState[],
-  setUniques: React.Dispatch<React.SetStateAction<filterState[]>>,
-  filterTextFunction?: (text: string) => string
+  setUniques: React.Dispatch<React.SetStateAction<filterState[]>>
 ): Array<React.JSX.Element> {
   const filters = uniques
     ? uniques.map((unique, index) => {
@@ -155,11 +112,7 @@ export function generateFilter(
                 handleCheckArray(unique.value, !unique.isChecked, setUniques)
               }
             >
-              {String(
-                filterTextFunction
-                  ? filterTextFunction(unique.value)
-                  : unique.value
-              )}
+              {String(unique.value)}
             </ListItemButton>
           </ListItem>
         );

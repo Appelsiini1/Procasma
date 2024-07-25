@@ -24,8 +24,7 @@ import {
 import {
   WithCheckWrapper,
   filterState,
-  filterType,
-  generateFilter,
+  generateFilterList,
   handleCheckArray,
   handleUpdateFilter,
   handleUpdateUniqueTags,
@@ -42,10 +41,6 @@ export interface AssignmentWithCheck extends WithCheckWrapper {
   value: CodeAssignmentDatabase;
 }
 
-/**
- * Generates the list of assignments from those in the
- * db with a filter query.
- */
 export function generateAssignments(
   assignments: AssignmentWithCheck[],
   setCourseAssignments: React.Dispatch<
@@ -54,19 +49,7 @@ export function generateAssignments(
 ) {
   return assignments
     ? assignments.map((assignment: AssignmentWithCheck) => {
-        /*// check search term filtration
-        if (searchTerm && searchTerm.length > 0) {
-          const titleFormatted = assignment.value.title.toLowerCase();
-          const searchFormatted = searchTerm.toLowerCase();
-
-          showAssignment = titleFormatted.includes(searchFormatted)
-            ? true
-            : false;
-        }*/
-
-        const showAssignment = true;
-
-        return showAssignment ? (
+        return (
           <ListItem
             key={assignment.value.id}
             startAction={
@@ -95,7 +78,7 @@ export function generateAssignments(
               {assignment.value?.title}
             </ListItemButton>
           </ListItem>
-        ) : null;
+        );
       })
     : null;
 }
@@ -129,7 +112,7 @@ export default function AssignmentBrowse({
   const [numSelected, setNumSelected] = useState(0);
   const [uniqueTags, setUniqueTags] = useState<Array<filterState>>([]);
   const [uniqueModules, setUniqueModules] = useState<Array<filterState>>([]);
-  const [search, setSearch] = useState<string>(null);
+  const [search, setSearch] = useState<string>("");
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [snackBarAttributes, setSnackBarAttributes] =
     useState<SnackBarAttributes>({ color: "success", text: "" });
@@ -140,20 +123,34 @@ export default function AssignmentBrowse({
         return;
       }
 
-      const filter = { tags: uniqueTags, modules: uniqueModules };
-
       const checkedTags: string[] = [];
+      const checkedModules: string[] = [];
       uniqueTags.forEach((element) => {
         if (element.isChecked) {
           checkedTags.push(element.value);
         }
       });
+      uniqueModules.forEach((element) => {
+        if (element.isChecked) {
+          checkedModules.push(element.value);
+        }
+      });
+
+      const filters = {
+        tags: checkedTags,
+        module: checkedModules,
+        search: search,
+      };
 
       let assignmentsResult: CodeAssignmentDatabase[] = [];
-      if (checkedTags.length > 0) {
+      if (
+        checkedTags.length > 0 ||
+        checkedModules.length > 0 ||
+        search?.length > 0
+      ) {
         // Filter only if filters selected
         assignmentsResult = await handleIPCResult(() =>
-          window.api.getAssignmentsByTagsDB(activePath, checkedTags)
+          window.api.getFilteredAssignments(activePath, filters)
         );
       } else {
         assignmentsResult = await handleIPCResult(() =>
@@ -240,27 +237,28 @@ export default function AssignmentBrowse({
   }, [courseAssignments]);
 
   assignments = generateAssignments(courseAssignments, setCourseAssignments);
-  modules = generateFilter(uniqueModules, setUniqueModules);
-  tags = generateFilter(uniqueTags, setUniqueTags);
+  modules = generateFilterList(uniqueModules, setUniqueModules);
+  tags = generateFilterList(uniqueTags, setUniqueTags);
 
   async function handleOpenAssignment() {
-    // use a new handleGetAssignmentFS request to get the entire
-    // assignment. Assignments in state are from the DB (contain only some
-    // metadata).
+    try {
+      if (!selectedAssignments || selectedAssignments.length < 1) {
+        throw new Error("ui_no_assignment_seleted");
+      }
 
-    // set the first selected assignment as global
-    if (!selectedAssignments || selectedAssignments.length < 1) {
+      const assignmentsResult = await handleIPCResult(() =>
+        window.api.handleGetAssignmentsFS(activePath, selectedAssignments[0].id)
+      );
+
+      setNavigateToAssignment(true);
+      handleActiveAssignment(assignmentsResult[0]);
+    } catch (err) {
       functionResultToSnackBar(
-        { info: parseUICode("ui_no_assignment_seleted") },
+        { error: parseUICode(err.message) },
         setShowSnackbar,
         setSnackBarAttributes
       );
-      return;
     }
-
-    console.log(selectedAssignments[0]);
-    //setNavigateToAssignment(true);
-    //handleActiveAssignment(selectedAssignments[0]);
   }
 
   useEffect(() => {

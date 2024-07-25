@@ -29,7 +29,7 @@ import {
   getModuleTagsDB,
   getAssignmentCountDB,
   getModuleCountDB,
-  getAssignmentsByTagsDB,
+  getFilteredAssignments,
 } from "./mainHelpers/databaseOperations";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -159,7 +159,7 @@ ipcMain.handle(
 );
 ipcMain.handle(
   "handleGetAssignmentsFS",
-  formatIPCResult((path) => handleGetAssignmentsFS(path))
+  formatIPCResult((path, id) => handleGetAssignmentsFS(path, id))
 );
 ipcMain.handle(
   "getAssignmentsDB",
@@ -180,8 +180,8 @@ ipcMain.handle(
   formatIPCResult((path) => getAssignmentCountDB(path))
 );
 ipcMain.handle(
-  "getAssignmentsByTagsDB",
-  formatIPCResult((path, tagNames) => getAssignmentsByTagsDB(path, tagNames))
+  "getFilteredAssignments",
+  formatIPCResult((path, filters) => getFilteredAssignments(path, filters))
 );
 
 // CRUD Module

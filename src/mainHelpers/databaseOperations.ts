@@ -387,42 +387,6 @@ async function _addModuleTagsDB(
 
 // CRUD Assignment
 
-async function _addAssignmentDB(
-  db: sqlite3.Database,
-  assignmentPath: string,
-  assignment: CodeAssignmentData
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    db.serialize(() => {
-      db.run(
-        `INSERT INTO assignments(id, type, title, tags, module, position, level, isExpanding, path) 
-      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          assignment.assignmentID,
-          assignment.assignmentType,
-          assignment.title,
-          assignment.tags.toString(),
-          assignment.module,
-          assignment.assignmentNo.toString(),
-          assignment.level,
-          isExpanding(assignment) ? 1 : 0,
-          assignmentPath,
-        ],
-        (err) => {
-          if (err) {
-            log.error("Error in _addAssignmentDB():", err.message);
-            reject(err);
-          } else {
-            resolve(
-              `Assignment ${assignment.assignmentID} inserted successfully`
-            );
-          }
-        }
-      );
-    });
-  });
-}
-
 export async function addAssignmentDB(
   coursePath: string,
   assignment: CodeAssignmentData
@@ -435,9 +399,37 @@ export async function addAssignmentDB(
         assignment.assignmentID
       );
 
-      const result = await _addAssignmentDB(db, assignmentPath, assignment);
+      const result = await new Promise((resolve, reject) => {
+        db.serialize(() => {
+          db.run(
+            `INSERT INTO assignments(id, type, title, tags, module, position, level, isExpanding, path) 
+          VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              assignment.assignmentID,
+              assignment.assignmentType,
+              assignment.title,
+              assignment.tags.toString(),
+              assignment.module,
+              assignment.assignmentNo.toString(),
+              assignment.level,
+              isExpanding(assignment) ? 1 : 0,
+              assignmentPath,
+            ],
+            (err) => {
+              if (err) {
+                reject(err);
+              } else {
+                resolve(
+                  `Assignment ${assignment.assignmentID} inserted successfully`
+                );
+              }
+            }
+          );
+        });
+      });
 
       await _addAssignmentTagsDB(db, assignment.tags, assignment.assignmentID);
+
       return result;
     } catch (err) {
       log.error("Error in addAssignmentDB():", err.message);
@@ -448,28 +440,34 @@ export async function addAssignmentDB(
 
 export async function getAssignmentDB(
   coursePath: string,
-  ids: string[]
+  ids?: (string | number)[],
+  queryExtension?: string,
+  queryOverride?: string
 ): Promise<CodeAssignmentDatabase[]> {
   return _execOperationDB(coursePath, (db: sqlite3.Database) => {
     return new Promise((resolve, reject) => {
-      const placeholders = ids.map(() => "?").join(",");
       db.serialize(() => {
-        db.all(
-          `SELECT * FROM assignments WHERE id IN (${placeholders})`,
-          ids,
-          (err, row) => {
-            if (err) {
-              log.error("Error in getAssignmentDB():", err.message);
-              reject(err);
-            } else if (row) {
-              /*const content = row as CodeAssignmentDatabase;
-            content.isExpanding = content.isExpanding ? true : false;*/
-              resolve(row); //content);
-            } else {
-              reject(new Error("Could not find assignment in database."));
-            }
+        const query =
+          queryOverride ??
+          `SELECT assignments.* FROM modules RIGHT JOIN assignments 
+          ON modules.id = assignments.module` + queryExtension;
+
+        console.log("query: ", query);
+        db.all(query, ids, (err, rows) => {
+          if (err) {
+            log.error("Error in getAssignmentDB():", err.message);
+            reject(err);
+          } else if (rows) {
+            const formattedRows = rows.map((row) => {
+              const content = row as CodeAssignmentDatabase;
+              content.isExpanding = content.isExpanding ? true : false;
+              return content;
+            });
+            resolve(formattedRows);
+          } else {
+            reject(new Error("Could not find assignment in database."));
           }
-        );
+        });
       });
     });
   });
@@ -500,7 +498,7 @@ export async function updateAssignmentDB(
         params.push(assignment.title);
       }
       if (oldAssignment.tags !== assignment.tags.toString()) {
-        result = await _updateTagsDB(
+        await _updateTagsDB(
           db,
           oldAssignment.tags,
           assignment.tags,
@@ -616,41 +614,87 @@ export async function getAssignmentTagsDB(coursePath: string) {
   return await _getAllDB(coursePath, "tags");
 }
 
-export async function getAssignmentsByTagsDB(
+export async function _getAssignmentsByTagsDB(
+  db: sqlite3.Database,
+  tags: string[]
+): Promise<{ assignments: string }[]> {
+  try {
+    // get assignment ids from the tags table
+    console.log("tags:", tags);
+    const tagsPlaceholder = tags.map(() => "?").join(",");
+    const query = `SELECT assignments FROM tags
+        WHERE name IN (${tagsPlaceholder})`;
+
+    return await new Promise((resolve, reject) => {
+      db.serialize(() => {
+        db.all(query, tags, (err, rows: any) => {
+          if (err) {
+            reject(err);
+          } else {
+            const assignments = rows.map((row: any) => row?.assignments);
+            resolve(assignments);
+          }
+        });
+      });
+    });
+  } catch (err) {
+    log.error("Error in _getAssignmentsByTagsDB():", err.message);
+    throw err;
+  }
+}
+
+export async function getFilteredAssignments(
   coursePath: string,
-  tagNames: string[]
+  filters: any
 ): Promise<CodeAssignmentDatabase[]> {
   return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
     try {
-      // get assignment ids from the tags table
-      const tagsPlaceholder = tagNames.map(() => "?").join(",");
-      const query = `SELECT assignments FROM tags
-        WHERE name IN (${tagsPlaceholder})`;
+      // prepare the query with the assignment title substring search
+      let query = `SELECT assignments.*, 
+        instr (assignments.title, ?) titlePosition
+        FROM modules RIGHT JOIN assignments 
+        ON modules.id = assignments.module WHERE`;
+      let ids: any[] = [];
 
-      const result: { assignments: string }[] = await new Promise(
-        (resolve, reject) => {
-          db.serialize(() => {
-            db.all(query, tagNames, (err, rows: any) => {
-              err ? reject(err) : resolve(rows);
-            });
-          });
+      if (filters?.search.length > 0) {
+        ids.push(filters.search);
+        query += ` titlePosition > 0`;
+      }
+
+      // get assignment ids based on selected tags
+      const assignmentIds = filters.tags
+        ? await _getAssignmentsByTagsDB(db, filters.tags)
+        : [];
+
+      // form the query extension for the assignment ids
+      if (assignmentIds?.length > 0) {
+        if (filters?.search.length > 0) {
+          query += " AND";
         }
-      );
 
-      // then get the assignments whose ids were found in the tags query
-      const assignmentIds: string[] = [];
-      result.forEach((row) => {
-        row.assignments.split(",").forEach((assignmentId) => {
-          const newId = assignmentId.trim();
-          const duplicateId: string = assignmentIds.find(
-            (value) => value == newId
-          );
-          !duplicateId ? assignmentIds.push(assignmentId.trim()) : null;
-        });
-      });
-      return await getAssignmentDB(coursePath, assignmentIds);
+        ids = ids.concat(assignmentIds);
+        const assignmentPlaceholders = assignmentIds.map(() => "?").join(",");
+        query += ` assignments.id IN (${assignmentPlaceholders})`;
+      }
+
+      // form the query extension for the modules
+      if (filters?.module.length > 0) {
+        if (assignmentIds?.length > 0) {
+          query += " AND";
+        }
+
+        const filterPlaceholders = filters.module.map(() => "?").join(",");
+        query += ` modules.name IN (${filterPlaceholders})`;
+        ids = ids.concat(filters.module);
+      }
+
+      /*if (query.length > 0) {
+        query = " WHERE" + query;
+      }*/
+
+      return await getAssignmentDB(coursePath, ids, "", query);
     } catch (err) {
-      log.error("Error in getAssignmentsByTagsDB():", err.message);
+      log.error("Error in _getAssignmentsByTagsDB():", err.message);
       throw err;
     }
   });

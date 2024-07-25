@@ -26,7 +26,7 @@ export const defaultAssignment: CodeAssignmentData = {
   assignmentID: null,
   title: null,
   tags: [],
-  module: 0,
+  module: 1,
   assignmentType: "assignment",
   assignmentNo: [],
   level: null,

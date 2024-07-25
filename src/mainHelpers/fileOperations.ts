@@ -319,7 +319,7 @@ async function _handleAddOrUpdateAssignmentFS(
     }
 
     if (!oldAssignment) {
-      // if saving new assignment, return if
+      // if saving new assignment, throw error if
       // identically named one exists
       if (_AssignmentExistsFS(assignment?.title, coursePath)) {
         throw new Error("ui_assignment_error_duplicate_title");
@@ -376,11 +376,9 @@ export function handleGetAssignmentsFS(
     const files = fs.readdirSync(assignmentDataPath);
 
     files.forEach(function (file) {
-      if (id) {
-        // if id provided, only get the specific assignment
-        if (file == id) {
-        }
-        return;
+      if (id && file != id) {
+        // if id is provided...
+        return; // skip the file if id does not match.
       }
       const hashFile = `${file}.json`;
       const assignmentPath: string = path.join(
