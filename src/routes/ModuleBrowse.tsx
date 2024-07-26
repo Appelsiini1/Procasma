@@ -7,6 +7,7 @@ import {
   List,
   ListItem,
   ListItemButton,
+  ListSubheader,
   Stack,
   Typography,
 } from "@mui/joy";
@@ -116,17 +117,10 @@ export default function ModuleBrowse({
       };
 
       let moduleResults: ModuleDatabase[] = [];
-      if (checkedTags.length > 0) {
-        // Filter if filters selected
-        moduleResults = await handleIPCResult(() =>
-          window.api.getFilteredModulesDB(activePath, filters)
-        );
-        console.log("moduleResults: ", moduleResults);
-      } else {
-        moduleResults = await handleIPCResult(() =>
-          window.api.getModulesDB(activePath)
-        );
-      }
+
+      moduleResults = await handleIPCResult(() =>
+        window.api.getFilteredModulesDB(activePath, filters)
+      );
 
       // wrap the fetched modules to store checked state
       const modulesWithCheck = moduleResults.map((module) => {
@@ -150,7 +144,7 @@ export default function ModuleBrowse({
 
   async function updateFilters() {
     const tagsResult: TagDatabase[] = await handleIPCResult(() =>
-      window.api.getAssignmentTagsDB(activePath)
+      window.api.getModuleTagsDB(activePath)
     );
 
     handleUpdateUniqueTags(tagsResult, setUniqueTags);
@@ -158,6 +152,9 @@ export default function ModuleBrowse({
 
   // Get the course assignments on page load
   useEffect(() => {
+    if (!activePath) {
+      return;
+    }
     refreshModules();
     updateFilters();
   }, []);
@@ -166,15 +163,15 @@ export default function ModuleBrowse({
     let snackbarSeverity = "success";
     let snackbarText = "ui_delete_success";
     try {
-      const deletePromises = selectedModules.map(async (module) => {
-        await handleIPCResult(() =>
-          window.api.deleteModuleDB(activePath, module.ID)
-        );
-      });
-      await Promise.all(deletePromises);
+      await handleIPCResult(() =>
+        window.api.deleteModulesDB(
+          activePath,
+          selectedModules.map((module) => module.id)
+        )
+      );
 
-      // get the remaining modules
-      refreshModules();
+      refreshModules(); // get the remaining modules
+      updateFilters(); // and filters
     } catch (err) {
       snackbarText = err.message;
       snackbarSeverity = "error";
@@ -226,7 +223,7 @@ export default function ModuleBrowse({
     <>
       <PageHeaderBar
         pageName={parseUICode("ui_module_browser")}
-        courseID={activeCourse?.ID}
+        courseID={activeCourse?.id}
         courseTitle={activeCourse?.title}
       />
       <div className="content">
@@ -291,7 +288,10 @@ export default function ModuleBrowse({
                 }}
                 overflow={"auto"}
               >
-                <List>{modules}</List>
+                <ListItem nested>
+                  <ListSubheader>{parseUICode("ui_modules")}</ListSubheader>
+                  <List>{modules}</List>
+                </ListItem>
               </Box>
             </Stack>
           </Grid>

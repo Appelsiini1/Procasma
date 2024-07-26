@@ -41,22 +41,20 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("handleGetAssignmentsFS", coursePath, id),
   getAssignmentsDB: (coursePath: string) =>
     ipcRenderer.invoke("getAssignmentsDB", coursePath),
-  handleDeleteAssignmentFS: (coursePath: string, id: string) =>
-    ipcRenderer.invoke("handleDeleteAssignmentFS", coursePath, id),
+  handleDeleteAssignmentsFS: (coursePath: string, ids: string) =>
+    ipcRenderer.invoke("handleDeleteAssignmentsFS", coursePath, ids),
   getAssignmentCountDB: (coursePath: string) =>
     ipcRenderer.invoke("getAssignmentCountDB", coursePath),
   getFilteredAssignmentsDB: (coursePath: string, filters: any) =>
     ipcRenderer.invoke("getFilteredAssignmentsDB", coursePath, filters),
 
   // CRUD Module
-  handleAddModuleFS: (module: ModuleData, coursePath: string) =>
-    ipcRenderer.invoke("handleAddModuleFS", module, coursePath),
-  handleGetModulesFS: (coursePath: string) =>
-    ipcRenderer.invoke("handleGetModulesFS", coursePath),
+  addModuleDB: (coursePath: string, module: ModuleData) =>
+    ipcRenderer.invoke("addModuleDB", coursePath, module),
   getModulesDB: (coursePath: string) =>
     ipcRenderer.invoke("getModulesDB", coursePath),
-  deleteModuleDB: (coursePath: string, id: number) =>
-    ipcRenderer.invoke("deleteModuleDB", coursePath, id),
+  deleteModulesDB: (coursePath: string, ids: number) =>
+    ipcRenderer.invoke("deleteModulesDB", coursePath, ids),
   getFilteredModulesDB: (coursePath: string, filters: any) =>
     ipcRenderer.invoke("getFilteredModulesDB", coursePath, filters),
 

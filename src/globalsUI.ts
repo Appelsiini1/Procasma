@@ -79,7 +79,7 @@ class CurrentCourse {
 
   set values(data: CourseData) {
     this._title = data.title;
-    this._ID = data.ID;
+    this._ID = data.id;
     this._modules = data.modules;
     this._moduleType = data.moduleType;
     this._language = data.language;

@@ -7,16 +7,12 @@ import {
 import { version, DEVMODE } from "./constants";
 import {
   handleGetAssignmentsFS,
-  handleGetModulesFS,
   handleGetCourseFS,
   handleAddAssignmentFS,
   handleAddCourseFS,
-  handleAddModuleFS,
   handleUpdateAssignmentFS,
   handleUpdateCourseFS,
-  handleUpdateModuleFS,
-  handleDeleteAssignmentFS,
-  handleDeleteModuleFS,
+  handleDeleteAssignmentsFS,
 } from "./mainHelpers/fileOperations";
 import { initialize } from "./mainHelpers/programInit";
 import { getSettings, saveSettings } from "./mainHelpers/settings";
@@ -32,6 +28,9 @@ import {
   getFilteredAssignmentsDB,
   getFilteredModulesDB,
   getModulesDB,
+  addModuleDB,
+  updateModuleDB,
+  deleteModulesDB,
 } from "./mainHelpers/databaseOperations";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -174,8 +173,10 @@ ipcMain.handle(
   )
 );
 ipcMain.handle(
-  "handleDeleteAssignmentFS",
-  formatIPCResult((coursePath, id) => handleDeleteAssignmentFS(coursePath, id))
+  "handleDeleteAssignmentsFS",
+  formatIPCResult((coursePath, ids) =>
+    handleDeleteAssignmentsFS(coursePath, ids)
+  )
 );
 ipcMain.handle(
   "getAssignmentCountDB",
@@ -189,24 +190,20 @@ ipcMain.handle(
 // CRUD Module
 
 ipcMain.handle(
-  "handleAddModuleFS",
-  formatIPCResult((module, path) => handleAddModuleFS(module, path))
-);
-ipcMain.handle(
-  "handleGetModulesFS",
-  formatIPCResult((path) => handleGetModulesFS(path))
+  "addModuleDB",
+  formatIPCResult((path, module) => addModuleDB(path, module))
 );
 ipcMain.handle(
   "getModulesDB",
   formatIPCResult((path) => getModulesDB(path))
 );
 ipcMain.handle(
-  "handleUpdateModuleFS",
-  formatIPCResult((module, path) => handleUpdateModuleFS(module, path))
+  "updateModuleDB",
+  formatIPCResult((path, module) => updateModuleDB(path, module))
 );
 ipcMain.handle(
-  "handleDeleteModuleFS",
-  formatIPCResult((coursePath, id) => handleDeleteModuleFS(coursePath, id))
+  "deleteModulesDB",
+  formatIPCResult((coursePath, ids) => deleteModulesDB(coursePath, ids))
 );
 ipcMain.handle(
   "getModuleCountDB",

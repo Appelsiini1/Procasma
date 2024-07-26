@@ -85,7 +85,7 @@ export default function Settings({
     <>
       <PageHeaderBar
         pageName={parseUICode("ui_settings")}
-        courseID={activeCourse?.ID}
+        courseID={activeCourse?.id}
         courseTitle={activeCourse?.title}
       />
       <div className="content" style={{ height: "40rem", maxHeight: "80vh" }}>

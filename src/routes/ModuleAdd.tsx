@@ -50,14 +50,12 @@ export default function ModuleAdd({
     let snackbarText = "ui_module_save_success";
     try {
       if (pageType === "manage") {
-        // Update currently just overwrites the existing module
-        // in fileOperations
         snackbarText = await handleIPCResult(() =>
-          window.api.handleUpdateModuleFS(module, activePath)
+          window.api.updateModuleDB(activePath, module)
         );
       } else {
         snackbarText = await handleIPCResult(() =>
-          window.api.handleAddModuleFS(module, activePath)
+          window.api.addModuleDB(activePath, module)
         );
       }
     } catch (err) {
@@ -76,7 +74,7 @@ export default function ModuleAdd({
     <>
       <PageHeaderBar
         pageName={parseUICode("ui_add_module")}
-        courseID={activeCourse?.ID}
+        courseID={activeCourse?.id}
         courseTitle={activeCourse?.title}
       />
       <div className="content">
@@ -100,10 +98,10 @@ export default function ModuleAdd({
               </td>
             </tr>
 
-            <tr key="mModuleNumber">
+            <tr key="mAssignmentCount">
               <td>
                 <Typography level="h4">
-                  {parseUICode("ui_module_amount")}
+                  {parseUICode("ui_module_count")}
                 </Typography>
               </td>
               <td>
@@ -117,14 +115,14 @@ export default function ModuleAdd({
               </td>
             </tr>
 
-            <tr key="mAssignmentAmount">
+            <tr key="mModuleNumber">
               <td>
                 <Typography level="h4">{parseUICode("ui_module")}</Typography>
               </td>
               <td>
                 <NumberInput
-                  value={module.ID}
-                  onChange={(value: number) => handleModule("ID", value)}
+                  value={module.id}
+                  onChange={(value: number) => handleModule("id", value)}
                   min={0}
                 ></NumberInput>
               </td>

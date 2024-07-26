@@ -1,5 +1,5 @@
 import PageHeaderBar from "../components/PageHeaderBar";
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Grid,
@@ -94,10 +94,8 @@ export default function AssignmentBrowse({
   activeAssignment: CodeAssignmentData;
   handleActiveAssignment: (value: CodeAssignmentData) => void;
 }) {
-  const pageType = useLoaderData();
   const navigate = useNavigate();
   let assignments: Array<React.JSX.Element> = null;
-  let selectFragment: React.JSX.Element = null;
   let modules: Array<React.JSX.Element> = null;
   let tags: Array<React.JSX.Element> = null;
 
@@ -142,20 +140,10 @@ export default function AssignmentBrowse({
       };
 
       let assignmentsResult: CodeAssignmentDatabase[] = [];
-      if (
-        checkedTags.length > 0 ||
-        checkedModules.length > 0 ||
-        search?.length > 0
-      ) {
-        // Filter if filters selected
-        assignmentsResult = await handleIPCResult(() =>
-          window.api.getFilteredAssignmentsDB(activePath, filters)
-        );
-      } else {
-        assignmentsResult = await handleIPCResult(() =>
-          window.api.getAssignmentsDB(activePath)
-        );
-      }
+
+      assignmentsResult = await handleIPCResult(() =>
+        window.api.getFilteredAssignmentsDB(activePath, filters)
+      );
 
       // wrap the fetched assignments to store checked state
       const assignentsWithCheck = assignmentsResult.map((assignment) => {
@@ -180,7 +168,6 @@ export default function AssignmentBrowse({
 
   function handleSearch(value: string) {
     setSearch(value);
-    refreshAssignments();
   }
 
   async function updateFilters() {
@@ -191,7 +178,7 @@ export default function AssignmentBrowse({
     handleUpdateUniqueTags(tagsResult, setUniqueTags);
 
     const modulesResult: ModuleDatabase[] = await handleIPCResult(() =>
-      window.api.handleGetModulesFS(activePath)
+      window.api.getModulesDB(activePath)
     );
 
     handleUpdateFilter(modulesResult, setUniqueModules);
@@ -199,6 +186,9 @@ export default function AssignmentBrowse({
 
   // Get the course assignments and filters on page load
   useEffect(() => {
+    if (!activePath) {
+      return;
+    }
     refreshAssignments();
     updateFilters();
   }, []);
@@ -207,15 +197,15 @@ export default function AssignmentBrowse({
     let snackbarSeverity = "success";
     let snackbarText = "ui_delete_success";
     try {
-      const deletePromises = selectedAssignments.map(async (assignment) => {
-        await handleIPCResult(() =>
-          window.api.handleDeleteAssignmentFS(activePath, assignment.id)
-        );
-      });
-      await Promise.all(deletePromises);
+      await handleIPCResult(() =>
+        window.api.handleDeleteAssignmentsFS(
+          activePath,
+          selectedAssignments.map((assignment) => assignment.id)
+        )
+      );
 
-      // get the remaining assignments
-      refreshAssignments();
+      refreshAssignments(); // get the remaining assignments
+      updateFilters(); // and filters
     } catch (err) {
       snackbarText = err.message;
       snackbarSeverity = "error";
@@ -240,7 +230,7 @@ export default function AssignmentBrowse({
 
   useEffect(() => {
     refreshAssignments();
-  }, [uniqueTags, uniqueModules]);
+  }, [uniqueTags, uniqueModules, search]);
 
   assignments = generateAssignments(courseAssignments, setCourseAssignments);
   modules = generateFilterList(uniqueModules, setUniqueModules);
@@ -280,9 +270,14 @@ export default function AssignmentBrowse({
     }
   }, [activeAssignment, navigateToAssignment]);
 
-  if (pageType === "browse") {
-    selectFragment = (
-      <>
+  return (
+    <>
+      <PageHeaderBar
+        pageName={parseUICode("ui_assignment_browser")}
+        courseID={activeCourse?.id}
+        courseTitle={activeCourse?.title}
+      />
+      <div className="content">
         <div className="emptySpace1" />
         <SearchBar
           autoFillOptions={courseAssignments}
@@ -324,18 +319,6 @@ export default function AssignmentBrowse({
               : ""}
           </Typography>
         </Stack>
-      </>
-    );
-  }
-  return (
-    <>
-      <PageHeaderBar
-        pageName={parseUICode("ui_assignment_browser")}
-        courseID={activeCourse?.ID}
-        courseTitle={activeCourse?.title}
-      />
-      <div className="content">
-        {selectFragment}
 
         <div className="emptySpace2" />
         <Grid

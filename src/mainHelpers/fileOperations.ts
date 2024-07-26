@@ -13,9 +13,10 @@ import { createHash } from "crypto";
 import {
   addAssignmentDB,
   addModuleDB,
-  deleteAssignmentDB,
-  deleteModuleDB,
+  deleteAssignmentsDB,
+  deleteModulesDB,
   initDB,
+  updateModuleDB,
 } from "./databaseOperations";
 import log from "electron-log/node";
 
@@ -108,7 +109,7 @@ export async function handleAddCourseFS(
 ) {
   try {
     // extract title
-    const courseTitle: string = course?.title;
+    const courseTitle: string = course.title;
     if (!courseTitle) {
       throw new Error("ui_add_course_title");
     }
@@ -425,124 +426,23 @@ export async function handleUpdateAssignmentFS(
   return _handleAddOrUpdateAssignmentFS(assignment, coursePath, true);
 }
 
-export async function handleDeleteAssignmentFS(coursePath: string, id: string) {
+export async function handleDeleteAssignmentsFS(
+  coursePath: string,
+  ids: string[]
+) {
   try {
-    // remove the file hash folder and its contents
-    const assignmentPath = path.join(coursePath, "assignment_data", id);
+    ids.map((id) => {
+      // remove the file hash folder and its contents
+      const assignmentPath = path.join(coursePath, "assignment_data", id);
 
-    _removePathFS(assignmentPath);
+      _removePathFS(assignmentPath);
+    });
 
-    await deleteAssignmentDB(coursePath, id);
+    await deleteAssignmentsDB(coursePath, ids);
 
     return "ui_del_ok";
   } catch (err) {
-    log.error("Error in handleDeleteAssignmentFS():", err.message);
-    throw err;
-  }
-}
-
-// CRUD Module
-
-// Update currently just overwrites the existing module
-async function _handleAddOrUpdateModuleFS(
-  module: ModuleData,
-  coursePath: string,
-  oldModule: boolean
-) {
-  try {
-    const name = module?.name;
-    if (!name || name.length < 1) {
-      throw new Error("ui_add_module_name");
-    }
-
-    // create modules.json if does not exist
-    const modulesPath = path.join(coursePath, "modules.json");
-
-    // read modules.json
-    const result = handleReadFileFS(modulesPath, true);
-
-    // if no previous modules
-    if (!result) {
-      fs.writeFileSync(modulesPath, JSON.stringify([module]), "utf8");
-    } else {
-      const previousModules = result as ModuleData[];
-      let foundSameId = false;
-
-      // check if same id exists if the module array exists
-      const newModules = previousModules.map((element: ModuleData) => {
-        // if exists, overwrite the module
-        if (element.ID == module.ID) {
-          foundSameId = true;
-          return module;
-        }
-        return element;
-      });
-
-      // if did not find the module in previous modules,
-      // push the new module to the list and write to file
-      if (foundSameId) {
-        fs.writeFileSync(modulesPath, JSON.stringify(newModules), "utf8");
-      } else {
-        previousModules.push(module);
-        fs.writeFileSync(modulesPath, JSON.stringify(previousModules), "utf8");
-      }
-    }
-
-    await addModuleDB(coursePath, module);
-
-    return "ui_module_save_success";
-  } catch (err) {
-    log.error("Error in _handleAddOrUpdateModuleFS():", err.message);
-    throw err;
-  }
-}
-
-export function handleAddModuleFS(module: ModuleData, coursePath: string) {
-  return _handleAddOrUpdateModuleFS(module, coursePath, false);
-}
-
-export async function handleUpdateModuleFS(
-  module: ModuleData,
-  coursePath: string
-) {
-  return _handleAddOrUpdateModuleFS(module, coursePath, false);
-}
-
-export function handleGetModulesFS(coursePath: string): ModuleData[] | null {
-  try {
-    const modulesPath = path.join(coursePath, "modules.json");
-
-    // read modules.json
-    const result = handleReadFileFS(modulesPath, true);
-    if (!result) {
-      return [] as ModuleData[];
-    }
-    const modules = result as ModuleData[];
-
-    return modules;
-  } catch (err) {
-    log.error("Error in handleGetModulesFS():", err.message);
-    throw err;
-  }
-}
-
-export async function handleDeleteModuleFS(coursePath: string, id: number) {
-  try {
-    const prevModules = handleGetModulesFS(coursePath);
-    const newModules = prevModules.filter((module) => {
-      return module.ID === id ? null : module;
-    });
-
-    // write remaining modules
-    const modulesPath = path.join(coursePath, "modules.json");
-
-    fs.writeFileSync(modulesPath, JSON.stringify(newModules), "utf8");
-
-    await deleteModuleDB(coursePath, id);
-
-    return "ui_module_delete_success";
-  } catch (err) {
-    log.error("Error in handleDeleteModuleFS():", err.message);
+    log.error("Error in handleDeleteAssignmentsFS():", err.message);
     throw err;
   }
 }

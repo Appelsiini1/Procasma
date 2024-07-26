@@ -91,7 +91,7 @@ export default function ProjectWorkInput({
     <>
       <PageHeaderBar
         pageName={parseUICode("ui_add_project_work")}
-        courseID={activeCourse?.ID}
+        courseID={activeCourse?.id}
         courseTitle={activeCourse?.title}
       />
       <div className="content">

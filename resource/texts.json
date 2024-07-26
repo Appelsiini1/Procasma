@@ -1163,9 +1163,9 @@
     "FI": "Kurssin koodikieli",
     "ENG": "Course code language"
   },
-  "ui_module_amount": {
+  "ui_module_count": {
     "FI": "Moduulien määrä",
-    "ENG": "Module amount"
+    "ENG": "Module count"
   },
   "help_clang_assignment": {
     "FI": "Valitse jos koodikieli on eri kuin kurssiasetuksissa määritetty",

@@ -95,7 +95,7 @@ export default function AssignmentInput({
     <>
       <PageHeaderBar
         pageName={parseUICode("ui_add_assignment")}
-        courseID={activeCourse?.ID}
+        courseID={activeCourse?.id}
         courseTitle={activeCourse?.title}
       />
       <div className="content">

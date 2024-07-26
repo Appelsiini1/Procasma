@@ -54,7 +54,7 @@ export interface CodeAssignmentData extends CommonAssignmentData {
 }
 
 export interface ModuleData {
-  ID: number;
+  id: number;
   name: string;
   letters: boolean;
   assignments: number;
@@ -77,7 +77,7 @@ export interface LevelsType {
 
 export interface CourseData {
   title?: string;
-  ID?: string;
+  id?: string;
   modules?: number;
   moduleType?: "week" | "module" | null;
   language?: SupportedLanguages;
@@ -164,16 +164,15 @@ export type ContextBridgeAPI = {
     assignment: CodeAssignmentData,
     coursePath: string
   ) => IpcResult;
-  handleDeleteAssignmentFS: (coursePath: string, id?: string) => IpcResult;
+  handleDeleteAssignmentsFS: (coursePath: string, ids: string[]) => IpcResult;
   getAssignmentCountDB: (coursePath: string) => IpcResult;
   getFilteredAssignmentsDB: (coursePath: string, filters: any) => IpcResult;
 
   // CRUD Module
-  handleAddModuleFS: (module: ModuleData, coursePath: string) => IpcResult;
-  handleGetModulesFS: (coursePath: string) => IpcResult;
+  addModuleDB: (coursePath: string, module: ModuleData) => IpcResult;
   getModulesDB: (coursePath: string) => IpcResult;
-  handleUpdateModuleFS: (module: ModuleData, coursePath: string) => IpcResult;
-  deleteModuleDB: (coursePath: string, id: number) => IpcResult;
+  updateModuleDB: (coursePath: string, module: ModuleData) => IpcResult;
+  deleteModulesDB: (coursePath: string, ids: number[]) => IpcResult;
   getModuleCountDB: (coursePath: string) => IpcResult;
   getFilteredModulesDB: (coursePath: string, filters: any) => IpcResult;
 

@@ -64,11 +64,11 @@ export default function Root({
 
   const refreshAssignmentsInIndex = async () => {
     try {
-      const result = await handleIPCResult(() =>
+      const count = await handleIPCResult(() =>
         window.api.getAssignmentCountDB(activePath)
       );
 
-      setAssignmentsInIndex(result.content);
+      setAssignmentsInIndex(count);
     } catch (err) {
       functionResultToSnackBar(
         { error: parseUICode(err.message) },
@@ -150,7 +150,7 @@ export default function Root({
     <>
       <PageHeaderBar
         pageName={pageName}
-        courseID={activeCourse?.ID}
+        courseID={activeCourse?.id}
         courseTitle={activeCourse?.title}
       />
       <div className="menuContent">
