@@ -295,6 +295,16 @@ export default function AssignmentBrowse({
           spacing={2}
         >
           <ButtonComp
+            buttonType="normal"
+            onClick={() => {
+              //handleCreateSet();
+            }}
+            ariaLabel={parseUICode("ui_create_new_set")}
+            disabled={numSelected > 0 ? false : true}
+          >
+            {parseUICode("ui_create_set")}
+          </ButtonComp>
+          <ButtonComp
             confirmationModal={true}
             modalText={`${parseUICode("ui_delete")} 
               ${numSelected}`}
@@ -310,14 +320,10 @@ export default function AssignmentBrowse({
               handleOpenAssignment();
             }}
             ariaLabel={parseUICode("ui_aria_show_edit")}
+            disabled={numSelected === 1 ? false : true}
           >
             {parseUICode("ui_show_edit")}
           </ButtonComp>
-          <Typography>
-            {selectedAssignments && selectedAssignments.length > 0
-              ? selectedAssignments[0]?.title
-              : ""}
-          </Typography>
         </Stack>
 
         <div className="emptySpace2" />

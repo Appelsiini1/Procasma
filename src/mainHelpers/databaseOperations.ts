@@ -147,7 +147,7 @@ export async function _getColumnByTagsDB(
   try {
     const tagsPlaceholder = tags.map(() => "?").join(",");
     const query = `SELECT ${column} FROM ${table}
-        WHERE name IN (${tagsPlaceholder})`;
+      WHERE name IN (${tagsPlaceholder})`;
 
     return await new Promise((resolve, reject) => {
       db.serialize(() => {
@@ -655,6 +655,7 @@ export async function getFilteredAssignmentsDB(
       let query = "";
       let queryExtension = "";
       let ids: any[] = [];
+      let assignmentIds: string[] = [];
 
       // form the query extension for the title search
       if (filters.title.length > 0) {
@@ -672,24 +673,29 @@ export async function getFilteredAssignmentsDB(
       }
 
       // get assignment ids based on selected tags
-      const assignmentIds = filters.tags
+      const columnResult = filters.tags
         ? await _getColumnByTagsDB(db, filters.tags, "assignments", "tags")
         : [];
 
+      columnResult.forEach((idString) => {
+        assignmentIds = assignmentIds.concat(idString.split(","));
+      });
+      const uniqueIds = [...new Set(assignmentIds)];
+
       // form the query extension for the assignment ids
-      if (assignmentIds.length > 0) {
+      if (uniqueIds.length > 0) {
         if (filters.title.length > 0) {
           queryExtension += " AND";
         }
 
-        ids = ids.concat(assignmentIds);
-        const assignmentPlaceholders = assignmentIds.map(() => "?").join(",");
+        ids = ids.concat(uniqueIds);
+        const assignmentPlaceholders = uniqueIds.map(() => "?").join(",");
         queryExtension += ` assignments.id IN (${assignmentPlaceholders})`;
       }
 
       // form the query extension for the modules
       if (filters.module.length > 0) {
-        if (assignmentIds.length > 0) {
+        if (uniqueIds.length > 0) {
           queryExtension += " AND";
         }
 
@@ -701,6 +707,9 @@ export async function getFilteredAssignmentsDB(
       if (queryExtension.length > 0) {
         queryExtension = " WHERE" + queryExtension;
       }
+
+      console.log("ids:", ids);
+      console.log("query + queryExtension: ", query + queryExtension);
 
       return await getAssignmentDB(coursePath, ids, query + queryExtension);
     } catch (err) {
@@ -943,16 +952,22 @@ export async function getFilteredModulesDB(
     try {
       let query = "SELECT * FROM modules";
       let ids: any[] = [];
+      let moduleIds: string[] = [];
 
       // get module ids based on selected tags
-      const moduleIds = filters.tags
+      const columnResult = filters.tags
         ? await _getColumnByTagsDB(db, filters.tags, "modules", "moduleTags")
         : [];
 
+      columnResult.forEach((idString) => {
+        moduleIds = moduleIds.concat(idString.split(","));
+      });
+      const uniqueIds = [...new Set(moduleIds)];
+
       // form the query extension for the module ids
-      if (moduleIds.length > 0) {
-        ids = ids.concat(moduleIds);
-        const modulePlaceholders = moduleIds.map(() => "?").join(",");
+      if (uniqueIds.length > 0) {
+        ids = ids.concat(uniqueIds);
+        const modulePlaceholders = uniqueIds.map(() => "?").join(",");
         query += ` WHERE id IN (${modulePlaceholders})`;
       }
 

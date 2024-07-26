@@ -250,14 +250,10 @@ export default function ModuleBrowse({
               handleOpenModule();
             }}
             ariaLabel={parseUICode("ui_aria_show_edit")}
+            disabled={numSelected === 1 ? false : true}
           >
             {parseUICode("ui_show_edit")}
           </ButtonComp>
-          <Typography>
-            {selectedModules && selectedModules.length > 0
-              ? selectedModules[0]?.name
-              : ""}
-          </Typography>
         </Stack>
 
         <div className="emptySpace2" />
@@ -288,10 +284,7 @@ export default function ModuleBrowse({
                 }}
                 overflow={"auto"}
               >
-                <ListItem nested>
-                  <ListSubheader>{parseUICode("ui_modules")}</ListSubheader>
-                  <List>{modules}</List>
-                </ListItem>
+                <List>{modules}</List>
               </Box>
             </Stack>
           </Grid>
@@ -314,7 +307,12 @@ export default function ModuleBrowse({
                 }}
                 overflow={"auto"}
               >
-                <List>{tags}</List>
+                <List>
+                  <ListItem nested>
+                    <ListSubheader>{parseUICode("ui_tags")}</ListSubheader>
+                    <List>{tags}</List>
+                  </ListItem>
+                </List>
               </Box>
             </Stack>
           </Grid>

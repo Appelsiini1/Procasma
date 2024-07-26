@@ -155,6 +155,10 @@
     "FI": "Luo uusi tehtäväsarja",
     "ENG": "Create new assigment set"
   },
+  "ui_create_set": {
+    "FI": "Luo tehtäväsarja",
+    "ENG": "Create assigment set"
+  },
   "ui_username": {
     "FI": "käyttäjätunnus",
     "ENG": "username"
