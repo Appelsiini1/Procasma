@@ -64,18 +64,11 @@ export default function Root({
 
   const refreshAssignmentsInIndex = async () => {
     try {
-      const assignments: CodeAssignmentData[] = await handleIPCResult(() =>
-        window.api.getAssignments(activePath)
+      const count = await handleIPCResult(() =>
+        window.api.getAssignmentCountDB(activePath)
       );
 
-      const numAssignments: number = assignments.reduce(
-        (accumulator, currentValue) => {
-          return accumulator + (currentValue ? 1 : 0);
-        },
-        0
-      );
-
-      setAssignmentsInIndex(numAssignments);
+      setAssignmentsInIndex(count);
     } catch (err) {
       functionResultToSnackBar(
         { error: parseUICode(err.message) },
@@ -132,7 +125,7 @@ export default function Root({
       );
 
       const course: CourseData = await handleIPCResult(() =>
-        window.api.readCourse(coursePath)
+        window.api.handleGetCourseFS(coursePath)
       );
 
       if (course) {
@@ -157,7 +150,7 @@ export default function Root({
     <>
       <PageHeaderBar
         pageName={pageName}
-        courseID={activeCourse?.ID}
+        courseID={activeCourse?.id}
         courseTitle={activeCourse?.title}
       />
       <div className="menuContent">

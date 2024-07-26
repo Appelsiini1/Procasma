@@ -120,7 +120,7 @@ export default function SetBrowse({
     <>
       <PageHeaderBar
         pageName={parseUICode("ui_set_browser")}
-        courseID={activeCourse?.ID}
+        courseID={activeCourse?.id}
         courseTitle={activeCourse?.title}
       />
       <div className="content">

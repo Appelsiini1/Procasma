@@ -58,7 +58,7 @@ export default function ExportProject({
     <>
       <PageHeaderBar
         pageName={parseUICode("ui_export_project")}
-        courseID={activeCourse?.ID}
+        courseID={activeCourse?.id}
         courseTitle={activeCourse?.title}
       />
       <div className="content" style={{ minHeight: "50rem" }}>
@@ -167,7 +167,7 @@ export default function ExportProject({
             <Table borderAxis="none">
               <tbody>
                 {testAssignments.map((assignment) => (
-                  <tr key={assignment.ID}>
+                  <tr key={assignment.id}>
                     <td style={{ width: "25%" }}>
                       <Typography level="h4">{assignment.name}</Typography>
                     </td>

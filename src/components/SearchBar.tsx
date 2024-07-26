@@ -28,7 +28,7 @@ export default function SearchBar({
 
   function handleText(value: string) {
     setText(value);
-    searchFunction(value);
+    //searchFunction(value);
   }
 
   return (

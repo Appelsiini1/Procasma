@@ -11,7 +11,7 @@ export const defaultFile: FileData = {
 
 export const defaultCourse: CourseData = {
   title: "",
-  ID: "",
+  id: "",
   modules: 0,
   moduleType: "week",
   language: "FI",
@@ -26,7 +26,7 @@ export const defaultAssignment: CodeAssignmentData = {
   assignmentID: null,
   title: null,
   tags: [],
-  module: 0,
+  module: 1,
   assignmentType: "assignment",
   assignmentNo: [],
   level: null,
@@ -51,7 +51,7 @@ export const defaultProject: CodeAssignmentData = {
 };
 
 export const defaultModule: ModuleData = {
-  ID: 0,
+  id: 0,
   name: "",
   letters: true,
   assignments: 0,

@@ -54,7 +54,7 @@ export interface CodeAssignmentData extends CommonAssignmentData {
 }
 
 export interface ModuleData {
-  ID: number;
+  id: number;
   name: string;
   letters: boolean;
   assignments: number;
@@ -77,7 +77,7 @@ export interface LevelsType {
 
 export interface CourseData {
   title?: string;
-  ID?: string;
+  id?: string;
   modules?: number;
   moduleType?: "week" | "module" | null;
   language?: SupportedLanguages;
@@ -119,6 +119,11 @@ export type ModuleDatabase = {
   instructions: string;
 };
 
+export type TagDatabase = {
+  name: string;
+  assignments: string;
+};
+
 export interface IpcResult {
   content?: any;
   errorMessage?: string;
@@ -131,29 +136,47 @@ export interface GeneralResult {
 }
 
 export type ContextBridgeAPI = {
-  // General
+  // One-way, Renderer to Main
   setTitle: (title: string) => IpcResult;
-  getAppVersion: () => IpcResult; //string;
-  selectDir: () => IpcResult; //string;
-  selectFiles: () => IpcResult; //Array<string>;
-  saveSettings: (settings: SettingsType) => IpcResult; //any;
-  getSettings: () => IpcResult; //Settings;
+
+  // Bidirectional, renderer to main to renderer
+  // General
+  getAppVersion: () => IpcResult;
+  selectDir: () => IpcResult;
+  selectFiles: () => IpcResult;
+  saveSettings: (settings: SettingsType) => IpcResult;
+  getSettings: () => IpcResult;
 
   // CRUD Course
-  saveCourse: (course: CourseData, path: string) => IpcResult; //any;
-  readCourse: (path: string) => IpcResult;
-  updateCourse: (course: CourseData, path: string) => IpcResult; //any;
+  handleAddCourseFS: (course: CourseData, coursePath: string) => IpcResult;
+  handleGetCourseFS: (coursePath: string) => IpcResult;
+  handleUpdateCourseFS: (course: CourseData, coursePath: string) => IpcResult;
 
   // CRUD Assignment
-  saveAssignment: (assignment: CodeAssignmentData, path: string) => IpcResult; //any;
-  saveProject: (assignment: CodeAssignmentData, path: string) => IpcResult;
-  getAssignments: (path: string) => IpcResult; //CodeAssignmentData[];
-  updateAssignment: (assignment: CodeAssignmentData, path: string) => IpcResult; //any;
-  deleteAssignment: (coursePath: string, id: string) => IpcResult; //any;
+  handleAddAssignmentFS: (
+    assignment: CodeAssignmentData,
+    coursePath: string
+  ) => IpcResult;
+  //saveProject: (assignment: CodeAssignmentData, coursePath: string) => IpcResult;
+  handleGetAssignmentsFS: (coursePath: string, id: string) => IpcResult;
+  getAssignmentsDB: (coursePath: string) => IpcResult;
+  handleUpdateAssignmentFS: (
+    assignment: CodeAssignmentData,
+    coursePath: string
+  ) => IpcResult;
+  handleDeleteAssignmentsFS: (coursePath: string, ids: string[]) => IpcResult;
+  getAssignmentCountDB: (coursePath: string) => IpcResult;
+  getFilteredAssignmentsDB: (coursePath: string, filters: any) => IpcResult;
 
   // CRUD Module
-  saveModule: (module: ModuleData, path: string) => IpcResult;
-  getModules: (path: string) => IpcResult; //ModuleData[];
-  updateModule: (module: ModuleData, path: string) => IpcResult;
-  deleteModule: (coursePath: string, id: number) => IpcResult;
+  addModuleDB: (coursePath: string, module: ModuleData) => IpcResult;
+  getModulesDB: (coursePath: string) => IpcResult;
+  updateModuleDB: (coursePath: string, module: ModuleData) => IpcResult;
+  deleteModulesDB: (coursePath: string, ids: number[]) => IpcResult;
+  getModuleCountDB: (coursePath: string) => IpcResult;
+  getFilteredModulesDB: (coursePath: string, filters: any) => IpcResult;
+
+  // CRUD Tag
+  getAssignmentTagsDB: (coursePath: string) => IpcResult;
+  getModuleTagsDB: (coursePath: string) => IpcResult;
 };

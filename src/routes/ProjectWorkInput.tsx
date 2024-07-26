@@ -68,11 +68,11 @@ export default function ProjectWorkInput({
     try {
       if (pageType === "manage") {
         snackbarText = await handleIPCResult(() =>
-          window.api.updateAssignment(assignment, activePath)
+          window.api.handleUpdateAssignmentFS(assignment, activePath)
         );
       } else {
         snackbarText = await handleIPCResult(() =>
-          window.api.saveAssignment(assignment, activePath)
+          window.api.handleAddAssignmentFS(assignment, activePath)
         );
       }
     } catch (err) {
@@ -91,7 +91,7 @@ export default function ProjectWorkInput({
     <>
       <PageHeaderBar
         pageName={parseUICode("ui_add_project_work")}
-        courseID={activeCourse?.ID}
+        courseID={activeCourse?.id}
         courseTitle={activeCourse?.title}
       />
       <div className="content">

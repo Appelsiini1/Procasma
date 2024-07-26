@@ -1,13 +1,9 @@
 import { Checkbox, ListItem, ListItemButton } from "@mui/joy";
+import { ModuleDatabase, TagDatabase } from "../types";
 
 export type filterState = {
   isChecked: boolean;
   value: string;
-};
-
-export type filterType = {
-  name: string;
-  filters: filterState[];
 };
 
 export type WithCheckWrapper = {
@@ -16,22 +12,15 @@ export type WithCheckWrapper = {
 };
 
 export function handleUpdateUniqueTags(
-  allTags: Array<string>,
+  allTags: TagDatabase[],
   setUniqueTags: React.Dispatch<React.SetStateAction<filterState[]>>
 ) {
-  const tags: string[] = [];
   const tagsFilter: filterState[] = [];
 
   allTags.forEach((tag) => {
-    if (!tags.includes(tag)) {
-      tags.push(tag);
-    }
-  });
-
-  tags.forEach((tag) => {
     const tagFilter: filterState = {
       isChecked: false,
-      value: tag,
+      value: tag.name,
     };
     tagsFilter.push(tagFilter);
   });
@@ -40,24 +29,15 @@ export function handleUpdateUniqueTags(
 }
 
 export function handleUpdateFilter(
-  values: Array<string>,
+  values: ModuleDatabase[],
   setter: React.Dispatch<React.SetStateAction<filterState[]>>
 ) {
-  const uniques: string[] = [];
   const filters: filterState[] = [];
 
-  values.forEach((value: string) => {
-    const newUnique: string | null = value.toString();
-
-    if (newUnique && !uniques.includes(newUnique)) {
-      uniques.push(newUnique);
-    }
-  });
-
-  uniques.forEach((unique) => {
+  values.forEach((value) => {
     const uniqueFilter: filterState = {
       isChecked: false,
-      value: unique.toString(),
+      value: value.name,
     };
     filters.push(uniqueFilter);
   });
@@ -85,6 +65,7 @@ export function handleCheckArray(
 }
 
 /**
+ * Set the selected elements and return their count.
  * @param elements The elements along with checked states
  * @param setSelected The elements setter
  * @returns The number of selected elements
@@ -98,66 +79,24 @@ export function setSelectedViaChecked(
   });
 
   // remove empty elements and update elements
-  setSelected(checkedElements.filter((n) => n));
+  const checked = checkedElements.filter((n) => n);
+  setSelected(checked);
 
-  let numChecked = 0;
-  checkedElements.forEach((element) => {
-    numChecked += element ? 1 : 0;
-  });
-
-  return numChecked;
-}
-
-export function checkIfAnyCommonItems(array1: string[], array2: string[]) {
-  return array1.some((item) => array2.includes(item));
-}
-
-export function checkIfShouldFilter(
-  values: Array<string>,
-  filterElements: filterState[]
-): boolean {
-  let shouldShow = true;
-  let checkedCount = 0;
-
-  const match = filterElements.find((filter) => {
-    if (!filter.isChecked) {
-      return false;
-    }
-
-    checkedCount = checkedCount + 1;
-    const valuesArray: Array<string> = values as Array<string>;
-    if (checkIfAnyCommonItems(valuesArray, [filter.value])) {
-      return true;
-    }
-
-    return false;
-  });
-
-  if (!match) {
-    shouldShow = false;
-  }
-
-  // if no filters, show all
-  if (checkedCount === 0) {
-    shouldShow = true;
-  }
-
-  return shouldShow;
+  return checked.length;
 }
 
 /**
  * @returns A JSX list of unique filters with checkboxes
  */
-export function generateFilter(
+export function generateFilterList(
   uniques: filterState[],
-  setUniques: React.Dispatch<React.SetStateAction<filterState[]>>,
-  filterTextFunction?: (text: string) => string
+  setUniques: React.Dispatch<React.SetStateAction<filterState[]>>
 ): Array<React.JSX.Element> {
   const filters = uniques
-    ? uniques.map((unique) => {
+    ? uniques.map((unique, index) => {
         return (
           <ListItem
-            key={unique.value}
+            key={index}
             startAction={
               <Checkbox
                 checked={unique.isChecked}
@@ -173,9 +112,7 @@ export function generateFilter(
                 handleCheckArray(unique.value, !unique.isChecked, setUniques)
               }
             >
-              {filterTextFunction
-                ? filterTextFunction(unique.value)
-                : unique.value}
+              {String(unique.value)}
             </ListItemButton>
           </ListItem>
         );

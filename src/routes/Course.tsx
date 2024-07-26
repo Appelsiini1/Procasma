@@ -65,7 +65,7 @@ export default function Course({
   if (pageType == "create") {
     pageTitle = parseUICode("course_create");
   } else {
-    pageTitle = course.ID + " " + course.title;
+    pageTitle = course.id + " " + course.title;
     disableCourseFolderSelect = true;
   }
   const navigate = useNavigate();
@@ -158,13 +158,13 @@ export default function Course({
 
       if (pageType == "manage") {
         snackbarText = await handleIPCResult(() =>
-          window.api.updateCourse(course, path)
+          window.api.handleUpdateCourseFS(course, path)
         );
 
         handleActiveCourse(course);
       } else {
         snackbarText = await handleIPCResult(() =>
-          window.api.saveCourse(course, path)
+          window.api.handleAddCourseFS(course, path)
         );
       }
     } catch (err) {
@@ -183,7 +183,7 @@ export default function Course({
     <>
       <PageHeaderBar
         pageName={parseUICode("course_create")}
-        courseID={activeCourse?.ID}
+        courseID={activeCourse?.id}
         courseTitle={activeCourse?.title}
       />
       <div className="content">
@@ -199,8 +199,8 @@ export default function Course({
               <td>
                 <InputField
                   fieldKey="cIDInput"
-                  defaultValue={course.ID}
-                  onChange={(value: string) => handleCourse("ID", value, true)}
+                  defaultValue={course.id}
+                  onChange={(value: string) => handleCourse("id", value, true)}
                 />
               </td>
               <td style={{ width: "20%" }}></td>
@@ -274,7 +274,7 @@ export default function Course({
             <tr key="cModuleAmount">
               <td>
                 <Typography level="h4">
-                  {parseUICode("ui_module_amount")}
+                  {parseUICode("ui_module_count")}
                 </Typography>
               </td>
               <td>

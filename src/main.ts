@@ -2,27 +2,36 @@ import { app, BrowserWindow, Menu, ipcMain } from "electron";
 import path from "path";
 import {
   handleDirectorySelect,
-  handleFileOpen,
   handleFilesOpen,
 } from "./mainHelpers/fileDialog";
 import { version, DEVMODE } from "./constants";
 import {
-  handleGetAssignments,
-  handleGetModules,
-  handleReadCourse,
-  handleSaveAssignment,
-  handleSaveCourse,
-  handleSaveModule,
-  handleUpdateAssignment,
-  handleUpdateCourse,
-  removeAssignmentById,
-  removeModuleById,
+  handleGetAssignmentsFS,
+  handleGetCourseFS,
+  handleAddAssignmentFS,
+  handleAddCourseFS,
+  handleUpdateAssignmentFS,
+  handleUpdateCourseFS,
+  handleDeleteAssignmentsFS,
 } from "./mainHelpers/fileOperations";
 import { initialize } from "./mainHelpers/programInit";
 import { getSettings, saveSettings } from "./mainHelpers/settings";
 import { testDatabase } from "./mainHelpers/testDatabase";
 import log from "electron-log";
 import { formatIPCResult } from "./mainHelpers/ipcHelpers";
+import {
+  getAssignmentsDB,
+  getAssignmentTagsDB,
+  getModuleTagsDB,
+  getAssignmentCountDB,
+  getModuleCountDB,
+  getFilteredAssignmentsDB,
+  getFilteredModulesDB,
+  getModulesDB,
+  addModuleDB,
+  updateModuleDB,
+  deleteModulesDB,
+} from "./mainHelpers/databaseOperations";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -102,78 +111,117 @@ ipcMain.on("set-title", (event, title) => {
   const win = BrowserWindow.fromWebContents(webContents);
   win.setTitle(title);
 });
-ipcMain.on("set-title", (event, title) => {
-  const webContents = event.sender;
-  const win = BrowserWindow.fromWebContents(webContents);
-  win.setTitle(title);
-});
 
 // Bidirectional, renderer to main to renderer
-ipcMain.handle(
-  "dialog:openFile",
-  formatIPCResult(() => handleFileOpen())
-);
+
+// General
+
 ipcMain.handle(
   "getAppVersion",
   formatIPCResult(() => getVersion())
-);
-ipcMain.handle(
-  "getSettings",
-  formatIPCResult(() => getSettings())
 );
 ipcMain.handle(
   "selectDir",
   formatIPCResult(() => handleDirectorySelect())
 );
 ipcMain.handle(
-  "saveCourse",
-  formatIPCResult((course, path) => handleSaveCourse(course, path))
-);
-ipcMain.handle(
-  "readCourse",
-  formatIPCResult((path) => handleReadCourse(path))
-);
-ipcMain.handle(
-  "updateCourse",
-  formatIPCResult((fileName, path) => handleUpdateCourse(fileName, path))
-);
-ipcMain.handle(
-  "saveAssignment",
-  formatIPCResult((assignment, path) => handleSaveAssignment(assignment, path))
-);
-ipcMain.handle(
-  "getAssignments",
-  formatIPCResult((path) => handleGetAssignments(path))
-);
-ipcMain.handle(
-  "deleteAssignment",
-  formatIPCResult((coursePath, id) => removeAssignmentById(coursePath, id))
-);
-ipcMain.handle(
-  "saveModule",
-  formatIPCResult((module, path) => handleSaveModule(module, path))
-);
-ipcMain.handle(
-  "getModules",
-  formatIPCResult((path) => handleGetModules(path))
-);
-ipcMain.handle(
-  "deleteModule",
-  formatIPCResult((coursePath, id) => removeModuleById(coursePath, id))
+  "selectFiles",
+  formatIPCResult(() => handleFilesOpen())
 );
 ipcMain.handle(
   "saveSettings",
   formatIPCResult((settings) => saveSettings(settings))
 );
 ipcMain.handle(
-  "selectFiles",
-  formatIPCResult(() => handleFilesOpen())
+  "getSettings",
+  formatIPCResult(() => getSettings())
+);
+
+// CRUD Course
+
+ipcMain.handle(
+  "handleAddCourseFS",
+  formatIPCResult((course, path) => handleAddCourseFS(course, path))
 );
 ipcMain.handle(
-  "updateAssignment",
+  "handleGetCourseFS",
+  formatIPCResult((path) => handleGetCourseFS(path))
+);
+ipcMain.handle(
+  "handleUpdateCourseFS",
+  formatIPCResult((fileName, path) => handleUpdateCourseFS(fileName, path))
+);
+
+// CRUD Assignment
+
+ipcMain.handle(
+  "handleAddAssignmentFS",
+  formatIPCResult((assignment, path) => handleAddAssignmentFS(assignment, path))
+);
+ipcMain.handle(
+  "handleGetAssignmentsFS",
+  formatIPCResult((path, id) => handleGetAssignmentsFS(path, id))
+);
+ipcMain.handle(
+  "getAssignmentsDB",
+  formatIPCResult((path) => getAssignmentsDB(path))
+);
+ipcMain.handle(
+  "handleUpdateAssignmentFS",
   formatIPCResult((assignment, path) =>
-    handleUpdateAssignment(assignment, path)
+    handleUpdateAssignmentFS(assignment, path)
   )
+);
+ipcMain.handle(
+  "handleDeleteAssignmentsFS",
+  formatIPCResult((coursePath, ids) =>
+    handleDeleteAssignmentsFS(coursePath, ids)
+  )
+);
+ipcMain.handle(
+  "getAssignmentCountDB",
+  formatIPCResult((path) => getAssignmentCountDB(path))
+);
+ipcMain.handle(
+  "getFilteredAssignmentsDB",
+  formatIPCResult((path, filters) => getFilteredAssignmentsDB(path, filters))
+);
+
+// CRUD Module
+
+ipcMain.handle(
+  "addModuleDB",
+  formatIPCResult((path, module) => addModuleDB(path, module))
+);
+ipcMain.handle(
+  "getModulesDB",
+  formatIPCResult((path) => getModulesDB(path))
+);
+ipcMain.handle(
+  "updateModuleDB",
+  formatIPCResult((path, module) => updateModuleDB(path, module))
+);
+ipcMain.handle(
+  "deleteModulesDB",
+  formatIPCResult((coursePath, ids) => deleteModulesDB(coursePath, ids))
+);
+ipcMain.handle(
+  "getModuleCountDB",
+  formatIPCResult((path) => getModuleCountDB(path))
+);
+ipcMain.handle(
+  "getFilteredModulesDB",
+  formatIPCResult((path, filters) => getFilteredModulesDB(path, filters))
+);
+
+// CRUD Tag
+ipcMain.handle(
+  "getAssignmentTagsDB",
+  formatIPCResult((path) => getAssignmentTagsDB(path))
+);
+ipcMain.handle(
+  "getModuleTagsDB",
+  formatIPCResult((path) => getModuleTagsDB(path))
 );
 
 testDatabase();

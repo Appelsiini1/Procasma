@@ -12,24 +12,23 @@ async function originalTests(testPath: string) {
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.addAssignmentToDB(testPath, testGlobals.testCurrentAssignment)
+    DatabaseFunc.addAssignmentDB(testPath, testGlobals.testCurrentAssignment)
   );
   console.log("Add assignment:");
   console.log(result);
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.getAssignmentFromDB(
-      testPath,
-      testGlobals.testCurrentAssignment.assignmentID
-    )
+    DatabaseFunc.getAssignmentDB(testPath, [
+      testGlobals.testCurrentAssignment.assignmentID,
+    ])
   );
   console.log("Get assignment:");
   console.log(result);
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.updateAssignmentInDB(
+    DatabaseFunc.updateAssignmentDB(
       testPath,
       testGlobals.testCurrentEditedAssignment
     )
@@ -39,55 +38,53 @@ async function originalTests(testPath: string) {
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.getAssignmentFromDB(
-      testPath,
-      testGlobals.testCurrentAssignment.assignmentID
-    )
+    DatabaseFunc.getAssignmentDB(testPath, [
+      testGlobals.testCurrentAssignment.assignmentID,
+    ])
   );
   console.log("Get assignment:");
   console.log(result);
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.deleteAssignmentFromDB(
-      testPath,
-      testGlobals.testCurrentAssignment.assignmentID
-    )
+    DatabaseFunc.deleteAssignmentsDB(testPath, [
+      testGlobals.testCurrentAssignment.assignmentID,
+    ])
   );
   console.log("Delete assignment:");
   console.log(result);
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.addModuleToDB(testPath, testGlobals.testModule)
+    DatabaseFunc.addModuleDB(testPath, testGlobals.testModule)
   );
   console.log("Add module:");
   console.log(result);
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.getModuleFromDB(testPath, testGlobals.testModule.ID)
+    DatabaseFunc.getModuleDB(testPath, [testGlobals.testModule.id])
   );
   console.log("Get module:");
   console.log(result);
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.updateModuleInDB(testPath, testGlobals.testEditedModule)
+    DatabaseFunc.updateModuleDB(testPath, testGlobals.testEditedModule)
   );
   console.log("Module update:");
   console.log(result);
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.getModuleFromDB(testPath, testGlobals.testModule.ID)
+    DatabaseFunc.getModuleDB(testPath, [testGlobals.testModule.id])
   );
   console.log("Get module:");
   console.log(result);
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.deleteModule(testPath, testGlobals.testModule.ID)
+    DatabaseFunc.deleteModulesDB(testPath, [testGlobals.testModule.id])
   );
   console.log("Delete module:");
   console.log(result);
@@ -103,14 +100,14 @@ async function assignmentTests(testPath: string) {
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.addAssignmentToDB(testPath, testGlobals.testCurrentAssignment)
+    DatabaseFunc.addAssignmentDB(testPath, testGlobals.testCurrentAssignment)
   );
   console.log("Add assignment:");
   console.log(result);
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.addAssignmentToDB(
+    DatabaseFunc.addAssignmentDB(
       testPath,
       testGlobals.testCurrentAssignmentSecond
     )
@@ -120,34 +117,32 @@ async function assignmentTests(testPath: string) {
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.getAllAssignments(testPath)
+    DatabaseFunc.getAssignmentsDB(testPath)
   );
   console.log("Get all assignments:");
   console.log(result);
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.getAllAssignmentTags(testPath)
+    DatabaseFunc.getAssignmentTagsDB(testPath)
   );
   console.log("Get all assignment tags:");
   console.log(result);
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.deleteAssignmentFromDB(
-      testPath,
-      testGlobals.testCurrentAssignment.assignmentID
-    )
+    DatabaseFunc.deleteAssignmentsDB(testPath, [
+      testGlobals.testCurrentAssignment.assignmentID,
+    ])
   );
   console.log("Delete assignment:");
   console.log(result);
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.deleteAssignmentFromDB(
-      testPath,
-      testGlobals.testCurrentAssignmentSecond.assignmentID
-    )
+    DatabaseFunc.deleteAssignmentsDB(testPath, [
+      testGlobals.testCurrentAssignmentSecond.assignmentID,
+    ])
   );
   console.log("Delete assignment:");
   console.log(result);
@@ -163,49 +158,49 @@ async function moduleTests(testPath: string) {
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.addModuleToDB(testPath, testGlobals.testModule)
+    DatabaseFunc.addModuleDB(testPath, testGlobals.testModule)
   );
   console.log("Add module:");
   console.log(result);
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.addModuleToDB(testPath, testGlobals.testModuleSecond)
+    DatabaseFunc.addModuleDB(testPath, testGlobals.testModuleSecond)
   );
   console.log("Add module:");
   console.log(result);
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.getAllModules(testPath)
+    DatabaseFunc.getModulesDB(testPath)
   );
   console.log("Get all modules:");
   console.log(result);
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.getAllModuleTags(testPath)
+    DatabaseFunc.getModuleTagsDB(testPath)
   );
   console.log("Get all module tags:");
   console.log(result);
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.getModuleCount(testPath)
+    DatabaseFunc.getModuleCountDB(testPath)
   );
   console.log("Get module count:");
   console.log(result);
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.deleteModule(testPath, testGlobals.testModule.ID)
+    DatabaseFunc.deleteModulesDB(testPath, [testGlobals.testModule.id])
   );
   console.log("Delete module:");
   console.log(result);
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.deleteModule(testPath, testGlobals.testModuleSecond.ID)
+    DatabaseFunc.deleteModulesDB(testPath, [testGlobals.testModuleSecond.id])
   );
   console.log("Delete module:");
   console.log(result);

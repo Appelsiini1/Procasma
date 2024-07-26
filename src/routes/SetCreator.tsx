@@ -92,12 +92,12 @@ export default function SetCreator({
     const [boxState, setBoxState] = useState(false);
     return (
       <ListItem
-        key={value.ID}
+        key={value.id}
         startAction={
           <Checkbox
             checked={boxState}
             onChange={() =>
-              handleSelectedAssignments(value.ID, boxState, setBoxState)
+              handleSelectedAssignments(value.id, boxState, setBoxState)
             }
           ></Checkbox>
         }
@@ -105,7 +105,7 @@ export default function SetCreator({
         <ListItemButton
           selected={boxState}
           onClick={() =>
-            handleSelectedAssignments(value.ID, boxState, setBoxState)
+            handleSelectedAssignments(value.id, boxState, setBoxState)
           }
         >
           {value.name}
@@ -118,7 +118,7 @@ export default function SetCreator({
     <>
       <PageHeaderBar
         pageName={parseUICode("ui_create_new_set")}
-        courseID={activeCourse?.ID}
+        courseID={activeCourse?.id}
         courseTitle={activeCourse?.title}
       />
       <div className="content" style={{ minHeight: "50rem" }}>
@@ -365,7 +365,7 @@ export default function SetCreator({
                 <Table borderAxis="none">
                   <tbody>
                     {testAssignments.map((assignment) => (
-                      <tr key={assignment.ID}>
+                      <tr key={assignment.id}>
                         <td style={{ width: "25%" }}>
                           <Typography level="h4">{assignment.name}</Typography>
                         </td>

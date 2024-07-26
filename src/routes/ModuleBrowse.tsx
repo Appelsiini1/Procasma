@@ -7,18 +7,17 @@ import {
   List,
   ListItem,
   ListItemButton,
+  ListSubheader,
   Stack,
   Typography,
 } from "@mui/joy";
 import { useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
-import { CourseData, ModuleData } from "../types";
+import { CourseData, ModuleData, ModuleDatabase, TagDatabase } from "../types";
 import {
   WithCheckWrapper,
-  checkIfShouldFilter,
   filterState,
-  filterType,
-  generateFilter,
+  generateFilterList,
   handleCheckArray,
   handleUpdateUniqueTags,
   setSelectedViaChecked,
@@ -31,37 +30,18 @@ import SnackbarComp, {
 import { parseUICode } from "../rendererHelpers/translation";
 
 export interface ModuleWithCheck extends WithCheckWrapper {
-  value: ModuleData;
+  value: ModuleDatabase;
 }
 
-/**
- * Generates the list of modules, filtering based on the given
- * filters.
- */
 export function generateModules(
   modules: ModuleWithCheck[],
-  setCourseModules: React.Dispatch<React.SetStateAction<ModuleWithCheck[]>>,
-  filters: filterType[]
+  setCourseModules: React.Dispatch<React.SetStateAction<ModuleWithCheck[]>>
 ) {
-  const filteredModules = modules
+  return modules
     ? modules.map((module: ModuleWithCheck) => {
-        let showModule = true;
-
-        // get module attributes to filter by
-        // and the respective filters
-        const tags: Array<string> = module.value?.tags;
-        const tagFilter = filters.find((filter) => {
-          return filter.name === "tags" ? true : false;
-        });
-
-        // check filtration
-        showModule = checkIfShouldFilter(tags, tagFilter.filters)
-          ? showModule
-          : false;
-
-        return showModule ? (
+        return (
           <ListItem
-            key={module.value.ID}
+            key={module.value.id}
             startAction={
               <Checkbox
                 checked={module.isChecked}
@@ -88,10 +68,9 @@ export function generateModules(
               {module.value.name}
             </ListItemButton>
           </ListItem>
-        ) : null;
+        );
       })
     : null;
-  return filteredModules;
 }
 
 export default function ModuleBrowse({
@@ -106,7 +85,6 @@ export default function ModuleBrowse({
   handleActiveModule: (value: ModuleData) => void;
 }) {
   const navigate = useNavigate();
-  //let pageButtons: React.JSX.Element = null;
   let modules: Array<React.JSX.Element> = null;
   let tags: Array<React.JSX.Element> = null;
 
@@ -121,26 +99,31 @@ export default function ModuleBrowse({
   const [snackBarAttributes, setSnackBarAttributes] =
     useState<SnackBarAttributes>({ color: "success", text: "" });
 
-  function getTagsFromModules(modules: ModuleData[]): Array<string> {
-    const tags: Array<string> = [];
-    modules.forEach((module) => {
-      tags.push(...module.tags);
-    });
-    return tags;
-  }
-
   const refreshModules = async () => {
     try {
       if (!activePath) {
         return;
       }
 
-      const modules: ModuleData[] = await handleIPCResult(() =>
-        window.api.getModules(activePath)
+      const checkedTags: string[] = [];
+      uniqueTags.forEach((element) => {
+        if (element.isChecked) {
+          checkedTags.push(element.value);
+        }
+      });
+
+      const filters = {
+        tags: checkedTags,
+      };
+
+      let moduleResults: ModuleDatabase[] = [];
+
+      moduleResults = await handleIPCResult(() =>
+        window.api.getFilteredModulesDB(activePath, filters)
       );
 
       // wrap the fetched modules to store checked state
-      const modulesWithCheck = modules.map((module) => {
+      const modulesWithCheck = moduleResults.map((module) => {
         const ModuleCheck: ModuleWithCheck = {
           isChecked: false,
           value: module,
@@ -149,12 +132,7 @@ export default function ModuleBrowse({
         return ModuleCheck;
       });
 
-      if (modulesWithCheck) {
-        // update assignments and filters
-        setCourseModules(modulesWithCheck);
-        const tags: Array<string> = getTagsFromModules(modules);
-        handleUpdateUniqueTags(tags, setUniqueTags);
-      }
+      setCourseModules(modulesWithCheck);
     } catch (err) {
       functionResultToSnackBar(
         { error: parseUICode(err.message) },
@@ -164,24 +142,36 @@ export default function ModuleBrowse({
     }
   };
 
+  async function updateFilters() {
+    const tagsResult: TagDatabase[] = await handleIPCResult(() =>
+      window.api.getModuleTagsDB(activePath)
+    );
+
+    handleUpdateUniqueTags(tagsResult, setUniqueTags);
+  }
+
   // Get the course assignments on page load
   useEffect(() => {
+    if (!activePath) {
+      return;
+    }
     refreshModules();
+    updateFilters();
   }, []);
 
   async function handleDeleteSelected() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_delete_success";
     try {
-      const deletePromises = selectedModules.map(async (module) => {
-        await handleIPCResult(() =>
-          window.api.deleteModule(activePath, module.ID)
-        );
-      });
-      await Promise.all(deletePromises);
+      await handleIPCResult(() =>
+        window.api.deleteModulesDB(
+          activePath,
+          selectedModules.map((module) => module.id)
+        )
+      );
 
-      // get the remaining modules
-      refreshModules();
+      refreshModules(); // get the remaining modules
+      updateFilters(); // and filters
     } catch (err) {
       snackbarText = err.message;
       snackbarSeverity = "error";
@@ -201,10 +191,12 @@ export default function ModuleBrowse({
     setNumSelected(numChecked);
   }, [courseModules]);
 
-  const tagsFilter: filterType = { name: "tags", filters: uniqueTags };
+  useEffect(() => {
+    refreshModules();
+  }, [uniqueTags]);
 
-  modules = generateModules(courseModules, setCourseModules, [tagsFilter]);
-  tags = generateFilter(uniqueTags, setUniqueTags);
+  modules = generateModules(courseModules, setCourseModules);
+  tags = generateFilterList(uniqueTags, setUniqueTags);
 
   async function handleOpenModule() {
     // set the first selected module as global
@@ -231,7 +223,7 @@ export default function ModuleBrowse({
     <>
       <PageHeaderBar
         pageName={parseUICode("ui_module_browser")}
-        courseID={activeCourse?.ID}
+        courseID={activeCourse?.id}
         courseTitle={activeCourse?.title}
       />
       <div className="content">
@@ -258,14 +250,10 @@ export default function ModuleBrowse({
               handleOpenModule();
             }}
             ariaLabel={parseUICode("ui_aria_show_edit")}
+            disabled={numSelected === 1 ? false : true}
           >
             {parseUICode("ui_show_edit")}
           </ButtonComp>
-          <Typography>
-            {selectedModules && selectedModules.length > 0
-              ? selectedModules[0]?.name
-              : ""}
-          </Typography>
         </Stack>
 
         <div className="emptySpace2" />
@@ -319,7 +307,12 @@ export default function ModuleBrowse({
                 }}
                 overflow={"auto"}
               >
-                <List>{tags}</List>
+                <List>
+                  <ListItem nested>
+                    <ListSubheader>{parseUICode("ui_tags")}</ListSubheader>
+                    <List>{tags}</List>
+                  </ListItem>
+                </List>
               </Box>
             </Stack>
           </Grid>

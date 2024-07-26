@@ -1,5 +1,5 @@
 import PageHeaderBar from "../components/PageHeaderBar";
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Grid,
@@ -14,13 +14,17 @@ import {
 import { useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
-import { CodeAssignmentData, CourseData } from "../types";
+import {
+  CodeAssignmentData,
+  CodeAssignmentDatabase,
+  CourseData,
+  ModuleDatabase,
+  TagDatabase,
+} from "../types";
 import {
   WithCheckWrapper,
-  checkIfShouldFilter,
   filterState,
-  filterType,
-  generateFilter,
+  generateFilterList,
   handleCheckArray,
   handleUpdateFilter,
   handleUpdateUniqueTags,
@@ -34,68 +38,20 @@ import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 
 export interface AssignmentWithCheck extends WithCheckWrapper {
-  value: CodeAssignmentData;
+  value: CodeAssignmentDatabase;
 }
 
-/**
- * Generates the list of assignments, filtering based on the given
- * filters.
- */
 export function generateAssignments(
   assignments: AssignmentWithCheck[],
   setCourseAssignments: React.Dispatch<
     React.SetStateAction<AssignmentWithCheck[]>
-  >,
-  filters: filterType[],
-  searchTerm: string
+  >
 ) {
-  const filteredAssignments = assignments
+  return assignments
     ? assignments.map((assignment: AssignmentWithCheck) => {
-        let showAssignment = true;
-
-        // get assignment attributes to filter by
-        // and the respective filters
-        const tags: Array<string> = assignment.value?.tags;
-        const tagFilter = filters.find((filter) => {
-          return filter.name === "tags" ? true : false;
-        });
-
-        const module: string = assignment.value?.module?.toString();
-        const moduleFilter = filters.find((filter) => {
-          return filter.name === "module" ? true : false;
-        });
-
-        const type: string = assignment.value?.assignmentType;
-        const typeFilter = filters.find((filter) => {
-          return filter.name === "assignmentType" ? true : false;
-        });
-
-        // check filtration
-        showAssignment = checkIfShouldFilter(tags, tagFilter.filters)
-          ? showAssignment
-          : false;
-
-        showAssignment = checkIfShouldFilter([module], moduleFilter.filters)
-          ? showAssignment
-          : false;
-
-        showAssignment = checkIfShouldFilter([type], typeFilter.filters)
-          ? showAssignment
-          : false;
-
-        // check search term filtration
-        if (searchTerm && searchTerm.length > 0) {
-          const titleFormatted = assignment.value.title.toLowerCase();
-          const searchFormatted = searchTerm.toLowerCase();
-
-          showAssignment = titleFormatted.includes(searchFormatted)
-            ? true
-            : false;
-        }
-
-        return showAssignment ? (
+        return (
           <ListItem
-            key={assignment.value?.assignmentID}
+            key={assignment.value.id}
             startAction={
               <Checkbox
                 checked={assignment.isChecked}
@@ -119,13 +75,12 @@ export function generateAssignments(
                 )
               }
             >
-              {assignment.value?.title}
+              {assignment.value.title}
             </ListItemButton>
           </ListItem>
-        ) : null;
+        );
       })
     : null;
-  return filteredAssignments;
 }
 
 export default function AssignmentBrowse({
@@ -139,44 +94,25 @@ export default function AssignmentBrowse({
   activeAssignment: CodeAssignmentData;
   handleActiveAssignment: (value: CodeAssignmentData) => void;
 }) {
-  const pageType = useLoaderData();
   const navigate = useNavigate();
   let assignments: Array<React.JSX.Element> = null;
-  let selectFragment: React.JSX.Element = null;
-  let pageButtons: React.JSX.Element = null;
   let modules: Array<React.JSX.Element> = null;
   let tags: Array<React.JSX.Element> = null;
-  let types: Array<React.JSX.Element> = null;
 
   const [courseAssignments, setCourseAssignments] = useState<
     Array<AssignmentWithCheck>
   >([]);
   const [selectedAssignments, setSelectedAssignments] = useState<
-    Array<CodeAssignmentData>
+    Array<CodeAssignmentDatabase>
   >([]);
   const [navigateToAssignment, setNavigateToAssignment] = useState(false);
   const [numSelected, setNumSelected] = useState(0);
   const [uniqueTags, setUniqueTags] = useState<Array<filterState>>([]);
   const [uniqueModules, setUniqueModules] = useState<Array<filterState>>([]);
-  const [uniqueTypes, setUniqueTypes] = useState<Array<filterState>>([]);
-  const [search, setSearch] = useState<string>(null);
+  const [search, setSearch] = useState<string>("");
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [snackBarAttributes, setSnackBarAttributes] =
     useState<SnackBarAttributes>({ color: "success", text: "" });
-
-  function handleSearch(value: string) {
-    setSearch(value);
-  }
-
-  function getTagsFromAssignments(
-    assignments: CodeAssignmentData[]
-  ): Array<string> {
-    const tags: Array<string> = [];
-    assignments.forEach((assignment) => {
-      tags.push(...assignment.tags);
-    });
-    return tags;
-  }
 
   const refreshAssignments = async () => {
     try {
@@ -184,12 +120,33 @@ export default function AssignmentBrowse({
         return;
       }
 
-      const assignments: CodeAssignmentData[] = await handleIPCResult(() =>
-        window.api.getAssignments(activePath)
+      const checkedTags: string[] = [];
+      const checkedModules: string[] = [];
+      uniqueTags.forEach((element) => {
+        if (element.isChecked) {
+          checkedTags.push(element.value);
+        }
+      });
+      uniqueModules.forEach((element) => {
+        if (element.isChecked) {
+          checkedModules.push(element.value);
+        }
+      });
+
+      const filters = {
+        tags: checkedTags,
+        module: checkedModules,
+        title: search,
+      };
+
+      let assignmentsResult: CodeAssignmentDatabase[] = [];
+
+      assignmentsResult = await handleIPCResult(() =>
+        window.api.getFilteredAssignmentsDB(activePath, filters)
       );
 
       // wrap the fetched assignments to store checked state
-      const assignentsWithCheck = assignments.map((assignment) => {
+      const assignentsWithCheck = assignmentsResult.map((assignment) => {
         const assignmentCheck: AssignmentWithCheck = {
           isChecked: false,
           value: assignment,
@@ -198,23 +155,8 @@ export default function AssignmentBrowse({
         return assignmentCheck;
       });
 
-      if (assignentsWithCheck) {
-        // update assignments and filters
-        setCourseAssignments(assignentsWithCheck);
-        const tags: Array<string> = getTagsFromAssignments(assignments);
-        handleUpdateUniqueTags(tags, setUniqueTags);
-
-        const modules: Array<string> = assignments.map((assignment) => {
-          return String(assignment.module);
-        });
-
-        const types: Array<string> = assignments.map((assignment) => {
-          return String(assignment.assignmentType);
-        });
-
-        handleUpdateFilter(modules, setUniqueModules);
-        handleUpdateFilter(types, setUniqueTypes);
-      }
+      // update assignments and filters
+      setCourseAssignments(assignentsWithCheck);
     } catch (err) {
       functionResultToSnackBar(
         { error: parseUICode(err.message) },
@@ -224,24 +166,46 @@ export default function AssignmentBrowse({
     }
   };
 
-  // Get the course assignments on page load
+  function handleSearch(value: string) {
+    setSearch(value);
+  }
+
+  async function updateFilters() {
+    const tagsResult: TagDatabase[] = await handleIPCResult(() =>
+      window.api.getAssignmentTagsDB(activePath)
+    );
+
+    handleUpdateUniqueTags(tagsResult, setUniqueTags);
+
+    const modulesResult: ModuleDatabase[] = await handleIPCResult(() =>
+      window.api.getModulesDB(activePath)
+    );
+
+    handleUpdateFilter(modulesResult, setUniqueModules);
+  }
+
+  // Get the course assignments and filters on page load
   useEffect(() => {
+    if (!activePath) {
+      return;
+    }
     refreshAssignments();
+    updateFilters();
   }, []);
 
   async function handleDeleteSelected() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_delete_success";
     try {
-      const deletePromises = selectedAssignments.map(async (assignment) => {
-        await handleIPCResult(() =>
-          window.api.deleteAssignment(activePath, assignment.assignmentID)
-        );
-      });
-      await Promise.all(deletePromises);
+      await handleIPCResult(() =>
+        window.api.handleDeleteAssignmentsFS(
+          activePath,
+          selectedAssignments.map((assignment) => assignment.id)
+        )
+      );
 
-      // get the remaining assignments
-      refreshAssignments();
+      refreshAssignments(); // get the remaining assignments
+      updateFilters(); // and filters
     } catch (err) {
       snackbarText = err.message;
       snackbarSeverity = "error";
@@ -264,43 +228,33 @@ export default function AssignmentBrowse({
     setNumSelected(numChecked);
   }, [courseAssignments]);
 
-  /**
-   * Generate a string specifying the assignment type from
-   * the identifier within an assignment.
-   */
-  function formAssignmentTypeText(type: string): string {
-    return parseUICode(`ui_${type}`);
-  }
+  useEffect(() => {
+    refreshAssignments();
+  }, [uniqueTags, uniqueModules, search]);
 
-  const modulesFilter: filterType = { name: "module", filters: uniqueModules };
-  const tagsFilter: filterType = { name: "tags", filters: uniqueTags };
-  const typesFilter: filterType = {
-    name: "assignmentType",
-    filters: uniqueTypes,
-  };
-
-  assignments = generateAssignments(
-    courseAssignments,
-    setCourseAssignments,
-    [modulesFilter, tagsFilter, typesFilter],
-    search
-  );
-  modules = generateFilter(uniqueModules, setUniqueModules);
-  tags = generateFilter(uniqueTags, setUniqueTags);
-  types = generateFilter(uniqueTypes, setUniqueTypes, formAssignmentTypeText);
+  assignments = generateAssignments(courseAssignments, setCourseAssignments);
+  modules = generateFilterList(uniqueModules, setUniqueModules);
+  tags = generateFilterList(uniqueTags, setUniqueTags);
 
   async function handleOpenAssignment() {
-    // set the first selected assignment as global
-    if (!selectedAssignments || selectedAssignments.length < 1) {
+    try {
+      if (!selectedAssignments || selectedAssignments.length < 1) {
+        throw new Error("ui_no_assignment_seleted");
+      }
+
+      const assignmentsResult = await handleIPCResult(() =>
+        window.api.handleGetAssignmentsFS(activePath, selectedAssignments[0].id)
+      );
+
+      setNavigateToAssignment(true);
+      handleActiveAssignment(assignmentsResult[0]);
+    } catch (err) {
       functionResultToSnackBar(
-        { info: parseUICode("ui_no_assignment_seleted") },
+        { error: parseUICode(err.message) },
         setShowSnackbar,
         setSnackBarAttributes
       );
-      return;
     }
-    setNavigateToAssignment(true);
-    handleActiveAssignment(selectedAssignments[0]);
   }
 
   useEffect(() => {
@@ -316,9 +270,14 @@ export default function AssignmentBrowse({
     }
   }, [activeAssignment, navigateToAssignment]);
 
-  if (pageType === "browse") {
-    selectFragment = (
-      <>
+  return (
+    <>
+      <PageHeaderBar
+        pageName={parseUICode("ui_assignment_browser")}
+        courseID={activeCourse?.id}
+        courseTitle={activeCourse?.title}
+      />
+      <div className="content">
         <div className="emptySpace1" />
         <SearchBar
           autoFillOptions={courseAssignments}
@@ -336,6 +295,16 @@ export default function AssignmentBrowse({
           spacing={2}
         >
           <ButtonComp
+            buttonType="normal"
+            onClick={() => {
+              //handleCreateSet();
+            }}
+            ariaLabel={parseUICode("ui_create_new_set")}
+            disabled={numSelected > 0 ? false : true}
+          >
+            {parseUICode("ui_create_set")}
+          </ButtonComp>
+          <ButtonComp
             confirmationModal={true}
             modalText={`${parseUICode("ui_delete")} 
               ${numSelected}`}
@@ -351,45 +320,11 @@ export default function AssignmentBrowse({
               handleOpenAssignment();
             }}
             ariaLabel={parseUICode("ui_aria_show_edit")}
+            disabled={numSelected === 1 ? false : true}
           >
             {parseUICode("ui_show_edit")}
           </ButtonComp>
-          <Typography>
-            {selectedAssignments && selectedAssignments.length > 0
-              ? selectedAssignments[0]?.title
-              : ""}
-          </Typography>
         </Stack>
-      </>
-    );
-    pageButtons = (
-      <>
-        {/*<ButtonComp
-          buttonType="normal"
-          onClick={null}
-          ariaLabel={parseUICode("ui_aria_save")}
-        >
-          {parseUICode("ui_save")}
-        </ButtonComp>*/}
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => navigate(-1)}
-          ariaLabel={parseUICode("ui_aria_cancel")}
-        >
-          {parseUICode("ui_cancel")}
-        </ButtonComp>
-      </>
-    );
-  }
-  return (
-    <>
-      <PageHeaderBar
-        pageName={parseUICode("ui_assignment_browser")}
-        courseID={activeCourse?.ID}
-        courseTitle={activeCourse?.title}
-      />
-      <div className="content">
-        {selectFragment}
 
         <div className="emptySpace2" />
         <Grid
@@ -444,16 +379,12 @@ export default function AssignmentBrowse({
               >
                 <List>
                   <ListItem nested>
-                    <ListSubheader>{parseUICode("ui_type")}</ListSubheader>
-                    <List>{types}</List>
+                    <ListSubheader>{parseUICode("ui_tags")}</ListSubheader>
+                    <List>{tags}</List>
                   </ListItem>
                   <ListItem nested>
                     <ListSubheader>{parseUICode("ui_modules")}</ListSubheader>
                     <List>{modules}</List>
-                  </ListItem>
-                  <ListItem nested>
-                    <ListSubheader>{parseUICode("ui_tags")}</ListSubheader>
-                    <List>{tags}</List>
                   </ListItem>
                 </List>
               </Box>
@@ -468,7 +399,13 @@ export default function AssignmentBrowse({
           alignItems="center"
           spacing={2}
         >
-          {pageButtons}
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => navigate(-1)}
+            ariaLabel={parseUICode("ui_aria_cancel")}
+          >
+            {parseUICode("ui_cancel")}
+          </ButtonComp>
         </Stack>
       </div>
       {showSnackbar ? (
