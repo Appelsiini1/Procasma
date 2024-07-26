@@ -135,6 +135,37 @@ export async function initDB(coursePath: string): Promise<string> {
   });
 }
 
+/**
+ * Helper for getting filtered assignments or modules. TODO explain
+ */
+export async function _getColumnByTagsDB(
+  db: sqlite3.Database,
+  tags: string[],
+  column: string,
+  table: string
+): Promise<string[]> {
+  try {
+    const tagsPlaceholder = tags.map(() => "?").join(",");
+    const query = `SELECT ${column} FROM ${table}
+        WHERE name IN (${tagsPlaceholder})`;
+
+    return await new Promise((resolve, reject) => {
+      db.serialize(() => {
+        db.all(query, tags, (err, rows: any) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows.map((row: any) => row?.[column]));
+          }
+        });
+      });
+    });
+  } catch (err) {
+    log.error("Error in _getColumnByTagsDB():", err.message);
+    throw err;
+  }
+}
+
 // CRUD Tags
 
 async function _addTagDB(
@@ -441,18 +472,12 @@ export async function addAssignmentDB(
 export async function getAssignmentDB(
   coursePath: string,
   ids?: (string | number)[],
-  queryExtension?: string,
   queryOverride?: string
 ): Promise<CodeAssignmentDatabase[]> {
   return _execOperationDB(coursePath, (db: sqlite3.Database) => {
     return new Promise((resolve, reject) => {
       db.serialize(() => {
-        const query =
-          queryOverride ??
-          `SELECT assignments.* FROM modules RIGHT JOIN assignments 
-          ON modules.id = assignments.module` + queryExtension;
-
-        console.log("query: ", query);
+        const query = queryOverride ?? `SELECT * FROM assignments`;
         db.all(query, ids, (err, rows) => {
           if (err) {
             log.error("Error in getAssignmentDB():", err.message);
@@ -614,85 +639,64 @@ export async function getAssignmentTagsDB(coursePath: string) {
   return await _getAllDB(coursePath, "tags");
 }
 
-export async function _getAssignmentsByTagsDB(
-  db: sqlite3.Database,
-  tags: string[]
-): Promise<{ assignments: string }[]> {
-  try {
-    // get assignment ids from the tags table
-    console.log("tags:", tags);
-    const tagsPlaceholder = tags.map(() => "?").join(",");
-    const query = `SELECT assignments FROM tags
-        WHERE name IN (${tagsPlaceholder})`;
-
-    return await new Promise((resolve, reject) => {
-      db.serialize(() => {
-        db.all(query, tags, (err, rows: any) => {
-          if (err) {
-            reject(err);
-          } else {
-            const assignments = rows.map((row: any) => row?.assignments);
-            resolve(assignments);
-          }
-        });
-      });
-    });
-  } catch (err) {
-    log.error("Error in _getAssignmentsByTagsDB():", err.message);
-    throw err;
-  }
-}
-
-export async function getFilteredAssignments(
+export async function getFilteredAssignmentsDB(
   coursePath: string,
   filters: any
 ): Promise<CodeAssignmentDatabase[]> {
   return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
     try {
       // prepare the query with the assignment title substring search
-      let query = `SELECT assignments.*, 
-        instr (assignments.title, ?) titlePosition
-        FROM modules RIGHT JOIN assignments 
-        ON modules.id = assignments.module WHERE`;
+      let query = "";
+      let queryExtension = "";
       let ids: any[] = [];
 
-      if (filters?.search.length > 0) {
+      // form the query extension for the title search
+      if (filters?.search?.length > 0) {
+        query = `SELECT assignments.*, 
+        instr (assignments.title, ?) titlePosition
+        FROM modules RIGHT JOIN assignments 
+        ON modules.id = assignments.module`;
+
         ids.push(filters.search);
-        query += ` titlePosition > 0`;
+        queryExtension += ` titlePosition > 0`;
+      } else {
+        query = `SELECT assignments.* 
+        FROM modules RIGHT JOIN assignments 
+        ON modules.id = assignments.module`;
       }
 
       // get assignment ids based on selected tags
       const assignmentIds = filters.tags
-        ? await _getAssignmentsByTagsDB(db, filters.tags)
+        ? await _getColumnByTagsDB(db, filters.tags, "assignments", "tags")
         : [];
 
       // form the query extension for the assignment ids
       if (assignmentIds?.length > 0) {
-        if (filters?.search.length > 0) {
-          query += " AND";
+        if (filters?.search?.length > 0) {
+          queryExtension += " AND";
         }
 
         ids = ids.concat(assignmentIds);
         const assignmentPlaceholders = assignmentIds.map(() => "?").join(",");
-        query += ` assignments.id IN (${assignmentPlaceholders})`;
+        queryExtension += ` assignments.id IN (${assignmentPlaceholders})`;
       }
 
       // form the query extension for the modules
-      if (filters?.module.length > 0) {
+      if (filters?.module?.length > 0) {
         if (assignmentIds?.length > 0) {
-          query += " AND";
+          queryExtension += " AND";
         }
 
         const filterPlaceholders = filters.module.map(() => "?").join(",");
-        query += ` modules.name IN (${filterPlaceholders})`;
+        queryExtension += ` modules.name IN (${filterPlaceholders})`;
         ids = ids.concat(filters.module);
       }
 
-      /*if (query.length > 0) {
-        query = " WHERE" + query;
-      }*/
+      if (queryExtension.length > 0) {
+        queryExtension = " WHERE" + queryExtension;
+      }
 
-      return await getAssignmentDB(coursePath, ids, "", query);
+      return await getAssignmentDB(coursePath, ids, query + queryExtension);
     } catch (err) {
       log.error("Error in _getAssignmentsByTagsDB():", err.message);
       throw err;
@@ -743,19 +747,20 @@ export async function addModuleDB(
 
 export async function getModuleDB(
   coursePath: string,
-  moduleId: number
-): Promise<ModuleData> {
+  ids?: (string | number)[],
+  queryOverride?: string
+): Promise<ModuleData[]> {
   return _execOperationDB(coursePath, (db: sqlite3.Database) => {
     return new Promise((resolve, reject) => {
       db.serialize(() => {
-        db.get(
-          `SELECT * FROM modules WHERE id = ?`,
-          [moduleId],
-          (err, row: ModuleDatabase) => {
-            if (err) {
-              log.error("Error in getModuleDB():", err.message);
-              reject(err);
-            } else if (row) {
+        const query = queryOverride ?? `SELECT * FROM modules`;
+        console.log("query: ", query);
+        db.all(query, ids, (err, rows) => {
+          if (err) {
+            log.error("Error in getModuleDB():", err.message);
+            reject(err);
+          } else if (rows) {
+            const formattedRows = rows.map((row: ModuleDatabase) => {
               const content = {} as ModuleData;
               content.ID = row.id;
               content.name = row.name;
@@ -764,12 +769,12 @@ export async function getModuleDB(
               content.subjects = row.subjects;
               content.letters = row.letters ? true : false;
               content.instructions = row.instructions;
-              resolve(content);
-            } else {
-              reject(new Error("Could not find module in database."));
-            }
+            });
+            resolve(formattedRows);
+          } else {
+            reject(new Error("Could not find module in database."));
           }
-        );
+        });
       });
     });
   });
@@ -781,13 +786,13 @@ export async function updateModuleDB(
 ): Promise<string> {
   return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
     try {
-      const getResult = await getModuleDB(coursePath, module.ID);
+      const getResult = await getModuleDB(coursePath, [module.ID]);
       if (!getResult) {
         return {
           error: "Module does not exist in the database, cannot update.",
         };
       }
-      const oldModule = getResult;
+      const oldModule = getResult[0];
 
       let sql = `UPDATE modules SET `;
       const params: any = [];
@@ -857,8 +862,8 @@ export async function deleteModuleDB(
 ): Promise<string> {
   return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
     try {
-      const getResult = await getModuleDB(coursePath, moduleID);
-      const oldModule = getResult as ModuleData;
+      const getResult = await getModuleDB(coursePath, [moduleID]);
+      const oldModule = getResult[0] as ModuleData;
 
       await Promise.all(
         oldModule.tags.map((tag) =>
@@ -909,4 +914,35 @@ export async function getModuleCountDB(coursePath: string): Promise<number> {
 
 export async function getModuleTagsDB(coursePath: string) {
   return await _getAllDB(coursePath, "moduleTags");
+}
+
+export async function getFilteredModulesDB(
+  coursePath: string,
+  filters: any
+): Promise<CodeAssignmentDatabase[]> {
+  return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
+    try {
+      let query = "SELECT * FROM modules";
+      let ids: any[] = [];
+
+      // get module ids based on selected tags
+      const moduleIds = filters.tags
+        ? await _getColumnByTagsDB(db, filters.tags, "modules", "moduleTags")
+        : [];
+
+      console.log("moduleIds: ", moduleIds);
+
+      // form the query extension for the module ids
+      if (moduleIds?.length > 0) {
+        ids = ids.concat(moduleIds);
+        const modulePlaceholders = moduleIds.map(() => "?").join(",");
+        query += ` WHERE id IN (${modulePlaceholders})`;
+      }
+
+      return await getModuleDB(coursePath, ids, query);
+    } catch (err) {
+      log.error("Error in _getAssignmentsByTagsDB():", err.message);
+      throw err;
+    }
+  });
 }

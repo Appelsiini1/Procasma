@@ -12,11 +12,10 @@ import {
 } from "@mui/joy";
 import { useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
-import { CourseData, ModuleData } from "../types";
+import { CourseData, ModuleData, ModuleDatabase, TagDatabase } from "../types";
 import {
   WithCheckWrapper,
   filterState,
-  filterType,
   generateFilterList,
   handleCheckArray,
   handleUpdateUniqueTags,
@@ -30,52 +29,47 @@ import SnackbarComp, {
 import { parseUICode } from "../rendererHelpers/translation";
 
 export interface ModuleWithCheck extends WithCheckWrapper {
-  value: ModuleData;
+  value: ModuleDatabase;
 }
 
-/**
- * Generates the list of modules, filtering based on the given
- * filters.
- */
 export function generateModules(
   modules: ModuleWithCheck[],
-  setCourseModules: React.Dispatch<React.SetStateAction<ModuleWithCheck[]>>,
-  filters: filterType[]
+  setCourseModules: React.Dispatch<React.SetStateAction<ModuleWithCheck[]>>
 ) {
-  const filteredModules = modules
+  return modules
     ? modules.map((module: ModuleWithCheck) => {
-        return;
-        <ListItem
-          key={module.value.ID}
-          startAction={
-            <Checkbox
-              checked={module.isChecked}
-              onChange={() =>
+        return (
+          <ListItem
+            key={module.value.id}
+            startAction={
+              <Checkbox
+                checked={module.isChecked}
+                onChange={() =>
+                  handleCheckArray(
+                    module.value,
+                    !module.isChecked,
+                    setCourseModules
+                  )
+                }
+              ></Checkbox>
+            }
+          >
+            <ListItemButton
+              selected={module.isChecked}
+              onClick={() =>
                 handleCheckArray(
                   module.value,
                   !module.isChecked,
                   setCourseModules
                 )
               }
-            ></Checkbox>
-          }
-        >
-          <ListItemButton
-            selected={module.isChecked}
-            onClick={() =>
-              handleCheckArray(
-                module.value,
-                !module.isChecked,
-                setCourseModules
-              )
-            }
-          >
-            {module.value.name}
-          </ListItemButton>
-        </ListItem>;
+            >
+              {module.value.name}
+            </ListItemButton>
+          </ListItem>
+        );
       })
     : null;
-  return filteredModules;
 }
 
 export default function ModuleBrowse({
@@ -90,7 +84,6 @@ export default function ModuleBrowse({
   handleActiveModule: (value: ModuleData) => void;
 }) {
   const navigate = useNavigate();
-  //let pageButtons: React.JSX.Element = null;
   let modules: Array<React.JSX.Element> = null;
   let tags: Array<React.JSX.Element> = null;
 
@@ -105,26 +98,38 @@ export default function ModuleBrowse({
   const [snackBarAttributes, setSnackBarAttributes] =
     useState<SnackBarAttributes>({ color: "success", text: "" });
 
-  function getTagsFromModules(modules: ModuleData[]): Array<string> {
-    const tags: Array<string> = [];
-    modules.forEach((module) => {
-      tags.push(...module.tags);
-    });
-    return tags;
-  }
-
   const refreshModules = async () => {
     try {
       if (!activePath) {
         return;
       }
 
-      const modules: ModuleData[] = await handleIPCResult(() =>
-        window.api.handleGetModulesFS(activePath)
-      );
+      const checkedTags: string[] = [];
+      uniqueTags.forEach((element) => {
+        if (element.isChecked) {
+          checkedTags.push(element.value);
+        }
+      });
+
+      const filters = {
+        tags: checkedTags,
+      };
+
+      let moduleResults: ModuleDatabase[] = [];
+      if (checkedTags.length > 0) {
+        // Filter if filters selected
+        moduleResults = await handleIPCResult(() =>
+          window.api.getFilteredModulesDB(activePath, filters)
+        );
+        console.log("moduleResults: ", moduleResults);
+      } else {
+        moduleResults = await handleIPCResult(() =>
+          window.api.getModulesDB(activePath)
+        );
+      }
 
       // wrap the fetched modules to store checked state
-      const modulesWithCheck = modules.map((module) => {
+      const modulesWithCheck = moduleResults.map((module) => {
         const ModuleCheck: ModuleWithCheck = {
           isChecked: false,
           value: module,
@@ -133,12 +138,7 @@ export default function ModuleBrowse({
         return ModuleCheck;
       });
 
-      if (modulesWithCheck) {
-        // update assignments and filters
-        setCourseModules(modulesWithCheck);
-        const tags: Array<string> = getTagsFromModules(modules);
-        handleUpdateUniqueTags(tags, setUniqueTags);
-      }
+      setCourseModules(modulesWithCheck);
     } catch (err) {
       functionResultToSnackBar(
         { error: parseUICode(err.message) },
@@ -148,9 +148,18 @@ export default function ModuleBrowse({
     }
   };
 
+  async function updateFilters() {
+    const tagsResult: TagDatabase[] = await handleIPCResult(() =>
+      window.api.getAssignmentTagsDB(activePath)
+    );
+
+    handleUpdateUniqueTags(tagsResult, setUniqueTags);
+  }
+
   // Get the course assignments on page load
   useEffect(() => {
     refreshModules();
+    updateFilters();
   }, []);
 
   async function handleDeleteSelected() {
@@ -185,9 +194,11 @@ export default function ModuleBrowse({
     setNumSelected(numChecked);
   }, [courseModules]);
 
-  const tagsFilter: filterType = { name: "tags", filters: uniqueTags };
+  useEffect(() => {
+    refreshModules();
+  }, [uniqueTags]);
 
-  modules = generateModules(courseModules, setCourseModules, [tagsFilter]);
+  modules = generateModules(courseModules, setCourseModules);
   tags = generateFilterList(uniqueTags, setUniqueTags);
 
   async function handleOpenModule() {

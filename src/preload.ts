@@ -45,16 +45,20 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("handleDeleteAssignmentFS", coursePath, id),
   getAssignmentCountDB: (coursePath: string) =>
     ipcRenderer.invoke("getAssignmentCountDB", coursePath),
-  getFilteredAssignments: (coursePath: string, filters: any) =>
-    ipcRenderer.invoke("getFilteredAssignments", coursePath, filters),
+  getFilteredAssignmentsDB: (coursePath: string, filters: any) =>
+    ipcRenderer.invoke("getFilteredAssignmentsDB", coursePath, filters),
 
   // CRUD Module
   handleAddModuleFS: (module: ModuleData, coursePath: string) =>
     ipcRenderer.invoke("handleAddModuleFS", module, coursePath),
   handleGetModulesFS: (coursePath: string) =>
     ipcRenderer.invoke("handleGetModulesFS", coursePath),
+  getModulesDB: (coursePath: string) =>
+    ipcRenderer.invoke("getModulesDB", coursePath),
   deleteModuleDB: (coursePath: string, id: number) =>
     ipcRenderer.invoke("deleteModuleDB", coursePath, id),
+  getFilteredModulesDB: (coursePath: string, filters: any) =>
+    ipcRenderer.invoke("getFilteredModulesDB", coursePath, filters),
 
   // CRUD Tag
   getAssignmentTagsDB: (coursePath: string) =>

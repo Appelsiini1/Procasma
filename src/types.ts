@@ -166,7 +166,7 @@ export type ContextBridgeAPI = {
   ) => IpcResult;
   handleDeleteAssignmentFS: (coursePath: string, id?: string) => IpcResult;
   getAssignmentCountDB: (coursePath: string) => IpcResult;
-  getFilteredAssignments: (coursePath: string, filters: any) => IpcResult;
+  getFilteredAssignmentsDB: (coursePath: string, filters: any) => IpcResult;
 
   // CRUD Module
   handleAddModuleFS: (module: ModuleData, coursePath: string) => IpcResult;
@@ -175,6 +175,7 @@ export type ContextBridgeAPI = {
   handleUpdateModuleFS: (module: ModuleData, coursePath: string) => IpcResult;
   deleteModuleDB: (coursePath: string, id: number) => IpcResult;
   getModuleCountDB: (coursePath: string) => IpcResult;
+  getFilteredModulesDB: (coursePath: string, filters: any) => IpcResult;
 
   // CRUD Tag
   getAssignmentTagsDB: (coursePath: string) => IpcResult;
