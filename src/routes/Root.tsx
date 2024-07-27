@@ -124,6 +124,10 @@ export default function Root({
         window.api.selectDir()
       );
 
+      if (coursePath.length === 0) {
+        throw new Error("ui_course_folder_invalid");
+      }
+
       const course: CourseData = await handleIPCResult(() =>
         window.api.handleGetCourseFS(coursePath)
       );

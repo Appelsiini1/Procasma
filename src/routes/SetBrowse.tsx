@@ -16,6 +16,7 @@ import { useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
 import { CourseData } from "../types";
+import { parseUICode } from "../rendererHelpers/translation";
 
 // Get list of modules via IPC later
 const testSets = [
@@ -27,8 +28,10 @@ const testTags = ["print", "try...except"];
 
 export default function SetBrowse({
   activeCourse,
+  activePath,
 }: {
   activeCourse: CourseData;
+  activePath: string;
 }) {
   const navigate = useNavigate();
   const [noSelected, setNoSelected] = useState(0);

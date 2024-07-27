@@ -17,7 +17,7 @@ export async function handleIPCResult(IpcCall: () => IpcResult): Promise<any> {
   if (result.errorMessage) {
     throw new Error(parseUICode(result.errorMessage));
   }
-  if (!result.content && result.content !== 0) {
+  if (typeof result.content === "undefined") {
     throw new Error(parseUICode("ui_no_result_from_ipc_call"));
   }
   return result.content;

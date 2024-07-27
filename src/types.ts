@@ -157,7 +157,6 @@ export type ContextBridgeAPI = {
     assignment: CodeAssignmentData,
     coursePath: string
   ) => IpcResult;
-  //saveProject: (assignment: CodeAssignmentData, coursePath: string) => IpcResult;
   handleGetAssignmentsFS: (coursePath: string, id: string) => IpcResult;
   getAssignmentsDB: (coursePath: string) => IpcResult;
   handleUpdateAssignmentFS: (

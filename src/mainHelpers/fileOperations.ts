@@ -152,10 +152,7 @@ export function handleGetCourseFS(filePath: string): CourseData {
     }
 
     const filePathJoined = path.join(filePath, "course_info.json");
-    const content = handleReadFileFS(filePathJoined);
-
-    const course: CourseData = content as CourseData;
-    return course;
+    return handleReadFileFS(filePathJoined);
   } catch (err) {
     log.error("Error in handleGetCourseFS():", err.message);
     throw err;

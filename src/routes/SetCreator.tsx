@@ -14,26 +14,33 @@ import {
 } from "@mui/joy";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NumberInput from "../components/NumberInput";
 import ButtonComp from "../components/ButtonComp";
 import SwitchComp from "../components/SwitchComp";
 import StepperComp from "../components/StepperComp";
-import { CourseData } from "../types";
+import { CourseData, ModuleData } from "../types";
 import { parseUICode } from "../rendererHelpers/translation";
+import SnackbarComp, {
+  functionResultToSnackBar,
+  SnackBarAttributes,
+} from "../components/SnackBarComp";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 
 // Get list of assignments via IPC later
 const testAssignments = [
-  { ID: "1", name: "L01T1 - Otsikko" },
-  { ID: "2", name: "L01T2 - Otsikko" },
+  { id: "1", name: "L01T1 - Otsikko" },
+  { id: "2", name: "L01T2 - Otsikko" },
 ];
 
 export default function SetCreator({
   activeCourse,
+  activePath,
 }: {
   activeCourse: CourseData;
+  activePath: string;
 }) {
   const pageType = useLoaderData();
   const navigate = useNavigate();
@@ -41,15 +48,18 @@ export default function SetCreator({
   const [moduleNumber, setmoduleNumber] = useState("1");
   const [fullCourse, setFullCourse] = useState(false);
   const [stepperState, setStepperState] = useState<number>(0);
-  const modules: object[] = [];
+  const [modules, setModules] = useState<Array<ModuleData>>([]);
   const formats: object[] = [];
-  const [assignmentSetYear, setAssignmentSetYear] = useState("2024");
-  const [studyPeriod, setStudyPeriod] = useState("1");
+  const [assignmentSetYear, setAssignmentSetYear] = useState(2024);
+  const [studyPeriod, setStudyPeriod] = useState(1);
   const [exportSet, setExportSet] = useState(true);
   const [exportCGConfigs, setExportCGConfigs] = useState(true);
   const [selectedAssignments, setSelectedAssignments] = useState<Array<string>>(
     []
   );
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [snackBarAttributes, setSnackBarAttributes] =
+    useState<SnackBarAttributes>({ color: "success", text: "" });
   const stepHeadings: string[] = [
     parseUICode("ui_module_selection"),
     parseUICode("ui_set_details"),
@@ -71,6 +81,31 @@ export default function SetCreator({
   if (pageType === "new") {
     pageTitle = parseUICode("ui_create_new_set");
   }
+
+  async function getModules() {
+    try {
+      if (!activePath) {
+        return;
+      }
+
+      const modules = await handleIPCResult(() =>
+        window.api.getModulesDB(activePath)
+      );
+
+      setModules(modules);
+    } catch (err) {
+      functionResultToSnackBar(
+        { error: parseUICode(err.message) },
+        setShowSnackbar,
+        setSnackBarAttributes
+      );
+    }
+  }
+
+  // fetch modules on page load
+  useEffect(() => {
+    getModules();
+  }, []);
 
   function handleSelectedAssignments(
     moduleID: string,
@@ -161,6 +196,7 @@ export default function SetCreator({
                       options={modules}
                       labelKey="name"
                       placeholder={"..."}
+                      onChange={(value: string) => null}
                     ></Dropdown>
                   </td>
                 </tr>
@@ -183,7 +219,13 @@ export default function SetCreator({
                     </Typography>
                   </td>
                   <td>
-                    <InputField fieldKey="caSetName" />
+                    <InputField
+                      fieldKey="caSetName"
+                      onChange={(value: string) =>
+                        //handleAssignment("tags", value, true)
+                        null
+                      }
+                    />
                   </td>
                 </tr>
 
@@ -195,7 +237,7 @@ export default function SetCreator({
                     <NumberInput
                       disabled={false}
                       value={assignmentSetYear}
-                      setValue={setAssignmentSetYear}
+                      //setValue={setAssignmentSetYear}
                     ></NumberInput>
                   </td>
                 </tr>
@@ -210,7 +252,7 @@ export default function SetCreator({
                     <NumberInput
                       disabled={true}
                       value={studyPeriod}
-                      setValue={setStudyPeriod}
+                      //setValue={setStudyPeriod}
                     ></NumberInput>
                   </td>
                 </tr>
@@ -238,6 +280,7 @@ export default function SetCreator({
                       options={formats}
                       labelKey="name"
                       placeholder={"..."}
+                      onChange={(value: string) => null}
                     ></Dropdown>
                   </td>
                 </tr>
@@ -370,7 +413,10 @@ export default function SetCreator({
                           <Typography level="h4">{assignment.name}</Typography>
                         </td>
                         <td>
-                          <InputField fieldKey="caSetName" />
+                          <InputField
+                            fieldKey="caSetName"
+                            onChange={(value: string) => null}
+                          />
                         </td>
                       </tr>
                     ))}
@@ -437,6 +483,13 @@ export default function SetCreator({
           )}
         </Stack>
       </div>
+      {showSnackbar ? (
+        <SnackbarComp
+          text={snackBarAttributes.text}
+          color={snackBarAttributes.color}
+          setShowSnackbar={setShowSnackbar}
+        ></SnackbarComp>
+      ) : null}
     </>
   );
 }

@@ -192,14 +192,18 @@ const App = () => {
     },
     {
       path: "/setCreator",
-      element: <SetCreator activeCourse={activeCourse} />,
+      element: (
+        <SetCreator activeCourse={activeCourse} activePath={activePath} />
+      ),
       loader: async () => {
         return "new";
       },
     },
     {
       path: "/setBrowse",
-      element: <SetBrowse activeCourse={activeCourse} />,
+      element: (
+        <SetBrowse activeCourse={activeCourse} activePath={activePath} />
+      ),
       loader: async () => {
         return "new";
       },

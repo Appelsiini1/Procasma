@@ -17,5 +17,5 @@ export async function handleDirectorySelect() {
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ["openDirectory"],
   });
-  return !canceled ? filePaths[0] : null;
+  return !canceled ? filePaths[0] : "";
 }

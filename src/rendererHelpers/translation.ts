@@ -3,6 +3,7 @@ import { language } from "../globalsUI";
 
 /**
  * Try to convert a ui code into its text form using language.current.
+ * Returns the original string on fail.
  */
 export function parseUICode(ui_code: string): string {
   try {
