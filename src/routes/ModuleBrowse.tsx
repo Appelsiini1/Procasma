@@ -11,7 +11,7 @@ import {
   Stack,
   Typography,
 } from "@mui/joy";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import { CourseData, ModuleData, ModuleDatabase, TagDatabase } from "../types";
 import {
@@ -23,11 +23,8 @@ import {
   setSelectedViaChecked,
 } from "../rendererHelpers/browseHelpers";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
-import SnackbarComp, {
-  functionResultToSnackBar,
-  SnackBarAttributes,
-} from "../components/SnackBarComp";
 import { parseUICode } from "../rendererHelpers/translation";
+import { SnackbarContext } from "../components/Context";
 
 export interface ModuleWithCheck extends WithCheckWrapper {
   value: ModuleDatabase;
@@ -95,9 +92,7 @@ export default function ModuleBrowse({
   const [navigateToModule, setNavigateToModule] = useState(false);
   const [numSelected, setNumSelected] = useState(0);
   const [uniqueTags, setUniqueTags] = useState<Array<filterState>>([]);
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  const [snackBarAttributes, setSnackBarAttributes] =
-    useState<SnackBarAttributes>({ color: "success", text: "" });
+  const { handleSnackbar } = useContext(SnackbarContext);
 
   const refreshModules = async () => {
     try {
@@ -134,11 +129,7 @@ export default function ModuleBrowse({
 
       setCourseModules(modulesWithCheck);
     } catch (err) {
-      functionResultToSnackBar(
-        { error: parseUICode(err.message) },
-        setShowSnackbar,
-        setSnackBarAttributes
-      );
+      handleSnackbar({ error: parseUICode(err.message) });
     }
   };
 
@@ -176,12 +167,7 @@ export default function ModuleBrowse({
       snackbarText = err.message;
       snackbarSeverity = "error";
     }
-
-    functionResultToSnackBar(
-      { [snackbarSeverity]: parseUICode(snackbarText) },
-      setShowSnackbar,
-      setSnackBarAttributes
-    );
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
   }
 
   // Update the selected modules counter
@@ -201,11 +187,7 @@ export default function ModuleBrowse({
   async function handleOpenModule() {
     // set the first selected module as global
     if (!selectedModules || selectedModules.length < 1) {
-      functionResultToSnackBar(
-        { info: parseUICode("ui_no_module_seleted") },
-        setShowSnackbar,
-        setSnackBarAttributes
-      );
+      handleSnackbar({ info: parseUICode("ui_no_module_seleted") });
       return;
     }
     setNavigateToModule(true);
@@ -327,13 +309,6 @@ export default function ModuleBrowse({
           {parseUICode("ui_cancel")}
         </ButtonComp>
       </div>
-      {showSnackbar ? (
-        <SnackbarComp
-          text={snackBarAttributes.text}
-          color={snackBarAttributes.color}
-          setShowSnackbar={setShowSnackbar}
-        ></SnackbarComp>
-      ) : null}
     </>
   );
 }

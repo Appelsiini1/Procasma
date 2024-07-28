@@ -8,8 +8,17 @@ export type filterState = {
 
 export type WithCheckWrapper = {
   isChecked: boolean;
-  value: unknown;
+  value: any;
 };
+
+export function wrapWithCheck(objects: any) {
+  return objects.map((object: any) => {
+    return {
+      isChecked: false,
+      value: object,
+    };
+  });
+}
 
 export function handleUpdateUniqueTags(
   allTags: TagDatabase[],
@@ -62,6 +71,39 @@ export function handleCheckArray(
 
     return newState;
   });
+}
+
+export function generateChecklist(
+  items: WithCheckWrapper[],
+  setItems: React.Dispatch<React.SetStateAction<WithCheckWrapper[]>>
+) {
+  return items
+    ? items.map((item: WithCheckWrapper) => {
+        const titleOrName = item.value.title ?? item.value.name ?? "";
+        return (
+          <ListItem
+            key={item.value.id}
+            startAction={
+              <Checkbox
+                checked={item.isChecked}
+                onChange={() =>
+                  handleCheckArray(item.value, !item.isChecked, setItems)
+                }
+              ></Checkbox>
+            }
+          >
+            <ListItemButton
+              selected={item.isChecked}
+              onClick={() =>
+                handleCheckArray(item.value, !item.isChecked, setItems)
+              }
+            >
+              {titleOrName}
+            </ListItemButton>
+          </ListItem>
+        );
+      })
+    : null;
 }
 
 /**

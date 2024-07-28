@@ -17,14 +17,11 @@ import {
   splitStringToArray,
 } from "../generalHelpers/converters";
 import VariationsGroup from "../components/VariationsGroup";
-import { useEffect, useState } from "react";
-import SnackbarComp, {
-  SnackBarAttributes,
-  functionResultToSnackBar,
-} from "../components/SnackBarComp";
+import { useContext, useEffect } from "react";
 import { deepCopy } from "../rendererHelpers/utility";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import { SnackbarContext } from "../components/Context";
 
 export default function ProjectWorkInput({
   activeCourse,
@@ -45,9 +42,7 @@ export default function ProjectWorkInput({
   let pageTitle: string = null;
   const moduleDisable = currentCourse.moduleType !== null ? false : true;
   const codeLanguageOptions = defaults.codeLanguages; //get these from settings file later
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  const [snackBarAttributes, setSnackBarAttributes] =
-    useState<SnackBarAttributes>({ color: "success", text: "" });
+  const { handleSnackbar } = useContext(SnackbarContext);
 
   if (pageType === "new") {
     pageTitle = parseUICode("ui_new_project_work");
@@ -79,12 +74,7 @@ export default function ProjectWorkInput({
       snackbarText = err.message;
       snackbarSeverity = "error";
     }
-
-    functionResultToSnackBar(
-      { [snackbarSeverity]: parseUICode(snackbarText) },
-      setShowSnackbar,
-      setSnackBarAttributes
-    );
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
   }
 
   return (
@@ -222,13 +212,6 @@ export default function ProjectWorkInput({
           </ButtonComp>
         </Stack>
       </div>
-      {showSnackbar ? (
-        <SnackbarComp
-          text={snackBarAttributes.text}
-          color={snackBarAttributes.color}
-          setShowSnackbar={setShowSnackbar}
-        ></SnackbarComp>
-      ) : null}
     </>
   );
 }

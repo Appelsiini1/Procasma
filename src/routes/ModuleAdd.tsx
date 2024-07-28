@@ -10,12 +10,9 @@ import { useModule } from "../rendererHelpers/assignmentHelpers";
 import { defaultModule } from "../defaultObjects";
 import { splitStringToArray } from "../generalHelpers/converters";
 import { parseUICode } from "../rendererHelpers/translation";
-import { useState } from "react";
-import SnackbarComp, {
-  functionResultToSnackBar,
-  SnackBarAttributes,
-} from "../components/SnackBarComp";
+import { useContext } from "react";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import { SnackbarContext } from "../components/Context";
 
 export default function ModuleAdd({
   activeCourse,
@@ -29,9 +26,7 @@ export default function ModuleAdd({
   const [module, handleModule] = useModule(
     activeModule ? activeModule : defaultModule
   );
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  const [snackBarAttributes, setSnackBarAttributes] =
-    useState<SnackBarAttributes>({ color: "success", text: "" });
+  const { handleSnackbar } = useContext(SnackbarContext);
 
   const pageType = useLoaderData();
   const navigate = useNavigate();
@@ -62,12 +57,7 @@ export default function ModuleAdd({
       snackbarText = err.message;
       snackbarSeverity = "error";
     }
-
-    functionResultToSnackBar(
-      { [snackbarSeverity]: parseUICode(snackbarText) },
-      setShowSnackbar,
-      setSnackBarAttributes
-    );
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
   }
 
   return (
@@ -250,13 +240,6 @@ export default function ModuleAdd({
           </ButtonComp>
         </Stack>
       </div>
-      {showSnackbar ? (
-        <SnackbarComp
-          text={snackBarAttributes.text}
-          color={snackBarAttributes.color}
-          setShowSnackbar={setShowSnackbar}
-        ></SnackbarComp>
-      ) : null}
     </>
   );
 }

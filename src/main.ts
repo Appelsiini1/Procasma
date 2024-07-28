@@ -13,6 +13,10 @@ import {
   handleUpdateAssignmentFS,
   handleUpdateCourseFS,
   handleDeleteAssignmentsFS,
+  addSetFS,
+  updateSetFS,
+  getSetsFS,
+  deleteSetsFS,
 } from "./mainHelpers/fileOperations";
 import { initialize } from "./mainHelpers/programInit";
 import { getSettings, saveSettings } from "./mainHelpers/settings";
@@ -222,6 +226,24 @@ ipcMain.handle(
 ipcMain.handle(
   "getModuleTagsDB",
   formatIPCResult((path) => getModuleTagsDB(path))
+);
+
+// CRUD Set
+ipcMain.handle(
+  "addSetFS",
+  formatIPCResult((path, set) => addSetFS(path, set))
+);
+ipcMain.handle(
+  "getSetsFS",
+  formatIPCResult((path) => getSetsFS(path))
+);
+ipcMain.handle(
+  "updateSetFS",
+  formatIPCResult((path, set) => updateSetFS(path, set))
+);
+ipcMain.handle(
+  "deleteSetsFS",
+  formatIPCResult((path, ids) => deleteSetsFS(path, ids))
 );
 
 testDatabase();

@@ -5,7 +5,7 @@ import { Divider, Grid, Stack, Table, Typography } from "@mui/joy";
 import PageHeaderBar from "../components/PageHeaderBar";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
@@ -20,13 +20,10 @@ import {
 } from "../generalHelpers/converters";
 import { useAssignment } from "../rendererHelpers/assignmentHelpers";
 import VariationsGroup from "../components/VariationsGroup";
-import SnackbarComp, {
-  SnackBarAttributes,
-  functionResultToSnackBar,
-} from "../components/SnackBarComp";
 import { deepCopy } from "../rendererHelpers/utility";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import { SnackbarContext } from "../components/Context";
 
 export default function AssignmentInput({
   activeCourse,
@@ -49,9 +46,7 @@ export default function AssignmentInput({
   const levelsDisable = currentCourse.levels !== null ? false : true;
   const [expanding, setExpanding] = useState(false);
   const codeLanguageOptions = defaults.codeLanguages; //get these from settings file later
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  const [snackBarAttributes, setSnackBarAttributes] =
-    useState<SnackBarAttributes>({ color: "success", text: "" });
+  const { handleSnackbar } = useContext(SnackbarContext);
 
   if (pageType === "new") {
     pageTitle = parseUICode("ui_new_assignment");
@@ -83,12 +78,7 @@ export default function AssignmentInput({
       snackbarText = err.message;
       snackbarSeverity = "error";
     }
-
-    functionResultToSnackBar(
-      { [snackbarSeverity]: parseUICode(snackbarText) },
-      setShowSnackbar,
-      setSnackBarAttributes
-    );
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
   }
 
   return (
@@ -331,13 +321,6 @@ export default function AssignmentInput({
           </ButtonComp>
         </Stack>
       </div>
-      {showSnackbar ? (
-        <SnackbarComp
-          text={snackBarAttributes.text}
-          color={snackBarAttributes.color}
-          setShowSnackbar={setShowSnackbar}
-        ></SnackbarComp>
-      ) : null}
     </>
   );
 }

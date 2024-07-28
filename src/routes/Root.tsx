@@ -14,14 +14,11 @@ import ButtonComp from "../components/ButtonComp";
 import { useNavigate } from "react-router-dom";
 import FadeInImage from "../components/FadeInImage";
 import { CodeAssignmentData, CourseData, ModuleData } from "../types";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { refreshTitle } from "../rendererHelpers/requests";
-import SnackbarComp, {
-  SnackBarAttributes,
-  functionResultToSnackBar,
-} from "../components/SnackBarComp";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
+import { SnackbarContext } from "../components/Context";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 const smallDividerSX = {
@@ -58,9 +55,7 @@ export default function Root({
   const [navigateToProjectWork, setNavigateToProjectWork] = useState(false);
   const [navigateToModule, setNavigateToModule] = useState(false);
   const [assignmentsInIndex, setAssignmentsInIndex] = useState(null);
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  const [snackBarAttributes, setSnackBarAttributes] =
-    useState<SnackBarAttributes>({ color: "success", text: "" });
+  const { handleSnackbar } = useContext(SnackbarContext);
 
   const refreshAssignmentsInIndex = async () => {
     try {
@@ -70,11 +65,7 @@ export default function Root({
 
       setAssignmentsInIndex(count);
     } catch (err) {
-      functionResultToSnackBar(
-        { error: parseUICode(err.message) },
-        setShowSnackbar,
-        setSnackBarAttributes
-      );
+      handleSnackbar({ error: parseUICode(err.message) });
     }
   };
 
@@ -143,11 +134,7 @@ export default function Root({
       snackbarSeverity = "error";
       snackbarText = err.message;
     }
-    functionResultToSnackBar(
-      { [snackbarSeverity]: parseUICode(snackbarText) },
-      setShowSnackbar,
-      setSnackBarAttributes
-    );
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
   }
 
   return (
@@ -414,13 +401,6 @@ export default function Root({
           <div className="emptySpace3" />
         </Box>
       </div>
-      {showSnackbar ? (
-        <SnackbarComp
-          text={snackBarAttributes.text}
-          color={snackBarAttributes.color}
-          setShowSnackbar={setShowSnackbar}
-        ></SnackbarComp>
-      ) : null}
     </>
   );
 }

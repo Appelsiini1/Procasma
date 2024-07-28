@@ -1,30 +1,22 @@
 import PageHeaderBar from "../components/PageHeaderBar";
-import texts from "../../resource/texts.json";
-import { language } from "../globalsUI";
-import { useLoaderData, useNavigate } from "react-router-dom";
-import {
-  Box,
-  Checkbox,
-  List,
-  ListItem,
-  ListItemButton,
-  Stack,
-  Typography,
-} from "@mui/joy";
-import SelectedHeader from "../components/SelectedHeader";
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Box, List, Stack, Typography } from "@mui/joy";
+import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
-import { CourseData } from "../types";
+import { CourseData, SetData } from "../types";
 import { parseUICode } from "../rendererHelpers/translation";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import {
+  generateChecklist,
+  WithCheckWrapper,
+  wrapWithCheck,
+} from "../rendererHelpers/browseHelpers";
+import { SnackbarContext } from "../components/Context";
 
-// Get list of modules via IPC later
-const testSets = [
-  { moduleID: "1", name: "Viikko 1" },
-  { moduleID: "2", name: "Viikko 2" },
-];
-
-const testTags = ["print", "try...except"];
+export interface SetWithCheck extends WithCheckWrapper {
+  value: SetData;
+}
 
 export default function SetBrowse({
   activeCourse,
@@ -34,90 +26,41 @@ export default function SetBrowse({
   activePath: string;
 }) {
   const navigate = useNavigate();
+  const [courseSets, setCourseSets] = useState<Array<SetWithCheck>>([]);
   const [noSelected, setNoSelected] = useState(0);
   const [selectedModules, setSelectedModules] = useState<Array<string>>([]);
   const [selectedTags, setSelectedTags] = useState<Array<string>>([]);
-  let modules: Array<React.JSX.Element> = null;
-  let tags: Array<React.JSX.Element> = null;
+  let sets: Array<React.JSX.Element> = null;
+  //let tags: Array<React.JSX.Element> = null;
+  const { handleSnackbar } = useContext(SnackbarContext);
 
-  function handleSelectedModules(
-    moduleID: string,
-    state: boolean,
-    setBoxState: React.Dispatch<React.SetStateAction<boolean>>
-  ) {
-    if (state) {
-      setSelectedModules(selectedModules.filter((value) => value !== moduleID));
-      setNoSelected(selectedModules.length - 1);
-      setBoxState(!state);
-    } else {
-      setSelectedModules([...selectedModules, moduleID]);
-      setNoSelected(selectedModules.length + 1);
-      setBoxState(!state);
+  async function getSets() {
+    try {
+      if (!activePath) {
+        return;
+      }
+
+      const setsResult = await handleIPCResult(() =>
+        window.api.getSetsFS(activePath)
+      );
+
+      const setsWithCheck: SetWithCheck[] = wrapWithCheck(setsResult);
+
+      // update sets
+      setCourseSets(setsWithCheck);
+    } catch (err) {
+      handleSnackbar({ error: parseUICode(err.message) });
     }
   }
 
-  function handleSelectedTags(
-    tag: string,
-    state: boolean,
-    setBoxState: React.Dispatch<React.SetStateAction<boolean>>
-  ) {
-    if (state) {
-      setSelectedTags(selectedTags.filter((value) => value !== tag));
-      setBoxState(!state);
-    } else {
-      setSelectedTags([...selectedTags, tag]);
-      setBoxState(!state);
+  useEffect(() => {
+    if (!activePath) {
+      return;
     }
-  }
+    getSets();
+  }, []);
 
-  //TODO: abstract this mapping and the handle function
-  modules = testSets.map((value) => {
-    const [boxState, setBoxState] = useState(false);
-    return (
-      <ListItem
-        key={value.moduleID}
-        startAction={
-          <Checkbox
-            checked={boxState}
-            onChange={() =>
-              handleSelectedModules(value.moduleID, boxState, setBoxState)
-            }
-          ></Checkbox>
-        }
-      >
-        <ListItemButton
-          selected={boxState}
-          onClick={() =>
-            handleSelectedModules(value.moduleID, boxState, setBoxState)
-          }
-        >
-          {value.name}
-        </ListItemButton>
-      </ListItem>
-    );
-  });
-
-  tags = testTags.map((value) => {
-    const [boxState, setBoxState] = useState(false);
-    return (
-      <ListItem
-        key={value}
-        startAction={
-          <Checkbox
-            checked={boxState}
-            onChange={() => handleSelectedTags(value, boxState, setBoxState)}
-          ></Checkbox>
-        }
-      >
-        <ListItemButton
-          selected={boxState}
-          onClick={() => handleSelectedTags(value, boxState, setBoxState)}
-        >
-          {value}
-        </ListItemButton>
-      </ListItem>
-    );
-  });
+  sets = generateChecklist(courseSets, setCourseSets);
 
   return (
     <>
@@ -129,13 +72,10 @@ export default function SetBrowse({
       <div className="content">
         <div className="emptySpace1" />
         <SearchBar
-          autoFillOptions={testSets}
+          autoFillOptions={[]}
           optionLabel={"name"}
           searchFunction={() => console.log("search")}
         ></SearchBar>
-
-        <div className="emptySpace1" />
-        <SelectedHeader selected={noSelected} />
 
         <div className="emptySpace1" />
         <Stack
@@ -188,7 +128,7 @@ export default function SetBrowse({
               borderRadius: "0.5rem",
             }}
           >
-            <List>{modules}</List>
+            <List>{sets}</List>
           </Box>
         </Stack>
 

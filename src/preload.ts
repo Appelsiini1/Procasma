@@ -6,6 +6,7 @@ import {
   CodeAssignmentData,
   CourseData,
   ModuleData,
+  SetData,
   SettingsType,
 } from "./types";
 
@@ -63,4 +64,14 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("getAssignmentTagsDB", coursePath),
   getModuleTagsDB: (coursePath: string) =>
     ipcRenderer.invoke("getModuleTagsDB", coursePath),
+
+  // CRUD Set
+  addSetFS: (coursePath: string, set: SetData) =>
+    ipcRenderer.invoke("addSetFS", coursePath, set),
+  getSetsFS: (coursePath: string) =>
+    ipcRenderer.invoke("getSetsFS", coursePath),
+  updateSetFS: (coursePath: string, set: SetData) =>
+    ipcRenderer.invoke("updateSetFS", coursePath, set),
+  deleteSetsFS: (coursePath: string, ids: string[]) =>
+    ipcRenderer.invoke("deleteSetsFS", coursePath, ids),
 });

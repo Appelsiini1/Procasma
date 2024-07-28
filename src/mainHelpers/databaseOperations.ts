@@ -658,7 +658,7 @@ export async function getFilteredAssignmentsDB(
       let assignmentIds: string[] = [];
 
       // form the query extension for the title search
-      if (filters.title.length > 0) {
+      if (filters?.title?.length > 0) {
         query = `SELECT assignments.*, 
         instr (assignments.title, ?) titlePosition
         FROM modules RIGHT JOIN assignments 
@@ -694,7 +694,7 @@ export async function getFilteredAssignmentsDB(
       }
 
       // form the query extension for the modules
-      if (filters.module.length > 0) {
+      if (filters?.module?.length > 0) {
         if (uniqueIds.length > 0) {
           queryExtension += " AND";
         }

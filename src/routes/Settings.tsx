@@ -7,13 +7,10 @@ import ButtonComp from "../components/ButtonComp";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
 import { CourseData, SettingsType, SupportedLanguages } from "../types";
-import { useState } from "react";
-import SnackbarComp, {
-  SnackBarAttributes,
-  functionResultToSnackBar,
-} from "../components/SnackBarComp";
+import { useContext, useState } from "react";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
+import { SnackbarContext } from "../components/Context";
 
 export default function Settings({
   activeCourse,
@@ -25,9 +22,7 @@ export default function Settings({
     codeLanguages: [],
     language: "ENG",
   });
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  const [snackBarAttributes, setSnackBarAttributes] =
-    useState<SnackBarAttributes>({ color: "success", text: "" });
+  const { handleSnackbar } = useContext(SnackbarContext);
 
   const languageOptions = texts.languages.map((value) => {
     return {
@@ -55,11 +50,7 @@ export default function Settings({
         }
       });
     } catch (err) {
-      functionResultToSnackBar(
-        { error: parseUICode(err.message) },
-        setShowSnackbar,
-        setSnackBarAttributes
-      );
+      handleSnackbar({ error: parseUICode(err.message) });
     }
   }
 
@@ -74,11 +65,7 @@ export default function Settings({
       snackbarText = err.message;
       snackbarSeverity = "error";
     }
-    functionResultToSnackBar(
-      { [snackbarSeverity]: snackbarText },
-      setShowSnackbar,
-      setSnackBarAttributes
-    );
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
   }
 
   return (
@@ -183,13 +170,6 @@ export default function Settings({
           </ButtonComp>
         </Stack>
       </div>
-      {showSnackbar ? (
-        <SnackbarComp
-          text={snackBarAttributes.text}
-          color={snackBarAttributes.color}
-          setShowSnackbar={setShowSnackbar}
-        ></SnackbarComp>
-      ) : null}
     </>
   );
 }

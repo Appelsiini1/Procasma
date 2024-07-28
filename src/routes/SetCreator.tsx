@@ -1,39 +1,30 @@
 import PageHeaderBar from "../components/PageHeaderBar";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { dividerColor } from "../constantsUI";
-import {
-  Box,
-  Checkbox,
-  Divider,
-  List,
-  ListItem,
-  ListItemButton,
-  Stack,
-  Table,
-  Typography,
-} from "@mui/joy";
+import { Box, Divider, List, Stack, Table, Typography } from "@mui/joy";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import NumberInput from "../components/NumberInput";
 import ButtonComp from "../components/ButtonComp";
 import SwitchComp from "../components/SwitchComp";
 import StepperComp from "../components/StepperComp";
-import { CourseData, ModuleData } from "../types";
+import { CodeAssignmentDatabase, CourseData, ModuleData } from "../types";
 import { parseUICode } from "../rendererHelpers/translation";
-import SnackbarComp, {
-  functionResultToSnackBar,
-  SnackBarAttributes,
-} from "../components/SnackBarComp";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import { useSet } from "../rendererHelpers/assignmentHelpers";
+import { deepCopy } from "../rendererHelpers/utility";
+import { defaultSet } from "../defaultObjects";
+import { ForceToString } from "../generalHelpers/converters";
+import { AssignmentWithCheck } from "./AssignmentBrowse";
+import {
+  generateChecklist,
+  setSelectedViaChecked,
+  wrapWithCheck,
+} from "../rendererHelpers/browseHelpers";
+import { SnackbarContext } from "../components/Context";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
-
-// Get list of assignments via IPC later
-const testAssignments = [
-  { id: "1", name: "L01T1 - Otsikko" },
-  { id: "2", name: "L01T2 - Otsikko" },
-];
 
 export default function SetCreator({
   activeCourse,
@@ -42,24 +33,21 @@ export default function SetCreator({
   activeCourse: CourseData;
   activePath: string;
 }) {
+  const [set, handleSet] = useSet(deepCopy(defaultSet));
+
   const pageType = useLoaderData();
   const navigate = useNavigate();
   let pageTitle: string = null;
-  const [moduleNumber, setmoduleNumber] = useState("1");
-  const [fullCourse, setFullCourse] = useState(false);
   const [stepperState, setStepperState] = useState<number>(0);
   const [modules, setModules] = useState<Array<ModuleData>>([]);
   const formats: object[] = [];
-  const [assignmentSetYear, setAssignmentSetYear] = useState(2024);
-  const [studyPeriod, setStudyPeriod] = useState(1);
-  const [exportSet, setExportSet] = useState(true);
-  const [exportCGConfigs, setExportCGConfigs] = useState(true);
-  const [selectedAssignments, setSelectedAssignments] = useState<Array<string>>(
-    []
-  );
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  const [snackBarAttributes, setSnackBarAttributes] =
-    useState<SnackBarAttributes>({ color: "success", text: "" });
+  const [allAssignments, setAllAssignments] = useState<
+    Array<AssignmentWithCheck>
+  >([]);
+  const [selectedAssignments, setSelectedAssignments] = useState<
+    Array<CodeAssignmentDatabase>
+  >([]);
+  const { handleSnackbar } = useContext(SnackbarContext);
   const stepHeadings: string[] = [
     parseUICode("ui_module_selection"),
     parseUICode("ui_set_details"),
@@ -82,6 +70,10 @@ export default function SetCreator({
     pageTitle = parseUICode("ui_create_new_set");
   }
 
+  if (pageType === "manage") {
+    pageTitle = parseUICode("ui_edit_set");
+  }
+
   async function getModules() {
     try {
       if (!activePath) {
@@ -94,12 +86,43 @@ export default function SetCreator({
 
       setModules(modules);
     } catch (err) {
-      functionResultToSnackBar(
-        { error: parseUICode(err.message) },
-        setShowSnackbar,
-        setSnackBarAttributes
-      );
+      handleSnackbar({ error: parseUICode(err.message) });
     }
+  }
+
+  async function getAssignmentsByModule(name: string) {
+    try {
+      if (!activePath) {
+        return;
+      }
+
+      const filters = {
+        module: [name],
+      };
+
+      const assignments = await handleIPCResult(() =>
+        window.api.getFilteredAssignmentsDB(activePath, filters)
+      );
+
+      const assignmentsWithCheck: AssignmentWithCheck[] =
+        wrapWithCheck(assignments);
+
+      setAllAssignments(assignmentsWithCheck);
+    } catch (err) {
+      handleSnackbar({ error: parseUICode(err.message) });
+    }
+  }
+
+  async function saveSet() {
+    let snackbarSeverity = "success";
+    let snackbarText = "ui_set_save_success";
+    try {
+      await handleIPCResult(() => window.api.addSetFS(activePath, set));
+    } catch (err) {
+      snackbarText = err.message;
+      snackbarSeverity = "error";
+    }
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
   }
 
   // fetch modules on page load
@@ -107,47 +130,16 @@ export default function SetCreator({
     getModules();
   }, []);
 
-  function handleSelectedAssignments(
-    moduleID: string,
-    state: boolean,
-    setBoxState: React.Dispatch<React.SetStateAction<boolean>>
-  ) {
-    if (state) {
-      setSelectedAssignments(
-        selectedAssignments.filter((value) => value !== moduleID)
-      );
-      setBoxState(!state);
-    } else {
-      setSelectedAssignments([...selectedAssignments, moduleID]);
-      setBoxState(!state);
-    }
-  }
+  // Update the selected assignments counter
+  useEffect(() => {
+    setSelectedViaChecked(allAssignments, setSelectedAssignments);
+  }, [allAssignments]);
 
-  assignments = testAssignments.map((value) => {
-    const [boxState, setBoxState] = useState(false);
-    return (
-      <ListItem
-        key={value.id}
-        startAction={
-          <Checkbox
-            checked={boxState}
-            onChange={() =>
-              handleSelectedAssignments(value.id, boxState, setBoxState)
-            }
-          ></Checkbox>
-        }
-      >
-        <ListItemButton
-          selected={boxState}
-          onClick={() =>
-            handleSelectedAssignments(value.id, boxState, setBoxState)
-          }
-        >
-          {value.name}
-        </ListItemButton>
-      </ListItem>
-    );
-  });
+  assignments = generateChecklist(allAssignments, setAllAssignments);
+
+  function handleUpdateCGids(assignmentTitle: string, CGid: string) {
+    handleSet(`assignmentCGids.[${assignmentTitle}]`, CGid);
+  }
 
   return (
     <>
@@ -178,8 +170,10 @@ export default function SetCreator({
                   </td>
                   <td>
                     <SwitchComp
-                      checked={fullCourse}
-                      setChecked={setFullCourse}
+                      checked={set.fullCourse}
+                      setChecked={(value: boolean) =>
+                        handleSet("fullCourse", value)
+                      }
                     />
                   </td>
                 </tr>
@@ -196,7 +190,10 @@ export default function SetCreator({
                       options={modules}
                       labelKey="name"
                       placeholder={"..."}
-                      onChange={(value: string) => null}
+                      onChange={(value: string) => {
+                        handleSet("module", value);
+                        getAssignmentsByModule(value);
+                      }}
                     ></Dropdown>
                   </td>
                 </tr>
@@ -222,8 +219,7 @@ export default function SetCreator({
                     <InputField
                       fieldKey="caSetName"
                       onChange={(value: string) =>
-                        //handleAssignment("tags", value, true)
-                        null
+                        handleSet("name", value, true)
                       }
                     />
                   </td>
@@ -236,8 +232,8 @@ export default function SetCreator({
                   <td>
                     <NumberInput
                       disabled={false}
-                      value={assignmentSetYear}
-                      //setValue={setAssignmentSetYear}
+                      value={set.year}
+                      onChange={(value: number) => handleSet("year", value)}
                     ></NumberInput>
                   </td>
                 </tr>
@@ -251,8 +247,8 @@ export default function SetCreator({
                   <td>
                     <NumberInput
                       disabled={true}
-                      value={studyPeriod}
-                      //setValue={setStudyPeriod}
+                      value={set.period}
+                      onChange={(value: number) => handleSet("period", value)}
                     ></NumberInput>
                   </td>
                 </tr>
@@ -264,7 +260,12 @@ export default function SetCreator({
                     </Typography>
                   </td>
                   <td>
-                    <SwitchComp checked={exportSet} setChecked={setExportSet} />
+                    <SwitchComp
+                      checked={set.export}
+                      setChecked={(value: boolean) =>
+                        handleSet("export", value)
+                      }
+                    />
                   </td>
                 </tr>
 
@@ -280,7 +281,7 @@ export default function SetCreator({
                       options={formats}
                       labelKey="name"
                       placeholder={"..."}
-                      onChange={(value: string) => null}
+                      onChange={(value: string) => handleSet("format", value)}
                     ></Dropdown>
                   </td>
                 </tr>
@@ -293,8 +294,10 @@ export default function SetCreator({
                   </td>
                   <td>
                     <SwitchComp
-                      checked={exportCGConfigs}
-                      setChecked={setExportCGConfigs}
+                      checked={set.exportCGConfigs}
+                      setChecked={(value: boolean) =>
+                        handleSet("exportCGConfigs", value)
+                      }
                     />
                   </td>
                 </tr>
@@ -313,7 +316,9 @@ export default function SetCreator({
                 <tr key="caSetName">
                   <td style={{ width: "25%" }}>
                     <Typography level="h4">
-                      {`${parseUICode("ui_module")} ${moduleNumber}`}
+                      {`${parseUICode("ui_module")} ${ForceToString(
+                        set.module
+                      )}`}
                     </Typography>
                   </td>
                 </tr>
@@ -394,28 +399,30 @@ export default function SetCreator({
             <Typography level="h1">
               {parseUICode("ui_codegrade_autotest")}
             </Typography>
-            {exportCGConfigs ? (
+            {set.exportCGConfigs ? (
               <>
                 {" "}
                 <div className="emptySpace1" />
                 <Typography level="h4">
-                  {`${parseUICode(
-                    "ui_module"
-                  )} ${moduleNumber} - CodeGrade ${parseUICode(
-                    "ui_assignment"
-                  )} ${parseUICode("ui_ids")}`}
+                  {`${parseUICode("ui_module")} ${ForceToString(
+                    set.module
+                  )} - CodeGrade ${parseUICode("ui_assignment")} ${parseUICode(
+                    "ui_ids"
+                  )}`}
                 </Typography>
                 <Table borderAxis="none">
                   <tbody>
-                    {testAssignments.map((assignment) => (
+                    {selectedAssignments.map((assignment) => (
                       <tr key={assignment.id}>
                         <td style={{ width: "25%" }}>
-                          <Typography level="h4">{assignment.name}</Typography>
+                          <Typography level="h4">{assignment.title}</Typography>
                         </td>
                         <td>
                           <InputField
                             fieldKey="caSetName"
-                            onChange={(value: string) => null}
+                            onChange={(value: string) =>
+                              handleUpdateCGids(assignment.title, value)
+                            }
                           />
                         </td>
                       </tr>
@@ -439,10 +446,10 @@ export default function SetCreator({
           alignItems="center"
           spacing={2}
         >
-          {stepperState === 3 && exportCGConfigs ? (
+          {stepperState === 3 && set.exportCGConfigs ? (
             <ButtonComp
               buttonType="normal"
-              onClick={null}
+              onClick={() => saveSet()}
               ariaLabel={parseUICode("ui_aria_export_cg_configs")}
             >
               {parseUICode("ui_export")}
@@ -482,14 +489,14 @@ export default function SetCreator({
             ""
           )}
         </Stack>
+        <ButtonComp
+          buttonType="normal"
+          onClick={() => console.log(set)}
+          ariaLabel={" debug "}
+        >
+          log set
+        </ButtonComp>
       </div>
-      {showSnackbar ? (
-        <SnackbarComp
-          text={snackBarAttributes.text}
-          color={snackBarAttributes.color}
-          setShowSnackbar={setShowSnackbar}
-        ></SnackbarComp>
-      ) : null}
     </>
   );
 }

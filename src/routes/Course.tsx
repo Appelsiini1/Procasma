@@ -7,7 +7,7 @@ import PageHeaderBar from "../components/PageHeaderBar";
 import InputField from "../components/InputField";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import Dropdown from "../components/Dropdown";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
@@ -19,12 +19,9 @@ import {
   splitCourseLevels,
 } from "../generalHelpers/converters";
 import { CourseData } from "../types";
-import SnackbarComp, {
-  SnackBarAttributes,
-  functionResultToSnackBar,
-} from "../components/SnackBarComp";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import { SnackbarContext } from "../components/Context";
 
 export default function Course({
   activeCourse,
@@ -46,9 +43,7 @@ export default function Course({
     pageType == "create" ? defaultCourse : activeCourse;
   const [course, handleCourse] = useCourse(initialCourseState);
   const [path, setPath] = useState(activePath ? activePath : "");
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  const [snackBarAttributes, setSnackBarAttributes] =
-    useState<SnackBarAttributes>({ color: "success", text: "" });
+  const { handleSnackbar } = useContext(SnackbarContext);
 
   let pageTitle: string = null;
   let disableCourseFolderSelect = false;
@@ -75,11 +70,7 @@ export default function Course({
       const path: string = await handleIPCResult(() => window.api.selectDir());
       handlePath(path);
     } catch (err) {
-      functionResultToSnackBar(
-        { error: parseUICode(err.message) },
-        setShowSnackbar,
-        setSnackBarAttributes
-      );
+      handleSnackbar({ error: parseUICode(err.message) });
     }
   }
 
@@ -127,11 +118,7 @@ export default function Course({
         }
       });
     } catch (err) {
-      functionResultToSnackBar(
-        { error: parseUICode(err.message) },
-        setShowSnackbar,
-        setSnackBarAttributes
-      );
+      handleSnackbar({ error: parseUICode(err.message) });
     }
   };
 
@@ -148,11 +135,7 @@ export default function Course({
     let snackbarText = "ui_course_folder_opened";
     try {
       if (!path || path.length < 1) {
-        functionResultToSnackBar(
-          { info: "ui_choose_folder_path" },
-          setShowSnackbar,
-          setSnackBarAttributes
-        );
+        handleSnackbar({ info: parseUICode("ui_choose_folder_path") });
         return;
       }
 
@@ -171,12 +154,7 @@ export default function Course({
       snackbarText = err.message;
       snackbarSeverity = "error";
     }
-
-    functionResultToSnackBar(
-      { [snackbarSeverity]: parseUICode(snackbarText) },
-      setShowSnackbar,
-      setSnackBarAttributes
-    );
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
   }
 
   return (
@@ -405,13 +383,6 @@ export default function Course({
           </ButtonComp>
         </Stack>
       </div>
-      {showSnackbar ? (
-        <SnackbarComp
-          text={snackBarAttributes.text}
-          color={snackBarAttributes.color}
-          setShowSnackbar={setShowSnackbar}
-        ></SnackbarComp>
-      ) : null}
     </>
   );
 }

@@ -8,10 +8,8 @@ import {
   ListItem,
   Stack,
   Typography,
-  Checkbox,
-  ListItemButton,
 } from "@mui/joy";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
 import {
@@ -24,63 +22,19 @@ import {
 import {
   WithCheckWrapper,
   filterState,
+  generateChecklist,
   generateFilterList,
-  handleCheckArray,
   handleUpdateFilter,
   handleUpdateUniqueTags,
   setSelectedViaChecked,
+  wrapWithCheck,
 } from "../rendererHelpers/browseHelpers";
-import SnackbarComp, {
-  SnackBarAttributes,
-  functionResultToSnackBar,
-} from "../components/SnackBarComp";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import { SnackbarContext } from "../components/Context";
 
 export interface AssignmentWithCheck extends WithCheckWrapper {
   value: CodeAssignmentDatabase;
-}
-
-export function generateAssignments(
-  assignments: AssignmentWithCheck[],
-  setCourseAssignments: React.Dispatch<
-    React.SetStateAction<AssignmentWithCheck[]>
-  >
-) {
-  return assignments
-    ? assignments.map((assignment: AssignmentWithCheck) => {
-        return (
-          <ListItem
-            key={assignment.value.id}
-            startAction={
-              <Checkbox
-                checked={assignment.isChecked}
-                onChange={() =>
-                  handleCheckArray(
-                    assignment.value,
-                    !assignment.isChecked,
-                    setCourseAssignments
-                  )
-                }
-              ></Checkbox>
-            }
-          >
-            <ListItemButton
-              selected={assignment.isChecked}
-              onClick={() =>
-                handleCheckArray(
-                  assignment.value,
-                  !assignment.isChecked,
-                  setCourseAssignments
-                )
-              }
-            >
-              {assignment.value.title}
-            </ListItemButton>
-          </ListItem>
-        );
-      })
-    : null;
 }
 
 export default function AssignmentBrowse({
@@ -110,9 +64,7 @@ export default function AssignmentBrowse({
   const [uniqueTags, setUniqueTags] = useState<Array<filterState>>([]);
   const [uniqueModules, setUniqueModules] = useState<Array<filterState>>([]);
   const [search, setSearch] = useState<string>("");
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  const [snackBarAttributes, setSnackBarAttributes] =
-    useState<SnackBarAttributes>({ color: "success", text: "" });
+  const { handleSnackbar } = useContext(SnackbarContext);
 
   const refreshAssignments = async () => {
     try {
@@ -146,23 +98,13 @@ export default function AssignmentBrowse({
       );
 
       // wrap the fetched assignments to store checked state
-      const assignentsWithCheck = assignmentsResult.map((assignment) => {
-        const assignmentCheck: AssignmentWithCheck = {
-          isChecked: false,
-          value: assignment,
-        };
-
-        return assignmentCheck;
-      });
+      const assignentsWithCheck: AssignmentWithCheck[] =
+        wrapWithCheck(assignmentsResult);
 
       // update assignments and filters
       setCourseAssignments(assignentsWithCheck);
     } catch (err) {
-      functionResultToSnackBar(
-        { error: parseUICode(err.message) },
-        setShowSnackbar,
-        setSnackBarAttributes
-      );
+      handleSnackbar({ error: parseUICode(err.message) });
     }
   };
 
@@ -210,12 +152,7 @@ export default function AssignmentBrowse({
       snackbarText = err.message;
       snackbarSeverity = "error";
     }
-
-    functionResultToSnackBar(
-      { [snackbarSeverity]: parseUICode(snackbarText) },
-      setShowSnackbar,
-      setSnackBarAttributes
-    );
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
   }
 
   // Update the selected assignments counter
@@ -232,7 +169,7 @@ export default function AssignmentBrowse({
     refreshAssignments();
   }, [uniqueTags, uniqueModules, search]);
 
-  assignments = generateAssignments(courseAssignments, setCourseAssignments);
+  assignments = generateChecklist(courseAssignments, setCourseAssignments);
   modules = generateFilterList(uniqueModules, setUniqueModules);
   tags = generateFilterList(uniqueTags, setUniqueTags);
 
@@ -249,11 +186,7 @@ export default function AssignmentBrowse({
       setNavigateToAssignment(true);
       handleActiveAssignment(assignmentsResult[0]);
     } catch (err) {
-      functionResultToSnackBar(
-        { error: parseUICode(err.message) },
-        setShowSnackbar,
-        setSnackBarAttributes
-      );
+      handleSnackbar({ error: parseUICode(err.message) });
     }
   }
 
@@ -311,6 +244,7 @@ export default function AssignmentBrowse({
             buttonType="normal"
             onClick={() => handleDeleteSelected()}
             ariaLabel={parseUICode("ui_aria_remove_selected")}
+            disabled={numSelected > 0 ? false : true}
           >
             {`${parseUICode("ui_delete")} ${numSelected}`}
           </ButtonComp>
@@ -408,13 +342,6 @@ export default function AssignmentBrowse({
           </ButtonComp>
         </Stack>
       </div>
-      {showSnackbar ? (
-        <SnackbarComp
-          text={snackBarAttributes.text}
-          color={snackBarAttributes.color}
-          setShowSnackbar={setShowSnackbar}
-        ></SnackbarComp>
-      ) : null}
     </>
   );
 }

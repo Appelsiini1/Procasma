@@ -24,6 +24,7 @@ import {
 import { language } from "./globalsUI";
 import log from "electron-log/renderer";
 import { handleIPCResult } from "./rendererHelpers/errorHelpers";
+import { SnackbarProvider } from "./components/Context";
 
 log.info("-- START OF PROCASMA RENDERER --");
 
@@ -219,7 +220,9 @@ const App = () => {
 
   return (
     <>
-      <RouterProvider router={router} />
+      <SnackbarProvider>
+        <RouterProvider router={router} />
+      </SnackbarProvider>
     </>
   );
 };
