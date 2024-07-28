@@ -21,8 +21,13 @@ import { handleIPCResult } from "./rendererHelpers/errorHelpers";
 import {
   ActiveObjectContext,
   ActiveObjectProvider,
-  SnackbarProvider,
+  UIContext,
+  UIProvider,
 } from "./components/Context";
+import PageHeaderBar from "./components/PageHeaderBar";
+import { parseUICode } from "./rendererHelpers/translation";
+import SnackbarComp from "./components/SnackBarComp";
+import { Layout } from "./components/Layout";
 
 log.info("-- START OF PROCASMA RENDERER --");
 
@@ -51,101 +56,117 @@ await updateLanguageInit();
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 const App = () => {
+  const { snackBarAttributes, showSnackbar, setShowSnackbar } =
+    useContext(UIContext);
   const { activeAssignment, activeModule, activeSet } =
     useContext(ActiveObjectContext);
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <Root />,
+      element: <Layout />,
       errorElement: <ErrorPage />,
-    },
-    {
-      path: "/createCourse",
-      element: <Course />,
-      loader: async () => {
-        return "create";
-      },
-    },
-    {
-      path: "/manageCourse",
-      element: <Course />,
-      loader: async () => {
-        return "manage";
-      },
-    },
-    {
-      path: "/inputCodeAssignment",
-      element: <AssignmentInput />,
-      loader: async () => {
-        if (activeAssignment?.assignmentType === "assignment") {
-          return "manage";
-        } else {
-          return "new";
-        }
-      },
-    },
-    {
-      path: "/newModule",
-      element: <ModuleAdd />,
-      loader: async () => {
-        return activeModule ? "manage" : "new";
-      },
-    },
-    {
-      path: "/AssignmentBrowse",
-      element: <AssignmentBrowse />,
-      loader: async () => {
-        return "browse";
-      },
-    },
-    {
-      path: "/inputCodeProjectWork",
-      element: <ProjectWorkInput />,
-      loader: async () => {
-        if (activeAssignment?.assignmentType === "finalWork") {
-          return "manage";
-        } else {
-          return "new";
-        }
-      },
-    },
-    {
-      path: "/exportProject",
-      element: <ExportProject />,
-      loader: async () => {
-        return "new";
-      },
-    },
-    {
-      path: "/moduleBrowse",
-      element: <ModuleBrowse />,
-    },
-    {
-      path: "/setCreator",
-      element: <SetCreator />,
-      loader: async () => {
-        return activeSet ? "manage" : "new";
-      },
-    },
-    {
-      path: "/setBrowse",
-      element: <SetBrowse />,
-      loader: async () => {
-        return "new";
-      },
-    },
-    {
-      path: "/settings",
-      element: <Settings />,
-      loader: async () => {
-        return "new";
-      },
+      children: [
+        {
+          path: "",
+          element: <Root />,
+          errorElement: <ErrorPage />,
+        },
+        {
+          path: "/createCourse",
+          element: <Course />,
+          loader: async () => {
+            return "create";
+          },
+        },
+        {
+          path: "/manageCourse",
+          element: <Course />,
+          loader: async () => {
+            return "manage";
+          },
+        },
+        {
+          path: "/inputCodeAssignment",
+          element: <AssignmentInput />,
+          loader: async () => {
+            if (activeAssignment?.assignmentType === "assignment") {
+              return "manage";
+            } else {
+              return "new";
+            }
+          },
+        },
+        {
+          path: "/newModule",
+          element: <ModuleAdd />,
+          loader: async () => {
+            return activeModule ? "manage" : "new";
+          },
+        },
+        {
+          path: "/AssignmentBrowse",
+          element: <AssignmentBrowse />,
+          loader: async () => {
+            return "browse";
+          },
+        },
+        {
+          path: "/inputCodeProjectWork",
+          element: <ProjectWorkInput />,
+          loader: async () => {
+            if (activeAssignment?.assignmentType === "finalWork") {
+              return "manage";
+            } else {
+              return "new";
+            }
+          },
+        },
+        {
+          path: "/exportProject",
+          element: <ExportProject />,
+          loader: async () => {
+            return "new";
+          },
+        },
+        {
+          path: "/moduleBrowse",
+          element: <ModuleBrowse />,
+        },
+        {
+          path: "/setCreator",
+          element: <SetCreator />,
+          loader: async () => {
+            return activeSet ? "manage" : "new";
+          },
+        },
+        {
+          path: "/setBrowse",
+          element: <SetBrowse />,
+          loader: async () => {
+            return "new";
+          },
+        },
+        {
+          path: "/settings",
+          element: <Settings />,
+          loader: async () => {
+            return "new";
+          },
+        },
+      ],
     },
   ]);
 
   return (
     <>
-      <RouterProvider router={router} />
+      <RouterProvider router={router}></RouterProvider>
+      {showSnackbar ? (
+        <SnackbarComp
+          text={snackBarAttributes.text}
+          color={snackBarAttributes.color}
+          setShowSnackbar={setShowSnackbar}
+        ></SnackbarComp>
+      ) : null}
     </>
   );
 };
@@ -153,9 +174,9 @@ const App = () => {
 root.render(
   <React.StrictMode>
     <ActiveObjectProvider>
-      <SnackbarProvider>
+      <UIProvider>
         <App></App>
-      </SnackbarProvider>
+      </UIProvider>
     </ActiveObjectProvider>
   </React.StrictMode>
 );

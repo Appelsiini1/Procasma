@@ -1,5 +1,4 @@
-import PageHeaderBar from "../components/PageHeaderBar";
-import { dividerColor } from "../constantsUI";
+import { dividerSX, smallDividerSX } from "../constantsUI";
 import LogoText from "../../resource/LogoText.png";
 import {
   Accordion,
@@ -13,21 +12,12 @@ import {
 import ButtonComp from "../components/ButtonComp";
 import { useNavigate } from "react-router-dom";
 import FadeInImage from "../components/FadeInImage";
-import { CodeAssignmentData, CourseData, ModuleData } from "../types";
+import { CodeAssignmentData, CourseData, ModuleData, SetData } from "../types";
 import { useContext, useEffect, useState } from "react";
 import { refreshTitle } from "../rendererHelpers/requests";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
-import { ActiveObjectContext, SnackbarContext } from "../components/Context";
-
-const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
-const smallDividerSX = {
-  padding: ".1rem",
-  margin: "2rem",
-  bgcolor: dividerColor,
-  marginLeft: "7rem",
-  marginRight: "7rem",
-};
+import { ActiveObjectContext, UIContext } from "../components/Context";
 
 export default function Root() {
   const {
@@ -39,6 +29,8 @@ export default function Root() {
     handleActiveAssignment,
     activeModule,
     handleActiveModule,
+    activeSet,
+    handleActiveSet,
   }: {
     activeCourse: CourseData;
     activePath: string;
@@ -50,14 +42,22 @@ export default function Root() {
     >;
     activeModule: ModuleData;
     handleActiveModule: React.Dispatch<React.SetStateAction<ModuleData>>;
+    activeSet: SetData;
+    handleActiveSet: React.Dispatch<React.SetStateAction<SetData>>;
   } = useContext(ActiveObjectContext);
-
+  const {
+    handleSnackbar,
+    handleHeaderPageName,
+    handleHeaderCourseID,
+    handleHeaderCourseTitle,
+  } = useContext(UIContext);
   const [addingAssignment, setAddingAssignment] = useState(false);
   const [navigateToAssignment, setNavigateToAssignment] = useState(false);
   const [navigateToProjectWork, setNavigateToProjectWork] = useState(false);
   const [navigateToModule, setNavigateToModule] = useState(false);
+  const [navigateToSet, setNavigateToSet] = useState(false);
   const [assignmentsInIndex, setAssignmentsInIndex] = useState(null);
-  const { handleSnackbar } = useContext(SnackbarContext);
+  const navigate = useNavigate();
 
   const refreshAssignmentsInIndex = async () => {
     try {
@@ -73,6 +73,9 @@ export default function Root() {
 
   useEffect(() => {
     refreshTitle();
+    handleHeaderPageName("ui_main");
+    handleHeaderCourseID(activeCourse?.id);
+    handleHeaderCourseTitle(activeCourse?.title);
   }, []);
 
   // update the assignments in index count
@@ -90,7 +93,7 @@ export default function Root() {
     }
   }, [activeAssignment, navigateToAssignment]);
 
-  // navigate to assignment after clearing
+  // navigate to project work after clearing
   useEffect(() => {
     if (activeAssignment === null && navigateToProjectWork) {
       setNavigateToProjectWork(false);
@@ -106,8 +109,13 @@ export default function Root() {
     }
   }, [activeModule, navigateToModule]);
 
-  const pageName = parseUICode("ui_main");
-  const navigate = useNavigate();
+  // navigate to set after clearing
+  useEffect(() => {
+    if (activeSet === null && navigateToSet) {
+      setNavigateToSet(false);
+      navigate("/setCreator");
+    }
+  }, [activeSet, navigateToSet]);
 
   async function handleSelectCourseFolder() {
     let snackbarSeverity = "success";
@@ -128,6 +136,8 @@ export default function Root() {
       if (course) {
         handleActiveCourse(course);
         handleActivePath(coursePath);
+        handleHeaderCourseID(course.id);
+        handleHeaderCourseTitle(course.title);
       } else {
         snackbarSeverity = "info";
         snackbarText = "ui_course_folder_invalid";
@@ -141,11 +151,6 @@ export default function Root() {
 
   return (
     <>
-      <PageHeaderBar
-        pageName={pageName}
-        courseID={activeCourse?.id}
-        courseTitle={activeCourse?.title}
-      />
       <div className="menuContent">
         <div style={{ height: "10rem" }}>
           <FadeInImage src={LogoText} className="textLogo" alt="main logo" />
@@ -351,7 +356,10 @@ export default function Root() {
               <ButtonComp
                 buttonType="largeAdd"
                 onClick={() => {
-                  navigate("/setCreator");
+                  // clear the active set
+                  // useEffect will navigate on the change
+                  setNavigateToSet(true);
+                  activeSet ? handleActiveSet(null) : navigate("/setCreator");
                 }}
                 ariaLabel={parseUICode("ui_aria_nav_add_set")}
                 disabled={activeCourse ? false : true}

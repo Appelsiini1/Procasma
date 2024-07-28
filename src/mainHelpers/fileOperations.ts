@@ -4,7 +4,6 @@ import {
   CodeAssignmentData,
   CourseData,
   FileData,
-  ModuleData,
   SetData,
   Variation,
 } from "../types";
@@ -13,11 +12,8 @@ import { courseMetaDataFileName } from "../constants";
 import { createHash } from "crypto";
 import {
   addAssignmentDB,
-  addModuleDB,
   deleteAssignmentsDB,
-  deleteModulesDB,
   initDB,
-  updateModuleDB,
 } from "./databaseOperations";
 import log from "electron-log/node";
 
@@ -455,7 +451,7 @@ export async function handleDeleteAssignmentsFS(
 export function _handleAddOrUpdateSetFS(
   coursePath: string,
   set: SetData,
-  oldSet: boolean
+  isOldSet: boolean
 ): string {
   try {
     let newSets: SetData[] = [];
@@ -469,24 +465,31 @@ export function _handleAddOrUpdateSetFS(
 
     if (oldSets) {
       // find a set with a matching name
-      let match = oldSets.find((oldSet) => oldSet.name === set.name);
+      let match = oldSets.find((isOldSet) => isOldSet.name === set.name);
 
       // a name match when adding a new set throws an error and
       // if the set is old, make sure that the id is the same
-      if (match && (!oldSet || match.id !== set.id)) {
+      if (match && (!isOldSet || match.id !== set.id)) {
         throw new Error("ui_set_error_duplicate_name");
       }
+
+      // add the old sets to the new array
+      newSets = newSets.concat(oldSets);
     }
 
     // generate an id for the set if it is new
-    if (!oldSet) {
+    if (!isOldSet) {
       set.id = _SHAhashFS(JSON.stringify(set));
+      newSets.push(set);
+    } else {
+      // update the given set
+      newSets = oldSets.map((oldSet) => {
+        if (oldSet.id === set.id) {
+          return set;
+        }
+        return oldSet;
+      });
     }
-
-    if (oldSets) {
-      newSets = newSets.concat(oldSets);
-    }
-    newSets.push(set);
 
     fs.writeFileSync(setsPath, JSON.stringify(newSets));
 
@@ -529,11 +532,8 @@ export async function deleteSetsFS(
     const setsPath = path.join(coursePath, "sets.json");
     const oldSets: SetData[] = handleReadFileFS(setsPath, true);
 
-    console.log("ids: ", ids);
-    console.log("oldSets: ", oldSets);
     // filter out sets whose ids are found in the 'ids' array:
     const newSets = oldSets.filter((set) => !ids.find((id) => set.id === id));
-    console.log("newSets: ", newSets);
 
     fs.writeFileSync(setsPath, JSON.stringify(newSets));
 

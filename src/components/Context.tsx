@@ -1,38 +1,63 @@
 import { createContext, useState } from "react";
-import SnackbarComp, {
-  functionResultToSnackBar,
-  SnackBarAttributes,
-} from "./SnackBarComp";
+import { functionResultToSnackBar, SnackBarAttributes } from "./SnackBarComp";
 import { CodeAssignmentData, CourseData, ModuleData, SetData } from "../types";
 
-export const SnackbarContext = createContext(null);
+export const UIContext = createContext(null);
 export const ActiveObjectContext = createContext(null);
 
 /**
  * Provides access to a global snackbar to all children
- * through useContext(SnackbarProvider).
+ * through useContext(UIProvider).
  */
-export const SnackbarProvider = ({ children }: { children: any }) => {
+export const UIProvider = ({ children }: { children: any }) => {
+  const [pageName, setPageName] = useState(null);
+  const [courseID, setCourseID] = useState(null);
+  const [courseTitle, setCourseTitle] = useState(null);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [snackBarAttributes, setSnackBarAttributes] =
     useState<SnackBarAttributes>({ color: "info", text: "" });
+  const [IPCOperationLoading, setIPCOperationLoading] = useState(true);
 
   function handleSnackbar(options: { [key: string]: string }) {
     functionResultToSnackBar(options, setShowSnackbar, setSnackBarAttributes);
   }
 
+  function handleHeaderPageName(value: string) {
+    setPageName(value);
+  }
+
+  function handleHeaderCourseID(value: string) {
+    setCourseID(value);
+  }
+
+  function handleHeaderCourseTitle(value: string) {
+    setCourseTitle(value);
+  }
+
+  function handleIPCOperationLoading(value: boolean) {
+    setIPCOperationLoading(value);
+  }
+
   return (
     <>
-      <SnackbarContext.Provider value={{ handleSnackbar }}>
+      <UIContext.Provider
+        value={{
+          pageName,
+          handleHeaderPageName,
+          courseID,
+          handleHeaderCourseID,
+          courseTitle,
+          handleHeaderCourseTitle,
+          snackBarAttributes,
+          showSnackbar,
+          setShowSnackbar,
+          handleSnackbar,
+          IPCOperationLoading,
+          handleIPCOperationLoading,
+        }}
+      >
         {children}
-      </SnackbarContext.Provider>
-      {showSnackbar ? (
-        <SnackbarComp
-          text={snackBarAttributes.text}
-          color={snackBarAttributes.color}
-          setShowSnackbar={setShowSnackbar}
-        ></SnackbarComp>
-      ) : null}
+      </UIContext.Provider>
     </>
   );
 };

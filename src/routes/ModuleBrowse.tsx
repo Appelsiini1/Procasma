@@ -1,91 +1,42 @@
-import PageHeaderBar from "../components/PageHeaderBar";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
-  Checkbox,
   Grid,
   List,
   ListItem,
-  ListItemButton,
   ListSubheader,
   Stack,
   Typography,
 } from "@mui/joy";
 import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
-import { CourseData, ModuleData, ModuleDatabase, TagDatabase } from "../types";
+import { ModuleData, ModuleDatabase, TagDatabase } from "../types";
 import {
   WithCheckWrapper,
   filterState,
+  generateChecklist,
   generateFilterList,
-  handleCheckArray,
   handleUpdateUniqueTags,
   setSelectedViaChecked,
 } from "../rendererHelpers/browseHelpers";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
-import { ActiveObjectContext, SnackbarContext } from "../components/Context";
+import { ActiveObjectContext, UIContext } from "../components/Context";
 
 export interface ModuleWithCheck extends WithCheckWrapper {
   value: ModuleDatabase;
 }
 
-export function generateModules(
-  modules: ModuleWithCheck[],
-  setCourseModules: React.Dispatch<React.SetStateAction<ModuleWithCheck[]>>
-) {
-  return modules
-    ? modules.map((module: ModuleWithCheck) => {
-        return (
-          <ListItem
-            key={module.value.id}
-            startAction={
-              <Checkbox
-                checked={module.isChecked}
-                onChange={() =>
-                  handleCheckArray(
-                    module.value,
-                    !module.isChecked,
-                    setCourseModules
-                  )
-                }
-              ></Checkbox>
-            }
-          >
-            <ListItemButton
-              selected={module.isChecked}
-              onClick={() =>
-                handleCheckArray(
-                  module.value,
-                  !module.isChecked,
-                  setCourseModules
-                )
-              }
-            >
-              {module.value.name}
-            </ListItemButton>
-          </ListItem>
-        );
-      })
-    : null;
-}
-
 export default function ModuleBrowse() {
   const {
-    activeCourse,
     activePath,
     activeModule,
     handleActiveModule,
   }: {
-    activeCourse: CourseData;
     activePath: string;
     activeModule: ModuleData;
     handleActiveModule: (value: ModuleData) => void;
   } = useContext(ActiveObjectContext);
-  const navigate = useNavigate();
-  let modules: Array<React.JSX.Element> = null;
-  let tags: Array<React.JSX.Element> = null;
-
   const [courseModules, setCourseModules] = useState<Array<ModuleWithCheck>>(
     []
   );
@@ -93,7 +44,11 @@ export default function ModuleBrowse() {
   const [navigateToModule, setNavigateToModule] = useState(false);
   const [numSelected, setNumSelected] = useState(0);
   const [uniqueTags, setUniqueTags] = useState<Array<filterState>>([]);
-  const { handleSnackbar } = useContext(SnackbarContext);
+  const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
+
+  const navigate = useNavigate();
+  let modules: Array<React.JSX.Element> = null;
+  let tags: Array<React.JSX.Element> = null;
 
   const refreshModules = async () => {
     try {
@@ -149,6 +104,7 @@ export default function ModuleBrowse() {
     }
     refreshModules();
     updateFilters();
+    handleHeaderPageName("ui_module_browser");
   }, []);
 
   async function handleDeleteSelected() {
@@ -182,19 +138,15 @@ export default function ModuleBrowse() {
     refreshModules();
   }, [uniqueTags]);
 
-  modules = generateModules(courseModules, setCourseModules);
+  modules = generateChecklist(courseModules, setCourseModules);
   tags = generateFilterList(uniqueTags, setUniqueTags);
 
   async function handleOpenModule() {
-    // set the first selected module as global
-    if (!selectedModules || selectedModules.length < 1) {
-      handleSnackbar({ info: parseUICode("ui_no_module_seleted") });
-      return;
-    }
     setNavigateToModule(true);
     handleActiveModule(selectedModules[0]);
   }
 
+  //Navigates to a module page by listening to the active module.
   useEffect(() => {
     if (activeModule && navigateToModule) {
       setNavigateToModule(false);
@@ -204,113 +156,106 @@ export default function ModuleBrowse() {
 
   return (
     <>
-      <PageHeaderBar
-        pageName={parseUICode("ui_module_browser")}
-        courseID={activeCourse?.id}
-        courseTitle={activeCourse?.title}
-      />
-      <div className="content">
-        <div className="emptySpace1" />
-        <Stack
-          direction="row"
-          justifyContent="flex-start"
-          alignItems="center"
-          spacing={2}
-        >
-          <ButtonComp
-            confirmationModal={true}
-            modalText={`${parseUICode("ui_delete")} 
+      <div className="emptySpace1" />
+      <Stack
+        direction="row"
+        justifyContent="flex-start"
+        alignItems="center"
+        spacing={2}
+      >
+        <ButtonComp
+          confirmationModal={true}
+          modalText={`${parseUICode("ui_delete")} 
             ${numSelected}`}
-            buttonType="normal"
-            onClick={() => handleDeleteSelected()}
-            ariaLabel={parseUICode("ui_remove_selected_modules")}
-            disabled={numSelected > 0 ? false : true}
-          >
-            {`${parseUICode("ui_delete")} ${numSelected}`}
-          </ButtonComp>
-          <ButtonComp
-            buttonType="normal"
-            onClick={() => {
-              handleOpenModule();
-            }}
-            ariaLabel={parseUICode("ui_aria_show_edit")}
-            disabled={numSelected === 1 ? false : true}
-          >
-            {parseUICode("ui_show_edit")}
-          </ButtonComp>
-        </Stack>
-
-        <div className="emptySpace2" />
-        <Grid
-          container
-          spacing={2}
-          direction="row"
-          justifyContent="flex-start"
-          alignItems="stretch"
-          sx={{ minWidth: "100%" }}
+          buttonType="normal"
+          onClick={() => handleDeleteSelected()}
+          ariaLabel={parseUICode("ui_remove_selected_modules")}
+          disabled={numSelected > 0 ? false : true}
         >
-          <Grid xs={8}>
-            <Stack
-              direction="column"
-              justifyContent="center"
-              alignItems="flex-start"
-              spacing={2}
-            >
-              <Typography level="h3">{parseUICode("assignments")}</Typography>
-
-              <Box
-                height="40rem"
-                maxHeight="50vh"
-                width="100%"
-                sx={{
-                  border: "2px solid lightgrey",
-                  borderRadius: "0.2rem",
-                }}
-                overflow={"auto"}
-              >
-                <List>{modules}</List>
-              </Box>
-            </Stack>
-          </Grid>
-          <Grid xs={4}>
-            <Stack
-              direction="column"
-              justifyContent="center"
-              alignItems="flex-start"
-              spacing={2}
-            >
-              <Typography level="h3">{parseUICode("ui_filter")}</Typography>
-
-              <Box
-                height="40rem"
-                maxHeight="50vh"
-                width="100%"
-                sx={{
-                  border: "2px solid lightgrey",
-                  borderRadius: "0.2rem",
-                }}
-                overflow={"auto"}
-              >
-                <List>
-                  <ListItem nested>
-                    <ListSubheader>{parseUICode("ui_tags")}</ListSubheader>
-                    <List>{tags}</List>
-                  </ListItem>
-                </List>
-              </Box>
-            </Stack>
-          </Grid>
-        </Grid>
-
-        <div className="emptySpace1" />
+          {`${parseUICode("ui_delete")} ${numSelected}`}
+        </ButtonComp>
         <ButtonComp
           buttonType="normal"
-          onClick={() => navigate(-1)}
-          ariaLabel={parseUICode("ui_aria_cancel")}
+          onClick={() => {
+            handleOpenModule();
+          }}
+          ariaLabel={parseUICode("ui_aria_show_edit")}
+          disabled={numSelected === 1 ? false : true}
         >
-          {parseUICode("ui_cancel")}
+          {parseUICode("ui_show_edit")}
         </ButtonComp>
-      </div>
+      </Stack>
+
+      <div className="emptySpace2" />
+      <Grid
+        container
+        spacing={2}
+        direction="row"
+        justifyContent="flex-start"
+        alignItems="stretch"
+        sx={{ minWidth: "100%" }}
+      >
+        <Grid xs={8}>
+          <Stack
+            direction="column"
+            justifyContent="center"
+            alignItems="flex-start"
+            spacing={2}
+          >
+            <Typography level="h3">{parseUICode("assignments")}</Typography>
+
+            <Box
+              height="40rem"
+              maxHeight="50vh"
+              width="100%"
+              sx={{
+                border: "2px solid lightgrey",
+                borderRadius: "0.2rem",
+              }}
+              overflow={"auto"}
+            >
+              <List>{modules}</List>
+            </Box>
+          </Stack>
+        </Grid>
+        <Grid xs={4}>
+          <Stack
+            direction="column"
+            justifyContent="center"
+            alignItems="flex-start"
+            spacing={2}
+          >
+            <Typography level="h3">{parseUICode("ui_filter")}</Typography>
+
+            <Box
+              height="40rem"
+              maxHeight="50vh"
+              width="100%"
+              sx={{
+                border: "2px solid lightgrey",
+                borderRadius: "0.2rem",
+              }}
+              overflow={"auto"}
+            >
+              <List>
+                <ListItem nested>
+                  <ListSubheader>{parseUICode("ui_tags")}</ListSubheader>
+                  <List>{tags}</List>
+                </ListItem>
+              </List>
+            </Box>
+          </Stack>
+        </Grid>
+      </Grid>
+
+      <div className="emptySpace1" />
+      <ButtonComp
+        buttonType="normal"
+        onClick={() => navigate(-1)}
+        ariaLabel={parseUICode("ui_aria_cancel")}
+      >
+        {parseUICode("ui_cancel")}
+      </ButtonComp>
     </>
   );
 }

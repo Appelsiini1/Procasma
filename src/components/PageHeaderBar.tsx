@@ -1,4 +1,11 @@
-import { Box, Divider, IconButton, Stack, Typography } from "@mui/joy";
+import {
+  Box,
+  Divider,
+  IconButton,
+  LinearProgress,
+  Stack,
+  Typography,
+} from "@mui/joy";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import HomeIcon from "@mui/icons-material/Home";
 import Logo from "../../resource/Logo.png";
@@ -20,12 +27,14 @@ type ComponentProps = {
   pageName: string;
   courseID: string;
   courseTitle: string;
+  loading?: boolean;
 };
 
 export default function PageHeaderBar({
   pageName,
   courseID,
   courseTitle,
+  loading,
 }: ComponentProps) {
   const navigate = useNavigate();
   const [courseName, setCourseName] = useState(null);
@@ -131,7 +140,20 @@ export default function PageHeaderBar({
           </Box>
         </Grid>
 
-        <Grid xs={5}>
+        <Grid xs={1} display="flex" justifyContent="center">
+          <Box
+            sx={{
+              bgcolor: "#FFFFF",
+              marginTop: "auto",
+              marginBottom: "auto",
+              width: "100%",
+            }}
+          >
+            {loading ? <LinearProgress /> : null}
+          </Box>
+        </Grid>
+
+        <Grid xs={4}>
           <Typography
             level="h4"
             noWrap
