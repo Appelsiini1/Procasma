@@ -31,23 +31,25 @@ import {
 } from "../rendererHelpers/browseHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
-import { SnackbarContext } from "../components/Context";
+import { ActiveObjectContext, SnackbarContext } from "../components/Context";
 
 export interface AssignmentWithCheck extends WithCheckWrapper {
   value: CodeAssignmentDatabase;
 }
 
-export default function AssignmentBrowse({
-  activeCourse,
-  activePath,
-  activeAssignment,
-  handleActiveAssignment,
-}: {
-  activeCourse: CourseData;
-  activePath: string;
-  activeAssignment: CodeAssignmentData;
-  handleActiveAssignment: (value: CodeAssignmentData) => void;
-}) {
+export default function AssignmentBrowse() {
+  const {
+    activeCourse,
+    activePath,
+    activeAssignment,
+    handleActiveAssignment,
+  }: {
+    activeCourse: CourseData;
+    activePath: string;
+    activeAssignment: CodeAssignmentData;
+    handleActiveAssignment: (value: CodeAssignmentData) => void;
+  } = useContext(ActiveObjectContext);
+
   const navigate = useNavigate();
   let assignments: Array<React.JSX.Element> = null;
   let modules: Array<React.JSX.Element> = null;
@@ -250,9 +252,7 @@ export default function AssignmentBrowse({
           </ButtonComp>
           <ButtonComp
             buttonType="normal"
-            onClick={() => {
-              handleOpenAssignment();
-            }}
+            onClick={() => handleOpenAssignment()}
             ariaLabel={parseUICode("ui_aria_show_edit")}
             disabled={numSelected === 1 ? false : true}
           >

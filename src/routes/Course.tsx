@@ -21,17 +21,19 @@ import {
 import { CourseData } from "../types";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
-import { SnackbarContext } from "../components/Context";
+import { ActiveObjectContext, SnackbarContext } from "../components/Context";
 
-export default function Course({
-  activeCourse,
-  activePath,
-  handleActiveCourse,
-}: {
-  activeCourse: CourseData;
-  activePath?: string;
-  handleActiveCourse?: React.Dispatch<React.SetStateAction<CourseData>>;
-}) {
+export default function Course() {
+  const {
+    activeCourse,
+    activePath,
+    handleActiveCourse,
+  }: {
+    activeCourse: CourseData;
+    activePath?: string;
+    handleActiveCourse?: React.Dispatch<React.SetStateAction<CourseData>>;
+  } = useContext(ActiveObjectContext);
+
   let pageType = useLoaderData();
 
   // if somehow navigates to manage course without activeCourse

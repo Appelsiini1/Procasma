@@ -21,17 +21,18 @@ import { useContext, useEffect } from "react";
 import { deepCopy } from "../rendererHelpers/utility";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
-import { SnackbarContext } from "../components/Context";
+import { ActiveObjectContext, SnackbarContext } from "../components/Context";
 
-export default function ProjectWorkInput({
-  activeCourse,
-  activePath,
-  activeAssignment,
-}: {
-  activeCourse: CourseData;
-  activePath: string;
-  activeAssignment?: CodeAssignmentData;
-}) {
+export default function ProjectWorkInput() {
+  const {
+    activeCourse,
+    activePath,
+    activeAssignment,
+  }: {
+    activeCourse: CourseData;
+    activePath: string;
+    activeAssignment?: CodeAssignmentData;
+  } = useContext(ActiveObjectContext);
   const [assignment, handleAssignment] = useAssignment(
     activeAssignment ? activeAssignment : deepCopy(defaultProject)
   );

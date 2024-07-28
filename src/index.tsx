@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -14,17 +14,15 @@ import SetCreator from "./routes/SetCreator";
 import SetBrowse from "./routes/SetBrowse";
 import Settings from "./routes/Settings";
 import ExportProject from "./routes/ExportProject";
-import {
-  CodeAssignmentData,
-  CourseData,
-  ModuleData,
-  SettingsType,
-  SupportedLanguages,
-} from "./types";
+import { SettingsType, SupportedLanguages } from "./types";
 import { language } from "./globalsUI";
 import log from "electron-log/renderer";
 import { handleIPCResult } from "./rendererHelpers/errorHelpers";
-import { SnackbarProvider } from "./components/Context";
+import {
+  ActiveObjectContext,
+  ActiveObjectProvider,
+  SnackbarProvider,
+} from "./components/Context";
 
 log.info("-- START OF PROCASMA RENDERER --");
 
@@ -53,74 +51,31 @@ await updateLanguageInit();
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 const App = () => {
-  const [activeCourse, setActiveCourse] = useState<CourseData>(null);
-  const [activePath, setActivePath] = useState<string>(null);
-  const [activeAssignment, setActiveAssignment] =
-    useState<CodeAssignmentData>(null);
-  const [activeModule, setActiveModule] = useState<ModuleData>(null);
-
-  function handleActiveCourse(value: CourseData) {
-    setActiveCourse(value);
-  }
-
-  function handleActivePath(value: string) {
-    setActivePath(value);
-  }
-
-  function handleActiveAssignment(value: CodeAssignmentData) {
-    setActiveAssignment(value);
-  }
-
-  function handleActiveModule(value: ModuleData) {
-    setActiveModule(value);
-  }
-
+  const { activeAssignment, activeModule, activeSet } =
+    useContext(ActiveObjectContext);
   const router = createBrowserRouter([
     {
       path: "/",
-      element: (
-        <Root
-          activeCourse={activeCourse}
-          activePath={activePath}
-          handleActiveCourse={handleActiveCourse}
-          handleActivePath={handleActivePath}
-          activeAssignment={activeAssignment}
-          handleActiveAssignment={handleActiveAssignment}
-          activeModule={activeModule}
-          handleActiveModule={handleActiveModule}
-        />
-      ),
+      element: <Root />,
       errorElement: <ErrorPage />,
     },
     {
       path: "/createCourse",
-      element: <Course activeCourse={activeCourse} />,
+      element: <Course />,
       loader: async () => {
         return "create";
       },
     },
     {
       path: "/manageCourse",
-      element: (
-        <Course
-          activeCourse={activeCourse}
-          activePath={activePath}
-          handleActiveCourse={handleActiveCourse}
-        />
-      ),
+      element: <Course />,
       loader: async () => {
         return "manage";
       },
     },
     {
       path: "/inputCodeAssignment",
-      element: (
-        <AssignmentInput
-          activeCourse={activeCourse}
-          activePath={activePath}
-          activeAssignment={activeAssignment}
-        />
-      ),
+      element: <AssignmentInput />,
       loader: async () => {
         if (activeAssignment?.assignmentType === "assignment") {
           return "manage";
@@ -131,40 +86,21 @@ const App = () => {
     },
     {
       path: "/newModule",
-      element: (
-        <ModuleAdd
-          activeCourse={activeCourse}
-          activePath={activePath}
-          activeModule={activeModule}
-        />
-      ),
+      element: <ModuleAdd />,
       loader: async () => {
         return activeModule ? "manage" : "new";
       },
     },
     {
       path: "/AssignmentBrowse",
-      element: (
-        <AssignmentBrowse
-          activeCourse={activeCourse}
-          activePath={activePath}
-          activeAssignment={activeAssignment}
-          handleActiveAssignment={handleActiveAssignment}
-        />
-      ),
+      element: <AssignmentBrowse />,
       loader: async () => {
         return "browse";
       },
     },
     {
       path: "/inputCodeProjectWork",
-      element: (
-        <ProjectWorkInput
-          activeCourse={activeCourse}
-          activePath={activePath}
-          activeAssignment={activeAssignment}
-        />
-      ),
+      element: <ProjectWorkInput />,
       loader: async () => {
         if (activeAssignment?.assignmentType === "finalWork") {
           return "manage";
@@ -175,43 +111,32 @@ const App = () => {
     },
     {
       path: "/exportProject",
-      element: <ExportProject activeCourse={activeCourse} />,
+      element: <ExportProject />,
       loader: async () => {
         return "new";
       },
     },
     {
       path: "/moduleBrowse",
-      element: (
-        <ModuleBrowse
-          activeCourse={activeCourse}
-          activePath={activePath}
-          activeModule={activeModule}
-          handleActiveModule={handleActiveModule}
-        />
-      ),
+      element: <ModuleBrowse />,
     },
     {
       path: "/setCreator",
-      element: (
-        <SetCreator activeCourse={activeCourse} activePath={activePath} />
-      ),
+      element: <SetCreator />,
       loader: async () => {
-        return "new";
+        return activeSet ? "manage" : "new";
       },
     },
     {
       path: "/setBrowse",
-      element: (
-        <SetBrowse activeCourse={activeCourse} activePath={activePath} />
-      ),
+      element: <SetBrowse />,
       loader: async () => {
         return "new";
       },
     },
     {
       path: "/settings",
-      element: <Settings activeCourse={activeCourse} />,
+      element: <Settings />,
       loader: async () => {
         return "new";
       },
@@ -220,15 +145,17 @@ const App = () => {
 
   return (
     <>
-      <SnackbarProvider>
-        <RouterProvider router={router} />
-      </SnackbarProvider>
+      <RouterProvider router={router} />
     </>
   );
 };
 
 root.render(
   <React.StrictMode>
-    <App></App>
+    <ActiveObjectProvider>
+      <SnackbarProvider>
+        <App></App>
+      </SnackbarProvider>
+    </ActiveObjectProvider>
   </React.StrictMode>
 );

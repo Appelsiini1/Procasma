@@ -12,17 +12,18 @@ import { splitStringToArray } from "../generalHelpers/converters";
 import { parseUICode } from "../rendererHelpers/translation";
 import { useContext } from "react";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
-import { SnackbarContext } from "../components/Context";
+import { ActiveObjectContext, SnackbarContext } from "../components/Context";
 
-export default function ModuleAdd({
-  activeCourse,
-  activePath,
-  activeModule,
-}: {
-  activeCourse: CourseData;
-  activePath: string;
-  activeModule?: ModuleData;
-}) {
+export default function ModuleAdd() {
+  const {
+    activeCourse,
+    activePath,
+    activeModule,
+  }: {
+    activeCourse: CourseData;
+    activePath: string;
+    activeModule?: ModuleData;
+  } = useContext(ActiveObjectContext);
   const [module, handleModule] = useModule(
     activeModule ? activeModule : defaultModule
   );

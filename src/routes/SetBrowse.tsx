@@ -9,32 +9,38 @@ import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import {
   generateChecklist,
+  setSelectedViaChecked,
   WithCheckWrapper,
   wrapWithCheck,
 } from "../rendererHelpers/browseHelpers";
-import { SnackbarContext } from "../components/Context";
+import { ActiveObjectContext, SnackbarContext } from "../components/Context";
 
 export interface SetWithCheck extends WithCheckWrapper {
   value: SetData;
 }
 
-export default function SetBrowse({
-  activeCourse,
-  activePath,
-}: {
-  activeCourse: CourseData;
-  activePath: string;
-}) {
+export default function SetBrowse() {
+  const {
+    activeCourse,
+    activePath,
+    activeSet,
+    handleActiveSet,
+  }: {
+    activeCourse: CourseData;
+    activePath: string;
+    activeSet: SetData;
+    handleActiveSet: (value: SetData) => void;
+  } = useContext(ActiveObjectContext);
   const navigate = useNavigate();
   const [courseSets, setCourseSets] = useState<Array<SetWithCheck>>([]);
-  const [noSelected, setNoSelected] = useState(0);
-  const [selectedModules, setSelectedModules] = useState<Array<string>>([]);
-  const [selectedTags, setSelectedTags] = useState<Array<string>>([]);
+  const [selectedSets, setSelectedSets] = useState<Array<SetData>>([]);
+  const [navigateToSet, setNavigateToSet] = useState(false);
+  const [numSelected, setNumSelected] = useState(0);
   let sets: Array<React.JSX.Element> = null;
   //let tags: Array<React.JSX.Element> = null;
   const { handleSnackbar } = useContext(SnackbarContext);
 
-  async function getSets() {
+  async function refreshSets() {
     try {
       if (!activePath) {
         return;
@@ -57,10 +63,48 @@ export default function SetBrowse({
     if (!activePath) {
       return;
     }
-    getSets();
+    refreshSets();
   }, []);
 
+  async function handleDeleteSelected() {
+    let snackbarSeverity = "success";
+    let snackbarText = "ui_delete_success";
+    try {
+      await handleIPCResult(() =>
+        window.api.deleteSetsFS(
+          activePath,
+          selectedSets.map((set) => set.id)
+        )
+      );
+
+      refreshSets(); // get the remaining sets
+    } catch (err) {
+      snackbarText = err.message;
+      snackbarSeverity = "error";
+    }
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
+  }
+
+  // Update the selected sets counter
+  useEffect(() => {
+    const numChecked = setSelectedViaChecked(courseSets, setSelectedSets);
+
+    setNumSelected(numChecked);
+  }, [courseSets]);
+
   sets = generateChecklist(courseSets, setCourseSets);
+
+  async function handleOpenSet() {
+    setNavigateToSet(true);
+    handleActiveSet(selectedSets[0]);
+  }
+
+  useEffect(() => {
+    if (activeSet && navigateToSet) {
+      setNavigateToSet(false);
+      navigate("/setCreator");
+    }
+  }, [activeSet, navigateToSet]);
 
   return (
     <>
@@ -92,16 +136,21 @@ export default function SetBrowse({
             {parseUICode("ui_export")}
           </ButtonComp>
           <ButtonComp
+            confirmationModal={true}
+            modalText={`${parseUICode("ui_delete")} 
+            ${numSelected}`}
             buttonType="normal"
-            onClick={null}
+            onClick={() => handleDeleteSelected()}
             ariaLabel={parseUICode("ui_aria_delete_sets")}
+            disabled={numSelected > 0 ? false : true}
           >
-            {parseUICode("ui_delete")}
+            {`${parseUICode("ui_delete")} ${numSelected}`}
           </ButtonComp>
           <ButtonComp
             buttonType="normal"
-            onClick={null}
+            onClick={() => handleOpenSet()}
             ariaLabel={parseUICode("ui_aria_modify_sets")}
+            disabled={numSelected === 1 ? false : true}
           >
             {parseUICode("ui_modify")}
           </ButtonComp>

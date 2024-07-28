@@ -10,13 +10,14 @@ import { CourseData, SettingsType, SupportedLanguages } from "../types";
 import { useContext, useState } from "react";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
-import { SnackbarContext } from "../components/Context";
+import { ActiveObjectContext, SnackbarContext } from "../components/Context";
 
-export default function Settings({
-  activeCourse,
-}: {
-  activeCourse: CourseData;
-}) {
+export default function Settings() {
+  const {
+    activeCourse,
+  }: {
+    activeCourse: CourseData;
+  } = useContext(ActiveObjectContext);
   const navigate = useNavigate();
   const [settings, setSettings] = useState<SettingsType>({
     codeLanguages: [],

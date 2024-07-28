@@ -9,7 +9,12 @@ import NumberInput from "../components/NumberInput";
 import ButtonComp from "../components/ButtonComp";
 import SwitchComp from "../components/SwitchComp";
 import StepperComp from "../components/StepperComp";
-import { CodeAssignmentDatabase, CourseData, ModuleData } from "../types";
+import {
+  CodeAssignmentDatabase,
+  CourseData,
+  ModuleData,
+  SetData,
+} from "../types";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { useSet } from "../rendererHelpers/assignmentHelpers";
@@ -22,18 +27,18 @@ import {
   setSelectedViaChecked,
   wrapWithCheck,
 } from "../rendererHelpers/browseHelpers";
-import { SnackbarContext } from "../components/Context";
+import { ActiveObjectContext, SnackbarContext } from "../components/Context";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 
-export default function SetCreator({
-  activeCourse,
-  activePath,
-}: {
-  activeCourse: CourseData;
-  activePath: string;
-}) {
-  const [set, handleSet] = useSet(deepCopy(defaultSet));
+export default function SetCreator() {
+  const {
+    activeCourse,
+    activePath,
+    activeSet,
+  }: { activeCourse: CourseData; activePath: string; activeSet: SetData } =
+    useContext(ActiveObjectContext);
+  const [set, handleSet] = useSet(activeSet ?? deepCopy(defaultSet));
 
   const pageType = useLoaderData();
   const navigate = useNavigate();
@@ -48,6 +53,7 @@ export default function SetCreator({
     Array<CodeAssignmentDatabase>
   >([]);
   const { handleSnackbar } = useContext(SnackbarContext);
+
   const stepHeadings: string[] = [
     parseUICode("ui_module_selection"),
     parseUICode("ui_set_details"),
@@ -128,6 +134,7 @@ export default function SetCreator({
   // fetch modules on page load
   useEffect(() => {
     getModules();
+    getAssignmentsByModule(set.module);
   }, []);
 
   // Update the selected assignments counter
@@ -189,7 +196,7 @@ export default function SetCreator({
                       name="caModuleInput"
                       options={modules}
                       labelKey="name"
-                      placeholder={"..."}
+                      defaultValue={ForceToString(set?.module)}
                       onChange={(value: string) => {
                         handleSet("module", value);
                         getAssignmentsByModule(value);
@@ -218,6 +225,7 @@ export default function SetCreator({
                   <td>
                     <InputField
                       fieldKey="caSetName"
+                      defaultValue={ForceToString(set?.name)}
                       onChange={(value: string) =>
                         handleSet("name", value, true)
                       }
@@ -232,7 +240,7 @@ export default function SetCreator({
                   <td>
                     <NumberInput
                       disabled={false}
-                      value={set.year}
+                      value={Number(set?.year)}
                       onChange={(value: number) => handleSet("year", value)}
                     ></NumberInput>
                   </td>
@@ -247,7 +255,7 @@ export default function SetCreator({
                   <td>
                     <NumberInput
                       disabled={true}
-                      value={set.period}
+                      value={Number(set?.period)}
                       onChange={(value: number) => handleSet("period", value)}
                     ></NumberInput>
                   </td>
@@ -261,7 +269,7 @@ export default function SetCreator({
                   </td>
                   <td>
                     <SwitchComp
-                      checked={set.export}
+                      checked={set?.export}
                       setChecked={(value: boolean) =>
                         handleSet("export", value)
                       }
@@ -280,7 +288,7 @@ export default function SetCreator({
                       name="caModuleInput"
                       options={formats}
                       labelKey="name"
-                      placeholder={"..."}
+                      defaultValue={ForceToString(set?.format)}
                       onChange={(value: string) => handleSet("format", value)}
                     ></Dropdown>
                   </td>
@@ -294,7 +302,7 @@ export default function SetCreator({
                   </td>
                   <td>
                     <SwitchComp
-                      checked={set.exportCGConfigs}
+                      checked={set?.exportCGConfigs}
                       setChecked={(value: boolean) =>
                         handleSet("exportCGConfigs", value)
                       }
@@ -420,6 +428,9 @@ export default function SetCreator({
                         <td>
                           <InputField
                             fieldKey="caSetName"
+                            defaultValue={ForceToString(
+                              set.assignmentCGids[assignment.title]
+                            )}
                             onChange={(value: string) =>
                               handleUpdateCGids(assignment.title, value)
                             }

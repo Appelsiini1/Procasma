@@ -12,11 +12,12 @@ import {
 } from "@mui/joy";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import StepperComp from "../components/StepperComp";
 import { CourseData } from "../types";
 import { parseUICode } from "../rendererHelpers/translation";
+import { ActiveObjectContext } from "../components/Context";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 
@@ -26,11 +27,12 @@ const testAssignments = [
   { ID: "2", name: "T2 - Otsikko" },
 ];
 
-export default function ExportProject({
-  activeCourse,
-}: {
-  activeCourse: CourseData;
-}) {
+export default function ExportProject() {
+  const {
+    activeCourse,
+  }: {
+    activeCourse: CourseData;
+  } = useContext(ActiveObjectContext);
   const pageType = useLoaderData();
   const navigate = useNavigate();
   const pageTitle: string = null;

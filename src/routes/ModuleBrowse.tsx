@@ -24,7 +24,7 @@ import {
 } from "../rendererHelpers/browseHelpers";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
-import { SnackbarContext } from "../components/Context";
+import { ActiveObjectContext, SnackbarContext } from "../components/Context";
 
 export interface ModuleWithCheck extends WithCheckWrapper {
   value: ModuleDatabase;
@@ -70,17 +70,18 @@ export function generateModules(
     : null;
 }
 
-export default function ModuleBrowse({
-  activeCourse,
-  activePath,
-  activeModule,
-  handleActiveModule,
-}: {
-  activeCourse: CourseData;
-  activePath: string;
-  activeModule: ModuleData;
-  handleActiveModule: (value: ModuleData) => void;
-}) {
+export default function ModuleBrowse() {
+  const {
+    activeCourse,
+    activePath,
+    activeModule,
+    handleActiveModule,
+  }: {
+    activeCourse: CourseData;
+    activePath: string;
+    activeModule: ModuleData;
+    handleActiveModule: (value: ModuleData) => void;
+  } = useContext(ActiveObjectContext);
   const navigate = useNavigate();
   let modules: Array<React.JSX.Element> = null;
   let tags: Array<React.JSX.Element> = null;
@@ -223,6 +224,7 @@ export default function ModuleBrowse({
             buttonType="normal"
             onClick={() => handleDeleteSelected()}
             ariaLabel={parseUICode("ui_remove_selected_modules")}
+            disabled={numSelected > 0 ? false : true}
           >
             {`${parseUICode("ui_delete")} ${numSelected}`}
           </ButtonComp>

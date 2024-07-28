@@ -18,7 +18,7 @@ import { useContext, useEffect, useState } from "react";
 import { refreshTitle } from "../rendererHelpers/requests";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
-import { SnackbarContext } from "../components/Context";
+import { ActiveObjectContext, SnackbarContext } from "../components/Context";
 
 const dividerSX = { padding: ".1rem", margin: "2rem", bgcolor: dividerColor };
 const smallDividerSX = {
@@ -29,27 +29,29 @@ const smallDividerSX = {
   marginRight: "7rem",
 };
 
-export default function Root({
-  activeCourse,
-  activePath,
-  handleActiveCourse,
-  handleActivePath,
-  activeAssignment,
-  handleActiveAssignment,
-  activeModule,
-  handleActiveModule,
-}: {
-  activeCourse: CourseData;
-  activePath: string;
-  handleActiveCourse: React.Dispatch<React.SetStateAction<CourseData>>;
-  handleActivePath: React.Dispatch<React.SetStateAction<string>>;
-  activeAssignment: CodeAssignmentData;
-  handleActiveAssignment: React.Dispatch<
-    React.SetStateAction<CodeAssignmentData>
-  >;
-  activeModule: ModuleData;
-  handleActiveModule: React.Dispatch<React.SetStateAction<ModuleData>>;
-}) {
+export default function Root() {
+  const {
+    activeCourse,
+    activePath,
+    handleActiveCourse,
+    handleActivePath,
+    activeAssignment,
+    handleActiveAssignment,
+    activeModule,
+    handleActiveModule,
+  }: {
+    activeCourse: CourseData;
+    activePath: string;
+    handleActiveCourse: React.Dispatch<React.SetStateAction<CourseData>>;
+    handleActivePath: React.Dispatch<React.SetStateAction<string>>;
+    activeAssignment: CodeAssignmentData;
+    handleActiveAssignment: React.Dispatch<
+      React.SetStateAction<CodeAssignmentData>
+    >;
+    activeModule: ModuleData;
+    handleActiveModule: React.Dispatch<React.SetStateAction<ModuleData>>;
+  } = useContext(ActiveObjectContext);
+
   const [addingAssignment, setAddingAssignment] = useState(false);
   const [navigateToAssignment, setNavigateToAssignment] = useState(false);
   const [navigateToProjectWork, setNavigateToProjectWork] = useState(false);
