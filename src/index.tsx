@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -29,32 +29,10 @@ import { Layout } from "./components/Layout";
 
 log.info("-- START OF PROCASMA RENDERER --");
 
-const updateLanguageInit = async () => {
-  try {
-    const settings: SettingsType = await handleIPCResult(() =>
-      window.api.getSettings()
-    );
-    if (!settings.language) {
-      throw new Error("ui_load_settings_failed");
-    }
-
-    const abbreviation: SupportedLanguages =
-      settings.language as SupportedLanguages;
-
-    language.current = abbreviation;
-  } catch (err) {
-    log.error("Error in updateLanguageInit():", err.message);
-  }
-  return;
-};
-
-// get the init settings and update the UI language
-await updateLanguageInit();
-
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 const App = () => {
-  const { snackBarAttributes, showSnackbar, setShowSnackbar } =
+  const { snackBarAttributes, showSnackbar, setShowSnackbar, setIPCLoading } =
     useContext(UIContext);
   const { activeAssignment, activeModule, activeSet } =
     useContext(ActiveObjectContext);
@@ -154,6 +132,30 @@ const App = () => {
       ],
     },
   ]);
+
+  const updateLanguageInit = async () => {
+    try {
+      const settings: SettingsType = await handleIPCResult(setIPCLoading, () =>
+        window.api.getSettings()
+      );
+      if (!settings.language) {
+        throw new Error("ui_load_settings_failed");
+      }
+
+      const abbreviation: SupportedLanguages =
+        settings.language as SupportedLanguages;
+
+      language.current = abbreviation;
+    } catch (err) {
+      log.error("Error in updateLanguageInit():", err.message);
+    }
+    return;
+  };
+
+  // get the init settings and update the UI language
+  useEffect(() => {
+    updateLanguageInit();
+  }, []);
 
   return (
     <>

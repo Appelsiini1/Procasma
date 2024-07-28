@@ -55,8 +55,23 @@ export const UIProvider = ({ children }: { children: any }) => {
   }
 
   // update the loading IPC loading indicator when the stack changes
-  useEffect(() => {
+  /*useEffect(() => {
     setIPCOperationLoading(IPCStack?.length > 0 ? true : false);
+  }, [IPCStack]);*/
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (IPCStack.length > 0) {
+      timeout = setTimeout(() => {
+        setIPCOperationLoading(true);
+      }, 1000);
+    } else {
+      setIPCOperationLoading(false);
+    }
+
+    // Cleanup function to clear the timeout if IPCStack changes or component unmounts
+    return () => {
+      clearTimeout(timeout);
+    };
   }, [IPCStack]);
 
   return (

@@ -32,7 +32,7 @@ export default function Course() {
     activePath?: string;
     handleActiveCourse?: React.Dispatch<React.SetStateAction<CourseData>>;
   } = useContext(ActiveObjectContext);
-  const { handleHeaderPageName } = useContext(UIContext);
+  const { handleHeaderPageName, setIPCLoading } = useContext(UIContext);
 
   let pageType = useLoaderData();
 
@@ -68,7 +68,9 @@ export default function Course() {
 
   async function handleFolderOpen() {
     try {
-      const path: string = await handleIPCResult(() => window.api.selectDir());
+      const path: string = await handleIPCResult(setIPCLoading, () =>
+        window.api.selectDir()
+      );
       handlePath(path);
     } catch (err) {
       handleSnackbar({ error: parseUICode(err.message) });
@@ -141,13 +143,13 @@ export default function Course() {
       }
 
       if (pageType == "manage") {
-        snackbarText = await handleIPCResult(() =>
+        snackbarText = await handleIPCResult(setIPCLoading, () =>
           window.api.handleUpdateCourseFS(course, path)
         );
 
         handleActiveCourse(course);
       } else {
-        snackbarText = await handleIPCResult(() =>
+        snackbarText = await handleIPCResult(setIPCLoading, () =>
           window.api.handleAddCourseFS(course, path)
         );
       }

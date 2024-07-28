@@ -12,7 +12,8 @@ import { parseUICode } from "../rendererHelpers/translation";
 import { UIContext } from "../components/Context";
 
 export default function Settings() {
-  const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
+  const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
+    useContext(UIContext);
   const navigate = useNavigate();
   const [settings, setSettings] = useState<SettingsType>({
     codeLanguages: [],
@@ -53,7 +54,7 @@ export default function Settings() {
     let snackbarSeverity = "success";
     let snackbarText = "";
     try {
-      snackbarText = await handleIPCResult(() =>
+      snackbarText = await handleIPCResult(setIPCLoading, () =>
         window.api.saveSettings(settings)
       );
     } catch (err) {

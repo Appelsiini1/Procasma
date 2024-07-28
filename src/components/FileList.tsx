@@ -26,7 +26,7 @@ interface FileContentSelectProps {
 
 async function handleSelectFiles() {
   try {
-    const filePaths: Array<string> = await handleIPCResult(() =>
+    const filePaths: Array<string> = await handleIPCResult(setIPCLoading, () =>
       window.api.selectFiles()
     );
 

@@ -12,10 +12,10 @@ import Logo from "../../resource/Logo.png";
 import Grid from "@mui/joy/Grid";
 import { useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import { refreshTitle } from "../rendererHelpers/requests";
 import { parseUICode } from "../rendererHelpers/translation";
 import { UIContext } from "./Context";
 import HelpText from "./HelpText";
+import { ForceToString } from "../generalHelpers/converters";
 
 const IconSX = {
   color: "#00000",
@@ -43,6 +43,8 @@ export default function PageHeaderBar() {
   }: ComponentProps = useContext(UIContext);
   const navigate = useNavigate();
   const [courseName, setCourseName] = useState(null);
+  const IPCLoadingText = `IPC ${parseUICode("ui_processes")}: 
+    ${ForceToString(IPCStack)}`;
 
   const handleCourseName = (ID: string, title: string) => {
     if (ID && title) {
@@ -55,10 +57,6 @@ export default function PageHeaderBar() {
   useEffect(() => {
     handleCourseName(courseID, courseTitle);
   }, [courseID, courseTitle]);
-
-  useEffect(() => {
-    refreshTitle();
-  }, []);
 
   return (
     <Box
@@ -129,12 +127,12 @@ export default function PageHeaderBar() {
             <Box />
             {IPCOperationLoading ? <LinearProgress /> : null}
             <Box />
-            {IPCStack?.length > 0 ? (
+            {IPCOperationLoading ? (
               <>
                 <Typography level="body-lg" noWrap>
                   {IPCStack.length}
                 </Typography>
-                <HelpText text={IPCStack.toString()} />
+                <HelpText text={IPCLoadingText} />
               </>
             ) : (
               ""

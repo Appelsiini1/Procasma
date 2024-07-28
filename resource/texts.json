@@ -75,6 +75,10 @@
     "FI": "Poistu",
     "ENG": "Exit"
   },
+  "ui_processes": {
+    "FI": "prosessit",
+    "ENG": "processes"
+  },
   "course_create": {
     "FI": "Luo kurssi",
     "ENG": "Create course"

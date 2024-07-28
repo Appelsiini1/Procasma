@@ -805,6 +805,8 @@ export async function updateModuleDB(
 ): Promise<string> {
   return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
     try {
+      // TODO, add the query override to this getModulesDB call
+      // or make a vanilla version of the function
       const getResult = await getModulesDB(coursePath, [module.id]);
       if (!getResult) {
         return {

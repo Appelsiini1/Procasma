@@ -30,7 +30,8 @@ export default function ProjectWorkInput() {
     activePath: string;
     activeAssignment?: CodeAssignmentData;
   } = useContext(ActiveObjectContext);
-  const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
+  const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
+    useContext(UIContext);
   const [assignment, handleAssignment] = useAssignment(
     activeAssignment ? activeAssignment : deepCopy(defaultProject)
   );
@@ -61,11 +62,11 @@ export default function ProjectWorkInput() {
     let snackbarText = "ui_assignment_save_success";
     try {
       if (pageType === "manage") {
-        snackbarText = await handleIPCResult(() =>
+        snackbarText = await handleIPCResult(setIPCLoading, () =>
           window.api.handleUpdateAssignmentFS(assignment, activePath)
         );
       } else {
-        snackbarText = await handleIPCResult(() =>
+        snackbarText = await handleIPCResult(setIPCLoading, () =>
           window.api.handleAddAssignmentFS(assignment, activePath)
         );
       }

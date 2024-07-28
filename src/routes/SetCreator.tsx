@@ -26,7 +26,8 @@ import { ActiveObjectContext, UIContext } from "../components/Context";
 export default function SetCreator() {
   const { activePath, activeSet }: { activePath: string; activeSet: SetData } =
     useContext(ActiveObjectContext);
-  const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
+  const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
+    useContext(UIContext);
   const [set, handleSet] = useSet(activeSet ?? deepCopy(defaultSet));
   const pageType = useLoaderData();
   const navigate = useNavigate();
@@ -73,7 +74,7 @@ export default function SetCreator() {
         return;
       }
 
-      const modules = await handleIPCResult(() =>
+      const modules = await handleIPCResult(setIPCLoading, () =>
         window.api.getModulesDB(activePath)
       );
 
@@ -93,7 +94,7 @@ export default function SetCreator() {
         module: [name],
       };
 
-      const assignments = await handleIPCResult(() =>
+      const assignments = await handleIPCResult(setIPCLoading, () =>
         window.api.getFilteredAssignmentsDB(activePath, filters)
       );
 
@@ -111,9 +112,13 @@ export default function SetCreator() {
     let snackbarText = "ui_set_save_success";
     try {
       if (pageType === "manage") {
-        await handleIPCResult(() => window.api.updateSetFS(activePath, set));
+        await handleIPCResult(setIPCLoading, () =>
+          window.api.updateSetFS(activePath, set)
+        );
       } else {
-        await handleIPCResult(() => window.api.addSetFS(activePath, set));
+        await handleIPCResult(setIPCLoading, () =>
+          window.api.addSetFS(activePath, set)
+        );
       }
     } catch (err) {
       snackbarText = err.message;
@@ -464,6 +469,14 @@ export default function SetCreator() {
           {parseUICode("ui_close")}
         </ButtonComp>
 
+        <ButtonComp
+          buttonType="normal"
+          onClick={() => console.log(set)}
+          ariaLabel={" debug "}
+        >
+          log set
+        </ButtonComp>
+
         {stepperState > 0 ? (
           <ButtonComp
             buttonType="normal"
@@ -476,13 +489,6 @@ export default function SetCreator() {
           ""
         )}
       </Stack>
-      <ButtonComp
-        buttonType="normal"
-        onClick={() => console.log(set)}
-        ariaLabel={" debug "}
-      >
-        log set
-      </ButtonComp>
     </>
   );
 }

@@ -45,7 +45,8 @@ export default function AssignmentBrowse() {
     activeAssignment: CodeAssignmentData;
     handleActiveAssignment: (value: CodeAssignmentData) => void;
   } = useContext(ActiveObjectContext);
-  const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
+  const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
+    useContext(UIContext);
   const [courseAssignments, setCourseAssignments] = useState<
     Array<AssignmentWithCheck>
   >([]);
@@ -90,7 +91,7 @@ export default function AssignmentBrowse() {
 
       let assignmentsResult: CodeAssignmentDatabase[] = [];
 
-      assignmentsResult = await handleIPCResult(() =>
+      assignmentsResult = await handleIPCResult(setIPCLoading, () =>
         window.api.getFilteredAssignmentsDB(activePath, filters)
       );
 
@@ -110,14 +111,15 @@ export default function AssignmentBrowse() {
   }
 
   async function updateFilters() {
-    const tagsResult: TagDatabase[] = await handleIPCResult(() =>
+    const tagsResult: TagDatabase[] = await handleIPCResult(setIPCLoading, () =>
       window.api.getAssignmentTagsDB(activePath)
     );
 
     handleUpdateUniqueTags(tagsResult, setUniqueTags);
 
-    const modulesResult: ModuleDatabase[] = await handleIPCResult(() =>
-      window.api.getModulesDB(activePath)
+    const modulesResult: ModuleDatabase[] = await handleIPCResult(
+      setIPCLoading,
+      () => window.api.getModulesDB(activePath)
     );
 
     handleUpdateFilter(modulesResult, setUniqueModules);
@@ -137,7 +139,7 @@ export default function AssignmentBrowse() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_delete_success";
     try {
-      await handleIPCResult(() =>
+      await handleIPCResult(setIPCLoading, () =>
         window.api.handleDeleteAssignmentsFS(
           activePath,
           selectedAssignments.map((assignment) => assignment.id)
@@ -173,7 +175,7 @@ export default function AssignmentBrowse() {
 
   async function handleOpenAssignment() {
     try {
-      const assignmentsResult = await handleIPCResult(() =>
+      const assignmentsResult = await handleIPCResult(setIPCLoading, () =>
         window.api.handleGetAssignmentsFS(activePath, selectedAssignments[0].id)
       );
 

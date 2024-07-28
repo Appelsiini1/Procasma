@@ -15,7 +15,6 @@ export async function handleFilesOpen() {
 }
 
 export async function handleDirectorySelect() {
-  //await sleep(2000);
   const { canceled, filePaths } = await dialog.showOpenDialog({
     properties: ["openDirectory"],
   });
