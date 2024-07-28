@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { functionResultToSnackBar, SnackBarAttributes } from "./SnackBarComp";
 import { CodeAssignmentData, CourseData, ModuleData, SetData } from "../types";
 
@@ -6,8 +6,8 @@ export const UIContext = createContext(null);
 export const ActiveObjectContext = createContext(null);
 
 /**
- * Provides access to a global snackbar to all children
- * through useContext(UIProvider).
+ * Provides access to a global snackbar and the header bar
+ * attributes to all children through useContext(UIProvider).
  */
 export const UIProvider = ({ children }: { children: any }) => {
   const [pageName, setPageName] = useState(null);
@@ -16,7 +16,8 @@ export const UIProvider = ({ children }: { children: any }) => {
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [snackBarAttributes, setSnackBarAttributes] =
     useState<SnackBarAttributes>({ color: "info", text: "" });
-  const [IPCOperationLoading, setIPCOperationLoading] = useState(true);
+  const [IPCOperationLoading, setIPCOperationLoading] = useState(false);
+  const [IPCStack, setIPCStack] = useState<Array<string>>([]);
 
   function handleSnackbar(options: { [key: string]: string }) {
     functionResultToSnackBar(options, setShowSnackbar, setSnackBarAttributes);
@@ -34,9 +35,29 @@ export const UIProvider = ({ children }: { children: any }) => {
     setCourseTitle(value);
   }
 
-  function handleIPCOperationLoading(value: boolean) {
-    setIPCOperationLoading(value);
+  /**
+   * Push or pop an IPC function name from the loading stack
+   * (for monitoring currently active processes.)
+   */
+  function setIPCLoading(process: string, pushing: boolean) {
+    if (pushing) {
+      // push the process onto the stack
+      setIPCStack([...IPCStack, process]);
+    } else {
+      // pop one matching process name
+      let newStack = [...IPCStack];
+      const index = newStack.indexOf(process);
+      if (index !== -1) {
+        newStack.splice(index, 1); // Removes one element at the found index
+      }
+      setIPCStack(newStack);
+    }
   }
+
+  // update the loading IPC loading indicator when the stack changes
+  useEffect(() => {
+    setIPCOperationLoading(IPCStack?.length > 0 ? true : false);
+  }, [IPCStack]);
 
   return (
     <>
@@ -53,7 +74,8 @@ export const UIProvider = ({ children }: { children: any }) => {
           setShowSnackbar,
           handleSnackbar,
           IPCOperationLoading,
-          handleIPCOperationLoading,
+          setIPCLoading,
+          IPCStack,
         }}
       >
         {children}

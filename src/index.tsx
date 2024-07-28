@@ -24,8 +24,6 @@ import {
   UIContext,
   UIProvider,
 } from "./components/Context";
-import PageHeaderBar from "./components/PageHeaderBar";
-import { parseUICode } from "./rendererHelpers/translation";
 import SnackbarComp from "./components/SnackBarComp";
 import { Layout } from "./components/Layout";
 

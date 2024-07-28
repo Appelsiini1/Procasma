@@ -50,6 +50,7 @@ export default function Root() {
     handleHeaderPageName,
     handleHeaderCourseID,
     handleHeaderCourseTitle,
+    setIPCLoading,
   } = useContext(UIContext);
   const [addingAssignment, setAddingAssignment] = useState(false);
   const [navigateToAssignment, setNavigateToAssignment] = useState(false);
@@ -121,8 +122,9 @@ export default function Root() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_course_folder_opened";
     try {
-      const coursePath: string = await handleIPCResult(() =>
-        window.api.selectDir()
+      const coursePath: string = await handleIPCResult(
+        () => window.api.selectDir(),
+        setIPCLoading
       );
 
       if (coursePath.length === 0) {
