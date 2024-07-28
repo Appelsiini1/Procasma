@@ -1,4 +1,3 @@
-import { ConnectingAirportsOutlined } from "@mui/icons-material";
 import { LevelsType } from "../types";
 
 export function splitStringToArray(input: string): string[] {

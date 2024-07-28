@@ -1,4 +1,10 @@
-import { CodeAssignmentData, CourseData, FileData, ModuleData } from "./types";
+import {
+  CodeAssignmentData,
+  CourseData,
+  FileData,
+  ModuleData,
+  SetData,
+} from "./types";
 
 export const defaultFile: FileData = {
   fileName: "",
@@ -58,4 +64,17 @@ export const defaultModule: ModuleData = {
   subjects: "",
   tags: [],
   instructions: "",
+};
+
+export const defaultSet: SetData = {
+  id: null,
+  fullCourse: false,
+  module: "",
+  name: "",
+  year: 2024,
+  period: 0,
+  export: false,
+  format: "",
+  exportCGConfigs: true,
+  assignmentCGids: {},
 };

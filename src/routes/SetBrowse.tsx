@@ -1,203 +1,184 @@
-import PageHeaderBar from "../components/PageHeaderBar";
-import texts from "../../resource/texts.json";
-import { language } from "../globalsUI";
-import { useLoaderData, useNavigate } from "react-router-dom";
-import {
-  Box,
-  Checkbox,
-  List,
-  ListItem,
-  ListItemButton,
-  Stack,
-  Typography,
-} from "@mui/joy";
-import SelectedHeader from "../components/SelectedHeader";
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Box, List, Stack, Typography } from "@mui/joy";
+import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
-import { CourseData } from "../types";
+import { SetData } from "../types";
+import { parseUICode } from "../rendererHelpers/translation";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import {
+  generateChecklist,
+  setSelectedViaChecked,
+  WithCheckWrapper,
+  wrapWithCheck,
+} from "../rendererHelpers/browseHelpers";
+import { ActiveObjectContext, UIContext } from "../components/Context";
 
-// Get list of modules via IPC later
-const testSets = [
-  { moduleID: "1", name: "Viikko 1" },
-  { moduleID: "2", name: "Viikko 2" },
-];
+export interface SetWithCheck extends WithCheckWrapper {
+  value: SetData;
+}
 
-const testTags = ["print", "try...except"];
-
-export default function SetBrowse({
-  activeCourse,
-}: {
-  activeCourse: CourseData;
-}) {
+export default function SetBrowse() {
+  const {
+    activePath,
+    activeSet,
+    handleActiveSet,
+  }: {
+    activePath: string;
+    activeSet: SetData;
+    handleActiveSet: (value: SetData) => void;
+  } = useContext(ActiveObjectContext);
+  const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
+  const [courseSets, setCourseSets] = useState<Array<SetWithCheck>>([]);
+  const [selectedSets, setSelectedSets] = useState<Array<SetData>>([]);
+  const [navigateToSet, setNavigateToSet] = useState(false);
+  const [numSelected, setNumSelected] = useState(0);
   const navigate = useNavigate();
-  const [noSelected, setNoSelected] = useState(0);
-  const [selectedModules, setSelectedModules] = useState<Array<string>>([]);
-  const [selectedTags, setSelectedTags] = useState<Array<string>>([]);
-  let modules: Array<React.JSX.Element> = null;
-  let tags: Array<React.JSX.Element> = null;
+  let sets: Array<React.JSX.Element> = null;
 
-  function handleSelectedModules(
-    moduleID: string,
-    state: boolean,
-    setBoxState: React.Dispatch<React.SetStateAction<boolean>>
-  ) {
-    if (state) {
-      setSelectedModules(selectedModules.filter((value) => value !== moduleID));
-      setNoSelected(selectedModules.length - 1);
-      setBoxState(!state);
-    } else {
-      setSelectedModules([...selectedModules, moduleID]);
-      setNoSelected(selectedModules.length + 1);
-      setBoxState(!state);
+  async function refreshSets() {
+    try {
+      if (!activePath) {
+        return;
+      }
+
+      const setsResult = await handleIPCResult(() =>
+        window.api.getSetsFS(activePath)
+      );
+
+      const setsWithCheck: SetWithCheck[] = wrapWithCheck(setsResult);
+
+      // update sets
+      setCourseSets(setsWithCheck);
+    } catch (err) {
+      handleSnackbar({ error: parseUICode(err.message) });
     }
   }
 
-  function handleSelectedTags(
-    tag: string,
-    state: boolean,
-    setBoxState: React.Dispatch<React.SetStateAction<boolean>>
-  ) {
-    if (state) {
-      setSelectedTags(selectedTags.filter((value) => value !== tag));
-      setBoxState(!state);
-    } else {
-      setSelectedTags([...selectedTags, tag]);
-      setBoxState(!state);
+  useEffect(() => {
+    if (!activePath) {
+      return;
     }
+    refreshSets();
+    handleHeaderPageName("ui_set_browser");
+  }, []);
+
+  async function handleDeleteSelected() {
+    let snackbarSeverity = "success";
+    let snackbarText = "ui_delete_success";
+    try {
+      await handleIPCResult(() =>
+        window.api.deleteSetsFS(
+          activePath,
+          selectedSets.map((set) => set.id)
+        )
+      );
+
+      refreshSets(); // get the remaining sets
+    } catch (err) {
+      snackbarText = err.message;
+      snackbarSeverity = "error";
+    }
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
   }
 
-  //TODO: abstract this mapping and the handle function
-  modules = testSets.map((value) => {
-    const [boxState, setBoxState] = useState(false);
-    return (
-      <ListItem
-        key={value.moduleID}
-        startAction={
-          <Checkbox
-            checked={boxState}
-            onChange={() =>
-              handleSelectedModules(value.moduleID, boxState, setBoxState)
-            }
-          ></Checkbox>
-        }
-      >
-        <ListItemButton
-          selected={boxState}
-          onClick={() =>
-            handleSelectedModules(value.moduleID, boxState, setBoxState)
-          }
-        >
-          {value.name}
-        </ListItemButton>
-      </ListItem>
-    );
-  });
+  // Update the selected sets counter
+  useEffect(() => {
+    const numChecked = setSelectedViaChecked(courseSets, setSelectedSets);
 
-  tags = testTags.map((value) => {
-    const [boxState, setBoxState] = useState(false);
-    return (
-      <ListItem
-        key={value}
-        startAction={
-          <Checkbox
-            checked={boxState}
-            onChange={() => handleSelectedTags(value, boxState, setBoxState)}
-          ></Checkbox>
-        }
-      >
-        <ListItemButton
-          selected={boxState}
-          onClick={() => handleSelectedTags(value, boxState, setBoxState)}
-        >
-          {value}
-        </ListItemButton>
-      </ListItem>
-    );
-  });
+    setNumSelected(numChecked);
+  }, [courseSets]);
+
+  sets = generateChecklist(courseSets, setCourseSets);
+
+  async function handleOpenSet() {
+    setNavigateToSet(true);
+    handleActiveSet(selectedSets[0]);
+  }
+
+  // Navigates to an assignment set page by listening to the active set.
+  useEffect(() => {
+    if (activeSet && navigateToSet) {
+      setNavigateToSet(false);
+      navigate("/setCreator");
+    }
+  }, [activeSet, navigateToSet]);
 
   return (
     <>
-      <PageHeaderBar
-        pageName={parseUICode("ui_set_browser")}
-        courseID={activeCourse?.id}
-        courseTitle={activeCourse?.title}
-      />
-      <div className="content">
-        <div className="emptySpace1" />
-        <SearchBar
-          autoFillOptions={testSets}
-          optionLabel={"name"}
-          searchFunction={() => console.log("search")}
-        ></SearchBar>
+      <div className="emptySpace1" />
+      <SearchBar
+        autoFillOptions={[]}
+        optionLabel={"name"}
+        searchFunction={() => console.log("search")}
+      ></SearchBar>
 
-        <div className="emptySpace1" />
-        <SelectedHeader selected={noSelected} />
-
-        <div className="emptySpace1" />
-        <Stack
-          direction="row"
-          justifyContent="flex-start"
-          alignItems="center"
-          spacing={2}
-        >
-          <ButtonComp
-            buttonType="normal"
-            onClick={null}
-            ariaLabel={parseUICode("ui_aria_export_sets")}
-          >
-            {parseUICode("ui_export")}
-          </ButtonComp>
-          <ButtonComp
-            buttonType="normal"
-            onClick={null}
-            ariaLabel={parseUICode("ui_aria_delete_sets")}
-          >
-            {parseUICode("ui_delete")}
-          </ButtonComp>
-          <ButtonComp
-            buttonType="normal"
-            onClick={null}
-            ariaLabel={parseUICode("ui_aria_modify_sets")}
-          >
-            {parseUICode("ui_modify")}
-          </ButtonComp>
-        </Stack>
-
-        <div className="emptySpace2" />
-
-        <Stack
-          direction="column"
-          justifyContent="center"
-          alignItems="flex-start"
-          spacing={2}
-          sx={{ width: "100%" }}
-        >
-          <Typography level="h3">
-            {parseUICode("ui_assignment_sets")}
-          </Typography>
-
-          <Box
-            height="30rem"
-            width="100%"
-            sx={{
-              border: "2px solid lightgrey",
-              borderRadius: "0.5rem",
-            }}
-          >
-            <List>{modules}</List>
-          </Box>
-        </Stack>
-
-        <div className="emptySpace1" />
+      <div className="emptySpace1" />
+      <Stack
+        direction="row"
+        justifyContent="flex-start"
+        alignItems="center"
+        spacing={2}
+      >
         <ButtonComp
           buttonType="normal"
-          onClick={() => navigate(-1)}
-          ariaLabel={parseUICode("ui_aria_cancel")}
+          onClick={null}
+          ariaLabel={parseUICode("ui_aria_export_sets")}
         >
-          {parseUICode("ui_close")}
+          {parseUICode("ui_export")}
         </ButtonComp>
-      </div>
+        <ButtonComp
+          confirmationModal={true}
+          modalText={`${parseUICode("ui_delete")} 
+            ${numSelected}`}
+          buttonType="normal"
+          onClick={() => handleDeleteSelected()}
+          ariaLabel={parseUICode("ui_aria_delete_sets")}
+          disabled={numSelected > 0 ? false : true}
+        >
+          {`${parseUICode("ui_delete")} ${numSelected}`}
+        </ButtonComp>
+        <ButtonComp
+          buttonType="normal"
+          onClick={() => handleOpenSet()}
+          ariaLabel={parseUICode("ui_aria_modify_sets")}
+          disabled={numSelected === 1 ? false : true}
+        >
+          {parseUICode("ui_modify")}
+        </ButtonComp>
+      </Stack>
+
+      <div className="emptySpace2" />
+
+      <Stack
+        direction="column"
+        justifyContent="center"
+        alignItems="flex-start"
+        spacing={2}
+        sx={{ width: "100%" }}
+      >
+        <Typography level="h3">{parseUICode("ui_assignment_sets")}</Typography>
+
+        <Box
+          height="30rem"
+          width="100%"
+          sx={{
+            border: "2px solid lightgrey",
+            borderRadius: "0.5rem",
+          }}
+        >
+          <List>{sets}</List>
+        </Box>
+      </Stack>
+
+      <div className="emptySpace1" />
+      <ButtonComp
+        buttonType="normal"
+        onClick={() => navigate(-1)}
+        ariaLabel={parseUICode("ui_aria_cancel")}
+      >
+        {parseUICode("ui_close")}
+      </ButtonComp>
     </>
   );
 }

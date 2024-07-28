@@ -151,6 +151,10 @@
     "FI": "Muokkaa tehtävää",
     "ENG": "Edit assignment"
   },
+  "ui_edit_set": {
+    "FI": "Muokkaa tehtäväsarjaa",
+    "ENG": "Edit assignment set"
+  },
   "ui_create_new_set": {
     "FI": "Luo uusi tehtäväsarja",
     "ENG": "Create new assigment set"
@@ -943,6 +947,10 @@
     "FI": "Samanniminen tehtävä on jo olemassa.",
     "ENG": "An assignment with that title already exists."
   },
+  "ui_set_error_duplicate_name": {
+    "FI": "Samanniminen sarja on jo olemassa.",
+    "ENG": "A set with that name already exists."
+  },
   "ui_course_error_duplicate": {
     "FI": "Samanniminen kurssikansio on jo olemassa.",
     "ENG": "Course folder already exists."
@@ -1138,6 +1146,10 @@
   "ui_add_module_name": {
     "FI": "Syötä moduulille nimi.",
     "ENG": "Add a name to the module."
+  },
+  "ui_add_set_name": {
+    "FI": "Syötä sarjalle nimi.",
+    "ENG": "Add a name to the set."
   },
   "ui_no_result_from_ipc_call": {
     "FI": "IPC kutsu ei palauttanut tulosta.",

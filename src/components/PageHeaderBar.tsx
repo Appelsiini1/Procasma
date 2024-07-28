@@ -1,12 +1,21 @@
-import { Box, Divider, IconButton, Stack, Typography } from "@mui/joy";
+import {
+  Box,
+  Divider,
+  IconButton,
+  LinearProgress,
+  Stack,
+  Typography,
+} from "@mui/joy";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import HomeIcon from "@mui/icons-material/Home";
 import Logo from "../../resource/Logo.png";
 import Grid from "@mui/joy/Grid";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { refreshTitle } from "../rendererHelpers/requests";
 import { parseUICode } from "../rendererHelpers/translation";
+import { UIContext } from "./Context";
+import HelpText from "./HelpText";
 
 const IconSX = {
   color: "#00000",
@@ -20,13 +29,18 @@ type ComponentProps = {
   pageName: string;
   courseID: string;
   courseTitle: string;
+  IPCOperationLoading?: boolean;
+  IPCStack: string[];
 };
 
-export default function PageHeaderBar({
-  pageName,
-  courseID,
-  courseTitle,
-}: ComponentProps) {
+export default function PageHeaderBar() {
+  const {
+    pageName,
+    courseID,
+    courseTitle,
+    IPCOperationLoading,
+    IPCStack,
+  }: ComponentProps = useContext(UIContext);
   const navigate = useNavigate();
   const [courseName, setCourseName] = useState(null);
 
@@ -110,10 +124,24 @@ export default function PageHeaderBar({
             </Box>
             <Box />
             <Typography level="h3" noWrap>
-              {pageName}
+              {parseUICode(pageName)}
             </Typography>
+            <Box />
+            {IPCOperationLoading ? <LinearProgress /> : null}
+            <Box />
+            {IPCStack?.length > 0 ? (
+              <>
+                <Typography level="body-lg" noWrap>
+                  {IPCStack.length}
+                </Typography>
+                <HelpText text={IPCStack.toString()} />
+              </>
+            ) : (
+              ""
+            )}
           </Stack>
         </Grid>
+
         <Grid xs={2} display="flex" justifyContent="center">
           <Box
             sx={{
@@ -131,7 +159,7 @@ export default function PageHeaderBar({
           </Box>
         </Grid>
 
-        <Grid xs={5}>
+        <Grid xs={4}>
           <Typography
             level="h4"
             noWrap

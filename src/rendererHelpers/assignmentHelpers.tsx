@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { CodeAssignmentData, CourseData, ModuleData } from "../types";
+import { CodeAssignmentData, CourseData, ModuleData, SetData } from "../types";
 import { debounceCheckKey } from "./debounce";
 
 export interface HandleAssignmentFn {
@@ -108,4 +108,18 @@ export const useModule = (
   const handleModule = createHandleAssignment(setModule);
 
   return [module, handleModule];
+};
+
+/**
+ * Handles the state of an assignment set object, and provides
+ * a handleSet function for modifying it.
+ */
+export const useSet = (
+  initialState: SetData
+): [SetData, HandleAssignmentFn] => {
+  const [set, setSet] = useState<SetData>(initialState);
+
+  const handleSet = createHandleAssignment(setSet);
+
+  return [set, handleSet];
 };

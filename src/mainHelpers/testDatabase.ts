@@ -19,7 +19,7 @@ async function originalTests(testPath: string) {
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.getAssignmentDB(testPath, [
+    DatabaseFunc.getAssignmentsDB(testPath, [
       testGlobals.testCurrentAssignment.assignmentID,
     ])
   );
@@ -38,7 +38,7 @@ async function originalTests(testPath: string) {
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.getAssignmentDB(testPath, [
+    DatabaseFunc.getAssignmentsDB(testPath, [
       testGlobals.testCurrentAssignment.assignmentID,
     ])
   );
@@ -63,7 +63,7 @@ async function originalTests(testPath: string) {
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.getModuleDB(testPath, [testGlobals.testModule.id])
+    DatabaseFunc.getModulesDB(testPath, [testGlobals.testModule.id])
   );
   console.log("Get module:");
   console.log(result);
@@ -77,7 +77,7 @@ async function originalTests(testPath: string) {
 
   console.log("-----");
   result = await createMainFunctionHandler(() =>
-    DatabaseFunc.getModuleDB(testPath, [testGlobals.testModule.id])
+    DatabaseFunc.getModulesDB(testPath, [testGlobals.testModule.id])
   );
   console.log("Get module:");
   console.log(result);

@@ -4,7 +4,7 @@ import {
   CodeAssignmentData,
   CourseData,
   FileData,
-  ModuleData,
+  SetData,
   Variation,
 } from "../types";
 import { spacesToUnderscores } from "../generalHelpers/converters";
@@ -12,11 +12,8 @@ import { courseMetaDataFileName } from "../constants";
 import { createHash } from "crypto";
 import {
   addAssignmentDB,
-  addModuleDB,
   deleteAssignmentsDB,
-  deleteModulesDB,
   initDB,
-  updateModuleDB,
 } from "./databaseOperations";
 import log from "electron-log/node";
 
@@ -135,9 +132,14 @@ export async function handleAddCourseFS(
     // init db
     await initDB(coursePath);
 
-    // create weeks.json ?
+    // create weeks.json
+    const weeksPath = path.join(coursePath, "weeks.json");
+    fs.writeFileSync(weeksPath, "", "utf8");
 
-    // create sets.json ?
+    // create sets.json
+    const setsPath = path.join(coursePath, "sets.json");
+    fs.writeFileSync(setsPath, "", "utf8");
+
     return "ui_course_save_success";
   } catch (err) {
     log.error("Error in handleAddCourseFS():", err.message);
@@ -152,10 +154,7 @@ export function handleGetCourseFS(filePath: string): CourseData {
     }
 
     const filePathJoined = path.join(filePath, "course_info.json");
-    const content = handleReadFileFS(filePathJoined);
-
-    const course: CourseData = content as CourseData;
-    return course;
+    return handleReadFileFS(filePathJoined);
   } catch (err) {
     log.error("Error in handleGetCourseFS():", err.message);
     throw err;
@@ -302,6 +301,64 @@ async function _deleteOldFilesFromVariationsFS(
   }
 }
 
+export function handleGetAssignmentsFS(
+  coursePath: string,
+  id?: string
+): CodeAssignmentData[] | null {
+  try {
+    if (!coursePath || coursePath.length === 0) {
+      throw new Error("ui_no_course_path_selected");
+    }
+
+    const assignmentDataPath = path.join(coursePath, "assignment_data");
+    const assignments: CodeAssignmentData[] = [];
+
+    // Loop through all the files in the temp directory
+    const files = fs.readdirSync(assignmentDataPath);
+
+    files.forEach(function (file) {
+      if (id && file != id) {
+        // if id is provided...
+        return; // skip the file if id does not match.
+      }
+      const hashFile = `${file}.json`;
+      const assignmentPath: string = path.join(
+        assignmentDataPath,
+        file,
+        hashFile
+      );
+
+      const result = handleReadFileFS(assignmentPath);
+      const assignment = result as CodeAssignmentData;
+
+      assignments.push(assignment);
+    });
+
+    return assignments;
+  } catch (err) {
+    log.error("Error in handleGetAssignmentsFS():", err.message);
+    throw err;
+  }
+}
+
+function _AssignmentExistsFS(
+  assignmentName: string,
+  coursePath: string
+): boolean {
+  try {
+    const assignments = handleGetAssignmentsFS(coursePath);
+
+    const sameNameAssignment = assignments.find((prevAssignment) => {
+      return prevAssignment?.title === assignmentName ? true : false;
+    });
+
+    return sameNameAssignment ? true : false;
+  } catch (err) {
+    log.error("Error in _AssignmentExistsFS():", err.message);
+    throw err;
+  }
+}
+
 async function _handleAddOrUpdateAssignmentFS(
   assignment: CodeAssignmentData,
   coursePath: string,
@@ -361,64 +418,6 @@ export async function handleAddAssignmentFS(
   return _handleAddOrUpdateAssignmentFS(assignment, coursePath, false);
 }
 
-export function handleGetAssignmentsFS(
-  coursePath: string,
-  id?: string
-): CodeAssignmentData[] | null {
-  try {
-    if (!coursePath || coursePath.length === 0) {
-      throw new Error("ui_no_course_path_selected");
-    }
-
-    const assignmentDataPath = path.join(coursePath, "assignment_data");
-    const assignments: CodeAssignmentData[] = [];
-
-    // Loop through all the files in the temp directory
-    const files = fs.readdirSync(assignmentDataPath);
-
-    files.forEach(function (file) {
-      if (id && file != id) {
-        // if id is provided...
-        return; // skip the file if id does not match.
-      }
-      const hashFile = `${file}.json`;
-      const assignmentPath: string = path.join(
-        assignmentDataPath,
-        file,
-        hashFile
-      );
-
-      const result = handleReadFileFS(assignmentPath);
-      const assignment = result as CodeAssignmentData;
-
-      assignments.push(assignment);
-    });
-
-    return assignments;
-  } catch (err) {
-    log.error("Error in handleGetAssignmentsFS():", err.message);
-    throw err;
-  }
-}
-
-function _AssignmentExistsFS(
-  assignmentName: string,
-  coursePath: string
-): boolean {
-  try {
-    const assignments = handleGetAssignmentsFS(coursePath);
-
-    const sameNameAssignment = assignments.find((prevAssignment) => {
-      return prevAssignment?.title === assignmentName ? true : false;
-    });
-
-    return sameNameAssignment ? true : false;
-  } catch (err) {
-    log.error("Error in _AssignmentExistsFS():", err.message);
-    throw err;
-  }
-}
-
 export async function handleUpdateAssignmentFS(
   assignment: CodeAssignmentData,
   coursePath: string
@@ -443,6 +442,104 @@ export async function handleDeleteAssignmentsFS(
     return "ui_del_ok";
   } catch (err) {
     log.error("Error in handleDeleteAssignmentsFS():", err.message);
+    throw err;
+  }
+}
+
+// CRUD Assignment set
+
+export function _handleAddOrUpdateSetFS(
+  coursePath: string,
+  set: SetData,
+  isOldSet: boolean
+): string {
+  try {
+    let newSets: SetData[] = [];
+    const name = set?.name;
+    if (!name || name.length < 1) {
+      throw new Error("ui_add_set_name");
+    }
+
+    const setsPath = path.join(coursePath, "sets.json");
+    const oldSets: SetData[] = handleReadFileFS(setsPath, true);
+
+    if (oldSets) {
+      // find a set with a matching name
+      let match = oldSets.find((isOldSet) => isOldSet.name === set.name);
+
+      // a name match when adding a new set throws an error and
+      // if the set is old, make sure that the id is the same
+      if (match && (!isOldSet || match.id !== set.id)) {
+        throw new Error("ui_set_error_duplicate_name");
+      }
+
+      // add the old sets to the new array
+      newSets = newSets.concat(oldSets);
+    }
+
+    // generate an id for the set if it is new
+    if (!isOldSet) {
+      set.id = _SHAhashFS(JSON.stringify(set));
+      newSets.push(set);
+    } else {
+      // update the given set
+      newSets = oldSets.map((oldSet) => {
+        if (oldSet.id === set.id) {
+          return set;
+        }
+        return oldSet;
+      });
+    }
+
+    fs.writeFileSync(setsPath, JSON.stringify(newSets));
+
+    return "ui_set_save_success";
+  } catch (err) {
+    log.error("Error in _handleAddOrUpdateSetFS():", err.message);
+    throw err;
+  }
+}
+
+export async function addSetFS(
+  coursePath: string,
+  set: SetData
+): Promise<string> {
+  return _handleAddOrUpdateSetFS(coursePath, set, false);
+}
+
+export async function getSetsFS(coursePath: string): Promise<SetData[]> {
+  try {
+    const setsPath = path.join(coursePath, "sets.json");
+    return handleReadFileFS(setsPath, true) ?? [];
+  } catch (err) {
+    log.error("Error in _handleAddOrUpdateSetFS():", err.message);
+    throw err;
+  }
+}
+
+export async function updateSetFS(
+  coursePath: string,
+  set: SetData
+): Promise<string> {
+  return _handleAddOrUpdateSetFS(coursePath, set, true);
+}
+
+export async function deleteSetsFS(
+  coursePath: string,
+  ids: string[]
+): Promise<string> {
+  try {
+    const setsPath = path.join(coursePath, "sets.json");
+    const oldSets: SetData[] = handleReadFileFS(setsPath, true);
+
+    // filter out sets whose ids are found in the 'ids' array:
+    const newSets = oldSets.filter((set) => !ids.find((id) => set.id === id));
+
+    fs.writeFileSync(setsPath, JSON.stringify(newSets));
+
+    return "ui_delete_success";
+  } catch (err) {
+    log.error("Error in _handleAddOrUpdateSetFS():", err.message);
     throw err;
   }
 }

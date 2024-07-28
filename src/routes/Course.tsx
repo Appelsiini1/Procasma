@@ -3,11 +3,10 @@ import texts from "../../resource/texts.json";
 import { supportedModuleTypes, buttonShadow } from "../constantsUI";
 import { language } from "../globalsUI";
 import { Grid, IconButton, Stack, Table, Typography } from "@mui/joy";
-import PageHeaderBar from "../components/PageHeaderBar";
 import InputField from "../components/InputField";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import Dropdown from "../components/Dropdown";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
 import defaults from "../../resource/defaults.json";
@@ -19,25 +18,24 @@ import {
   splitCourseLevels,
 } from "../generalHelpers/converters";
 import { CourseData } from "../types";
-import SnackbarComp, {
-  SnackBarAttributes,
-  functionResultToSnackBar,
-} from "../components/SnackBarComp";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import { ActiveObjectContext, UIContext } from "../components/Context";
 
-export default function Course({
-  activeCourse,
-  activePath,
-  handleActiveCourse,
-}: {
-  activeCourse: CourseData;
-  activePath?: string;
-  handleActiveCourse?: React.Dispatch<React.SetStateAction<CourseData>>;
-}) {
+export default function Course() {
+  const {
+    activeCourse,
+    activePath,
+    handleActiveCourse,
+  }: {
+    activeCourse: CourseData;
+    activePath?: string;
+    handleActiveCourse?: React.Dispatch<React.SetStateAction<CourseData>>;
+  } = useContext(ActiveObjectContext);
+  const { handleHeaderPageName } = useContext(UIContext);
+
   let pageType = useLoaderData();
 
-  // if somehow navigates to manage course without activeCourse
   if (!activeCourse) {
     pageType = "create";
   }
@@ -46,9 +44,7 @@ export default function Course({
     pageType == "create" ? defaultCourse : activeCourse;
   const [course, handleCourse] = useCourse(initialCourseState);
   const [path, setPath] = useState(activePath ? activePath : "");
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  const [snackBarAttributes, setSnackBarAttributes] =
-    useState<SnackBarAttributes>({ color: "success", text: "" });
+  const { handleSnackbar } = useContext(UIContext);
 
   let pageTitle: string = null;
   let disableCourseFolderSelect = false;
@@ -75,11 +71,7 @@ export default function Course({
       const path: string = await handleIPCResult(() => window.api.selectDir());
       handlePath(path);
     } catch (err) {
-      functionResultToSnackBar(
-        { error: parseUICode(err.message) },
-        setShowSnackbar,
-        setSnackBarAttributes
-      );
+      handleSnackbar({ error: parseUICode(err.message) });
     }
   }
 
@@ -127,11 +119,7 @@ export default function Course({
         }
       });
     } catch (err) {
-      functionResultToSnackBar(
-        { error: parseUICode(err.message) },
-        setShowSnackbar,
-        setSnackBarAttributes
-      );
+      handleSnackbar({ error: parseUICode(err.message) });
     }
   };
 
@@ -148,11 +136,7 @@ export default function Course({
     let snackbarText = "ui_course_folder_opened";
     try {
       if (!path || path.length < 1) {
-        functionResultToSnackBar(
-          { info: "ui_choose_folder_path" },
-          setShowSnackbar,
-          setSnackBarAttributes
-        );
+        handleSnackbar({ info: parseUICode("ui_choose_folder_path") });
         return;
       }
 
@@ -171,247 +155,226 @@ export default function Course({
       snackbarText = err.message;
       snackbarSeverity = "error";
     }
-
-    functionResultToSnackBar(
-      { [snackbarSeverity]: parseUICode(snackbarText) },
-      setShowSnackbar,
-      setSnackBarAttributes
-    );
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
   }
+
+  useEffect(() => {
+    handleHeaderPageName("course_create");
+  }, []);
 
   return (
     <>
-      <PageHeaderBar
-        pageName={parseUICode("course_create")}
-        courseID={activeCourse?.id}
-        courseTitle={activeCourse?.title}
-      />
-      <div className="content">
-        <Typography level="h1">{pageTitle}</Typography>
-        <Table borderAxis="none">
-          <tbody>
-            <tr key="cID">
-              <td style={{ width: "25%" }}>
-                <Typography level="h4">
-                  {parseUICode("ui_course_id")}
-                </Typography>
-              </td>
-              <td>
-                <InputField
-                  fieldKey="cIDInput"
-                  defaultValue={course.id}
-                  onChange={(value: string) => handleCourse("id", value, true)}
-                />
-              </td>
-              <td style={{ width: "20%" }}></td>
-            </tr>
+      <Typography level="h1">{pageTitle}</Typography>
+      <Table borderAxis="none">
+        <tbody>
+          <tr key="cID">
+            <td style={{ width: "25%" }}>
+              <Typography level="h4">{parseUICode("ui_course_id")}</Typography>
+            </td>
+            <td>
+              <InputField
+                fieldKey="cIDInput"
+                defaultValue={course.id}
+                onChange={(value: string) => handleCourse("id", value, true)}
+              />
+            </td>
+            <td style={{ width: "20%" }}></td>
+          </tr>
 
-            <tr key="cName">
-              <td>
-                <Typography level="h4">
-                  {parseUICode("ui_course_name")}
-                </Typography>
-              </td>
-              <td>
-                <InputField
-                  fieldKey="cNameInput"
-                  defaultValue={course.title}
-                  onChange={(value: string) =>
-                    handleCourse("title", value, true)
-                  }
-                />
-              </td>
-            </tr>
+          <tr key="cName">
+            <td>
+              <Typography level="h4">
+                {parseUICode("ui_course_name")}
+              </Typography>
+            </td>
+            <td>
+              <InputField
+                fieldKey="cNameInput"
+                defaultValue={course.title}
+                onChange={(value: string) => handleCourse("title", value, true)}
+              />
+            </td>
+          </tr>
 
-            <tr key="cFolder">
-              <td>
-                <Typography level="h4">
-                  {parseUICode("ui_course_folder")}
-                </Typography>
-              </td>
-              <td>
-                <InputField
-                  fieldKey="cFolderInput"
-                  disabled={true}
-                  defaultValue={path}
-                  placeholder={path}
-                  onChange={null}
-                />
-              </td>
-              <td>
-                <IconButton
-                  disabled={disableCourseFolderSelect}
-                  sx={{
-                    backgroundColor: "#F8A866",
-                    "&:hover": { backgroundColor: "#F68C35" },
-                    boxShadow: buttonShadow,
-                  }}
-                  onClick={() => handleFolderOpen()}
-                  aria-label={parseUICode("ui_aria_open_course_folder")}
-                >
-                  <FolderOpenIcon />
-                </IconButton>
-              </td>
-            </tr>
+          <tr key="cFolder">
+            <td>
+              <Typography level="h4">
+                {parseUICode("ui_course_folder")}
+              </Typography>
+            </td>
+            <td>
+              <InputField
+                fieldKey="cFolderInput"
+                disabled={true}
+                defaultValue={path}
+                placeholder={path}
+                onChange={null}
+              />
+            </td>
+            <td>
+              <IconButton
+                disabled={disableCourseFolderSelect}
+                sx={{
+                  backgroundColor: "#F8A866",
+                  "&:hover": { backgroundColor: "#F68C35" },
+                  boxShadow: buttonShadow,
+                }}
+                onClick={() => handleFolderOpen()}
+                aria-label={parseUICode("ui_aria_open_course_folder")}
+              >
+                <FolderOpenIcon />
+              </IconButton>
+            </td>
+          </tr>
 
-            <tr key="cModuleType">
-              <td>
-                <Typography level="h4">
-                  {parseUICode("ui_module_type")}
-                </Typography>
-              </td>
-              <td>
-                <Dropdown
-                  name="cModuleTypeInput"
-                  options={supportedModuleTypes}
-                  labelKey="typeName"
-                  defaultValue={getModuleTypeUI()}
-                  onChange={(value: string) => handleSetModuleType(value)}
-                ></Dropdown>
-              </td>
-            </tr>
+          <tr key="cModuleType">
+            <td>
+              <Typography level="h4">
+                {parseUICode("ui_module_type")}
+              </Typography>
+            </td>
+            <td>
+              <Dropdown
+                name="cModuleTypeInput"
+                options={supportedModuleTypes}
+                labelKey="typeName"
+                defaultValue={getModuleTypeUI()}
+                onChange={(value: string) => handleSetModuleType(value)}
+              ></Dropdown>
+            </td>
+          </tr>
 
-            <tr key="cModuleAmount">
-              <td>
-                <Typography level="h4">
-                  {parseUICode("ui_module_count")}
-                </Typography>
-              </td>
-              <td>
-                <NumberInput
-                  disabled={disableModuleOptions}
-                  value={course.modules}
-                  onChange={(value: number) => handleCourse("modules", value)}
-                ></NumberInput>
-              </td>
-            </tr>
+          <tr key="cModuleAmount">
+            <td>
+              <Typography level="h4">
+                {parseUICode("ui_module_count")}
+              </Typography>
+            </td>
+            <td>
+              <NumberInput
+                disabled={disableModuleOptions}
+                value={course.modules}
+                onChange={(value: number) => handleCourse("modules", value)}
+              ></NumberInput>
+            </td>
+          </tr>
 
-            <tr key="cCourseLevels">
-              <td>
-                <Grid
-                  container
-                  direction="row"
-                  justifyContent="flex-start"
-                  alignItems="center"
-                  spacing={1}
-                >
-                  <Grid xs={10}>
-                    <Typography level="h4">
-                      {parseUICode("ui_course_levels")}
-                    </Typography>
-                  </Grid>
-                  <Grid xs={2}>
-                    <HelpText text={parseUICode("help_course_levels")} />
-                  </Grid>
+          <tr key="cCourseLevels">
+            <td>
+              <Grid
+                container
+                direction="row"
+                justifyContent="flex-start"
+                alignItems="center"
+                spacing={1}
+              >
+                <Grid xs={10}>
+                  <Typography level="h4">
+                    {parseUICode("ui_course_levels")}
+                  </Typography>
                 </Grid>
-              </td>
-              <td>
-                <InputField
-                  fieldKey="cCourseLevelsInput"
-                  isLarge={true}
-                  defaultValue={courseLevelsToString(course.levels)}
-                  onChange={(value: string) =>
-                    handleCourse("levels", splitCourseLevels(value), true)
-                  }
-                />
-              </td>
-            </tr>
+                <Grid xs={2}>
+                  <HelpText text={parseUICode("help_course_levels")} />
+                </Grid>
+              </Grid>
+            </td>
+            <td>
+              <InputField
+                fieldKey="cCourseLevelsInput"
+                isLarge={true}
+                defaultValue={courseLevelsToString(course.levels)}
+                onChange={(value: string) =>
+                  handleCourse("levels", splitCourseLevels(value), true)
+                }
+              />
+            </td>
+          </tr>
 
-            <tr key="cLanguage">
-              <td>
-                <Typography level="h4">
-                  {parseUICode("ui_course_language")}
-                </Typography>
-              </td>
-              <td>
-                <Dropdown
-                  name="cLanguageInput"
-                  options={languageOptions}
-                  labelKey="languageName"
-                  defaultValue={
-                    languageOptions.find(
-                      (elem) => elem.abbreviation === course.language
-                    )?.languageName
-                  }
-                  onChange={(value: string) => handleSetLanguage(value)}
-                ></Dropdown>
-              </td>
-            </tr>
+          <tr key="cLanguage">
+            <td>
+              <Typography level="h4">
+                {parseUICode("ui_course_language")}
+              </Typography>
+            </td>
+            <td>
+              <Dropdown
+                name="cLanguageInput"
+                options={languageOptions}
+                labelKey="languageName"
+                defaultValue={
+                  languageOptions.find(
+                    (elem) => elem.abbreviation === course.language
+                  )?.languageName
+                }
+                onChange={(value: string) => handleSetLanguage(value)}
+              ></Dropdown>
+            </td>
+          </tr>
 
-            <tr key="cCodeLanguage">
-              <td>
-                <Typography level="h4">
-                  {parseUICode("ui_code_lang")}
-                </Typography>
-              </td>
-              <td>
-                <Dropdown
-                  name="cCodeLanguageInput"
-                  labelKey="name"
-                  defaultValue={course.codeLanguage.name}
-                  options={codeLanguageOptions}
-                  onChange={handleCodeLangChange}
-                ></Dropdown>
-              </td>
-            </tr>
+          <tr key="cCodeLanguage">
+            <td>
+              <Typography level="h4">{parseUICode("ui_code_lang")}</Typography>
+            </td>
+            <td>
+              <Dropdown
+                name="cCodeLanguageInput"
+                labelKey="name"
+                defaultValue={course.codeLanguage.name}
+                options={codeLanguageOptions}
+                onChange={handleCodeLangChange}
+              ></Dropdown>
+            </td>
+          </tr>
 
-            <tr key="cCGID">
-              <td>
-                <Typography level="h4">CodeGrade ID</Typography>
-              </td>
-              <td>
-                <InputField
-                  fieldKey="cCGIDInput"
-                  defaultValue={
-                    course?.CodeGradeID ? String(course.CodeGradeID) : ""
-                  }
-                  onChange={(value: string) =>
-                    handleCourse("CodeGradeID", parseInt(value), true)
-                  }
-                />
-              </td>
-            </tr>
-          </tbody>
-        </Table>
-        <div className="emptySpace1" />
-        <Stack
-          direction="row"
-          justifyContent="flex-start"
-          alignItems="center"
-          spacing={2}
+          <tr key="cCGID">
+            <td>
+              <Typography level="h4">CodeGrade ID</Typography>
+            </td>
+            <td>
+              <InputField
+                fieldKey="cCGIDInput"
+                defaultValue={
+                  course?.CodeGradeID ? String(course.CodeGradeID) : ""
+                }
+                onChange={(value: string) =>
+                  handleCourse("CodeGradeID", parseInt(value), true)
+                }
+              />
+            </td>
+          </tr>
+        </tbody>
+      </Table>
+      <div className="emptySpace1" />
+      <Stack
+        direction="row"
+        justifyContent="flex-start"
+        alignItems="center"
+        spacing={2}
+      >
+        <ButtonComp
+          buttonType="normal"
+          onClick={() => {
+            handleSaveCourse();
+          }}
+          ariaLabel={parseUICode("ui_aria_save")}
         >
-          <ButtonComp
-            buttonType="normal"
-            onClick={() => {
-              handleSaveCourse();
-            }}
-            ariaLabel={parseUICode("ui_aria_save")}
-          >
-            {parseUICode("ui_save")}
-          </ButtonComp>
-          <ButtonComp
-            buttonType="normal"
-            onClick={() => console.log(course)}
-            ariaLabel={parseUICode("ui_aria_save")}
-          >
-            log course state
-          </ButtonComp>
-          <ButtonComp
-            buttonType="normal"
-            onClick={() => navigate(-1)}
-            ariaLabel={parseUICode("ui_aria_cancel")}
-          >
-            {parseUICode("ui_cancel")}
-          </ButtonComp>
-        </Stack>
-      </div>
-      {showSnackbar ? (
-        <SnackbarComp
-          text={snackBarAttributes.text}
-          color={snackBarAttributes.color}
-          setShowSnackbar={setShowSnackbar}
-        ></SnackbarComp>
-      ) : null}
+          {parseUICode("ui_save")}
+        </ButtonComp>
+        <ButtonComp
+          buttonType="normal"
+          onClick={() => console.log(course)}
+          ariaLabel={parseUICode("ui_aria_save")}
+        >
+          log course state
+        </ButtonComp>
+        <ButtonComp
+          buttonType="normal"
+          onClick={() => navigate(-1)}
+          ariaLabel={parseUICode("ui_aria_cancel")}
+        >
+          {parseUICode("ui_cancel")}
+        </ButtonComp>
+      </Stack>
     </>
   );
 }

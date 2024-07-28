@@ -97,6 +97,19 @@ export interface SettingsType {
   language: string;
 }
 
+export interface SetData {
+  id: string;
+  fullCourse: boolean;
+  module: string;
+  name: string;
+  year: number;
+  period: number;
+  export: boolean;
+  format: string; // check this type and the purpose
+  exportCGConfigs: boolean;
+  assignmentCGids: { [key: string]: string };
+}
+
 export type CodeAssignmentDatabase = {
   id: string;
   type: string;
@@ -157,7 +170,6 @@ export type ContextBridgeAPI = {
     assignment: CodeAssignmentData,
     coursePath: string
   ) => IpcResult;
-  //saveProject: (assignment: CodeAssignmentData, coursePath: string) => IpcResult;
   handleGetAssignmentsFS: (coursePath: string, id: string) => IpcResult;
   getAssignmentsDB: (coursePath: string) => IpcResult;
   handleUpdateAssignmentFS: (
@@ -179,4 +191,10 @@ export type ContextBridgeAPI = {
   // CRUD Tag
   getAssignmentTagsDB: (coursePath: string) => IpcResult;
   getModuleTagsDB: (coursePath: string) => IpcResult;
+
+  // CRUD Set
+  addSetFS: (coursePath: string, set: SetData) => IpcResult;
+  getSetsFS: (coursePath: string) => IpcResult;
+  updateSetFS: (coursePath: string, set: SetData) => IpcResult;
+  deleteSetsFS: (coursePath: string, ids: string[]) => IpcResult;
 };

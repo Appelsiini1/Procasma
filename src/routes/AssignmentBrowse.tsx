@@ -1,4 +1,3 @@
-import PageHeaderBar from "../components/PageHeaderBar";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -8,97 +7,45 @@ import {
   ListItem,
   Stack,
   Typography,
-  Checkbox,
-  ListItemButton,
 } from "@mui/joy";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
 import {
   CodeAssignmentData,
   CodeAssignmentDatabase,
-  CourseData,
   ModuleDatabase,
   TagDatabase,
 } from "../types";
 import {
   WithCheckWrapper,
   filterState,
+  generateChecklist,
   generateFilterList,
-  handleCheckArray,
   handleUpdateFilter,
   handleUpdateUniqueTags,
   setSelectedViaChecked,
+  wrapWithCheck,
 } from "../rendererHelpers/browseHelpers";
-import SnackbarComp, {
-  SnackBarAttributes,
-  functionResultToSnackBar,
-} from "../components/SnackBarComp";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import { ActiveObjectContext, UIContext } from "../components/Context";
 
 export interface AssignmentWithCheck extends WithCheckWrapper {
   value: CodeAssignmentDatabase;
 }
 
-export function generateAssignments(
-  assignments: AssignmentWithCheck[],
-  setCourseAssignments: React.Dispatch<
-    React.SetStateAction<AssignmentWithCheck[]>
-  >
-) {
-  return assignments
-    ? assignments.map((assignment: AssignmentWithCheck) => {
-        return (
-          <ListItem
-            key={assignment.value.id}
-            startAction={
-              <Checkbox
-                checked={assignment.isChecked}
-                onChange={() =>
-                  handleCheckArray(
-                    assignment.value,
-                    !assignment.isChecked,
-                    setCourseAssignments
-                  )
-                }
-              ></Checkbox>
-            }
-          >
-            <ListItemButton
-              selected={assignment.isChecked}
-              onClick={() =>
-                handleCheckArray(
-                  assignment.value,
-                  !assignment.isChecked,
-                  setCourseAssignments
-                )
-              }
-            >
-              {assignment.value.title}
-            </ListItemButton>
-          </ListItem>
-        );
-      })
-    : null;
-}
-
-export default function AssignmentBrowse({
-  activeCourse,
-  activePath,
-  activeAssignment,
-  handleActiveAssignment,
-}: {
-  activeCourse: CourseData;
-  activePath: string;
-  activeAssignment: CodeAssignmentData;
-  handleActiveAssignment: (value: CodeAssignmentData) => void;
-}) {
-  const navigate = useNavigate();
-  let assignments: Array<React.JSX.Element> = null;
-  let modules: Array<React.JSX.Element> = null;
-  let tags: Array<React.JSX.Element> = null;
-
+export default function AssignmentBrowse() {
+  const {
+    activePath,
+    activeAssignment,
+    handleActiveAssignment,
+  }: {
+    activePath: string;
+    activeAssignment: CodeAssignmentData;
+    handleActiveAssignment: (value: CodeAssignmentData) => void;
+  } = useContext(ActiveObjectContext);
+  const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [courseAssignments, setCourseAssignments] = useState<
     Array<AssignmentWithCheck>
   >([]);
@@ -110,9 +57,11 @@ export default function AssignmentBrowse({
   const [uniqueTags, setUniqueTags] = useState<Array<filterState>>([]);
   const [uniqueModules, setUniqueModules] = useState<Array<filterState>>([]);
   const [search, setSearch] = useState<string>("");
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  const [snackBarAttributes, setSnackBarAttributes] =
-    useState<SnackBarAttributes>({ color: "success", text: "" });
+
+  const navigate = useNavigate();
+  let assignments: Array<React.JSX.Element> = null;
+  let modules: Array<React.JSX.Element> = null;
+  let tags: Array<React.JSX.Element> = null;
 
   const refreshAssignments = async () => {
     try {
@@ -146,23 +95,13 @@ export default function AssignmentBrowse({
       );
 
       // wrap the fetched assignments to store checked state
-      const assignentsWithCheck = assignmentsResult.map((assignment) => {
-        const assignmentCheck: AssignmentWithCheck = {
-          isChecked: false,
-          value: assignment,
-        };
-
-        return assignmentCheck;
-      });
+      const assignentsWithCheck: AssignmentWithCheck[] =
+        wrapWithCheck(assignmentsResult);
 
       // update assignments and filters
       setCourseAssignments(assignentsWithCheck);
     } catch (err) {
-      functionResultToSnackBar(
-        { error: parseUICode(err.message) },
-        setShowSnackbar,
-        setSnackBarAttributes
-      );
+      handleSnackbar({ error: parseUICode(err.message) });
     }
   };
 
@@ -191,6 +130,7 @@ export default function AssignmentBrowse({
     }
     refreshAssignments();
     updateFilters();
+    handleHeaderPageName("ui_assignment_browser");
   }, []);
 
   async function handleDeleteSelected() {
@@ -210,12 +150,7 @@ export default function AssignmentBrowse({
       snackbarText = err.message;
       snackbarSeverity = "error";
     }
-
-    functionResultToSnackBar(
-      { [snackbarSeverity]: parseUICode(snackbarText) },
-      setShowSnackbar,
-      setSnackBarAttributes
-    );
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
   }
 
   // Update the selected assignments counter
@@ -232,16 +167,12 @@ export default function AssignmentBrowse({
     refreshAssignments();
   }, [uniqueTags, uniqueModules, search]);
 
-  assignments = generateAssignments(courseAssignments, setCourseAssignments);
+  assignments = generateChecklist(courseAssignments, setCourseAssignments);
   modules = generateFilterList(uniqueModules, setUniqueModules);
   tags = generateFilterList(uniqueTags, setUniqueTags);
 
   async function handleOpenAssignment() {
     try {
-      if (!selectedAssignments || selectedAssignments.length < 1) {
-        throw new Error("ui_no_assignment_seleted");
-      }
-
       const assignmentsResult = await handleIPCResult(() =>
         window.api.handleGetAssignmentsFS(activePath, selectedAssignments[0].id)
       );
@@ -249,14 +180,11 @@ export default function AssignmentBrowse({
       setNavigateToAssignment(true);
       handleActiveAssignment(assignmentsResult[0]);
     } catch (err) {
-      functionResultToSnackBar(
-        { error: parseUICode(err.message) },
-        setShowSnackbar,
-        setSnackBarAttributes
-      );
+      handleSnackbar({ error: parseUICode(err.message) });
     }
   }
 
+  // Navigates to an assignment page by listening to the active assignment.
   useEffect(() => {
     if (activeAssignment && navigateToAssignment) {
       setNavigateToAssignment(false);
@@ -272,149 +200,134 @@ export default function AssignmentBrowse({
 
   return (
     <>
-      <PageHeaderBar
-        pageName={parseUICode("ui_assignment_browser")}
-        courseID={activeCourse?.id}
-        courseTitle={activeCourse?.title}
-      />
-      <div className="content">
-        <div className="emptySpace1" />
-        <SearchBar
-          autoFillOptions={courseAssignments}
-          optionLabel={"title"}
-          searchFunction={handleSearch}
-        ></SearchBar>
+      <div className="emptySpace1" />
+      <SearchBar
+        autoFillOptions={courseAssignments}
+        optionLabel={"title"}
+        searchFunction={handleSearch}
+      ></SearchBar>
 
-        <div className="emptySpace1" />
+      <div className="emptySpace1" />
 
-        <div className="emptySpace1" />
-        <Stack
-          direction="row"
-          justifyContent="flex-start"
-          alignItems="center"
-          spacing={2}
+      <div className="emptySpace1" />
+      <Stack
+        direction="row"
+        justifyContent="flex-start"
+        alignItems="center"
+        spacing={2}
+      >
+        <ButtonComp
+          buttonType="normal"
+          onClick={() => {
+            //handleCreateSet();
+          }}
+          ariaLabel={parseUICode("ui_create_new_set")}
+          disabled={numSelected > 0 ? false : true}
         >
-          <ButtonComp
-            buttonType="normal"
-            onClick={() => {
-              //handleCreateSet();
-            }}
-            ariaLabel={parseUICode("ui_create_new_set")}
-            disabled={numSelected > 0 ? false : true}
-          >
-            {parseUICode("ui_create_set")}
-          </ButtonComp>
-          <ButtonComp
-            confirmationModal={true}
-            modalText={`${parseUICode("ui_delete")} 
+          {parseUICode("ui_create_set")}
+        </ButtonComp>
+        <ButtonComp
+          confirmationModal={true}
+          modalText={`${parseUICode("ui_delete")} 
               ${numSelected}`}
-            buttonType="normal"
-            onClick={() => handleDeleteSelected()}
-            ariaLabel={parseUICode("ui_aria_remove_selected")}
-          >
-            {`${parseUICode("ui_delete")} ${numSelected}`}
-          </ButtonComp>
-          <ButtonComp
-            buttonType="normal"
-            onClick={() => {
-              handleOpenAssignment();
-            }}
-            ariaLabel={parseUICode("ui_aria_show_edit")}
-            disabled={numSelected === 1 ? false : true}
-          >
-            {parseUICode("ui_show_edit")}
-          </ButtonComp>
-        </Stack>
-
-        <div className="emptySpace2" />
-        <Grid
-          container
-          spacing={2}
-          direction="row"
-          justifyContent="flex-start"
-          alignItems="stretch"
-          sx={{ minWidth: "100%" }}
+          buttonType="normal"
+          onClick={() => handleDeleteSelected()}
+          ariaLabel={parseUICode("ui_aria_remove_selected")}
+          disabled={numSelected > 0 ? false : true}
         >
-          <Grid xs={8}>
-            <Stack
-              direction="column"
-              justifyContent="center"
-              alignItems="flex-start"
-              spacing={2}
-            >
-              <Typography level="h3">{parseUICode("assignments")}</Typography>
+          {`${parseUICode("ui_delete")} ${numSelected}`}
+        </ButtonComp>
+        <ButtonComp
+          buttonType="normal"
+          onClick={() => handleOpenAssignment()}
+          ariaLabel={parseUICode("ui_aria_show_edit")}
+          disabled={numSelected === 1 ? false : true}
+        >
+          {parseUICode("ui_show_edit")}
+        </ButtonComp>
+      </Stack>
 
-              <Box
-                height="40rem"
-                maxHeight="50vh"
-                width="100%"
-                sx={{
-                  border: "2px solid lightgrey",
-                  borderRadius: "0.2rem",
-                }}
-                overflow={"auto"}
-              >
-                <List>{assignments}</List>
-              </Box>
-            </Stack>
-          </Grid>
-          <Grid xs={4}>
-            <Stack
-              direction="column"
-              justifyContent="center"
-              alignItems="flex-start"
-              spacing={2}
-            >
-              <Typography level="h3">{parseUICode("ui_filter")}</Typography>
+      <div className="emptySpace2" />
+      <Grid
+        container
+        spacing={2}
+        direction="row"
+        justifyContent="flex-start"
+        alignItems="stretch"
+        sx={{ minWidth: "100%" }}
+      >
+        <Grid xs={8}>
+          <Stack
+            direction="column"
+            justifyContent="center"
+            alignItems="flex-start"
+            spacing={2}
+          >
+            <Typography level="h3">{parseUICode("assignments")}</Typography>
 
-              <Box
-                height="40rem"
-                maxHeight="50vh"
-                width="100%"
-                sx={{
-                  border: "2px solid lightgrey",
-                  borderRadius: "0.2rem",
-                }}
-                overflow={"auto"}
-              >
-                <List>
-                  <ListItem nested>
-                    <ListSubheader>{parseUICode("ui_tags")}</ListSubheader>
-                    <List>{tags}</List>
-                  </ListItem>
-                  <ListItem nested>
-                    <ListSubheader>{parseUICode("ui_modules")}</ListSubheader>
-                    <List>{modules}</List>
-                  </ListItem>
-                </List>
-              </Box>
-            </Stack>
-          </Grid>
+            <Box
+              height="40rem"
+              maxHeight="50vh"
+              width="100%"
+              sx={{
+                border: "2px solid lightgrey",
+                borderRadius: "0.2rem",
+              }}
+              overflow={"auto"}
+            >
+              <List>{assignments}</List>
+            </Box>
+          </Stack>
         </Grid>
-
-        <div className="emptySpace1" />
-        <Stack
-          direction="row"
-          justifyContent="flex-start"
-          alignItems="center"
-          spacing={2}
-        >
-          <ButtonComp
-            buttonType="normal"
-            onClick={() => navigate(-1)}
-            ariaLabel={parseUICode("ui_aria_cancel")}
+        <Grid xs={4}>
+          <Stack
+            direction="column"
+            justifyContent="center"
+            alignItems="flex-start"
+            spacing={2}
           >
-            {parseUICode("ui_cancel")}
-          </ButtonComp>
-        </Stack>
-      </div>
-      {showSnackbar ? (
-        <SnackbarComp
-          text={snackBarAttributes.text}
-          color={snackBarAttributes.color}
-          setShowSnackbar={setShowSnackbar}
-        ></SnackbarComp>
-      ) : null}
+            <Typography level="h3">{parseUICode("ui_filter")}</Typography>
+
+            <Box
+              height="40rem"
+              maxHeight="50vh"
+              width="100%"
+              sx={{
+                border: "2px solid lightgrey",
+                borderRadius: "0.2rem",
+              }}
+              overflow={"auto"}
+            >
+              <List>
+                <ListItem nested>
+                  <ListSubheader>{parseUICode("ui_tags")}</ListSubheader>
+                  <List>{tags}</List>
+                </ListItem>
+                <ListItem nested>
+                  <ListSubheader>{parseUICode("ui_modules")}</ListSubheader>
+                  <List>{modules}</List>
+                </ListItem>
+              </List>
+            </Box>
+          </Stack>
+        </Grid>
+      </Grid>
+
+      <div className="emptySpace1" />
+      <Stack
+        direction="row"
+        justifyContent="flex-start"
+        alignItems="center"
+        spacing={2}
+      >
+        <ButtonComp
+          buttonType="normal"
+          onClick={() => navigate(-1)}
+          ariaLabel={parseUICode("ui_aria_cancel")}
+        >
+          {parseUICode("ui_cancel")}
+        </ButtonComp>
+      </Stack>
     </>
   );
 }
