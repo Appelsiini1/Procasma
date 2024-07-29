@@ -37,6 +37,8 @@ export default function ModuleBrowse() {
     activeModule: ModuleData;
     handleActiveModule: (value: ModuleData) => void;
   } = useContext(ActiveObjectContext);
+  const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
+    useContext(UIContext);
   const [courseModules, setCourseModules] = useState<Array<ModuleWithCheck>>(
     []
   );
@@ -44,7 +46,6 @@ export default function ModuleBrowse() {
   const [navigateToModule, setNavigateToModule] = useState(false);
   const [numSelected, setNumSelected] = useState(0);
   const [uniqueTags, setUniqueTags] = useState<Array<filterState>>([]);
-  const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
 
   const navigate = useNavigate();
   let modules: Array<React.JSX.Element> = null;
@@ -69,7 +70,7 @@ export default function ModuleBrowse() {
 
       let moduleResults: ModuleDatabase[] = [];
 
-      moduleResults = await handleIPCResult(() =>
+      moduleResults = await handleIPCResult(setIPCLoading, () =>
         window.api.getFilteredModulesDB(activePath, filters)
       );
 
@@ -90,7 +91,7 @@ export default function ModuleBrowse() {
   };
 
   async function updateFilters() {
-    const tagsResult: TagDatabase[] = await handleIPCResult(() =>
+    const tagsResult: TagDatabase[] = await handleIPCResult(setIPCLoading, () =>
       window.api.getModuleTagsDB(activePath)
     );
 
@@ -111,7 +112,7 @@ export default function ModuleBrowse() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_delete_success";
     try {
-      await handleIPCResult(() =>
+      await handleIPCResult(setIPCLoading, () =>
         window.api.deleteModulesDB(
           activePath,
           selectedModules.map((module) => module.id)

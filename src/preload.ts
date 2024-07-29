@@ -54,6 +54,8 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("addModuleDB", coursePath, module),
   getModulesDB: (coursePath: string) =>
     ipcRenderer.invoke("getModulesDB", coursePath),
+  updateModuleDB: (coursePath: string, module: ModuleData) =>
+    ipcRenderer.invoke("updateModuleDB", coursePath, module),
   deleteModulesDB: (coursePath: string, ids: number) =>
     ipcRenderer.invoke("deleteModulesDB", coursePath, ids),
   getFilteredModulesDB: (coursePath: string, filters: any) =>

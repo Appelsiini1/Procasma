@@ -28,7 +28,8 @@ export default function SetBrowse() {
     activeSet: SetData;
     handleActiveSet: (value: SetData) => void;
   } = useContext(ActiveObjectContext);
-  const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
+  const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
+    useContext(UIContext);
   const [courseSets, setCourseSets] = useState<Array<SetWithCheck>>([]);
   const [selectedSets, setSelectedSets] = useState<Array<SetData>>([]);
   const [navigateToSet, setNavigateToSet] = useState(false);
@@ -42,7 +43,7 @@ export default function SetBrowse() {
         return;
       }
 
-      const setsResult = await handleIPCResult(() =>
+      const setsResult = await handleIPCResult(setIPCLoading, () =>
         window.api.getSetsFS(activePath)
       );
 
@@ -67,7 +68,7 @@ export default function SetBrowse() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_delete_success";
     try {
-      await handleIPCResult(() =>
+      await handleIPCResult(setIPCLoading, () =>
         window.api.deleteSetsFS(
           activePath,
           selectedSets.map((set) => set.id)

@@ -14,6 +14,7 @@ import {
   addAssignmentDB,
   deleteAssignmentsDB,
   initDB,
+  updateAssignmentDB,
 } from "./databaseOperations";
 import log from "electron-log/node";
 
@@ -402,7 +403,11 @@ async function _handleAddOrUpdateAssignmentFS(
 
     fs.writeFileSync(hashFilePath, assignmentJSON, "utf8");
 
-    await addAssignmentDB(coursePath, assignment);
+    if (oldAssignment) {
+      await updateAssignmentDB(coursePath, assignment);
+    } else {
+      await addAssignmentDB(coursePath, assignment);
+    }
 
     return "ui_assignment_save_success";
   } catch (err) {

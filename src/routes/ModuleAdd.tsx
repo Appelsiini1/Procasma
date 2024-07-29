@@ -21,10 +21,11 @@ export default function ModuleAdd() {
     activePath: string;
     activeModule?: ModuleData;
   } = useContext(ActiveObjectContext);
+  const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
+    useContext(UIContext);
   const [module, handleModule] = useModule(
     activeModule ? activeModule : defaultModule
   );
-  const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
 
   const pageType = useLoaderData();
   const navigate = useNavigate();
@@ -43,11 +44,11 @@ export default function ModuleAdd() {
     let snackbarText = "ui_module_save_success";
     try {
       if (pageType === "manage") {
-        snackbarText = await handleIPCResult(() =>
+        snackbarText = await handleIPCResult(setIPCLoading, () =>
           window.api.updateModuleDB(activePath, module)
         );
       } else {
-        snackbarText = await handleIPCResult(() =>
+        snackbarText = await handleIPCResult(setIPCLoading, () =>
           window.api.addModuleDB(activePath, module)
         );
       }

@@ -62,7 +62,7 @@ export default function Root() {
 
   const refreshAssignmentsInIndex = async () => {
     try {
-      const count = await handleIPCResult(() =>
+      const count = await handleIPCResult(setIPCLoading, () =>
         window.api.getAssignmentCountDB(activePath)
       );
 
@@ -73,7 +73,7 @@ export default function Root() {
   };
 
   useEffect(() => {
-    refreshTitle();
+    refreshTitle(setIPCLoading);
     handleHeaderPageName("ui_main");
     handleHeaderCourseID(activeCourse?.id);
     handleHeaderCourseTitle(activeCourse?.title);
@@ -122,16 +122,15 @@ export default function Root() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_course_folder_opened";
     try {
-      const coursePath: string = await handleIPCResult(
-        () => window.api.selectDir(),
-        setIPCLoading
+      const coursePath: string = await handleIPCResult(setIPCLoading, () =>
+        window.api.selectDir()
       );
 
       if (coursePath.length === 0) {
         throw new Error("ui_course_folder_invalid");
       }
 
-      const course: CourseData = await handleIPCResult(() =>
+      const course: CourseData = await handleIPCResult(setIPCLoading, () =>
         window.api.handleGetCourseFS(coursePath)
       );
 
@@ -229,7 +228,7 @@ export default function Root() {
             </Grid>
             <Grid>
               <ButtonComp
-                buttonType="settings"
+                buttonType="openCourse"
                 onClick={() => {
                   navigate("/AssignmentBrowse");
                 }}
@@ -333,7 +332,7 @@ export default function Root() {
             </Grid>
             <Grid>
               <ButtonComp
-                buttonType="settings"
+                buttonType="openCourse"
                 onClick={() => {
                   navigate("/moduleBrowse");
                 }}

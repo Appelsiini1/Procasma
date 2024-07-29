@@ -10,15 +10,21 @@ import { parseUICode } from "./translation";
  * Uses parseUICode to convert message codes to text.
  */
 export async function handleIPCResult(
-  IpcCall: () => IpcResult,
-  setIPCLoading?: (process: string, pushing: boolean) => void
+  setIPCLoading: (process: string, pushing: boolean) => void,
+  IpcCall: () => IpcResult
 ): Promise<any> {
+  let result: IpcResult = {};
   if (setIPCLoading) {
     setIPCLoading(IpcCall.toString(), true);
   }
-  const result: IpcResult = await IpcCall();
-  if (setIPCLoading) {
-    setIPCLoading(IpcCall.toString(), false);
+  try {
+    result = await IpcCall();
+  } catch (err) {
+    throw new Error(parseUICode(err.message));
+  } finally {
+    if (setIPCLoading) {
+      setIPCLoading(IpcCall.toString(), false);
+    }
   }
 
   if (!result) {

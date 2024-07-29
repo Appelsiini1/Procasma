@@ -75,6 +75,10 @@
     "FI": "Poistu",
     "ENG": "Exit"
   },
+  "ui_processes": {
+    "FI": "prosessit",
+    "ENG": "processes"
+  },
   "course_create": {
     "FI": "Luo kurssi",
     "ENG": "Create course"
@@ -145,7 +149,7 @@
   },
   "ui_assignment_management": {
     "FI": "Tehtävien hallinta",
-    "ENG": "Assignment management"
+    "ENG": "Browse assignments"
   },
   "ui_edit_assignment": {
     "FI": "Muokkaa tehtävää",
@@ -1061,7 +1065,7 @@
   },
   "course_manage": {
     "FI": "Kurssin hallinta",
-    "ENG": "Course management"
+    "ENG": "Manage course"
   },
   "ui_assignment": {
     "FI": "Tehtävä",
@@ -1081,7 +1085,7 @@
   },
   "ui_module_management": {
     "FI": "Moduulien hallinta",
-    "ENG": "Module managment"
+    "ENG": "Browse modules"
   },
   "ui_export_project": {
     "FI": "Vie harjoitustyö",

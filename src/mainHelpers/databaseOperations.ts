@@ -510,9 +510,12 @@ export async function updateAssignmentDB(
 ): Promise<string> {
   return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
     try {
-      const getResult = await getAssignmentsDB(coursePath, [
-        assignment.assignmentID,
-      ]);
+      const queryOverride = `SELECT * FROM assignments WHERE id IN (?)`;
+      const getResult = await getAssignmentsDB(
+        coursePath,
+        [assignment.assignmentID],
+        queryOverride
+      );
       if (!getResult) {
         throw new Error(
           "Assignment does not exist in the database, cannot update."
@@ -535,6 +538,8 @@ export async function updateAssignmentDB(
           assignment.tags,
           assignment.assignmentID
         );
+        sql += `tags = ?,`;
+        params.push(assignment.tags.toString());
       }
       if (oldAssignment.module !== assignment.module) {
         sql += `module = ?,`;
@@ -805,7 +810,12 @@ export async function updateModuleDB(
 ): Promise<string> {
   return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
     try {
-      const getResult = await getModulesDB(coursePath, [module.id]);
+      const queryOverride = `SELECT * FROM modules WHERE id IN (?)`;
+      const getResult = await getModulesDB(
+        coursePath,
+        [module.id],
+        queryOverride
+      );
       if (!getResult) {
         return {
           error: "Module does not exist in the database, cannot update.",
@@ -829,6 +839,8 @@ export async function updateModuleDB(
           module.id.toString(),
           false
         );
+        sql += `tags = ?,`;
+        params.push(module.tags.toString());
       }
       if (oldModule.assignments !== module.assignments) {
         sql += `assignments = ?,`;
@@ -847,7 +859,7 @@ export async function updateModuleDB(
         params.push(module.instructions);
       }
 
-      if (sql !== `UPDATE assignments SET `) {
+      if (sql !== `UPDATE modules SET `) {
         if (sql.endsWith(",")) {
           sql = sql.slice(0, sql.length - 1);
         }
