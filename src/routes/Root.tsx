@@ -228,7 +228,7 @@ export default function Root() {
             </Grid>
             <Grid>
               <ButtonComp
-                buttonType="settings"
+                buttonType="openCourse"
                 onClick={() => {
                   navigate("/AssignmentBrowse");
                 }}
@@ -332,7 +332,7 @@ export default function Root() {
             </Grid>
             <Grid>
               <ButtonComp
-                buttonType="settings"
+                buttonType="openCourse"
                 onClick={() => {
                   navigate("/moduleBrowse");
                 }}

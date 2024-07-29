@@ -59,19 +59,19 @@ export const UIProvider = ({ children }: { children: any }) => {
     setIPCOperationLoading(IPCStack?.length > 0 ? true : false);
   }, [IPCStack]);*/
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
+    //let timeout: NodeJS.Timeout;
     if (IPCStack.length > 0) {
-      timeout = setTimeout(() => {
-        setIPCOperationLoading(true);
-      }, 1000);
+      //  timeout = setTimeout(() => {
+      setIPCOperationLoading(true);
+      //  }, 1);
     } else {
       setIPCOperationLoading(false);
     }
 
     // Cleanup function to clear the timeout if IPCStack changes or component unmounts
-    return () => {
+    /*return () => {
       clearTimeout(timeout);
-    };
+    };*/
   }, [IPCStack]);
 
   return (
