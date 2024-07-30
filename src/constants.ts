@@ -14,3 +14,10 @@ export const codeExtensions = [
   "css",
   "json",
 ];
+export const PDFMargins = {
+  bottom: "1cm",
+  top: "1cm",
+  left: "1cm",
+  right: "1cm",
+};
+export const PDFFormat = "A4";

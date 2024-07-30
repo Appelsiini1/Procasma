@@ -148,6 +148,13 @@ export interface GeneralResult {
   error?: string;
 }
 
+export interface PDFHtmlInput {
+  html: string;
+  header: string;
+  footer: string;
+  title: string;
+}
+
 export type ContextBridgeAPI = {
   // One-way, Renderer to Main
   setTitle: (title: string) => IpcResult;
