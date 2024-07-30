@@ -1,4 +1,4 @@
-export const version = "0.8.0";
+export const version = "0.8.1";
 export const courseMetaDataFileName = "course_info.json";
 export const DEVMODE = true;
 export const textExtensions = ["txt", "md", "csv", "log"];
