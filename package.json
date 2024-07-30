@@ -1,7 +1,7 @@
 {
   "name": "procasma",
   "productName": "Procasma",
-  "version": "0.3.0",
+  "version": "0.8.0",
   "description": "Dynamic Assignment Manager",
   "main": ".vite/build/main.js",
   "scripts": {
@@ -21,16 +21,16 @@
     "@electron-forge/plugin-fuses": "^7.4.0",
     "@electron-forge/plugin-vite": "^7.4.0",
     "@electron/fuses": "^1.8.0",
-    "@types/react": "^18.2.79",
-    "@types/react-dom": "^18.2.25",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "electron": "30.0.0",
     "eslint": "^8.57.0",
     "eslint-plugin-import": "^2.29.1",
     "ts-node": "^10.9.2",
-    "typescript": "^4.5.4",
-    "vite": "^5.2.9"
+    "typescript": "^4.9.5",
+    "vite": "^5.3.5"
   },
   "keywords": [],
   "author": {
@@ -39,17 +39,17 @@
   },
   "license": "UNLICENSED",
   "dependencies": {
-    "@emotion/react": "^11.11.4",
-    "@emotion/styled": "^11.11.5",
-    "@fontsource/inter": "^5.0.18",
-    "@mui/icons-material": "^5.15.17",
-    "@mui/joy": "^5.0.0-beta.36",
-    "electron-log": "^5.1.5",
-    "electron-squirrel-startup": "^1.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "@emotion/react": "^11.13.0",
+    "@emotion/styled": "^11.13.0",
+    "@fontsource/inter": "^5.0.19",
+    "@mui/icons-material": "^5.16.5",
+    "@mui/joy": "^5.0.0-beta.48",
+    "electron-log": "^5.1.7",
+    "electron-squirrel-startup": "^1.0.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-dropzone": "^14.2.3",
-    "react-router-dom": "^6.23.0",
+    "react-router-dom": "^6.25.1",
     "sqlite3": "^5.1.7"
   }
 }
