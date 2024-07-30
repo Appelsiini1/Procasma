@@ -317,7 +317,7 @@
   },
   "ui_no_assignments": {
     "FI": "Tehtävien määrä",
-    "ENG": "Number of assigments"
+    "ENG": "Number of assignments"
   },
   "ui_create": {
     "FI": "Luo",
@@ -651,29 +651,29 @@
     "FI": "Viikon numero",
     "ENG": "Week number"
   },
-  "ui_week_topics": {
+  "ui_module_topics": {
     "FI": "Aiheet",
     "ENG": "Topics"
   },
-  "ui_week_tags": {
-    "FI": "Viikon tunnisteet",
-    "ENG": "Week tags"
+  "ui_module_tags": {
+    "FI": "Moduulin tunnisteet",
+    "ENG": "Module tags"
   },
   "help_week_title": {
     "FI": "Syötä viikon otsikko. Jos kenttä jätetään tyhjäksi, käytetään oletusta.",
     "ENG": "Input the week a title. If left empty, the default will be used."
   },
-  "help_week_topics": {
-    "FI": "Lisää tähän viikolla/luennolla käsiteltävät aiheet. Erottele aiheet rivinvaihdolla.",
-    "ENG": "Add the topics that are covered on this week/lecture. Separate topics with a new line."
+  "help_module_topics": {
+    "FI": "Lisää tähän moduulissa käsiteltävät aiheet. Erottele aiheet rivinvaihdolla.",
+    "ENG": "Add the topics that are covered on this module. Separate topics with a new line."
   },
-  "help_week_tags": {
-    "FI": "Syötä viikon aihetunnisteet. Erote aihetunnisteet pilkulla.",
-    "ENG": "Input the tags for the week here. Separate each of them with a comma."
+  "help_module_tags": {
+    "FI": "Syötä moduulin aihetunnisteet. Erote aihetunnisteet pilkulla.",
+    "ENG": "Input the tags for the module here. Separate each of them with a comma."
   },
-  "help_week_inst": {
-    "FI": "Syötä viikon erikoisohjeet. Nämä tulostuvat aihelistan perään.",
-    "ENG": "Input any special instructions for the week. These will be printed after the topic list."
+  "help_module_inst": {
+    "FI": "Syötä moduulin erikoisohjeet. Nämä tulostuvat aihelistan perään.",
+    "ENG": "Input any special instructions for the module. These will be printed after the topic list."
   },
   "ui_assignment_browse": {
     "FI": "Tehtävien selaus",
