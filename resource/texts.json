@@ -55,6 +55,14 @@
     "FI": "L",
     "ENG": "L"
   },
+  "module_letter": {
+    "FI": "M",
+    "ENG": "M"
+  },
+  "week_letter": {
+    "FI": "V",
+    "ENG": "W"
+  },
   "ui_general": {
     "FI": "Yleinen",
     "ENG": "General"
@@ -202,6 +210,10 @@
   "ui_week": {
     "FI": "Viikko",
     "ENG": "Week"
+  },
+  "ui_lecture": {
+    "FI": "Luento",
+    "ENG": "Lecture"
   },
   "ui_show_edit": {
     "FI": "Näytä / Muokkaa",
