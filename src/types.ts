@@ -2,6 +2,7 @@ export const supportedLanguagesList: string[] = ["FI", "ENG"];
 export type SupportedLanguages = "FI" | "ENG";
 
 export type FileTypes = "text" | "image" | "code";
+export type SupportedModuleType = "week" | "module" | "lecture" | null;
 
 export interface FileData {
   fileName: string;
@@ -79,7 +80,7 @@ export interface CourseData {
   title?: string;
   id?: string;
   modules?: number;
-  moduleType?: "week" | "module" | null;
+  moduleType?: SupportedModuleType;
   language?: SupportedLanguages;
   codeLanguage?: CodeLanguage | null;
   CodeGradeID?: number;
@@ -89,8 +90,6 @@ export interface CourseData {
 }
 
 export type CourseLoaderData = "create" | "manage";
-
-export type SupportedModuleType = "week" | "module" | null;
 
 export interface SettingsType {
   codeLanguages: Array<CodeLanguage>;

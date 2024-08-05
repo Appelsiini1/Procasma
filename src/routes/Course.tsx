@@ -90,7 +90,12 @@ export default function Course() {
     }
   };
 
-  const moduleTypeOptions: string[] = ["ui_week", "ui_module", "ui_no_module"];
+  const moduleTypeOptions: string[] = [
+    "ui_week",
+    "ui_module",
+    "ui_lecture",
+    "ui_no_module",
+  ];
 
   const getModuleTypeUI = () => {
     const code = `ui_${course.moduleType}`;
