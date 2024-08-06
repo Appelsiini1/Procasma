@@ -1,6 +1,12 @@
 import { createContext, useEffect, useState } from "react";
 import { functionResultToSnackBar, SnackBarAttributes } from "./SnackBarComp";
-import { CodeAssignmentData, CourseData, ModuleData, SetData } from "../types";
+import {
+  CodeAssignmentData,
+  CodeAssignmentDatabase,
+  CourseData,
+  ModuleData,
+  SetData,
+} from "../types";
 
 export const UIContext = createContext(null);
 export const ActiveObjectContext = createContext(null);
@@ -45,7 +51,7 @@ export const UIProvider = ({ children }: { children: any }) => {
       setIPCStack([...IPCStack, process]);
     } else {
       // pop one matching process name
-      let newStack = [...IPCStack];
+      const newStack = [...IPCStack];
       const index = newStack.indexOf(process);
       if (index !== -1) {
         newStack.splice(index, 1); // Removes one element at the found index
@@ -109,6 +115,8 @@ export const ActiveObjectProvider = ({ children }: { children: any }) => {
   const [activePath, setActivePath] = useState<string>(null);
   const [activeAssignment, setActiveAssignment] =
     useState<CodeAssignmentData>(null);
+  const [activeAssignments, setActiveAssignments] =
+    useState<Array<CodeAssignmentDatabase>>(undefined);
   const [activeModule, setActiveModule] = useState<ModuleData>(null);
   const [activeSet, setActiveSet] = useState<SetData>(null);
 
@@ -132,6 +140,10 @@ export const ActiveObjectProvider = ({ children }: { children: any }) => {
     setActiveSet(value);
   }
 
+  function handleActiveAssignments(value: CodeAssignmentDatabase[]) {
+    setActiveAssignments(value);
+  }
+
   return (
     <>
       <ActiveObjectContext.Provider
@@ -142,6 +154,8 @@ export const ActiveObjectProvider = ({ children }: { children: any }) => {
           handleActivePath,
           activeAssignment,
           handleActiveAssignment,
+          activeAssignments,
+          handleActiveAssignments,
           activeModule,
           handleActiveModule,
           activeSet,

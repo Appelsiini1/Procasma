@@ -7,6 +7,8 @@ import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 import IosShareIcon from "@mui/icons-material/IosShare";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import DeleteIcon from "@mui/icons-material/Delete";
+import StarIcon from "@mui/icons-material/Star";
+import AutoFixNormalIcon from "@mui/icons-material/AutoFixNormal";
 import { useState } from "react";
 import {
   buttonMinWidth,
@@ -43,8 +45,38 @@ const smallWarning = {
   fontSize: "1em",
   minWidth: buttonMinWidth,
   boxShadow: buttonShadow,
-  height: "100%",
+  //height: "100%",
 } as const;
+
+const normalAlt = {
+  color: "#00000",
+  backgroundColor: "#66B6F8",
+  "&:hover": { backgroundColor: "#359FF6" },
+  padding: "0.1em 1.2em",
+  fontSize: "1em",
+  minWidth: buttonMinWidth,
+  boxShadow: buttonShadow,
+};
+
+const normal = {
+  color: "#00000",
+  backgroundColor: "#F8A866",
+  "&:hover": { backgroundColor: "#F68C35" },
+  padding: "0.1em 1.2em",
+  fontSize: "1em",
+  minWidth: buttonMinWidth,
+  boxShadow: buttonShadow,
+};
+
+const grey = {
+  color: "#00000",
+  backgroundColor: "#aaaaaa",
+  "&:hover": { backgroundColor: "#F68C35" },
+  padding: "0.1em 1.2em",
+  fontSize: "1em",
+  minWidth: buttonMinWidth,
+  boxShadow: buttonShadow,
+};
 
 const decorStyle = { fontSize: "1.4em" };
 
@@ -62,7 +94,10 @@ type ButtonProps = {
     | "normalAlt"
     | "export"
     | "delete"
-    | "largeAddAlt";
+    | "largeAddAlt"
+    | "starAlt"
+    | "algorithm"
+    | "grey";
   onClick: () => void;
   margin?: boolean;
   confirmationModal?: boolean;
@@ -119,27 +154,11 @@ export default function ButtonComp({
       decor = <DeleteIcon sx={decorStyle} />;
       break;
     case "normal":
-      style = {
-        color: "#00000",
-        backgroundColor: "#F8A866",
-        "&:hover": { backgroundColor: "#F68C35" },
-        padding: "0.1em 1.2em",
-        fontSize: "1em",
-        minWidth: buttonMinWidth,
-        boxShadow: buttonShadow,
-      };
+      style = normal;
       decor = null;
       break;
     case "normalAlt":
-      style = {
-        color: "#00000",
-        backgroundColor: "#66B6F8",
-        "&:hover": { backgroundColor: "#359FF6" },
-        padding: "0.1em 1.2em",
-        fontSize: "1em",
-        minWidth: buttonMinWidth,
-        boxShadow: buttonShadow,
-      };
+      style = normalAlt;
       decor = null;
       break;
     case "export":
@@ -149,6 +168,18 @@ export default function ButtonComp({
     case "largeAddAlt":
       style = largeAlt;
       decor = <AddIcon sx={decorStyle} />;
+      break;
+    case "starAlt":
+      style = normalAlt;
+      decor = <StarIcon sx={decorStyle} />;
+      break;
+    case "algorithm":
+      style = normal;
+      decor = <AutoFixNormalIcon sx={decorStyle} />;
+      break;
+    case "grey":
+      style = grey;
+      decor = null;
       break;
     default:
       break;

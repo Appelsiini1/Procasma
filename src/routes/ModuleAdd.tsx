@@ -86,7 +86,7 @@ export default function ModuleAdd() {
           <tr key="mAssignmentCount">
             <td>
               <Typography level="h4">
-                {parseUICode("ui_no_assignments")}
+                {parseUICode("ui_assignment_count")}
               </Typography>
             </td>
             <td>

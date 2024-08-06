@@ -3,8 +3,10 @@ import path from "path";
 import {
   CodeAssignmentData,
   CourseData,
+  ExportSetData,
   FileData,
-  SetData,
+  SetAlgoAssignmentData,
+  SetVariation,
   Variation,
 } from "../types";
 import { spacesToUnderscores } from "../generalHelpers/converters";
@@ -132,10 +134,6 @@ export async function handleAddCourseFS(
 
     // init db
     await initDB(coursePath);
-
-    // create weeks.json
-    const weeksPath = path.join(coursePath, "weeks.json");
-    fs.writeFileSync(weeksPath, "", "utf8");
 
     // create sets.json
     const setsPath = path.join(coursePath, "sets.json");
@@ -342,6 +340,48 @@ export function handleGetAssignmentsFS(
   }
 }
 
+/**
+ * Get assignments from the file system, then truncate the
+ * example run attributes such that only the information
+ * relevant to (e.g.) the set generation algorithm is kept.
+ */
+export function getTruncatedAssignmentsFS(
+  coursePath: string,
+  id?: string
+): SetAlgoAssignmentData[] {
+  try {
+    const originals = handleGetAssignmentsFS(coursePath, id);
+    const truncateds: SetAlgoAssignmentData[] = originals.map((assignment) => {
+      const oldVariations = assignment.variations;
+      const truncatedVariations = Object.keys(oldVariations).reduce(
+        (acc, key) => {
+          // Deconstructing the old variation to remove unwanted fields
+          const { instructions, exampleRuns, files, ...newVariation } =
+            oldVariations[key];
+          acc[key] = { ...newVariation, usedInBadness: 0 };
+          return acc;
+        },
+        {} as { [key: string]: SetVariation }
+      );
+
+      // Deconstructing the old assignment to remove the old variations
+      const { variations, ...newAssignment } = assignment;
+
+      // adding the new (truncated) variations to the assignment
+      const updatedAssignment: SetAlgoAssignmentData = {
+        ...newAssignment,
+        variations: truncatedVariations,
+      };
+
+      return updatedAssignment;
+    });
+    return truncateds;
+  } catch (err) {
+    log.error("Error in getTruncatedAssignmentsFS():", err.message);
+    throw err;
+  }
+}
+
 function _AssignmentExistsFS(
   assignmentName: string,
   coursePath: string
@@ -360,11 +400,74 @@ function _AssignmentExistsFS(
   }
 }
 
+/**
+ * Add or delete an assignment id from the "next" or "previous"
+ * array of the assignments specified by ids.
+ * @param id The assignment id to remove
+ * @param ids The assignment ids who to remove from
+ * @param fieldName Either "next" or "previous".
+ * @param add True to add, false to delete
+ */
+function _modifyConsecutiveAssignmentsFS(
+  coursePath: string,
+  id: string,
+  ids: string[],
+  fieldName: "next" | "previous",
+  add?: boolean
+) {
+  try {
+    // loop through id/id.json files
+    const assignmentDataPath = path.join(coursePath, "assignment_data");
+
+    const assignmentFolders = fs.readdirSync(assignmentDataPath);
+    assignmentFolders.map((folder) => {
+      const folderId = path.basename(folder);
+
+      // return if the folder assignment id is not in "ids"
+      if (!ids?.find((consecutive) => consecutive === folderId)) {
+        return;
+      }
+
+      const metadataPath = path.join(
+        assignmentDataPath,
+        folder,
+        `${folderId}.json`
+      );
+      const assignment: CodeAssignmentData = handleReadFileFS(metadataPath);
+
+      // if the current assignment id does not yet exist in next, push it
+      if (!assignment[fieldName]) {
+        assignment[fieldName] = [];
+      }
+
+      if (add) {
+        // add the id
+        if (!assignment[fieldName].find((consecutive) => consecutive === id)) {
+          assignment[fieldName].push(id);
+        }
+      } else {
+        // remove the id
+        const index = assignment[fieldName].indexOf(id);
+        if (index > -1) {
+          assignment[fieldName].splice(index, 1);
+        }
+      }
+
+      fs.writeFileSync(metadataPath, JSON.stringify(assignment), "utf8");
+    });
+
+    return;
+  } catch (err) {
+    log.error("Error in _modifyConsecutiveAssignmentsFS():", err.message);
+    throw err;
+  }
+}
+
 async function _handleAddOrUpdateAssignmentFS(
   assignment: CodeAssignmentData,
   coursePath: string,
   oldAssignment: boolean
-) {
+): Promise<CodeAssignmentData> {
   try {
     const title = assignment?.title;
     if (!title || title.length < 1) {
@@ -396,11 +499,46 @@ async function _handleAddOrUpdateAssignmentFS(
     // clean the variation folder of deleted files
     _deleteOldFilesFromVariationsFS(variations, hashFolderPath);
 
-    // save assignment data
     assignment.assignmentID = assignmentHash;
     const assignmentJSON: string = JSON.stringify(assignment);
     const hashFilePath = path.join(hashFolderPath, `${assignmentHash}.json`);
 
+    // if updating, get the old version of this assignment,
+    // take the "previous" array, compare it to the new,
+    // and for each missing one in the new array,
+    // go and remove the current id from the relevant "next" arrays
+
+    if (oldAssignment) {
+      const oldAssignmentVersion: CodeAssignmentData =
+        handleReadFileFS(hashFilePath);
+
+      // get the ids of assignments that are no longer in "previous"
+      const oldPrevious = oldAssignmentVersion.previous;
+      if (oldPrevious) {
+        const idsToClear = oldPrevious.filter(
+          (oldPrev) => !assignment.previous.find((prev) => prev === oldPrev)
+        );
+
+        _modifyConsecutiveAssignmentsFS(
+          coursePath,
+          assignment.assignmentID,
+          idsToClear,
+          "next",
+          false
+        );
+      }
+    }
+
+    // add the id to the "next" field of all "previous" assignments
+    _modifyConsecutiveAssignmentsFS(
+      coursePath,
+      assignment.assignmentID,
+      assignment.previous,
+      "next",
+      true
+    );
+
+    // save assignment data
     fs.writeFileSync(hashFilePath, assignmentJSON, "utf8");
 
     if (oldAssignment) {
@@ -409,7 +547,8 @@ async function _handleAddOrUpdateAssignmentFS(
       await addAssignmentDB(coursePath, assignment);
     }
 
-    return "ui_assignment_save_success";
+    // return the assignment with the new id
+    return assignment;
   } catch (err) {
     log.error("Error in _handleAddOrUpdateAssignmentFS():", err.message);
     throw err;
@@ -419,14 +558,14 @@ async function _handleAddOrUpdateAssignmentFS(
 export async function handleAddAssignmentFS(
   assignment: CodeAssignmentData,
   coursePath: string
-) {
+): Promise<CodeAssignmentData> {
   return _handleAddOrUpdateAssignmentFS(assignment, coursePath, false);
 }
 
 export async function handleUpdateAssignmentFS(
   assignment: CodeAssignmentData,
   coursePath: string
-) {
+): Promise<CodeAssignmentData> {
   return _handleAddOrUpdateAssignmentFS(assignment, coursePath, true);
 }
 
@@ -436,6 +575,25 @@ export async function handleDeleteAssignmentsFS(
 ) {
   try {
     ids.map((id) => {
+      // delete the id from the "next" field of other assignments
+      const assignmentsResult = handleGetAssignmentsFS(coursePath, id);
+      _modifyConsecutiveAssignmentsFS(
+        coursePath,
+        assignmentsResult[0].assignmentID,
+        assignmentsResult[0].previous,
+        "next",
+        false
+      );
+
+      // delete the id from the "previous" field of other assignments
+      _modifyConsecutiveAssignmentsFS(
+        coursePath,
+        assignmentsResult[0].assignmentID,
+        assignmentsResult[0].next,
+        "previous",
+        false
+      );
+
       // remove the file hash folder and its contents
       const assignmentPath = path.join(coursePath, "assignment_data", id);
 
@@ -455,22 +613,22 @@ export async function handleDeleteAssignmentsFS(
 
 export function _handleAddOrUpdateSetFS(
   coursePath: string,
-  set: SetData,
+  set: ExportSetData,
   isOldSet: boolean
 ): string {
   try {
-    let newSets: SetData[] = [];
+    let newSets: ExportSetData[] = [];
     const name = set?.name;
     if (!name || name.length < 1) {
       throw new Error("ui_add_set_name");
     }
 
     const setsPath = path.join(coursePath, "sets.json");
-    const oldSets: SetData[] = handleReadFileFS(setsPath, true);
+    const oldSets: ExportSetData[] = handleReadFileFS(setsPath, true);
 
     if (oldSets) {
       // find a set with a matching name
-      let match = oldSets.find((isOldSet) => isOldSet.name === set.name);
+      const match = oldSets.find((isOldSet) => isOldSet.name === set.name);
 
       // a name match when adding a new set throws an error and
       // if the set is old, make sure that the id is the same
@@ -507,15 +665,25 @@ export function _handleAddOrUpdateSetFS(
 
 export async function addSetFS(
   coursePath: string,
-  set: SetData
+  set: ExportSetData
 ): Promise<string> {
   return _handleAddOrUpdateSetFS(coursePath, set, false);
 }
 
-export async function getSetsFS(coursePath: string): Promise<SetData[]> {
+export async function getSetsFS(
+  coursePath: string,
+  id?: string
+): Promise<ExportSetData[]> {
   try {
     const setsPath = path.join(coursePath, "sets.json");
-    return handleReadFileFS(setsPath, true) ?? [];
+    const sets: ExportSetData[] = handleReadFileFS(setsPath, true) ?? [];
+
+    // if an id is provided, try to find the set
+    if (sets && id) {
+      return [sets.find((set) => set.id === id)] ?? [];
+    }
+
+    return sets;
   } catch (err) {
     log.error("Error in _handleAddOrUpdateSetFS():", err.message);
     throw err;
@@ -524,7 +692,7 @@ export async function getSetsFS(coursePath: string): Promise<SetData[]> {
 
 export async function updateSetFS(
   coursePath: string,
-  set: SetData
+  set: ExportSetData
 ): Promise<string> {
   return _handleAddOrUpdateSetFS(coursePath, set, true);
 }
@@ -535,7 +703,7 @@ export async function deleteSetsFS(
 ): Promise<string> {
   try {
     const setsPath = path.join(coursePath, "sets.json");
-    const oldSets: SetData[] = handleReadFileFS(setsPath, true);
+    const oldSets: ExportSetData[] = handleReadFileFS(setsPath, true);
 
     // filter out sets whose ids are found in the 'ids' array:
     const newSets = oldSets.filter((set) => !ids.find((id) => set.id === id));

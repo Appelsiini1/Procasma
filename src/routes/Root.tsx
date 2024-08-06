@@ -1,14 +1,6 @@
 import { dividerSX, smallDividerSX } from "../constantsUI";
 import LogoText from "../../resource/LogoText.png";
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionGroup,
-  Box,
-  Divider,
-  Grid,
-  Typography,
-} from "@mui/joy";
+import { Box, Divider, Grid, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
 import { useNavigate } from "react-router-dom";
 import FadeInImage from "../components/FadeInImage";
@@ -239,70 +231,65 @@ export default function Root() {
               </ButtonComp>
             </Grid>
           </Grid>
+          {addingAssignment ? (
+            <>
+              <Divider sx={smallDividerSX} role="presentation" />
 
-          <AccordionGroup>
-            <Accordion expanded={addingAssignment}>
-              <AccordionDetails>
-                <>
-                  <Divider sx={smallDividerSX} role="presentation" />
-
-                  <Grid
-                    container
-                    direction="row"
-                    justifyContent="flex-start"
-                    alignItems="center"
-                    spacing={3}
+              <Grid
+                container
+                direction="row"
+                justifyContent="flex-start"
+                alignItems="center"
+                spacing={3}
+              >
+                <Grid>
+                  <ButtonComp
+                    buttonType="largeAddAlt"
+                    onClick={() => {
+                      // clear the active assignment
+                      // useEffect will navigate on the change
+                      setNavigateToAssignment(true);
+                      activeAssignment
+                        ? handleActiveAssignment(null)
+                        : navigate("/inputCodeAssignment");
+                    }}
+                    ariaLabel={parseUICode("ui_aria_nav_add_assignment")}
                   >
-                    <Grid>
-                      <ButtonComp
-                        buttonType="largeAddAlt"
-                        onClick={() => {
-                          // clear the active assignment
-                          // useEffect will navigate on the change
-                          setNavigateToAssignment(true);
-                          activeAssignment
-                            ? handleActiveAssignment(null)
-                            : navigate("/inputCodeAssignment");
-                        }}
-                        ariaLabel={parseUICode("ui_aria_nav_add_assignment")}
-                      >
-                        {parseUICode("ui_code_assignment")}
-                      </ButtonComp>
-                    </Grid>
+                    {parseUICode("ui_code_assignment")}
+                  </ButtonComp>
+                </Grid>
 
-                    <Grid>
-                      <ButtonComp
-                        buttonType="largeAddAlt"
-                        onClick={() => {
-                          // clear the active project work
-                          // useEffect will navigate on the change
-                          setNavigateToProjectWork(true);
-                          activeAssignment
-                            ? handleActiveAssignment(null)
-                            : navigate("/inputCodeProjectWork");
-                        }}
-                        ariaLabel={parseUICode("ui_aria_nav_add_project")}
-                      >
-                        {parseUICode("ui_project_work")}
-                      </ButtonComp>
-                    </Grid>
+                <Grid>
+                  <ButtonComp
+                    buttonType="largeAddAlt"
+                    onClick={() => {
+                      // clear the active project work
+                      // useEffect will navigate on the change
+                      setNavigateToProjectWork(true);
+                      activeAssignment
+                        ? handleActiveAssignment(null)
+                        : navigate("/inputCodeProjectWork");
+                    }}
+                    ariaLabel={parseUICode("ui_aria_nav_add_project")}
+                  >
+                    {parseUICode("ui_project_work")}
+                  </ButtonComp>
+                </Grid>
 
-                    <Grid>
-                      <ButtonComp
-                        buttonType="largeAddAlt"
-                        onClick={() => {
-                          console.log("Add other");
-                        }}
-                        ariaLabel={parseUICode("ui_add")}
-                      >
-                        {parseUICode("ui_other")}
-                      </ButtonComp>
-                    </Grid>
-                  </Grid>
-                </>
-              </AccordionDetails>
-            </Accordion>
-          </AccordionGroup>
+                <Grid>
+                  <ButtonComp
+                    buttonType="largeAddAlt"
+                    onClick={() => {
+                      console.log("Add other");
+                    }}
+                    ariaLabel={parseUICode("ui_add")}
+                  >
+                    {parseUICode("ui_other")}
+                  </ButtonComp>
+                </Grid>
+              </Grid>
+            </>
+          ) : null}
 
           <Divider sx={dividerSX} role="presentation" />
 
@@ -357,8 +344,7 @@ export default function Root() {
               <ButtonComp
                 buttonType="largeAdd"
                 onClick={() => {
-                  // clear the active set
-                  // useEffect will navigate on the change
+                  // clear the active set, useEffect will navigate on the change
                   setNavigateToSet(true);
                   activeSet ? handleActiveSet(null) : navigate("/setCreator");
                 }}

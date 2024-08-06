@@ -27,6 +27,10 @@ const createHandleAssignment = <T,>(
     value: any
   ): T => {
     const updatedAssignment: T = { ...prevAssignment };
+    // modify the entire object
+    if (key.length === 0) {
+      return value;
+    }
     // split the key with delimiter "."
     const keys = key.split(".");
     let nestedObj: any = updatedAssignment;

@@ -1,15 +1,15 @@
-import { AccordionGroup, Box, Stack } from "@mui/joy";
+import { AccordionGroup, Box, Grid, Typography } from "@mui/joy";
 import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
 import { getNextID } from "../rendererHelpers/getNextID";
 import {
   addVariation,
   removeVariation,
 } from "../rendererHelpers/variationHelpers";
-import { defaultVariation } from "../testData";
 import { Variation } from "../types";
 import ButtonComp from "./ButtonComp";
 import VariationComponent from "./VariationComponent";
 import { parseUICode } from "../rendererHelpers/translation";
+import { defaultVariation } from "../defaultObjects";
 
 type ComponentProps = {
   variations: {
@@ -24,21 +24,34 @@ export default function VariationsGroup({
 }: ComponentProps) {
   return (
     <>
-      <ButtonComp
-        buttonType="normal"
-        onClick={() =>
-          addVariation(
-            defaultVariation,
-            variations,
-            getNextID,
-            "variations",
-            handleAssignment
-          )
-        }
-        ariaLabel={parseUICode("ui_aria_add_variation")}
+      <Grid
+        container
+        direction="row"
+        justifyContent="flex-start"
+        alignItems="center"
+        spacing={1}
       >
-        {parseUICode("ui_add_variation")}
-      </ButtonComp>
+        <Grid>
+          <Typography level="h3">{parseUICode("ui_variations")}</Typography>
+        </Grid>
+        <Grid>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() =>
+              addVariation(
+                defaultVariation,
+                variations,
+                getNextID,
+                "variations",
+                handleAssignment
+              )
+            }
+            ariaLabel={parseUICode("ui_aria_add_variation")}
+          >
+            {parseUICode("ui_add_variation")}
+          </ButtonComp>
+        </Grid>
+      </Grid>
 
       <div className="emptySpace2" />
       <Box
@@ -52,40 +65,42 @@ export default function VariationsGroup({
         <AccordionGroup size="lg" sx={{ width: "100%", marginRight: "2rem" }}>
           {variations
             ? Object.keys(variations).map((varID) => (
-                <Stack
-                  key={varID}
-                  direction="column"
+                <Grid
+                  container
+                  direction="row"
                   justifyContent="flex-start"
                   alignItems="start"
-                  spacing={0.5}
+                  spacing={1}
+                  key={varID}
                 >
-                  <VariationComponent
-                    varID={varID}
-                    variation={variations[varID]}
-                    handleAssignment={handleAssignment}
-                    pathInAssignment={`variations.${varID}`}
-                  ></VariationComponent>
-
-                  <ButtonComp
-                    confirmationModal={true}
-                    modalText={`${parseUICode("ui_delete")} 
+                  <Grid xs={1.5} sx={{ marginTop: "0.5rem" }}>
+                    <ButtonComp
+                      confirmationModal={true}
+                      modalText={`${parseUICode("ui_delete")} 
                         ${parseUICode("ui_variation")} ${varID}`}
-                    buttonType="delete"
-                    onClick={() =>
-                      removeVariation(
-                        varID,
-                        variations,
-                        "variations",
-                        handleAssignment
-                      )
-                    }
-                    ariaLabel={parseUICode("ui_aria_delete_variation")}
-                  >
-                    {`${parseUICode("ui_delete")} ${varID}`}
-                  </ButtonComp>
-
-                  <div className="emptySpace1" />
-                </Stack>
+                      buttonType="delete"
+                      onClick={() =>
+                        removeVariation(
+                          varID,
+                          variations,
+                          "variations",
+                          handleAssignment
+                        )
+                      }
+                      ariaLabel={parseUICode("ui_aria_delete_variation")}
+                    >
+                      {varID}
+                    </ButtonComp>
+                  </Grid>
+                  <Grid xs={10.5}>
+                    <VariationComponent
+                      varID={varID}
+                      variation={variations[varID]}
+                      handleAssignment={handleAssignment}
+                      pathInAssignment={`variations.${varID}`}
+                    ></VariationComponent>
+                  </Grid>
+                </Grid>
               ))
             : ""}
         </AccordionGroup>
