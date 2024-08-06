@@ -100,7 +100,9 @@ export default function ModuleAdd() {
 
           <tr key="mModuleNumber">
             <td>
-              <Typography level="h4">{parseUICode("ui_module")}</Typography>
+              <Typography level="h4">
+                {parseUICode("ui_module_number")}
+              </Typography>
             </td>
             <td>
               <NumberInput
@@ -122,11 +124,11 @@ export default function ModuleAdd() {
               >
                 <Grid xs={10}>
                   <Typography level="h4">
-                    {parseUICode("ui_week_topics")}
+                    {parseUICode("ui_module_topics")}
                   </Typography>
                 </Grid>
                 <Grid xs={2}>
-                  <HelpText text={parseUICode("help_week_topics")} />
+                  <HelpText text={parseUICode("help_module_topics")} />
                 </Grid>
               </Grid>
             </td>
@@ -155,7 +157,7 @@ export default function ModuleAdd() {
                   <Typography level="h4">{parseUICode("ui_inst")}</Typography>
                 </Grid>
                 <Grid xs={2}>
-                  <HelpText text={parseUICode("help_week_inst")} />
+                  <HelpText text={parseUICode("help_module_inst")} />
                 </Grid>
               </Grid>
             </td>
@@ -182,11 +184,11 @@ export default function ModuleAdd() {
               >
                 <Grid xs={10}>
                   <Typography level="h4">
-                    {parseUICode("ui_week_tags")}
+                    {parseUICode("ui_module_tags")}
                   </Typography>
                 </Grid>
                 <Grid xs={2}>
-                  <HelpText text={parseUICode("help_week_tags")} />
+                  <HelpText text={parseUICode("help_module_tags")} />
                 </Grid>
               </Grid>
             </td>
