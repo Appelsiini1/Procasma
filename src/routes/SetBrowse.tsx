@@ -3,20 +3,25 @@ import { Box, List, Stack, Typography } from "@mui/joy";
 import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
-import { SetData } from "../types";
+import {
+  SetAlgoAssignmentData,
+  SetAssignmentWithCheck,
+  SetData,
+  SetWithCheck,
+} from "../types";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import {
   generateChecklist,
   setSelectedViaChecked,
-  WithCheckWrapper,
   wrapWithCheck,
+  wrapWithCheckAndVariation,
 } from "../rendererHelpers/browseHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
-
-export interface SetWithCheck extends WithCheckWrapper {
-  value: SetData;
-}
+import {
+  calculateBadnesses,
+  importSetData,
+} from "../rendererHelpers/setHelpers";
 
 export default function SetBrowse() {
   const {
@@ -30,7 +35,7 @@ export default function SetBrowse() {
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
     useContext(UIContext);
-  const [courseSets, setCourseSets] = useState<Array<SetWithCheck>>([]);
+  const [allSets, setAllSets] = useState<Array<SetWithCheck>>([]);
   const [selectedSets, setSelectedSets] = useState<Array<SetData>>([]);
   const [navigateToSet, setNavigateToSet] = useState(false);
   const [numSelected, setNumSelected] = useState(0);
@@ -50,7 +55,7 @@ export default function SetBrowse() {
       const setsWithCheck: SetWithCheck[] = wrapWithCheck(setsResult);
 
       // update sets
-      setCourseSets(setsWithCheck);
+      setAllSets(setsWithCheck);
     } catch (err) {
       handleSnackbar({ error: parseUICode(err.message) });
     }
@@ -62,6 +67,7 @@ export default function SetBrowse() {
     }
     refreshSets();
     handleHeaderPageName("ui_set_browser");
+    handleActiveSet(null);
   }, []);
 
   async function handleDeleteSelected() {
@@ -85,16 +91,36 @@ export default function SetBrowse() {
 
   // Update the selected sets counter
   useEffect(() => {
-    const numChecked = setSelectedViaChecked(courseSets, setSelectedSets);
+    const numChecked = setSelectedViaChecked(allSets, setSelectedSets);
 
     setNumSelected(numChecked);
-  }, [courseSets]);
+  }, [allSets]);
 
-  sets = generateChecklist(courseSets, setCourseSets);
+  sets = generateChecklist(allSets, setAllSets);
 
   async function handleOpenSet() {
-    setNavigateToSet(true);
-    handleActiveSet(selectedSets[0]);
+    try {
+      const setsResult = await handleIPCResult(setIPCLoading, () =>
+        window.api.getSetsFS(activePath, selectedSets[0].id)
+      );
+
+      const assignments: SetAlgoAssignmentData[] = await handleIPCResult(
+        setIPCLoading,
+        () => window.api.getTruncatedAssignmentsFS(activePath)
+      );
+
+      const assignmentsWithCheck: SetAssignmentWithCheck[] =
+        wrapWithCheckAndVariation(assignments);
+
+      // calculate badness values for each variation based on "usedIn"
+      const readyAssignments = calculateBadnesses(assignmentsWithCheck);
+
+      handleActiveSet(importSetData(setsResult[0], readyAssignments));
+
+      setNavigateToSet(true);
+    } catch (err) {
+      handleSnackbar({ error: parseUICode(err.message) });
+    }
   }
 
   // Navigates to an assignment set page by listening to the active set.

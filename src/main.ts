@@ -17,6 +17,7 @@ import {
   updateSetFS,
   getSetsFS,
   deleteSetsFS,
+  getTruncatedAssignmentsFS,
 } from "./mainHelpers/fileOperations";
 import { initialize } from "./mainHelpers/programInit";
 import { getSettings, saveSettings } from "./mainHelpers/settings";
@@ -167,8 +168,12 @@ ipcMain.handle(
   formatIPCResult((path, id) => handleGetAssignmentsFS(path, id))
 );
 ipcMain.handle(
+  "getTruncatedAssignmentsFS",
+  formatIPCResult((path) => getTruncatedAssignmentsFS(path))
+);
+ipcMain.handle(
   "getAssignmentsDB",
-  formatIPCResult((path) => getAssignmentsDB(path))
+  formatIPCResult((path, ids) => getAssignmentsDB(path, ids))
 );
 ipcMain.handle(
   "handleUpdateAssignmentFS",
@@ -199,7 +204,7 @@ ipcMain.handle(
 );
 ipcMain.handle(
   "getModulesDB",
-  formatIPCResult((path) => getModulesDB(path))
+  formatIPCResult((path, ids) => getModulesDB(path, ids))
 );
 ipcMain.handle(
   "updateModuleDB",
@@ -235,7 +240,7 @@ ipcMain.handle(
 );
 ipcMain.handle(
   "getSetsFS",
-  formatIPCResult((path) => getSetsFS(path))
+  formatIPCResult((path, id) => getSetsFS(path, id))
 );
 ipcMain.handle(
   "updateSetFS",

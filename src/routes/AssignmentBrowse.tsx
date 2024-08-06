@@ -12,13 +12,13 @@ import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
 import {
+  AssignmentWithCheck,
   CodeAssignmentData,
   CodeAssignmentDatabase,
   ModuleDatabase,
   TagDatabase,
 } from "../types";
 import {
-  WithCheckWrapper,
   filterState,
   generateChecklist,
   generateFilterList,
@@ -31,19 +31,19 @@ import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
 
-export interface AssignmentWithCheck extends WithCheckWrapper {
-  value: CodeAssignmentDatabase;
-}
-
 export default function AssignmentBrowse() {
   const {
     activePath,
     activeAssignment,
     handleActiveAssignment,
+    activeAssignments,
+    handleActiveAssignments,
   }: {
     activePath: string;
     activeAssignment: CodeAssignmentData;
     handleActiveAssignment: (value: CodeAssignmentData) => void;
+    activeAssignments: CodeAssignmentDatabase[];
+    handleActiveAssignments: (value: CodeAssignmentDatabase[]) => void;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
     useContext(UIContext);
@@ -54,6 +54,8 @@ export default function AssignmentBrowse() {
     Array<CodeAssignmentDatabase>
   >([]);
   const [navigateToAssignment, setNavigateToAssignment] = useState(false);
+  const [navigateBack, setNavigateBack] = useState(false);
+
   const [numSelected, setNumSelected] = useState(0);
   const [uniqueTags, setUniqueTags] = useState<Array<filterState>>([]);
   const [uniqueModules, setUniqueModules] = useState<Array<filterState>>([]);
@@ -125,14 +127,17 @@ export default function AssignmentBrowse() {
     handleUpdateFilter(modulesResult, setUniqueModules);
   }
 
-  // Get the course assignments and filters on page load
-  useEffect(() => {
+  // Get the filters
+  async function onPageLoad() {
     if (!activePath) {
       return;
     }
-    refreshAssignments();
-    updateFilters();
-    handleHeaderPageName("ui_assignment_browser");
+    await updateFilters();
+    await handleHeaderPageName("ui_assignment_browser");
+  }
+
+  useEffect(() => {
+    onPageLoad();
   }, []);
 
   async function handleDeleteSelected() {
@@ -169,7 +174,11 @@ export default function AssignmentBrowse() {
     refreshAssignments();
   }, [uniqueTags, uniqueModules, search]);
 
-  assignments = generateChecklist(courseAssignments, setCourseAssignments);
+  assignments = generateChecklist(
+    courseAssignments,
+    setCourseAssignments,
+    true
+  );
   modules = generateFilterList(uniqueModules, setUniqueModules);
   tags = generateFilterList(uniqueTags, setUniqueTags);
 
@@ -179,8 +188,8 @@ export default function AssignmentBrowse() {
         window.api.handleGetAssignmentsFS(activePath, selectedAssignments[0].id)
       );
 
-      setNavigateToAssignment(true);
       handleActiveAssignment(assignmentsResult[0]);
+      setNavigateToAssignment(true);
     } catch (err) {
       handleSnackbar({ error: parseUICode(err.message) });
     }
@@ -200,6 +209,21 @@ export default function AssignmentBrowse() {
     }
   }, [activeAssignment, navigateToAssignment]);
 
+  useEffect(() => {
+    if (activeAssignments && navigateBack) {
+      setNavigateToAssignment(false);
+      navigate(-1);
+    }
+  }, [activeAssignments, navigateBack]);
+
+  function confirmSelectedAndReturn() {
+    // add chosen to activeAssignments and
+    // go back to AssignmentInput
+    //setNavigateToAssignment(true);
+    setNavigateBack(true);
+    handleActiveAssignments(selectedAssignments);
+  }
+
   return (
     <>
       <div className="emptySpace1" />
@@ -218,27 +242,42 @@ export default function AssignmentBrowse() {
         alignItems="center"
         spacing={2}
       >
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => {
-            //handleCreateSet();
-          }}
-          ariaLabel={parseUICode("ui_create_new_set")}
-          disabled={numSelected > 0 ? false : true}
-        >
-          {parseUICode("ui_create_set")}
-        </ButtonComp>
-        <ButtonComp
-          confirmationModal={true}
-          modalText={`${parseUICode("ui_delete")} 
-              ${numSelected}`}
-          buttonType="normal"
-          onClick={() => handleDeleteSelected()}
-          ariaLabel={parseUICode("ui_aria_remove_selected")}
-          disabled={numSelected > 0 ? false : true}
-        >
-          {`${parseUICode("ui_delete")} ${numSelected}`}
-        </ButtonComp>
+        {typeof activeAssignments !== "undefined" ? (
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => {
+              confirmSelectedAndReturn();
+            }}
+            ariaLabel={parseUICode("ui_accept_and_return")}
+          >
+            {`(${numSelected}) ${parseUICode("ui_accept_and_return")}`}
+          </ButtonComp>
+        ) : (
+          <>
+            <ButtonComp
+              buttonType="normal"
+              onClick={() => {
+                //handleCreateSet();
+              }}
+              ariaLabel={parseUICode("ui_create_new_set")}
+              disabled={numSelected > 0 ? false : true}
+            >
+              {parseUICode("ui_create_set")}
+            </ButtonComp>
+            <ButtonComp
+              confirmationModal={true}
+              modalText={`${parseUICode("ui_delete")} 
+            ${numSelected}`}
+              buttonType="normal"
+              onClick={() => handleDeleteSelected()}
+              ariaLabel={parseUICode("ui_aria_remove_selected")}
+              disabled={numSelected > 0 ? false : true}
+            >
+              {`${parseUICode("ui_delete")} ${numSelected}`}
+            </ButtonComp>
+          </>
+        )}
+
         <ButtonComp
           buttonType="normal"
           onClick={() => handleOpenAssignment()}

@@ -1,4 +1,13 @@
-import { Checkbox, IconButton, Sheet, Table, Select, Option } from "@mui/joy";
+import {
+  Checkbox,
+  IconButton,
+  Sheet,
+  Table,
+  Select,
+  Option,
+  Typography,
+  Grid,
+} from "@mui/joy";
 import { FileData, FileTypes } from "../types";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
@@ -13,6 +22,8 @@ import { DropzoneComp } from "./DropzoneComp";
 import log from "electron-log/renderer";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
+import { UIContext } from "./Context";
+import { useContext } from "react";
 
 interface FileContentSelectProps {
   fileIndex: number;
@@ -22,23 +33,6 @@ interface FileContentSelectProps {
     value: string | boolean | FileTypes
   ) => void;
   defaultValue: string;
-}
-
-async function handleSelectFiles() {
-  try {
-    const filePaths: Array<string> = await handleIPCResult(setIPCLoading, () =>
-      window.api.selectFiles()
-    );
-
-    if (filePaths.length < 1) {
-      throw new Error("Select at least one file");
-    }
-
-    return filePaths;
-  } catch (err) {
-    log.error("Selected files not valid");
-  }
-  return null;
 }
 
 /**
@@ -77,6 +71,7 @@ export default function FileList({
   handleAssignment,
   pathInAssignment,
 }: FileListProps) {
+  const { setIPCLoading } = useContext(UIContext);
   /**
    * Modify a file in the files list (in the assignment).
    */
@@ -90,6 +85,24 @@ export default function FileList({
 
     handleAssignment(`${pathInAssignment}`, newFiles);
   };
+
+  async function handleSelectFiles() {
+    try {
+      const filePaths: Array<string> = await handleIPCResult(
+        setIPCLoading,
+        () => window.api.selectFiles()
+      );
+
+      if (filePaths.length < 1) {
+        throw new Error("Select at least one file");
+      }
+
+      return filePaths;
+    } catch (err) {
+      log.error("Selected files not valid");
+    }
+    return null;
+  }
 
   function handleSetFiles(newPaths: Array<string>) {
     const newFiles: FileData[] = newPaths.map((path) => {
@@ -126,13 +139,26 @@ export default function FileList({
 
   return (
     <>
-      <ButtonComp
-        buttonType="normal"
-        onClick={() => handleAddFiles()}
-        ariaLabel={parseUICode("ui_aria_import_files")}
+      <Grid
+        container
+        direction="row"
+        justifyContent="flex-start"
+        alignItems="center"
+        spacing={1}
       >
-        {parseUICode("ui_import_files")}
-      </ButtonComp>
+        <Grid>
+          <Typography level="h4">{parseUICode("ui_files")}</Typography>
+        </Grid>
+        <Grid>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => handleAddFiles()}
+            ariaLabel={parseUICode("ui_aria_import_files")}
+          >
+            {parseUICode("ui_import_files")}
+          </ButtonComp>
+        </Grid>
+      </Grid>
 
       <div className="emptySpace1" />
       <Sheet>

@@ -15,6 +15,7 @@ export async function handleIPCResult(
 ): Promise<any> {
   let result: IpcResult = {};
   if (setIPCLoading) {
+    //console.log("pushing IpcCall:", IpcCall);
     setIPCLoading(IpcCall.toString(), true);
   }
   try {
@@ -22,6 +23,7 @@ export async function handleIPCResult(
   } catch (err) {
     throw new Error(parseUICode(err.message));
   } finally {
+    //console.log("popping IpcCall:", IpcCall);
     if (setIPCLoading) {
       setIPCLoading(IpcCall.toString(), false);
     }

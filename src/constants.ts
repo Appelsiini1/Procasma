@@ -14,3 +14,4 @@ export const codeExtensions = [
   "css",
   "json",
 ];
+export const COURSE_PERIODS = 4;
