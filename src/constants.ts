@@ -1,3 +1,5 @@
+import { ConverterOptions } from "showdown";
+
 export const version = "0.8.1";
 export const courseMetaDataFileName = "course_info.json";
 export const DEVMODE = true;
@@ -21,3 +23,16 @@ export const PDFMargins = {
   right: "1.5cm",
 };
 export const PDFFormat = "A4";
+export const ShowdownOptions: ConverterOptions = {
+  excludeTrailingPunctuationFromURLs: true,
+  headerLevelStart: 2,
+  omitExtraWLInCodeBlocks: true,
+  parseImgDimensions: true,
+  simpleLineBreaks: true,
+  simplifiedAutoLink: true,
+  strikethrough: true,
+  splitAdjacentBlockquotes: true,
+  tables: true,
+  tablesHeaderId: true,
+  tasklists: true,
+};
