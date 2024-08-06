@@ -40,6 +40,7 @@ export interface CommonAssignmentData {
   title: string;
   tags: Array<string>;
   module: number | null;
+  folder: string; // used to indicate the folder that the assignment is located in under assignmentData
 }
 
 export interface CodeAssignmentData extends CommonAssignmentData {
