@@ -35,9 +35,9 @@
     "FI": "Komentoriviparametrit",
     "ENG": "Commandline arguments"
   },
-  "ex_input_datafile": {
-    "FI": "Esimerkki syötetiedostosta",
-    "ENG": "Example from input file"
+  "input_datafile": {
+    "FI": "Syötetiedosto",
+    "ENG": "Input file"
   },
   "ex_resultfile": {
     "FI": "Esimerkki tulostiedostosta",

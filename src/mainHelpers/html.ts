@@ -18,22 +18,14 @@ import fs from "fs";
 
 const converter = new showdown.Converter(ShowdownOptions);
 
-interface TitleInputs {
-  moduleType: SupportedModuleType;
-  moduleNumber: number;
-  assignmentNumber: number;
-}
-
-interface BlockInputs extends TitleInputs {
-  assignmentInput: CodeAssignmentData;
-  variationKey?: string;
-  courseData?: CourseData;
-}
-
-interface FileInput {
+interface AssignmentInput {
   assignmentInput: CodeAssignmentData;
   variationKey: string;
+  courseData: CourseData;
   coursePath: string;
+  moduleType?: SupportedModuleType;
+  moduleNumber?: number;
+  assignmentNumber: number;
 }
 
 // Module creators
@@ -100,7 +92,7 @@ function highlightCode(code: string, language: string): string {
  * @param inputs FileInput object with assignment information, variation key and course path.
  * @returns HTML string
  */
-function formatSolutions(inputs: FileInput): string {
+function formatSolutions(inputs: AssignmentInput): string {
   try {
     let block = ``;
     const files = inputs.assignmentInput.variations[inputs.variationKey].files;
@@ -123,7 +115,48 @@ function formatSolutions(inputs: FileInput): string {
   }
 }
 
-function formatFiles(inputs: FileInput) {}
+/**
+ * Formats files that are not solution files. Will make titles based on file content type.
+ * @param inputs FileInput object
+ * @param type The type of file to format and make title for
+ * @returns HTML string
+ */
+function formatFiles(
+  inputs: AssignmentInput,
+  type: FileData["fileContent"]
+): string {
+  try {
+    let block = ``;
+    const files = inputs.assignmentInput.variations[inputs.variationKey].files;
+    for (const file of files) {
+      if (
+        !file.solution &&
+        file.showStudent &&
+        (file.fileType === "code" || file.fileType === "text") &&
+        file.fileContent === type
+      ) {
+        const filePath = path.join(
+          inputs.coursePath,
+          inputs.assignmentInput.folder,
+          file.fileName
+        );
+        const data = fs.readFileSync(filePath, "utf8");
+        block += `<h3>${parseUICode(
+          type === "data" ? "input_datafile" : "ex_resultfile"
+        )}: '${file.fileName}'</h3>`;
+        const language =
+          file.fileContent === "code"
+            ? inputs.assignmentInput.codeLanguage
+            : "plaintext";
+        block += highlightCode(data, language);
+      }
+    }
+    return block;
+  } catch (err) {
+    log.error(err.message);
+    throw err;
+  }
+}
 
 /**
  * Formats a title
@@ -131,7 +164,7 @@ function formatFiles(inputs: FileInput) {}
  * @param toc A boolean whether the title is a table of contents title
  * @returns HTML string
  */
-function formatTitle(inputs: BlockInputs, toc = false) {
+function formatTitle(inputs: AssignmentInput, toc = false) {
   let title = ``;
   const addToTitle = (ui_code: string) => {
     title += parseUICode(ui_code);
@@ -268,7 +301,7 @@ function generateStart(moduleInput: ModuleData | null): string {
  * @param inputs BlockInputs object
  * @returns HTML string
  */
-function generateBlock(inputs: BlockInputs): string {
+function generateBlock(inputs: AssignmentInput): string {
   let block = `<div>
     `;
   // Title
@@ -293,6 +326,9 @@ function generateBlock(inputs: BlockInputs): string {
   );
   block += `</p>`;
 
+  // Datafiles
+  block += formatFiles(inputs, "data");
+
   // Example runs
   const exampleRuns =
     inputs.assignmentInput.variations[inputs.variationKey].exampleRuns;
@@ -301,6 +337,9 @@ function generateBlock(inputs: BlockInputs): string {
     block += generateExampleRun(exampleRuns[run], runNumber);
     runNumber += 1;
   }
+
+  // Result files
+  block += formatFiles(inputs, "result");
 
   block += `</div>`;
   return block;
@@ -347,7 +386,7 @@ function generateExampleRun(
  */
 function generateToC(
   assignments: Array<CodeAssignmentData>,
-  titleInputs: TitleInputs
+  inputs: AssignmentInput
 ): string {
   let block = `<div>`;
   block += `<h2>${parseUICode("toc")}</h2>\n`;
@@ -355,7 +394,7 @@ function generateToC(
     block += `<h3><a href="#${assig.assignmentID}>${formatTitle(
       {
         assignmentInput: assig,
-        ...titleInputs,
+        ...inputs,
       },
       true
     )}`;
