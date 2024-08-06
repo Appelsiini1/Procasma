@@ -40,8 +40,10 @@ contextBridge.exposeInMainWorld("api", {
   ) => ipcRenderer.invoke("handleUpdateAssignmentFS", assignment, coursePath),
   handleGetAssignmentsFS: (coursePath: string, id: string) =>
     ipcRenderer.invoke("handleGetAssignmentsFS", coursePath, id),
-  getAssignmentsDB: (coursePath: string) =>
-    ipcRenderer.invoke("getAssignmentsDB", coursePath),
+  getTruncatedAssignmentsFS: (coursePath: string) =>
+    ipcRenderer.invoke("getTruncatedAssignmentsFS", coursePath),
+  getAssignmentsDB: (coursePath: string, ids: string[]) =>
+    ipcRenderer.invoke("getAssignmentsDB", coursePath, ids),
   handleDeleteAssignmentsFS: (coursePath: string, ids: string) =>
     ipcRenderer.invoke("handleDeleteAssignmentsFS", coursePath, ids),
   getAssignmentCountDB: (coursePath: string) =>
@@ -52,8 +54,8 @@ contextBridge.exposeInMainWorld("api", {
   // CRUD Module
   addModuleDB: (coursePath: string, module: ModuleData) =>
     ipcRenderer.invoke("addModuleDB", coursePath, module),
-  getModulesDB: (coursePath: string) =>
-    ipcRenderer.invoke("getModulesDB", coursePath),
+  getModulesDB: (coursePath: string, ids: string[]) =>
+    ipcRenderer.invoke("getModulesDB", coursePath, ids),
   updateModuleDB: (coursePath: string, module: ModuleData) =>
     ipcRenderer.invoke("updateModuleDB", coursePath, module),
   deleteModulesDB: (coursePath: string, ids: number) =>
@@ -70,8 +72,8 @@ contextBridge.exposeInMainWorld("api", {
   // CRUD Set
   addSetFS: (coursePath: string, set: SetData) =>
     ipcRenderer.invoke("addSetFS", coursePath, set),
-  getSetsFS: (coursePath: string) =>
-    ipcRenderer.invoke("getSetsFS", coursePath),
+  getSetsFS: (coursePath: string, id: string) =>
+    ipcRenderer.invoke("getSetsFS", coursePath, id),
   updateSetFS: (coursePath: string, set: SetData) =>
     ipcRenderer.invoke("updateSetFS", coursePath, set),
   deleteSetsFS: (coursePath: string, ids: string[]) =>

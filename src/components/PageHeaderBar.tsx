@@ -1,11 +1,4 @@
-import {
-  Box,
-  Divider,
-  IconButton,
-  LinearProgress,
-  Stack,
-  Typography,
-} from "@mui/joy";
+import { Box, Divider, IconButton, Stack, Typography } from "@mui/joy";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import HomeIcon from "@mui/icons-material/Home";
 import Logo from "../../resource/Logo.png";
@@ -14,8 +7,6 @@ import { useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { parseUICode } from "../rendererHelpers/translation";
 import { UIContext } from "./Context";
-import HelpText from "./HelpText";
-import { ForceToString } from "../generalHelpers/converters";
 
 const IconSX = {
   color: "#00000",
@@ -29,22 +20,13 @@ type ComponentProps = {
   pageName: string;
   courseID: string;
   courseTitle: string;
-  IPCOperationLoading?: boolean;
-  IPCStack: string[];
 };
 
 export default function PageHeaderBar() {
-  const {
-    pageName,
-    courseID,
-    courseTitle,
-    IPCOperationLoading,
-    IPCStack,
-  }: ComponentProps = useContext(UIContext);
+  const { pageName, courseID, courseTitle }: ComponentProps =
+    useContext(UIContext);
   const navigate = useNavigate();
   const [courseName, setCourseName] = useState(null);
-  const IPCLoadingText = `IPC ${parseUICode("ui_processes")}: 
-    ${ForceToString(IPCStack)}`;
 
   const handleCourseName = (ID: string, title: string) => {
     if (ID && title) {
@@ -124,19 +106,6 @@ export default function PageHeaderBar() {
             <Typography level="h3" noWrap>
               {parseUICode(pageName)}
             </Typography>
-            <Box />
-            {IPCOperationLoading ? <LinearProgress /> : null}
-            <Box />
-            {IPCOperationLoading ? (
-              <>
-                <Typography level="body-lg" noWrap>
-                  {IPCStack.length}
-                </Typography>
-                <HelpText text={IPCLoadingText} />
-              </>
-            ) : (
-              ""
-            )}
           </Stack>
         </Grid>
 

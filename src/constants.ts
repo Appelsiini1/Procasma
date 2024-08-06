@@ -14,6 +14,7 @@ export const codeExtensions = [
   "css",
   "json",
 ];
+export const COURSE_PERIODS = 4;
 export const PDFMargins = {
   bottom: "1cm",
   top: "1cm",

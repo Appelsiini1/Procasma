@@ -251,6 +251,18 @@
     "FI": "Lisää moduuli",
     "ENG": "Add module"
   },
+  "ui_pending_assignments": {
+    "FI": "Odottavat tehtävät",
+    "ENG": "Pending assignments"
+  },
+  "help_expanding_unassigned": {
+    "FI": "Tämä laajeneva osa puuttuu vielä tehtäväsarjasta.",
+    "ENG": "This expanding part is still missing from the set."
+  },
+  "help_expanding_assigned": {
+    "FI": "Laajeneva osa löytyy tehtäväsarjasta.",
+    "ENG": "The expanding part is in the set."
+  },
   "ui_dropzone_text_default": {
     "FI": "Raahaa tähän tiedostoja",
     "ENG": "Drag files here"
@@ -271,6 +283,10 @@
     "FI": "Variaatiot",
     "ENG": "Variations"
   },
+  "ui_positions": {
+    "FI": "Sijainnit",
+    "ENG": "Positions"
+  },
   "ui_levels": {
     "FI": "Tasot",
     "ENG": "Levels"
@@ -278,6 +294,10 @@
   "ui_selected": {
     "FI": "Valittu",
     "ENG": "Selected"
+  },
+  "ui_move_here": {
+    "FI": "Siirrä tähän",
+    "ENG": "Move here"
   },
   "ui_full_course_setup": {
     "FI": "Koko toteutuksen luonti",
@@ -315,7 +335,7 @@
     "FI": "Luentoviikko",
     "ENG": "Lecture week"
   },
-  "ui_no_assignments": {
+  "ui_assignment_count": {
     "FI": "Tehtävien määrä",
     "ENG": "Number of assignments"
   },
@@ -343,9 +363,17 @@
     "FI": "Laajeneva tehtävä",
     "ENG": "Expanding assignment"
   },
+  "help_badness": {
+    "FI": "Ikonin väri kertoo kuinka kauan sitten varianttia on käytetty viimeksi suhteessa muihin kurssin variantteihin. Punainen = hiljattain käytetty.",
+    "ENG": "The icon colour describes how recently the variant has been used compared to other variations on the course. Red = recently used."
+  },
   "ui_prev_part": {
     "FI": "Edellinen osa",
     "ENG": "Previous part"
+  },
+  "ui_next_part": {
+    "FI": "Seuraava osa",
+    "ENG": "Next part"
   },
   "ui_first_part": {
     "FI": "Ensimmäinen osa",
@@ -758,6 +786,10 @@
   "ui_accept": {
     "FI": "Hyväksy",
     "ENG": "Accept"
+  },
+  "ui_accept_and_return": {
+    "FI": "Hyväksy ja palaa",
+    "ENG": "Accept and return"
   },
   "ui_change": {
     "FI": "Muuta",

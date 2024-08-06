@@ -6,7 +6,7 @@ import {
   ModuleData,
   ModuleDatabase,
 } from "../types";
-import { isExpanding } from "./assignment";
+import { isExpanding } from "../generalHelpers/assignment";
 import log from "electron-log/node";
 
 // General
@@ -437,15 +437,16 @@ export async function addAssignmentDB(
       const result = await new Promise((resolve, reject) => {
         db.serialize(() => {
           db.run(
-            `INSERT INTO assignments(id, type, title, tags, module, position, level, isExpanding, path) 
-          VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO assignments(id, type, title, tags, module, position, 
+            level, isExpanding, path) 
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
               assignment.assignmentID,
               assignment.assignmentType,
               assignment.title,
               assignment.tags.toString(),
               assignment.module,
-              assignment.assignmentNo.toString(),
+              assignment.position.toString(),
               assignment.level,
               isExpanding(assignment) ? 1 : 0,
               assignmentPath,
@@ -475,7 +476,7 @@ export async function addAssignmentDB(
  * Gets all assignments when passing only the coursePath.
  * If passing in ids, remember to override the query.
  */
-export async function getAssignmentsDB(
+async function _getAssignmentsDB(
   coursePath: string,
   ids?: (string | number)[],
   queryOverride?: string
@@ -486,7 +487,7 @@ export async function getAssignmentsDB(
         const query = queryOverride ?? `SELECT * FROM assignments`;
         db.all(query, ids, (err, rows) => {
           if (err) {
-            log.error("Error in getAssignmentsDB():", err.message);
+            log.error("Error in _getAssignmentsDB():", err.message);
             reject(err);
           } else if (rows) {
             const formattedRows = rows.map((row) => {
@@ -504,6 +505,19 @@ export async function getAssignmentsDB(
   });
 }
 
+export async function getAssignmentsDB(
+  coursePath: string,
+  ids?: (string | number)[]
+) {
+  if (typeof ids !== "undefined") {
+    const placeholders = ids.map(() => "?").join(",");
+    const queryOverride = `SELECT * FROM 
+    assignments WHERE id IN (${placeholders})`;
+    return _getAssignmentsDB(coursePath, ids, queryOverride);
+  }
+  return _getAssignmentsDB(coursePath);
+}
+
 export async function updateAssignmentDB(
   coursePath: string,
   assignment: CodeAssignmentData
@@ -511,7 +525,7 @@ export async function updateAssignmentDB(
   return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
     try {
       const queryOverride = `SELECT * FROM assignments WHERE id IN (?)`;
-      const getResult = await getAssignmentsDB(
+      const getResult = await _getAssignmentsDB(
         coursePath,
         [assignment.assignmentID],
         queryOverride
@@ -545,9 +559,9 @@ export async function updateAssignmentDB(
         sql += `module = ?,`;
         params.push(assignment.module);
       }
-      if (oldAssignment.position !== assignment.assignmentNo.toString()) {
+      if (oldAssignment.position !== assignment.position.toString()) {
         sql += `position = ?,`;
-        params.push(assignment.assignmentNo.toString());
+        params.push(assignment.position.toString());
       }
       if (oldAssignment.level !== assignment.level) {
         sql += `level = ?,`;
@@ -593,7 +607,7 @@ export async function deleteAssignmentsDB(
     try {
       const placeholders = ids.map(() => "?").join(",");
       const sql = `SELECT * FROM assignments WHERE id IN (${placeholders})`;
-      const assignments = await getAssignmentsDB(coursePath, ids, sql);
+      const assignments = await _getAssignmentsDB(coursePath, ids, sql);
 
       await Promise.all(
         assignments.map((assignment) => {
@@ -713,7 +727,7 @@ export async function getFilteredAssignmentsDB(
         queryExtension = " WHERE" + queryExtension;
       }
 
-      return await getAssignmentsDB(coursePath, ids, query + queryExtension);
+      return await _getAssignmentsDB(coursePath, ids, query + queryExtension);
     } catch (err) {
       log.error("Error in getFilteredAssignmentsDB():", err.message);
       throw err;
@@ -769,7 +783,7 @@ export async function addModuleDB(
  * When passing only the coursePath, gets all modules.
  * If passing in ids, remember to override the query.
  */
-export async function getModulesDB(
+export async function _getModulesDB(
   coursePath: string,
   ids?: (string | number)[],
   queryOverride?: string
@@ -780,7 +794,7 @@ export async function getModulesDB(
         const query = queryOverride ?? `SELECT * FROM modules`;
         db.all(query, ids, (err, rows) => {
           if (err) {
-            log.error("Error in getModulesDB():", err.message);
+            log.error("Error in _getModulesDB():", err.message);
             reject(err);
           } else if (rows) {
             const formattedRows = rows.map((row: ModuleDatabase) => {
@@ -804,6 +818,19 @@ export async function getModulesDB(
   });
 }
 
+export async function getModulesDB(
+  coursePath: string,
+  ids?: (string | number)[]
+) {
+  if (ids?.length > 0) {
+    const placeholders = ids.map(() => "?").join(",");
+    const queryOverride = `SELECT * FROM 
+    modules WHERE id IN (${placeholders})`;
+    return _getModulesDB(coursePath, ids, queryOverride);
+  }
+  return _getModulesDB(coursePath);
+}
+
 export async function updateModuleDB(
   coursePath: string,
   module: ModuleData
@@ -811,7 +838,7 @@ export async function updateModuleDB(
   return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
     try {
       const queryOverride = `SELECT * FROM modules WHERE id IN (?)`;
-      const getResult = await getModulesDB(
+      const getResult = await _getModulesDB(
         coursePath,
         [module.id],
         queryOverride
@@ -895,7 +922,7 @@ export async function deleteModulesDB(
     try {
       const placeholders = ids.map(() => "?").join(",");
       const sql = `SELECT * FROM modules WHERE id IN (${placeholders})`;
-      const modules = await getModulesDB(coursePath, ids, sql);
+      const modules = await _getModulesDB(coursePath, ids, sql);
 
       await Promise.all(
         modules.map((module) => {
@@ -977,7 +1004,7 @@ export async function getFilteredModulesDB(
         query += ` WHERE id IN (${modulePlaceholders})`;
       }
 
-      return await getModulesDB(coursePath, ids, query);
+      return await _getModulesDB(coursePath, ids, query);
     } catch (err) {
       log.error("Error in getFilteredModulesDB():", err.message);
       throw err;

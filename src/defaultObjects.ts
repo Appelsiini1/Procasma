@@ -1,9 +1,11 @@
 import {
   CodeAssignmentData,
   CourseData,
+  ExampleRunType,
   FileData,
   ModuleData,
   SetData,
+  Variation,
 } from "./types";
 
 export const defaultFile: FileData = {
@@ -34,7 +36,7 @@ export const defaultAssignment: CodeAssignmentData = {
   tags: [],
   module: 1,
   assignmentType: "assignment",
-  assignmentNo: [],
+  position: [],
   level: null,
   next: null,
   previous: null,
@@ -48,12 +50,30 @@ export const defaultProject: CodeAssignmentData = {
   tags: [],
   module: 0,
   assignmentType: "finalWork",
-  assignmentNo: [],
+  position: [],
   level: null,
   next: null,
   previous: null,
   codeLanguage: null,
   variations: {},
+};
+
+export const defaultVariation: Variation = {
+  instructions: "",
+  exampleRuns: {},
+  files: [],
+  usedIn: [],
+  cgConfig: {
+    id: "",
+    atv2: {},
+  },
+};
+
+export const defaultExampleRun: ExampleRunType = {
+  generate: true,
+  inputs: [],
+  cmdInputs: [],
+  output: "",
 };
 
 export const defaultModule: ModuleData = {
@@ -68,13 +88,15 @@ export const defaultModule: ModuleData = {
 
 export const defaultSet: SetData = {
   id: null,
-  fullCourse: false,
+  fullCourse: true,
   module: "",
   name: "",
   year: 2024,
   period: 0,
   export: false,
-  format: "",
+  format: null,
   exportCGConfigs: true,
-  assignmentCGids: {},
+  assignments: [],
+  targetModule: null,
+  targetPosition: null,
 };

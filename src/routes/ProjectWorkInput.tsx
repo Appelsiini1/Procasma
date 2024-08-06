@@ -1,6 +1,5 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { dividerColor } from "../constantsUI";
-import { currentCourse } from "../globalsUI";
 import { Divider, Grid, Stack, Table, Typography } from "@mui/joy";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
@@ -10,7 +9,7 @@ import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import { useAssignment } from "../rendererHelpers/assignmentHelpers";
 import { defaultProject } from "../defaultObjects";
-import { CodeAssignmentData, Variation } from "../types";
+import { CodeAssignmentData, CourseData, Variation } from "../types";
 import {
   ForceToString,
   splitStringToArray,
@@ -24,9 +23,11 @@ import { ActiveObjectContext, UIContext } from "../components/Context";
 
 export default function ProjectWorkInput() {
   const {
+    activeCourse,
     activePath,
     activeAssignment,
   }: {
+    activeCourse: CourseData;
     activePath: string;
     activeAssignment?: CodeAssignmentData;
   } = useContext(ActiveObjectContext);
@@ -40,7 +41,7 @@ export default function ProjectWorkInput() {
   const pageType = useLoaderData();
   const navigate = useNavigate();
   let pageTitle: string = null;
-  const moduleDisable = currentCourse.moduleType !== null ? false : true;
+  const moduleDisable = activeCourse?.moduleType !== null ? false : true;
   const codeLanguageOptions = defaults.codeLanguages; //get these from settings file later
 
   if (pageType === "new") {
@@ -62,11 +63,11 @@ export default function ProjectWorkInput() {
     let snackbarText = "ui_assignment_save_success";
     try {
       if (pageType === "manage") {
-        snackbarText = await handleIPCResult(setIPCLoading, () =>
+        await handleIPCResult(setIPCLoading, () =>
           window.api.handleUpdateAssignmentFS(assignment, activePath)
         );
       } else {
-        snackbarText = await handleIPCResult(setIPCLoading, () =>
+        await handleIPCResult(setIPCLoading, () =>
           window.api.handleAddAssignmentFS(assignment, activePath)
         );
       }

@@ -1,6 +1,7 @@
 export const supportedLanguagesList: string[] = ["FI", "ENG"];
 export type SupportedLanguages = "FI" | "ENG";
-
+export type FormatType = "pdf" | "html";
+export const formatTypes: FormatType[] = ["pdf", "html"];
 export type FileTypes = "text" | "image" | "code";
 
 export interface FileData {
@@ -43,7 +44,7 @@ export interface CommonAssignmentData {
 
 export interface CodeAssignmentData extends CommonAssignmentData {
   assignmentType: string;
-  assignmentNo: Array<number>;
+  position: Array<number>;
   level: number | null;
   next: Array<string> | null;
   previous: Array<string> | null;
@@ -97,17 +98,69 @@ export interface SettingsType {
   language: string;
 }
 
+export interface SetVariation
+  extends Omit<Variation, "instructions" | "exampleRuns" | "files"> {
+  usedInBadness: number;
+}
+
+/**
+ * A special version of CodeAssignmentData that uses a smaller,
+ * simplified version of the variations type, for more lightweight
+ * use in the SetCreator algorithm.
+ */
+export interface SetAlgoAssignmentData
+  extends Omit<CodeAssignmentData, "variations"> {
+  variations: {
+    [key: string]: SetVariation;
+  };
+}
+
+export type WithCheckWrapper = {
+  isChecked: boolean;
+  value: any;
+};
+
+export interface AssignmentWithCheck extends WithCheckWrapper {
+  value: CodeAssignmentDatabase;
+}
+
+export interface SetWithCheck extends WithCheckWrapper {
+  value: SetData;
+}
+
+export interface SetAssignmentWithCheck extends WithCheckWrapper {
+  value: SetAlgoAssignmentData;
+  selectedPosition: number;
+  selectedVariation: string;
+  selectedModule: number;
+}
+
 export interface SetData {
   id: string;
   fullCourse: boolean;
-  module: string;
+  module: number;
   name: string;
   year: number;
   period: number;
   export: boolean;
-  format: string; // check this type and the purpose
+  format: FormatType;
   exportCGConfigs: boolean;
-  assignmentCGids: { [key: string]: string };
+  assignments: SetAssignmentWithCheck[];
+  targetModule: number;
+  targetPosition: number;
+}
+
+export interface ExportSetAssignmentData {
+  id: string;
+  variationId: string;
+  CGid: string;
+  selectedModule: number;
+  selectedPosition: number;
+}
+
+export interface ExportSetData
+  extends Omit<SetData, "assignments" | "targetModule" | "targetPosition"> {
+  assignments: ExportSetAssignmentData[];
 }
 
 export type CodeAssignmentDatabase = {
@@ -178,7 +231,8 @@ export type ContextBridgeAPI = {
     coursePath: string
   ) => IpcResult;
   handleGetAssignmentsFS: (coursePath: string, id: string) => IpcResult;
-  getAssignmentsDB: (coursePath: string) => IpcResult;
+  getTruncatedAssignmentsFS: (coursePath: string) => IpcResult;
+  getAssignmentsDB: (coursePath: string, ids?: string[]) => IpcResult;
   handleUpdateAssignmentFS: (
     assignment: CodeAssignmentData,
     coursePath: string
@@ -189,7 +243,7 @@ export type ContextBridgeAPI = {
 
   // CRUD Module
   addModuleDB: (coursePath: string, module: ModuleData) => IpcResult;
-  getModulesDB: (coursePath: string) => IpcResult;
+  getModulesDB: (coursePath: string, ids?: string[]) => IpcResult;
   updateModuleDB: (coursePath: string, module: ModuleData) => IpcResult;
   deleteModulesDB: (coursePath: string, ids: number[]) => IpcResult;
   getModuleCountDB: (coursePath: string) => IpcResult;
@@ -200,8 +254,8 @@ export type ContextBridgeAPI = {
   getModuleTagsDB: (coursePath: string) => IpcResult;
 
   // CRUD Set
-  addSetFS: (coursePath: string, set: SetData) => IpcResult;
-  getSetsFS: (coursePath: string) => IpcResult;
-  updateSetFS: (coursePath: string, set: SetData) => IpcResult;
+  addSetFS: (coursePath: string, set: ExportSetData) => IpcResult;
+  getSetsFS: (coursePath: string, id?: string) => IpcResult;
+  updateSetFS: (coursePath: string, set: ExportSetData) => IpcResult;
   deleteSetsFS: (coursePath: string, ids: string[]) => IpcResult;
 };

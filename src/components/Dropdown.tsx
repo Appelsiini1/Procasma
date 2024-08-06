@@ -9,6 +9,7 @@ type ButtonProps = {
   placeholder?: string;
   defaultValue?: string;
   name: string;
+  disabled?: boolean;
   /*onChange?: (
     event: React.SyntheticEvent | null,
     newValue: string | null
@@ -22,9 +23,10 @@ export default function Dropdown({
   placeholder = "",
   defaultValue,
   name,
+  disabled,
   onChange,
 }: ButtonProps) {
-  let formattedOptions: Array<React.JSX.Element> = [];
+  const formattedOptions: Array<React.JSX.Element> = [];
   for (let index = 0; index < options.length; index++) {
     const element: any = options[index];
     formattedOptions.push(
@@ -49,6 +51,7 @@ export default function Dropdown({
       defaultValue={defaultValue}
       indicator={<KeyboardArrowDown />}
       onChange={handleChange}
+      disabled={disabled}
       sx={{
         minWidth: "10em",
         maxWidth: "100%",

@@ -4,6 +4,7 @@ import {
   AccordionSummary,
   Avatar,
   Box,
+  Grid,
   ListItemContent,
   Stack,
   Typography,
@@ -17,6 +18,10 @@ import { ExampleRunType, Variation } from "../types";
 import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
 import ExampleRunsGroup from "./ExampleRunsGroup";
 import { parseUICode } from "../rendererHelpers/translation";
+import {
+  ForceToString,
+  splitStringToArray,
+} from "../generalHelpers/converters";
 
 type ComponentProps = {
   varID: string;
@@ -74,10 +79,6 @@ export default function VariationComponent({
           </ButtonComp>
 
           <div className="emptySpace2" />
-          <Typography level="h4" sx={spacingSX}>
-            {parseUICode("ui_files")}
-          </Typography>
-
           <FileList
             files={variation.files}
             handleAssignment={handleAssignment}
@@ -85,15 +86,40 @@ export default function VariationComponent({
           ></FileList>
 
           <div className="emptySpace2" />
-          <Typography level="h4" sx={spacingSX}>
-            {parseUICode("ui_ex_runs")}
-          </Typography>
-
           <ExampleRunsGroup
             exampleRuns={exampleRuns}
             pathInAssignment={pathInAssignment}
             handleAssignment={handleAssignment}
           ></ExampleRunsGroup>
+
+          <div className="emptySpace2" />
+          <Grid
+            container
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="center"
+            spacing={1}
+          >
+            <Grid xs={3}>
+              <Typography level="h4">{parseUICode("ui_used_in")}</Typography>
+            </Grid>
+            <Grid xs={1}>
+              <HelpText text={parseUICode("help_used_in")} />
+            </Grid>
+            <Grid xs={8}>
+              <InputField
+                fieldKey="caUsedInInput"
+                defaultValue={ForceToString(variation?.usedIn)}
+                onChange={(value: string) =>
+                  handleAssignment(
+                    `${pathInAssignment}.usedIn`,
+                    splitStringToArray(value),
+                    true
+                  )
+                }
+              />{" "}
+            </Grid>
+          </Grid>
         </Box>
       </AccordionDetails>
     </Accordion>
