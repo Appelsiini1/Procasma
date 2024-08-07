@@ -156,11 +156,27 @@ export interface ExportSetAssignmentData {
   CGid: string;
   selectedModule: number;
   selectedPosition: number;
+  folder: string;
 }
 
 export interface ExportSetData
   extends Omit<SetData, "assignments" | "targetModule" | "targetPosition"> {
   assignments: ExportSetAssignmentData[];
+}
+
+export interface CodeAssignmentSelectionData
+  extends Omit<CommonAssignmentData, "module" | "tags"> {
+  variation: Variation;
+  CGid: string;
+  selectedModule: number;
+  selectedPosition: number;
+  level: number;
+  codeLanguage: string;
+}
+
+export interface FullAssignmentSetData
+  extends Omit<SetData, "assignments" | "targetModule" | "targetPosition"> {
+  assignmentArray: CodeAssignmentSelectionData[];
 }
 
 export type CodeAssignmentDatabase = {
