@@ -47,12 +47,15 @@ export function exportSetData(inSet: SetData): ExportSetData {
 
   // Take SetAssignmentWithChecks and convert them to ExportSetAssignmentData
   const newAssignments = assignedAssignments.map((a) => {
+    const assignment = a.value;
     const newAssignment = {} as ExportSetAssignmentData;
-    newAssignment.id = a.value.assignmentID;
+    newAssignment.id = assignment.assignmentID;
     newAssignment.variationId = a.selectedVariation;
-    newAssignment.CGid = a.value.variations[a.selectedVariation]?.cgConfig?.id;
+    newAssignment.CGid =
+      assignment.variations[a.selectedVariation]?.cgConfig?.id;
     newAssignment.selectedModule = a.selectedModule;
     newAssignment.selectedPosition = a.selectedPosition;
+    newAssignment.folder = assignment.folder;
     return newAssignment;
   });
 
