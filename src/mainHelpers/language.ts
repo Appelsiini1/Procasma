@@ -18,7 +18,7 @@ class CurrentLanguage {
 
 export const language = new CurrentLanguage();
 
-export function parseUICode(ui_code: string): string {
+export function parseUICodeMain(ui_code: string): string {
   try {
     const messageTranslated = (texts as any)?.[ui_code]?.[language.current];
     return messageTranslated ?? ui_code;

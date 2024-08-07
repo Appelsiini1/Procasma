@@ -1,19 +1,16 @@
 import showdown from "showdown";
 import {
-  CodeAssignmentData,
-  CodeAssignmentSelectionData,
   CourseData,
   ExampleRunType,
   ExportSetData,
   FileData,
   FullAssignmentSetData,
   ModuleData,
-  SupportedModuleType,
 } from "../types";
 import { writeFileSync, readFileSync } from "fs";
 import path from "path";
 import log from "electron-log/node";
-import { parseUICode } from "./language";
+import { parseUICodeMain } from "./language";
 import { version, ShowdownOptions } from "../constants";
 import hljs from "highlight.js/lib/common";
 import { coursePath } from "../globalsMain";
@@ -73,7 +70,7 @@ export async function createOne(
   // Main page header
   const mainHeader = formatMainHeader(convertedSet, coursedata);
   html += `<h1>${mainHeader}</h1>`;
-  solutionHtml += `<h1>${mainHeader} ${parseUICode(
+  solutionHtml += `<h1>${mainHeader} ${parseUICodeMain(
     "answers"
   ).toUpperCase()}</h1>`;
 
@@ -114,7 +111,7 @@ export async function createOne(
 
   const filename = mainHeader.replace(" ", "");
   const solutionFilename =
-    mainHeader.replace(" ", "") + parseUICode("answers").toUpperCase();
+    mainHeader.replace(" ", "") + parseUICodeMain("answers").toUpperCase();
   if (convertedSet.format === "html") {
     saveHTML(html, savePath, filename + ".html");
     saveHTML(solutionHtml, savePath, solutionFilename + ".html");
@@ -193,7 +190,9 @@ function formatSolutions(
           file.fileName
         );
         const data = readFileSync(filePath, "utf8");
-        block += `<h3>${parseUICode("ex_solution")}: '${file.fileName}'</h3>`;
+        block += `<h3>${parseUICodeMain("ex_solution")}: '${
+          file.fileName
+        }'</h3>`;
         block += highlightCode(
           data,
           set.assignmentArray[meta.assignmentIndex].codeLanguage
@@ -234,7 +233,7 @@ function formatFiles(
           file.fileName
         );
         const data = readFileSync(filePath, "utf8");
-        block += `<h3>${parseUICode(
+        block += `<h3>${parseUICodeMain(
           type === "data" ? "input_datafile" : "ex_resultfile"
         )}: '${file.fileName}'</h3>`;
         const language =
@@ -254,7 +253,7 @@ function formatFiles(
 function formatMainHeader(set: FullAssignmentSetData, courseData: CourseData) {
   let title = ``;
   const addToTitle = (ui_code: string) => {
-    title += parseUICode(ui_code);
+    title += parseUICodeMain(ui_code);
     title += set.module.toString();
   };
   switch (courseData.moduleType) {
@@ -270,7 +269,7 @@ function formatMainHeader(set: FullAssignmentSetData, courseData: CourseData) {
     default:
       break;
   }
-  title += " " + parseUICode("assignments");
+  title += " " + parseUICodeMain("assignments");
   return title;
 }
 
@@ -287,7 +286,7 @@ function formatTitle(
 ) {
   let title = ``;
   const addToTitle = (ui_code: string) => {
-    title += parseUICode(ui_code);
+    title += parseUICodeMain(ui_code);
     title +=
       set.assignmentArray[meta.assignmentIndex].selectedModule.toString();
   };
@@ -305,7 +304,7 @@ function formatTitle(
       break;
   }
   title +=
-    parseUICode("assignment_letter") +
+    parseUICodeMain("assignment_letter") +
     set.assignmentArray[meta.assignmentIndex].selectedPosition.toString() +
     ": ";
   title += set.assignmentArray[meta.assignmentIndex].title;
@@ -357,7 +356,9 @@ function generateHeaderFooter(
             width: 50%;
           "
         >
-          ${parseUICode("page")} <span class="pageNumber"></span><span> / </span
+          ${parseUICodeMain(
+            "page"
+          )} <span class="pageNumber"></span><span> / </span
           ><span class="totalPages"></span>
         </td>
       </tr>
@@ -437,7 +438,7 @@ function generateBlock(
 
   // Assignment level
   if (set.assignmentArray[meta.assignmentIndex].level != null) {
-    block += `<i>${parseUICode("ui_assignment_level")}: ${
+    block += `<i>${parseUICodeMain("ui_assignment_level")}: ${
       meta.courseData.levels[set.assignmentArray[meta.assignmentIndex].level]
         .fullName
     }`;
@@ -481,7 +482,7 @@ function generateExampleRun(
 ): string {
   let block = `<div>
     `;
-  block += `<h2>${parseUICode("ex_run")} ${runNumber}</h2>`;
+  block += `<h2>${parseUICodeMain("ex_run")} ${runNumber}</h2>`;
   if (runInput.cmdInputs) {
     block += highlightCode(runInput.cmdInputs.toString(), "plaintext");
   }
@@ -513,7 +514,7 @@ function generateToC(
   set: FullAssignmentSetData
 ): string {
   let block = `<div>`;
-  block += `<h2>${parseUICode("toc")}</h2>\n`;
+  block += `<h2>${parseUICodeMain("toc")}</h2>\n`;
   for (const assig of set.assignmentArray) {
     block += `<h3><a href="#${assig.assignmentID}>${formatTitle(
       {
