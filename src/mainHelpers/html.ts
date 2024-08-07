@@ -1,57 +1,143 @@
 import showdown from "showdown";
 import {
   CodeAssignmentData,
+  CodeAssignmentSelectionData,
   CourseData,
   ExampleRunType,
+  ExportSetData,
   FileData,
+  FullAssignmentSetData,
   ModuleData,
-  SetData,
   SupportedModuleType,
 } from "../types";
-import { writeFileSync } from "fs";
+import { writeFileSync, readFileSync } from "fs";
 import path from "path";
 import log from "electron-log/node";
 import { parseUICode } from "./language";
 import { version, ShowdownOptions } from "../constants";
 import hljs from "highlight.js/lib/common";
-import fs from "fs";
 import { coursePath } from "../globalsMain";
+import { setToFullData } from "../generalHelpers/assignment";
+import { getModulesDB } from "./databaseOperations";
+import { createMainFunctionHandler } from "./ipcHelpers";
+import { createPDF } from "./pdf";
 
 const converter = new showdown.Converter(ShowdownOptions);
 
 interface AssignmentInput {
-  assignmentInput: CodeAssignmentData;
-  variationKey: string;
+  assignmentIndex: number;
   courseData: CourseData;
-  moduleType?: SupportedModuleType;
-  moduleNumber?: number;
-  assignmentNumber: number;
 }
 
 // Module creators
 /**
  * Creates multiple HTML sets and returns an array of HTML strings.
- * @param setInput A SetData object with set information
+ * @param setInput An array of ExportSetData objects with set information
  * @param coursedata A CourseData object with course information
  * @param savePath Path where to save the created file.
  */
-function createMultiple(
-  setInput: Array<SetData>,
+export async function createMultiple(
+  setInput: Array<ExportSetData>,
   courseData: CourseData,
   savePath: string
-) {}
+) {
+  for (const set of setInput) {
+    await createOne(set, courseData, savePath);
+  }
+}
 
 /**
  * Creates one HTML string from an assignment set
- * @param setInput A SetData object with set information
+ * @param setInput An ExportSetData object with set information
  * @param coursedata A CourseData object with course information
  * @param savePath Path where to save the created file.
  */
-function createOne(
-  setInput: SetData,
+export async function createOne(
+  setInput: ExportSetData,
   coursedata: CourseData,
   savePath: string
-) {}
+) {
+  const convertedSet = setToFullData(setInput);
+
+  // HTML Base
+  let html = `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="procasma-papercolor-light.min.css" />
+  </head>
+  <body>
+    <div>`;
+  let solutionHtml = html;
+
+  // Main page header
+  const mainHeader = formatMainHeader(convertedSet, coursedata);
+  html += `<h1>${mainHeader}</h1>`;
+  solutionHtml += `<h1>${mainHeader} ${parseUICode(
+    "answers"
+  ).toUpperCase()}</h1>`;
+
+  // Get correct module
+  const module = await createMainFunctionHandler(() =>
+    getModulesDB(coursePath.path, [setInput.module])
+  );
+  if (module.errorMessage) {
+    throw new Error(module.errorMessage);
+  }
+
+  // Starting instructions
+  const startingInstructions = generateStart(module.content[0]);
+  html += startingInstructions;
+  solutionHtml += startingInstructions;
+
+  // Table of contents
+  const toc = generateToC(coursedata, convertedSet);
+  html += toc;
+  solutionHtml += toc;
+
+  // Assignments
+  for (let index = 0; index < convertedSet.assignmentArray.length; index++) {
+    const meta = { assignmentIndex: index, courseData: coursedata };
+    const normalblock = generateBlock(meta, convertedSet);
+    html += normalblock;
+    solutionHtml += normalblock;
+    solutionHtml += formatSolutions(meta, convertedSet);
+  }
+
+  // End body
+  html += `</div>
+  </body>
+</html>`;
+  solutionHtml += `</div>
+  </body>
+</html>`;
+
+  const filename = mainHeader.replace(" ", "");
+  const solutionFilename =
+    mainHeader.replace(" ", "") + parseUICode("answers").toUpperCase();
+  if (convertedSet.format === "html") {
+    saveHTML(html, savePath, filename + ".html");
+    saveHTML(solutionHtml, savePath, solutionFilename + ".html");
+  } else if (convertedSet.format === "pdf") {
+    const moduleString = "";
+    createPDF(
+      {
+        html: html,
+        title: mainHeader,
+        ...generateHeaderFooter(coursedata, moduleString),
+      },
+      path.join(savePath, filename + ".pdf")
+    );
+    createPDF(
+      {
+        html: html,
+        title: mainHeader,
+        ...generateHeaderFooter(coursedata, moduleString),
+      },
+      path.join(savePath, solutionFilename + ".pdf")
+    );
+  }
+}
 
 // Formatters
 /**
@@ -92,20 +178,26 @@ function highlightCode(code: string, language: string): string {
  * @param inputs FileInput object with assignment information, variation key and course path.
  * @returns HTML string
  */
-function formatSolutions(inputs: AssignmentInput): string {
+function formatSolutions(
+  meta: AssignmentInput,
+  set: FullAssignmentSetData
+): string {
   try {
     let block = ``;
-    const files = inputs.assignmentInput.variations[inputs.variationKey].files;
+    const files = set.assignmentArray[meta.assignmentIndex].variation.files;
     for (const file of files) {
       if (file.solution && file.fileContent === "code") {
         const filePath = path.join(
           coursePath.path,
-          inputs.assignmentInput.folder,
+          set.assignmentArray[meta.assignmentIndex].folder,
           file.fileName
         );
-        const data = fs.readFileSync(filePath, "utf8");
+        const data = readFileSync(filePath, "utf8");
         block += `<h3>${parseUICode("ex_solution")}: '${file.fileName}'</h3>`;
-        block += highlightCode(data, inputs.assignmentInput.codeLanguage);
+        block += highlightCode(
+          data,
+          set.assignmentArray[meta.assignmentIndex].codeLanguage
+        );
       }
     }
     return block;
@@ -122,12 +214,13 @@ function formatSolutions(inputs: AssignmentInput): string {
  * @returns HTML string
  */
 function formatFiles(
-  inputs: AssignmentInput,
+  meta: AssignmentInput,
+  set: FullAssignmentSetData,
   type: FileData["fileContent"]
 ): string {
   try {
     let block = ``;
-    const files = inputs.assignmentInput.variations[inputs.variationKey].files;
+    const files = set.assignmentArray[meta.assignmentIndex].variation.files;
     for (const file of files) {
       if (
         !file.solution &&
@@ -137,16 +230,16 @@ function formatFiles(
       ) {
         const filePath = path.join(
           coursePath.path,
-          inputs.assignmentInput.folder,
+          set.assignmentArray[meta.assignmentIndex].folder,
           file.fileName
         );
-        const data = fs.readFileSync(filePath, "utf8");
+        const data = readFileSync(filePath, "utf8");
         block += `<h3>${parseUICode(
           type === "data" ? "input_datafile" : "ex_resultfile"
         )}: '${file.fileName}'</h3>`;
         const language =
           file.fileContent === "code"
-            ? inputs.assignmentInput.codeLanguage
+            ? set.assignmentArray[meta.assignmentIndex].codeLanguage
             : "plaintext";
         block += highlightCode(data, language);
       }
@@ -158,19 +251,47 @@ function formatFiles(
   }
 }
 
+function formatMainHeader(set: FullAssignmentSetData, courseData: CourseData) {
+  let title = ``;
+  const addToTitle = (ui_code: string) => {
+    title += parseUICode(ui_code);
+    title += set.module.toString();
+  };
+  switch (courseData.moduleType) {
+    case "lecture":
+      addToTitle("lecture_letter");
+      break;
+    case "module":
+      addToTitle("module_letter");
+      break;
+    case "week":
+      addToTitle("week_letter");
+      break;
+    default:
+      break;
+  }
+  title += " " + parseUICode("assignments");
+  return title;
+}
+
 /**
  * Formats a title
  * @param inputs A BlockInputs object
  * @param toc A boolean whether the title is a table of contents title
  * @returns HTML string
  */
-function formatTitle(inputs: AssignmentInput, toc = false) {
+function formatTitle(
+  meta: AssignmentInput,
+  set: FullAssignmentSetData,
+  toc = false
+) {
   let title = ``;
   const addToTitle = (ui_code: string) => {
     title += parseUICode(ui_code);
-    title += inputs.moduleNumber.toString();
+    title +=
+      set.assignmentArray[meta.assignmentIndex].selectedModule.toString();
   };
-  switch (inputs.moduleType) {
+  switch (meta.courseData.moduleType) {
     case "lecture":
       addToTitle("lecture_letter");
       break;
@@ -185,14 +306,15 @@ function formatTitle(inputs: AssignmentInput, toc = false) {
   }
   title +=
     parseUICode("assignment_letter") +
-    inputs.assignmentNumber.toString() +
+    set.assignmentArray[meta.assignmentIndex].selectedPosition.toString() +
     ": ";
-  title += inputs.assignmentInput.title;
+  title += set.assignmentArray[meta.assignmentIndex].title;
 
   // if table of contents, add level abbreviation to the end of title
-  if (toc && inputs.assignmentInput.level != null) {
+  if (toc && set.assignmentArray[meta.assignmentIndex].level != null) {
     title += `(${
-      inputs.courseData.levels[inputs.assignmentInput.level].abbreviation
+      meta.courseData.levels[set.assignmentArray[meta.assignmentIndex].level]
+        .abbreviation
     })`;
   }
   return title;
@@ -301,37 +423,39 @@ function generateStart(moduleInput: ModuleData | null): string {
  * @param inputs BlockInputs object
  * @returns HTML string
  */
-function generateBlock(inputs: AssignmentInput): string {
+function generateBlock(
+  meta: AssignmentInput,
+  set: FullAssignmentSetData
+): string {
   let block = `<div>
     `;
   // Title
   const title = `<h2 class="assig-title"><a id=${
-    inputs.assignmentInput.assignmentID
-  }>${formatTitle(inputs)}</a></h2>\n`;
+    set.assignmentArray[meta.assignmentIndex].assignmentID
+  }>${formatTitle(meta, set)}</a></h2>\n`;
   block += `${title}`;
 
   // Assignment level
-  if (inputs.assignmentInput.level != null) {
+  if (set.assignmentArray[meta.assignmentIndex].level != null) {
     block += `<i>${parseUICode("ui_assignment_level")}: ${
-      inputs.courseData.levels[inputs.assignmentInput.level].fullName
+      meta.courseData.levels[set.assignmentArray[meta.assignmentIndex].level]
+        .fullName
     }`;
   }
 
   //Instructions
   block += `<p>`;
   block += formatMarkdown(
-    formatMath(
-      inputs.assignmentInput.variations[inputs.variationKey].instructions
-    )
+    formatMath(set.assignmentArray[meta.assignmentIndex].variation.instructions)
   );
   block += `</p>`;
 
   // Datafiles
-  block += formatFiles(inputs, "data");
+  block += formatFiles(meta, set, "data");
 
   // Example runs
   const exampleRuns =
-    inputs.assignmentInput.variations[inputs.variationKey].exampleRuns;
+    set.assignmentArray[meta.assignmentIndex].variation.exampleRuns;
   let runNumber = 1;
   for (const run in exampleRuns) {
     block += generateExampleRun(exampleRuns[run], runNumber);
@@ -339,7 +463,7 @@ function generateBlock(inputs: AssignmentInput): string {
   }
 
   // Result files
-  block += formatFiles(inputs, "result");
+  block += formatFiles(meta, set, "result");
 
   block += `</div>`;
   return block;
@@ -385,17 +509,18 @@ function generateExampleRun(
  * @returns HTML string
  */
 function generateToC(
-  assignments: Array<CodeAssignmentData>,
-  inputs: AssignmentInput
+  courseData: CourseData,
+  set: FullAssignmentSetData
 ): string {
   let block = `<div>`;
   block += `<h2>${parseUICode("toc")}</h2>\n`;
-  for (const assig of assignments) {
+  for (const assig of set.assignmentArray) {
     block += `<h3><a href="#${assig.assignmentID}>${formatTitle(
       {
-        assignmentInput: assig,
-        ...inputs,
+        assignmentIndex: set.assignmentArray.indexOf(assig),
+        courseData: courseData,
       },
+      set,
       true
     )}`;
     block += `</a></h3>`;
