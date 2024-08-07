@@ -15,6 +15,7 @@ import { parseUICode } from "./language";
 import { version, ShowdownOptions } from "../constants";
 import hljs from "highlight.js/lib/common";
 import fs from "fs";
+import { coursePath } from "../globalsMain";
 
 const converter = new showdown.Converter(ShowdownOptions);
 
@@ -22,7 +23,6 @@ interface AssignmentInput {
   assignmentInput: CodeAssignmentData;
   variationKey: string;
   courseData: CourseData;
-  coursePath: string;
   moduleType?: SupportedModuleType;
   moduleNumber?: number;
   assignmentNumber: number;
@@ -99,7 +99,7 @@ function formatSolutions(inputs: AssignmentInput): string {
     for (const file of files) {
       if (file.solution && file.fileContent === "code") {
         const filePath = path.join(
-          inputs.coursePath,
+          coursePath.path,
           inputs.assignmentInput.folder,
           file.fileName
         );
@@ -136,7 +136,7 @@ function formatFiles(
         file.fileContent === type
       ) {
         const filePath = path.join(
-          inputs.coursePath,
+          coursePath.path,
           inputs.assignmentInput.folder,
           file.fileName
         );
