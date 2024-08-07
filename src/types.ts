@@ -156,6 +156,7 @@ export interface ExportSetAssignmentData {
   CGid: string;
   selectedModule: number;
   selectedPosition: number;
+  folder: string;
 }
 
 export interface ExportSetData
