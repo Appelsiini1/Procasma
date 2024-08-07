@@ -37,3 +37,4 @@ export const ShowdownOptions: ConverterOptions = {
   tablesHeaderId: true,
   tasklists: true,
 };
+export const assignmentDataFolder = "assignmentData";
