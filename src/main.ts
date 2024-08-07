@@ -37,6 +37,7 @@ import {
   updateModuleDB,
   deleteModulesDB,
 } from "./mainHelpers/databaseOperations";
+import { coursePath } from "./globalsMain";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -115,6 +116,10 @@ ipcMain.on("set-title", (event, title) => {
   const webContents = event.sender;
   const win = BrowserWindow.fromWebContents(webContents);
   win.setTitle(title);
+});
+
+ipcMain.on("set-coursePath", (event, path) => {
+  coursePath.path = path;
 });
 
 // Bidirectional, renderer to main to renderer

@@ -13,6 +13,7 @@ import {
 contextBridge.exposeInMainWorld("api", {
   // One-way, Renderer to Main
   setTitle: (title: string) => ipcRenderer.send("set-title", title),
+  setCoursePath: (path: string) => ipcRenderer.send("set-coursePath", path),
 
   // Bidirectional, renderer to main to renderer
   // General
