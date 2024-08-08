@@ -11,6 +11,7 @@ import StepperComp from "../components/StepperComp";
 import {
   CodeAssignmentData,
   CodeAssignmentDatabase,
+  CourseData,
   formatTypes,
   ModuleData,
   SetAlgoAssignmentData,
@@ -51,6 +52,7 @@ export default function SetCreator() {
     handleActiveAssignment,
     activeAssignments,
     handleActiveAssignments,
+    activeCourse,
   }: {
     activePath: string;
     activeSet: SetData;
@@ -59,6 +61,7 @@ export default function SetCreator() {
     handleActiveAssignment: (value: CodeAssignmentData) => void;
     activeAssignments: CodeAssignmentDatabase[];
     handleActiveAssignments: (value: CodeAssignmentDatabase[]) => void;
+    activeCourse: CourseData;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
     useContext(UIContext);
@@ -184,6 +187,23 @@ export default function SetCreator() {
       snackbarSeverity = "error";
     }
     handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
+  }
+
+  async function exportSetToDisk() {
+    let snackbarSeverity = "success";
+    let snackbarText = "ui_export_success";
+    try {
+      const exportedSet = exportSetData(set);
+      const savePath = await handleIPCResult(setIPCLoading, () =>
+        window.api.selectDir()
+      );
+      await handleIPCResult(setIPCLoading, () =>
+        window.api.exportSetFS([exportedSet], activeCourse, savePath)
+      );
+    } catch (err) {
+      snackbarText = err.message;
+      snackbarSeverity = "error";
+    }
   }
 
   function handleUpdateCGid(assignmentId: string, CGid: string) {
@@ -904,7 +924,7 @@ export default function SetCreator() {
             </ButtonComp>
             <ButtonComp
               buttonType="normal"
-              onClick={() => console.log("export set")}
+              onClick={() => exportSetToDisk()}
               ariaLabel={parseUICode("ui_aria_export_cg_configs")}
             >
               {parseUICode("ui_export")}
