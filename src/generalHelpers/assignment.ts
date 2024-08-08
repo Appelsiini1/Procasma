@@ -6,8 +6,8 @@ import {
 } from "../types";
 import { coursePath } from "../globalsMain";
 import path from "path";
-import { assignmentDataFolder } from "src/constants";
-import { handleReadFileFS } from "src/mainHelpers/fileOperations";
+import { assignmentDataFolder } from "../constants";
+import { handleReadFileFS } from "../mainHelpers/fileOperations";
 
 export function isExpanding(assignment: CodeAssignmentData) {
   if (assignment.next?.length > 0 || assignment.previous?.length > 0) {
