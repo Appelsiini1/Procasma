@@ -823,13 +823,13 @@
     "FI": "Vastaukset",
     "ENG": "Answers"
   },
-  "ui_pdf_success": {
-    "FI": "Tehtäväpaperit luotu onnistuneesti kansioon:",
-    "ENG": "Assignment instruction papers succesfully created to folder:"
+  "ui_export_success": {
+    "FI": "Tehtäväpaperit luotu onnistuneesti.",
+    "ENG": "Assignment instruction papers succesfully created."
   },
-  "ui_pdf_error": {
-    "FI": "Virhe PDF tiedoston luonnissa:",
-    "ENG": "Error in PDF generation:"
+  "ui_export_error": {
+    "FI": "Virhe PDF tiedoston luonnissa.",
+    "ENG": "Error in PDF generation."
   },
   "ui_del_error_disk": {
     "FI": "Virhe tehtävän poistamisessa levyltä!",
