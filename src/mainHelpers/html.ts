@@ -26,38 +26,23 @@ interface AssignmentInput {
   courseData: CourseData;
 }
 
-// Module creators
+// Set exporter
 /**
- * Creates multiple HTML sets and returns an array of HTML strings.
- * @param setInput An array of ExportSetData objects with set information
- * @param coursedata A CourseData object with course information
- * @param savePath Path where to save the created file.
- */
-export async function createMultiple(
-  setInput: Array<ExportSetData>,
-  courseData: CourseData,
-  savePath: string
-) {
-  for (const set of setInput) {
-    await createOne(set, courseData, savePath);
-  }
-}
-
-/**
- * Creates one HTML string from an assignment set
+ * Creates one HTML string from an assignment set and saves it to disk according to the format spesified in setInput
  * @param setInput An ExportSetData object with set information
  * @param coursedata A CourseData object with course information
  * @param savePath Path where to save the created file.
  */
-export async function createOne(
-  setInput: ExportSetData,
+export async function exportSet(
+  setInput: Array<ExportSetData>,
   coursedata: CourseData,
   savePath: string
 ) {
-  const convertedSet = setToFullData(setInput);
+  for (const set of setInput) {
+    const convertedSet = setToFullData(set);
 
-  // HTML Base
-  let html = `<!DOCTYPE html>
+    // HTML Base
+    let html = `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -65,74 +50,75 @@ export async function createOne(
   </head>
   <body>
     <div>`;
-  let solutionHtml = html;
+    let solutionHtml = html;
 
-  // Main page header
-  const mainHeader = formatMainHeader(convertedSet, coursedata);
-  html += `<h1>${mainHeader}</h1>`;
-  solutionHtml += `<h1>${mainHeader} ${parseUICodeMain(
-    "answers"
-  ).toUpperCase()}</h1>`;
+    // Main page header
+    const mainHeader = formatMainHeader(convertedSet, coursedata);
+    html += `<h1>${mainHeader}</h1>`;
+    solutionHtml += `<h1>${mainHeader} ${parseUICodeMain(
+      "answers"
+    ).toUpperCase()}</h1>`;
 
-  // Get correct module
-  const module = await createMainFunctionHandler(() =>
-    getModulesDB(coursePath.path, [setInput.module])
-  );
-  if (module.errorMessage) {
-    throw new Error(module.errorMessage);
-  }
+    // Get correct module
+    const module = await createMainFunctionHandler(() =>
+      getModulesDB(coursePath.path, [convertedSet.module])
+    );
+    if (module.errorMessage) {
+      throw new Error(module.errorMessage);
+    }
 
-  // Starting instructions
-  const startingInstructions = generateStart(module.content[0]);
-  html += startingInstructions;
-  solutionHtml += startingInstructions;
+    // Starting instructions
+    const startingInstructions = generateStart(module.content[0]);
+    html += startingInstructions;
+    solutionHtml += startingInstructions;
 
-  // Table of contents
-  const toc = generateToC(coursedata, convertedSet);
-  html += toc;
-  solutionHtml += toc;
+    // Table of contents
+    const toc = generateToC(coursedata, convertedSet);
+    html += toc;
+    solutionHtml += toc;
 
-  // Assignments
-  for (let index = 0; index < convertedSet.assignmentArray.length; index++) {
-    const meta = { assignmentIndex: index, courseData: coursedata };
-    const normalblock = generateBlock(meta, convertedSet);
-    html += normalblock;
-    solutionHtml += normalblock;
-    solutionHtml += formatSolutions(meta, convertedSet);
-  }
+    // Assignments
+    for (let index = 0; index < convertedSet.assignmentArray.length; index++) {
+      const meta = { assignmentIndex: index, courseData: coursedata };
+      const normalblock = generateBlock(meta, convertedSet);
+      html += normalblock;
+      solutionHtml += normalblock;
+      solutionHtml += formatSolutions(meta, convertedSet);
+    }
 
-  // End body
-  html += `</div>
+    // End body
+    html += `</div>
   </body>
 </html>`;
-  solutionHtml += `</div>
+    solutionHtml += `</div>
   </body>
 </html>`;
 
-  const filename = mainHeader.replace(" ", "");
-  const solutionFilename =
-    mainHeader.replace(" ", "") + parseUICodeMain("answers").toUpperCase();
-  if (convertedSet.format === "html") {
-    saveHTML(html, savePath, filename + ".html");
-    saveHTML(solutionHtml, savePath, solutionFilename + ".html");
-  } else if (convertedSet.format === "pdf") {
-    const moduleString = "";
-    createPDF(
-      {
-        html: html,
-        title: mainHeader,
-        ...generateHeaderFooter(coursedata, moduleString),
-      },
-      path.join(savePath, filename + ".pdf")
-    );
-    createPDF(
-      {
-        html: html,
-        title: mainHeader,
-        ...generateHeaderFooter(coursedata, moduleString),
-      },
-      path.join(savePath, solutionFilename + ".pdf")
-    );
+    const filename = mainHeader.replace(" ", "");
+    const solutionFilename =
+      mainHeader.replace(" ", "") + parseUICodeMain("answers").toUpperCase();
+    if (convertedSet.format === "html") {
+      saveHTML(html, savePath, filename + ".html");
+      saveHTML(solutionHtml, savePath, solutionFilename + ".html");
+    } else if (convertedSet.format === "pdf") {
+      const moduleString = "";
+      createPDF(
+        {
+          html: html,
+          title: mainHeader,
+          ...generateHeaderFooter(coursedata, moduleString),
+        },
+        path.join(savePath, filename + ".pdf")
+      );
+      createPDF(
+        {
+          html: html,
+          title: mainHeader,
+          ...generateHeaderFooter(coursedata, moduleString),
+        },
+        path.join(savePath, solutionFilename + ".pdf")
+      );
+    }
   }
 }
 
