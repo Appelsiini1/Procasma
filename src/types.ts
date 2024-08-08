@@ -274,4 +274,11 @@ export type ContextBridgeAPI = {
   getSetsFS: (coursePath: string, id?: string) => IpcResult;
   updateSetFS: (coursePath: string, set: ExportSetData) => IpcResult;
   deleteSetsFS: (coursePath: string, ids: string[]) => IpcResult;
+
+  //Export set
+  exportSetFS: (
+    setInput: Array<ExportSetData>,
+    coursedata: CourseData,
+    savePath: string
+  ) => IpcResult;
 };

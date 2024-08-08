@@ -5,6 +5,7 @@ import { contextBridge, ipcRenderer } from "electron";
 import {
   CodeAssignmentData,
   CourseData,
+  ExportSetData,
   ModuleData,
   SetData,
   SettingsType,
@@ -79,4 +80,11 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("updateSetFS", coursePath, set),
   deleteSetsFS: (coursePath: string, ids: string[]) =>
     ipcRenderer.invoke("deleteSetsFS", coursePath, ids),
+
+  // Export set to disk
+  exportSetFS: (
+    setInput: Array<ExportSetData>,
+    courseData: CourseData,
+    savePath: string
+  ) => ipcRenderer.invoke("exportSetFS", setInput, courseData, savePath),
 });

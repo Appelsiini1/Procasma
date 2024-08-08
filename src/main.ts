@@ -38,6 +38,7 @@ import {
   deleteModulesDB,
 } from "./mainHelpers/databaseOperations";
 import { coursePath } from "./globalsMain";
+import { exportSetFS } from "./mainHelpers/html";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -254,6 +255,14 @@ ipcMain.handle(
 ipcMain.handle(
   "deleteSetsFS",
   formatIPCResult((path, ids) => deleteSetsFS(path, ids))
+);
+
+// Export set
+ipcMain.handle(
+  "exportSetFS",
+  formatIPCResult((setInput, courseData, savePath) =>
+    exportSetFS(setInput, courseData, savePath)
+  )
 );
 
 testDatabase();
