@@ -33,17 +33,18 @@ interface AssignmentInput {
  * @param coursedata A CourseData object with course information
  * @param savePath Path where to save the created file(s).
  */
-export async function exportSet(
+export async function exportSetFS(
   setInput: Array<ExportSetData>,
   coursedata: CourseData,
   savePath: string
-) {
-  for (const set of setInput) {
-    let moduleString = "";
-    const convertedSet = setToFullData(set);
+): Promise<String> {
+  try {
+    for (const set of setInput) {
+      let moduleString = "";
+      const convertedSet = setToFullData(set);
 
-    // HTML Base
-    let html = `<!DOCTYPE html>
+      // HTML Base
+      let html = `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -51,81 +52,91 @@ export async function exportSet(
   </head>
   <body>
     <div>`;
-    let solutionHtml = html;
+      let solutionHtml = html;
 
-    // Main page header
-    const mainHeader = formatMainHeader(convertedSet, coursedata);
-    html += `<h1>${mainHeader}</h1>`;
-    solutionHtml += `<h1>${mainHeader} ${parseUICodeMain(
-      "answers"
-    ).toUpperCase()}</h1>`;
+      // Main page header
+      const mainHeader = formatMainHeader(convertedSet, coursedata);
+      html += `<h1>${mainHeader}</h1>`;
+      solutionHtml += `<h1>${mainHeader} ${parseUICodeMain(
+        "answers"
+      ).toUpperCase()}</h1>`;
 
-    // Get correct module
-    if (convertedSet.module != null) {
-      const module = await createMainFunctionHandler(() =>
-        getModulesDB(coursePath.path, [convertedSet.module])
+      // Get correct module
+      if (convertedSet.module != null) {
+        const module = await createMainFunctionHandler(() =>
+          getModulesDB(coursePath.path, [convertedSet.module])
+        );
+        if (module.errorMessage) {
+          throw new Error(module.errorMessage);
+        }
+
+        // Starting instructions
+        const startingInstructions = generateStart(module.content[0]);
+        html += startingInstructions;
+        solutionHtml += startingInstructions;
+
+        // Module string for PDF footer
+
+        switch (coursedata.moduleType) {
+          case "lecture":
+            moduleString +=
+              parseUICodeMain("ui_lecture") +
+              ` ${convertedSet.module.toString()}`;
+            break;
+          case "module":
+            moduleString +=
+              parseUICodeMain("ui_module") +
+              ` ${convertedSet.module.toString()}`;
+            break;
+          case "week":
+            moduleString +=
+              parseUICodeMain("ui_week") + ` ${convertedSet.module.toString()}`;
+            break;
+          default:
+            break;
+        }
+      }
+
+      // Table of contents
+      const toc = generateToC(coursedata, convertedSet);
+      html += toc;
+      solutionHtml += toc;
+
+      // Assignments
+      for (
+        let index = 0;
+        index < convertedSet.assignmentArray.length;
+        index++
+      ) {
+        const meta = { assignmentIndex: index, courseData: coursedata };
+        const normalblock = generateBlock(meta, convertedSet);
+        html += normalblock;
+        solutionHtml += normalblock;
+        solutionHtml += formatSolutions(meta, convertedSet);
+      }
+
+      // End body
+      html += `</div>
+  </body>
+</html>`;
+      solutionHtml += `</div>
+  </body>
+</html>`;
+      saveSetFS(
+        html,
+        solutionHtml,
+        mainHeader,
+        convertedSet.format,
+        coursedata,
+        savePath,
+        moduleString
       );
-      if (module.errorMessage) {
-        throw new Error(module.errorMessage);
-      }
-
-      // Starting instructions
-      const startingInstructions = generateStart(module.content[0]);
-      html += startingInstructions;
-      solutionHtml += startingInstructions;
-
-      // Module string for PDF footer
-
-      switch (coursedata.moduleType) {
-        case "lecture":
-          moduleString +=
-            parseUICodeMain("ui_lecture") +
-            ` ${convertedSet.module.toString()}`;
-          break;
-        case "module":
-          moduleString +=
-            parseUICodeMain("ui_module") + ` ${convertedSet.module.toString()}`;
-          break;
-        case "week":
-          moduleString +=
-            parseUICodeMain("ui_week") + ` ${convertedSet.module.toString()}`;
-          break;
-        default:
-          break;
-      }
     }
-
-    // Table of contents
-    const toc = generateToC(coursedata, convertedSet);
-    html += toc;
-    solutionHtml += toc;
-
-    // Assignments
-    for (let index = 0; index < convertedSet.assignmentArray.length; index++) {
-      const meta = { assignmentIndex: index, courseData: coursedata };
-      const normalblock = generateBlock(meta, convertedSet);
-      html += normalblock;
-      solutionHtml += normalblock;
-      solutionHtml += formatSolutions(meta, convertedSet);
-    }
-
-    // End body
-    html += `</div>
-  </body>
-</html>`;
-    solutionHtml += `</div>
-  </body>
-</html>`;
-    saveSetFS(
-      html,
-      solutionHtml,
-      mainHeader,
-      convertedSet.format,
-      coursedata,
-      savePath,
-      moduleString
-    );
+  } catch (err) {
+    log.error(err.message);
+    throw new Error("ui_export_error");
   }
+  return "ui_export_success";
 }
 
 // Formatters
