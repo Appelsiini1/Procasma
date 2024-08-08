@@ -1,5 +1,7 @@
 import showdown from "showdown";
 import {
+  CodeAssignmentData,
+  CodeAssignmentSelectionData,
   CourseData,
   ExampleRunType,
   ExportSetData,
@@ -11,19 +13,49 @@ import { readFileSync } from "fs";
 import path from "path";
 import log from "electron-log/node";
 import { parseUICodeMain } from "./language";
-import { ShowdownOptions } from "../constants";
+import { assignmentDataFolder, ShowdownOptions } from "../constants";
 import hljs from "highlight.js/lib/common";
 import { coursePath } from "../globalsMain";
-import { setToFullData } from "../generalHelpers/assignment";
 import { getModulesDB } from "./databaseOperations";
 import { createMainFunctionHandler } from "./ipcHelpers";
-import { saveSetFS } from "./fileOperations";
+import { handleReadFileFS, saveSetFS } from "./fileOperations";
 
 const converter = new showdown.Converter(ShowdownOptions);
 
 interface AssignmentInput {
   assignmentIndex: number;
   courseData: CourseData;
+}
+
+// Set converter
+export function setToFullData(set: ExportSetData): FullAssignmentSetData {
+  let assignmentArray: CodeAssignmentSelectionData[] = [];
+  for (const setAssignment of set.assignments) {
+    const assigPath = path.join(
+      coursePath.path,
+      assignmentDataFolder,
+      setAssignment.folder,
+      setAssignment.id + ".json"
+    );
+    const fullData = handleReadFileFS(assigPath) as CodeAssignmentData;
+    let newAssignment: CodeAssignmentSelectionData = {
+      variation: fullData.variations[setAssignment.variationId],
+      CGid: setAssignment.CGid,
+      selectedPosition: setAssignment.selectedPosition,
+      selectedModule: setAssignment.selectedModule,
+      assignmentID: fullData.assignmentID,
+      level: fullData.level,
+      folder: fullData.folder,
+      codeLanguage: fullData.codeLanguage,
+      title: fullData.title,
+    };
+    assignmentArray.push(newAssignment);
+  }
+  const newSet: FullAssignmentSetData = {
+    assignmentArray: assignmentArray,
+    ...set,
+  };
+  return newSet;
 }
 
 // Set exporter
