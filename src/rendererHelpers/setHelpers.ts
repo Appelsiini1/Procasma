@@ -1,10 +1,14 @@
+import { useContext } from "react";
 import { COURSE_PERIODS } from "../constants";
 import {
+  CourseData,
   ExportSetAssignmentData,
   ExportSetData,
   SetAssignmentWithCheck,
   SetData,
 } from "../types";
+import { handleIPCResult } from "./errorHelpers";
+import { ActiveObjectContext, UIContext } from "../components/Context";
 
 export function importSetData(
   inSet: ExportSetData,
@@ -130,4 +134,24 @@ export function calculateBadnesses(assignments: SetAssignmentWithCheck[]) {
     });
   });
   return assignments;
+}
+
+export async function exportSetToDisk(exportedSet: ExportSetData) {
+  const { activeCourse }: { activeCourse: CourseData } =
+    useContext(ActiveObjectContext);
+  const { setIPCLoading } = useContext(UIContext);
+  let snackbarSeverity = "success";
+  let snackbarText = "ui_export_success";
+  try {
+    const savePath = await handleIPCResult(setIPCLoading, () =>
+      window.api.selectDir()
+    );
+    await handleIPCResult(setIPCLoading, () =>
+      window.api.exportSetFS([exportedSet], activeCourse, savePath)
+    );
+  } catch (err) {
+    snackbarText = err.message;
+    snackbarSeverity = "error";
+  }
+  return { snackbarText: snackbarText, snackbarSeverity: snackbarSeverity };
 }
