@@ -7,17 +7,17 @@ import {
   FullAssignmentSetData,
   ModuleData,
 } from "../types";
-import { writeFileSync, readFileSync } from "fs";
+import { readFileSync } from "fs";
 import path from "path";
 import log from "electron-log/node";
 import { parseUICodeMain } from "./language";
-import { version, ShowdownOptions } from "../constants";
+import { ShowdownOptions } from "../constants";
 import hljs from "highlight.js/lib/common";
 import { coursePath } from "../globalsMain";
 import { setToFullData } from "../generalHelpers/assignment";
 import { getModulesDB } from "./databaseOperations";
 import { createMainFunctionHandler } from "./ipcHelpers";
-import { createPDF } from "./pdf";
+import { saveSetFS } from "./fileOperations";
 
 const converter = new showdown.Converter(ShowdownOptions);
 
@@ -28,10 +28,10 @@ interface AssignmentInput {
 
 // Set exporter
 /**
- * Creates one HTML string from an assignment set and saves it to disk according to the format spesified in setInput
- * @param setInput An ExportSetData object with set information
+ * Creates HTML strings from assignment sets and saves them to disk according to the format spesified in set data
+ * @param setInput An array of ExportSetData objects with set information
  * @param coursedata A CourseData object with course information
- * @param savePath Path where to save the created file.
+ * @param savePath Path where to save the created file(s).
  */
 export async function exportSet(
   setInput: Array<ExportSetData>,
@@ -39,6 +39,7 @@ export async function exportSet(
   savePath: string
 ) {
   for (const set of setInput) {
+    let moduleString = "";
     const convertedSet = setToFullData(set);
 
     // HTML Base
@@ -60,17 +61,39 @@ export async function exportSet(
     ).toUpperCase()}</h1>`;
 
     // Get correct module
-    const module = await createMainFunctionHandler(() =>
-      getModulesDB(coursePath.path, [convertedSet.module])
-    );
-    if (module.errorMessage) {
-      throw new Error(module.errorMessage);
-    }
+    if (convertedSet.module != null) {
+      const module = await createMainFunctionHandler(() =>
+        getModulesDB(coursePath.path, [convertedSet.module])
+      );
+      if (module.errorMessage) {
+        throw new Error(module.errorMessage);
+      }
 
-    // Starting instructions
-    const startingInstructions = generateStart(module.content[0]);
-    html += startingInstructions;
-    solutionHtml += startingInstructions;
+      // Starting instructions
+      const startingInstructions = generateStart(module.content[0]);
+      html += startingInstructions;
+      solutionHtml += startingInstructions;
+
+      // Module string for PDF footer
+
+      switch (coursedata.moduleType) {
+        case "lecture":
+          moduleString +=
+            parseUICodeMain("ui_lecture") +
+            ` ${convertedSet.module.toString()}`;
+          break;
+        case "module":
+          moduleString +=
+            parseUICodeMain("ui_module") + ` ${convertedSet.module.toString()}`;
+          break;
+        case "week":
+          moduleString +=
+            parseUICodeMain("ui_week") + ` ${convertedSet.module.toString()}`;
+          break;
+        default:
+          break;
+      }
+    }
 
     // Table of contents
     const toc = generateToC(coursedata, convertedSet);
@@ -93,32 +116,15 @@ export async function exportSet(
     solutionHtml += `</div>
   </body>
 </html>`;
-
-    const filename = mainHeader.replace(" ", "");
-    const solutionFilename =
-      mainHeader.replace(" ", "") + parseUICodeMain("answers").toUpperCase();
-    if (convertedSet.format === "html") {
-      saveHTML(html, savePath, filename + ".html");
-      saveHTML(solutionHtml, savePath, solutionFilename + ".html");
-    } else if (convertedSet.format === "pdf") {
-      const moduleString = "";
-      createPDF(
-        {
-          html: html,
-          title: mainHeader,
-          ...generateHeaderFooter(coursedata, moduleString),
-        },
-        path.join(savePath, filename + ".pdf")
-      );
-      createPDF(
-        {
-          html: html,
-          title: mainHeader,
-          ...generateHeaderFooter(coursedata, moduleString),
-        },
-        path.join(savePath, solutionFilename + ".pdf")
-      );
-    }
+    saveSetFS(
+      html,
+      solutionHtml,
+      mainHeader,
+      convertedSet.format,
+      coursedata,
+      savePath,
+      moduleString
+    );
   }
 }
 
@@ -129,7 +135,7 @@ export async function exportSet(
  * @returns HTML string
  */
 function formatMarkdown(text: string): string {
-  //Showdow
+  //Showdown
   return converter.makeHtml(text);
 }
 
@@ -158,7 +164,8 @@ function highlightCode(code: string, language: string): string {
 
 /**
  * Formats solution files
- * @param inputs FileInput object with assignment information, variation key and course path.
+ * @param meta Course data and assignment index
+ * @param set Set data
  * @returns HTML string
  */
 function formatSolutions(
@@ -194,9 +201,10 @@ function formatSolutions(
 
 /**
  * Formats files that are not solution files. Will make titles based on file content type.
- * @param inputs FileInput object
- * @param type The type of file to format and make title for
- * @returns HTML string
+ * @param meta Course data and assignment index
+ * @param set Set data
+ * @param type Type of file to make title for
+ * @returns
  */
 function formatFiles(
   meta: AssignmentInput,
@@ -236,34 +244,44 @@ function formatFiles(
   }
 }
 
+/**
+ * Generates a main page header. If the set has no module, will not add a module letter or number to it.
+ * @param set Set data
+ * @param courseData Course data
+ * @returns
+ */
 function formatMainHeader(set: FullAssignmentSetData, courseData: CourseData) {
   let title = ``;
-  const addToTitle = (ui_code: string) => {
-    title += parseUICodeMain(ui_code);
-    title += set.module.toString();
-  };
-  switch (courseData.moduleType) {
-    case "lecture":
-      addToTitle("lecture_letter");
-      break;
-    case "module":
-      addToTitle("module_letter");
-      break;
-    case "week":
-      addToTitle("week_letter");
-      break;
-    default:
-      break;
+  if (set.module != null) {
+    const addToTitle = (ui_code: string) => {
+      title += parseUICodeMain(ui_code);
+      title += set.module.toString();
+    };
+    switch (courseData.moduleType) {
+      case "lecture":
+        addToTitle("lecture_letter");
+        break;
+      case "module":
+        addToTitle("module_letter");
+        break;
+      case "week":
+        addToTitle("week_letter");
+        break;
+      default:
+        break;
+    }
+    title += " ";
   }
-  title += " " + parseUICodeMain("assignments");
+  title += parseUICodeMain("assignments");
   return title;
 }
 
 /**
  * Formats a title
- * @param inputs A BlockInputs object
+ * @param meta Course data and assignment index
+ * @param set Set data
  * @param toc A boolean whether the title is a table of contents title
- * @returns HTML string
+ * @returns
  */
 function formatTitle(
   meta: AssignmentInput,
@@ -307,89 +325,6 @@ function formatTitle(
 
 // Block generators
 /**
- * Generates the header and footer (for PDF files only)
- * @param courseData CourseData object with course information
- * @param moduleString String to use in the lower center with module information (if any)
- * @returns Object with header and footer HTML strings
- */
-function generateHeaderFooter(
-  courseData: CourseData,
-  moduleString: string
-): { header: string; footer: string } {
-  const headerString = `<div style="margin-left: 1.5cm; margin-top: 0.6cm">
-  <table id="header-table" style="width: 18cm">
-    <tbody>
-      <tr>
-        <td
-          id="header-course-title"
-          style="
-            border-color: #ffffff;
-            font-size: 13px;
-            text-align: left;
-            vertical-align: top;
-            width: 50%;
-          "
-        >
-          ${courseData.id + " " + courseData.title}
-        </td>
-        <td
-          id="header-page-number"
-          style="
-            border-color: #ffffff;
-            font-size: 13px;
-            text-align: right;
-            vertical-align: top;
-            width: 50%;
-          "
-        >
-          ${parseUICodeMain(
-            "page"
-          )} <span class="pageNumber"></span><span> / </span
-          ><span class="totalPages"></span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <hr style="width: 100%; margin-top: 0.1cm" />
-</div>`;
-  const footerString = `<div style="margin-left: 1.5cm; margin-bottom: 0.6cm">
-  <table id="footer-table" style="width: 18cm">
-    <tbody>
-      <tr>
-        <td
-          id="footer-version"
-          style="
-            border-color: #ffffff;
-            font-size: 13px;
-            text-align: left;
-            vertical-align: top;
-            width: 33%;
-          "
-        >
-          Procasma v${version}<br />
-        </td>
-        <td
-          id="footer-module-number"
-          style="
-            border-color: #ffffff;
-            font-size: 13px;
-            text-align: center;
-            vertical-align: top;
-            width: 34%;
-          "
-        >
-        ${moduleString}<br />
-        </td>
-        <td id="footer-empty-space" style="width: 33%"></td>
-      </tr>
-    </tbody>
-  </table>
-</div>`;
-
-  return { header: headerString, footer: footerString };
-}
-
-/**
  * Generates the starting instructions
  * @param moduleInput ModuleData object with module information
  * @returns HTML string
@@ -407,7 +342,8 @@ function generateStart(moduleInput: ModuleData | null): string {
 
 /**
  * Generates an assignment block
- * @param inputs BlockInputs object
+ * @param meta Course data and assignment index
+ * @param set Set data
  * @returns HTML string
  */
 function generateBlock(
@@ -491,8 +427,8 @@ function generateExampleRun(
 
 /**
  * Generates the table of contents
- * @param assignments An array of assignment objects
- * @param titleInputs An object with rest of the necessary data
+ * @param courseData Course data
+ * @param set Set data
  * @returns HTML string
  */
 function generateToC(
@@ -515,20 +451,4 @@ function generateToC(
 
   block += `</div>`;
   return block;
-}
-
-// Other helpers
-/**
- * Saves the HTML string to disk.
- * @param html HTML string
- * @param savePath Where to save the file
- * @param filename Filename to save with
- */
-function saveHTML(html: string, savePath: string, filename: string) {
-  try {
-    writeFileSync(path.join(savePath, filename), html, "utf-8");
-  } catch (err) {
-    log.error(err.message);
-    throw err;
-  }
 }
