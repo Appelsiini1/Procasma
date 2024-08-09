@@ -7,9 +7,12 @@
 
   Adapted and amended for Procasma by Rami Saarivuori
 */
-html {
+export const css = `html {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   font-size: 15px;
+}
+ul {
+  line-height: 80%;
 }
 
 h1 {
@@ -139,3 +142,4 @@ pre code.hljs {
 .hljs-meta-keyword {
   font-weight: 700;
 }
+`;
