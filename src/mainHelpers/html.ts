@@ -13,12 +13,17 @@ import { readFileSync } from "fs";
 import path from "path";
 import log from "electron-log/node";
 import { parseUICodeMain } from "./language";
-import { assignmentDataFolder, ShowdownOptions } from "../constants";
+import {
+  assignmentDataFolder,
+  emptySpaceHeight,
+  ShowdownOptions,
+} from "../constants";
 import hljs from "highlight.js/lib/common";
 import { coursePath } from "../globalsMain";
 import { getModulesDB } from "./databaseOperations";
 import { createMainFunctionHandler } from "./ipcHelpers";
 import { handleReadFileFS, saveSetFS } from "./fileOperations";
+import { css as papercolorLight } from "../../resource/cssImports/papercolor-light";
 
 const converter = new showdown.Converter(ShowdownOptions);
 
@@ -35,6 +40,7 @@ export function setToFullData(set: ExportSetData): FullAssignmentSetData {
       coursePath.path,
       assignmentDataFolder,
       setAssignment.folder,
+      setAssignment.id, // DELETE THIS LATER!!!
       setAssignment.id + ".json"
     );
     const fullData = handleReadFileFS(assigPath) as CodeAssignmentData;
@@ -51,6 +57,21 @@ export function setToFullData(set: ExportSetData): FullAssignmentSetData {
     };
     assignmentArray.push(newAssignment);
   }
+  assignmentArray.sort((a, b) => {
+    if (a.selectedModule < b.selectedModule) {
+      return -1;
+    } else if (a.selectedModule > b.selectedModule) {
+      return 1;
+    } else if (a.selectedModule === b.selectedModule) {
+      if (a.selectedPosition < b.selectedPosition) {
+        return -1;
+      } else if (a.selectedPosition > b.selectedPosition) {
+        return 1;
+      }
+    }
+
+    return 0;
+  });
   const newSet: FullAssignmentSetData = {
     assignmentArray: assignmentArray,
     ...set,
@@ -80,10 +101,9 @@ export async function exportSetFS(
 <html>
   <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="procasma-papercolor-light.min.css" />
+    <style>${papercolorLight}</style>
   </head>
-  <body>
-    <div>`;
+  <body>`;
       let solutionHtml = html;
 
       // Main page header
@@ -148,13 +168,11 @@ export async function exportSetFS(
       }
 
       // End body
-      html += `</div>
-  </body>
+      html += `</body>
 </html>`;
-      solutionHtml += `</div>
-  </body>
+      solutionHtml += `</body>
 </html>`;
-      saveSetFS(
+      await saveSetFS(
         html,
         solutionHtml,
         mainHeader,
@@ -386,10 +404,17 @@ function generateStart(moduleInput: ModuleData | null): string {
   if (!moduleInput) return "";
 
   let block = `<div>`;
-  block += formatMarkdown(moduleInput.subjects);
-  block += `<br />`;
+  const subjects = moduleInput.subjects.split("\n").map((value, index) => {
+    return `<li id="${index}">${formatMarkdown(value)}</li>`;
+  });
+  block += "<ul>";
+  for (const item of subjects) {
+    block += item;
+  }
+  block += "</ul>";
   block += formatMarkdown(moduleInput.instructions);
-
+  block += `<div style="height: ${emptySpaceHeight};"></div>`;
+  block += "</div>";
   return block;
 }
 
@@ -406,9 +431,9 @@ function generateBlock(
   let block = `<div>
     `;
   // Title
-  const title = `<h2 class="assig-title"><a id=${
+  const title = `<h2 class="assig-title"><a id="${
     set.assignmentArray[meta.assignmentIndex].assignmentID
-  }>${formatTitle(meta, set)}</a></h2>\n`;
+  }">${formatTitle(meta, set)}</a></h2>\n`;
   block += `${title}`;
 
   // Assignment level
@@ -416,15 +441,15 @@ function generateBlock(
     block += `<i>${parseUICodeMain("ui_assignment_level")}: ${
       meta.courseData.levels[set.assignmentArray[meta.assignmentIndex].level]
         .fullName
-    }`;
+    }</i>`;
   }
 
   //Instructions
-  block += `<p>`;
+  // block += `<p>`;
   block += formatMarkdown(
     formatMath(set.assignmentArray[meta.assignmentIndex].variation.instructions)
   );
-  block += `</p>`;
+  // block += `</p>`;
 
   // Datafiles
   block += formatFiles(meta, set, "data");
@@ -455,10 +480,9 @@ function generateExampleRun(
   runInput: ExampleRunType,
   runNumber: number
 ): string {
-  let block = `<div>
-    `;
-  block += `<h2>${parseUICodeMain("ex_run")} ${runNumber}</h2>`;
-  if (runInput.cmdInputs) {
+  let block = `<h2>${parseUICodeMain("ex_run")} ${runNumber}</h2>`;
+  if (runInput.cmdInputs.length != 0 && runInput.cmdInputs[0] != "") {
+    block += `<h3>${parseUICodeMain("cmd_input")}</h3>`;
     block += highlightCode(runInput.cmdInputs.toString(), "plaintext");
   }
   const inputFormatter = (inputs: Array<string | number>) => {
@@ -469,10 +493,12 @@ function generateExampleRun(
     return str;
   };
 
-  if (runInput.inputs) {
+  if (runInput.inputs.length != 0 && runInput.inputs[0] != "") {
+    block += `<h3>${parseUICodeMain("ex_input")}</h3>`;
     block += highlightCode(inputFormatter(runInput.inputs), "plaintext");
   }
-  if (runInput.output) {
+  if (runInput.output != "") {
+    block += `<h3>${parseUICodeMain("ex_output")}</h3>`;
     block += highlightCode(runInput.output, "plaintext");
   }
   return block;
@@ -489,10 +515,9 @@ function generateToC(
   set: FullAssignmentSetData
 ): string {
   try {
-    let block = `<div>`;
-    block += `<h2>${parseUICodeMain("toc")}</h2>\n`;
+    let block = `<h2>${parseUICodeMain("toc")}</h2>\n`;
     for (const assig of set.assignmentArray) {
-      block += `<h3><a href="#${assig.assignmentID}>${formatTitle(
+      block += `<h3><a href="#${assig.assignmentID}">${formatTitle(
         {
           assignmentIndex: set.assignmentArray.indexOf(assig),
           courseData: courseData,
@@ -503,7 +528,6 @@ function generateToC(
       block += `</a></h3>`;
     }
 
-    block += `</div>`;
     return block;
   } catch (err) {
     log.error("Error in generateTOC: " + err.message);

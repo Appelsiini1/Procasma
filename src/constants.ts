@@ -1,6 +1,6 @@
 import { ConverterOptions } from "showdown";
 
-export const version = "0.9.0";
+export const version = "0.9.1";
 export const courseMetaDataFileName = "course_info.json";
 export const DEVMODE = true;
 export const textExtensions = ["txt", "md", "csv", "log"];
@@ -37,4 +37,5 @@ export const ShowdownOptions: ConverterOptions = {
   tablesHeaderId: true,
   tasklists: true,
 };
-export const assignmentDataFolder = "assignmentData";
+export const assignmentDataFolder = "assignment_data";
+export const emptySpaceHeight = "0.5cm";
