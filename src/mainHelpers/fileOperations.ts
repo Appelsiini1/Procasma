@@ -729,7 +729,7 @@ export async function deleteSetsFS(
 export function checkFileExistanceFS(pathToCheck: string) {
   try {
     let index = 1;
-    const getNext = (base: string) => {
+    const getNext = (base: string, pathToChange: string) => {
       let baseSplit = base.split(".");
       let newBase = "";
       if (base.includes(`(${index})`)) {
@@ -738,20 +738,23 @@ export function checkFileExistanceFS(pathToCheck: string) {
           "." +
           baseSplit[1];
         index += 1;
-        pathToCheck.replace(base, newBase);
+        pathToChange = path.join(path.dirname(pathToChange), newBase);
       } else {
         newBase = baseSplit[0] + ` (${index})` + "." + baseSplit[1];
-        pathToCheck.replace(base, newBase);
+        pathToChange = path.join(path.dirname(pathToChange), newBase);
       }
+      return pathToChange;
     };
-    while (fs.existsSync(pathToCheck)) {
+    let value = fs.existsSync(pathToCheck);
+    while (value) {
       if (platform === "win32") {
         const base = path.win32.basename(pathToCheck);
-        getNext(base);
+        pathToCheck = getNext(base, pathToCheck);
       } else {
         const base = path.basename(pathToCheck);
-        getNext(base);
+        pathToCheck = getNext(base, pathToCheck);
       }
+      value = fs.existsSync(pathToCheck);
     }
     return pathToCheck;
   } catch (err) {
@@ -771,7 +774,7 @@ export function checkFileExistanceFS(pathToCheck: string) {
  * @param moduleString String that will be used in the footer of a PDF document. Only required if the format is PDF.
  */
 
-export function saveSetFS(
+export async function saveSetFS(
   html: string,
   solutionHtml: string,
   title: string,
@@ -786,6 +789,7 @@ export function saveSetFS(
       title.replace(" ", "") + parseUICodeMain("answers").toUpperCase();
 
     createFolderFS(path.join(savePath, filename));
+    savePath = path.join(savePath, filename);
     if (format === "html") {
       let newSavePathHTML = checkFileExistanceFS(
         path.join(savePath, filename) + ".html"
@@ -800,7 +804,7 @@ export function saveSetFS(
       let newSavePathPDF = checkFileExistanceFS(
         path.join(savePath, filename) + ".pdf"
       );
-      createPDF(
+      await createPDF(
         {
           html: html,
           title: title,
@@ -812,13 +816,13 @@ export function saveSetFS(
       newSavePathPDF = checkFileExistanceFS(
         path.join(savePath, solutionFilename) + ".pdf"
       );
-      createPDF(
+      await createPDF(
         {
           html: html,
           title: title,
           ...generateHeaderFooter(courseData, moduleString),
         },
-        path.join(newSavePathPDF, solutionFilename + ".pdf")
+        newSavePathPDF
       );
     }
   } catch (err) {
