@@ -11,6 +11,7 @@ import StepperComp from "../components/StepperComp";
 import {
   CodeAssignmentData,
   CodeAssignmentDatabase,
+  CourseData,
   formatTypes,
   ModuleData,
   SetAlgoAssignmentData,
@@ -52,6 +53,7 @@ export default function SetCreator() {
     handleActiveAssignment,
     activeAssignments,
     handleActiveAssignments,
+    activeCourse,
   }: {
     activePath: string;
     activeSet: SetData;
@@ -60,6 +62,7 @@ export default function SetCreator() {
     handleActiveAssignment: (value: CodeAssignmentData) => void;
     activeAssignments: CodeAssignmentDatabase[];
     handleActiveAssignments: (value: CodeAssignmentDatabase[]) => void;
+    activeCourse: CourseData;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
     useContext(UIContext);
@@ -176,7 +179,11 @@ export default function SetCreator() {
           window.api.updateSetFS(activePath, exportedSet)
         );
         if (exportedSet.export) {
-          const result = await exportSetToDisk(exportedSet);
+          const result = await exportSetToDisk(
+            exportedSet,
+            setIPCLoading,
+            activeCourse
+          );
           snackbarText = result.snackbarText;
           snackbarSeverity = result.snackbarSeverity;
         }
@@ -185,7 +192,11 @@ export default function SetCreator() {
           window.api.addSetFS(activePath, exportedSet)
         );
         if (exportedSet.export) {
-          const result = await exportSetToDisk(exportedSet);
+          const result = await exportSetToDisk(
+            exportedSet,
+            setIPCLoading,
+            activeCourse
+          );
           snackbarText = result.snackbarText;
           snackbarSeverity = result.snackbarSeverity;
         }
