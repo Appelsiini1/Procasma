@@ -131,6 +131,7 @@ export default function Root() {
         handleActivePath(coursePath);
         handleHeaderCourseID(course.id);
         handleHeaderCourseTitle(course.title);
+        window.api.setCoursePath(coursePath);
       } else {
         snackbarSeverity = "info";
         snackbarText = "ui_course_folder_invalid";
