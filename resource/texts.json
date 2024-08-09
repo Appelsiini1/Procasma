@@ -35,9 +35,9 @@
     "FI": "Komentoriviparametrit",
     "ENG": "Commandline arguments"
   },
-  "ex_input_datafile": {
-    "FI": "Esimerkki syötetiedostosta",
-    "ENG": "Example from input file"
+  "input_datafile": {
+    "FI": "Syötetiedosto",
+    "ENG": "Input file"
   },
   "ex_resultfile": {
     "FI": "Esimerkki tulostiedostosta",
@@ -54,6 +54,14 @@
   "lecture_letter": {
     "FI": "L",
     "ENG": "L"
+  },
+  "module_letter": {
+    "FI": "M",
+    "ENG": "M"
+  },
+  "week_letter": {
+    "FI": "V",
+    "ENG": "W"
   },
   "ui_general": {
     "FI": "Yleinen",
@@ -202,6 +210,10 @@
   "ui_week": {
     "FI": "Viikko",
     "ENG": "Week"
+  },
+  "ui_lecture": {
+    "FI": "Luento",
+    "ENG": "Lecture"
   },
   "ui_show_edit": {
     "FI": "Näytä / Muokkaa",
@@ -811,13 +823,13 @@
     "FI": "Vastaukset",
     "ENG": "Answers"
   },
-  "ui_pdf_success": {
-    "FI": "Tehtäväpaperit luotu onnistuneesti kansioon:",
-    "ENG": "Assignment instruction papers succesfully created to folder:"
+  "ui_export_success": {
+    "FI": "Tehtäväpaperit luotu onnistuneesti.",
+    "ENG": "Assignment instruction papers succesfully created."
   },
-  "ui_pdf_error": {
-    "FI": "Virhe PDF tiedoston luonnissa:",
-    "ENG": "Error in PDF generation:"
+  "ui_export_error": {
+    "FI": "Virhe PDF tiedoston luonnissa.",
+    "ENG": "Error in PDF generation."
   },
   "ui_del_error_disk": {
     "FI": "Virhe tehtävän poistamisessa levyltä!",

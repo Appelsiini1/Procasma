@@ -42,6 +42,7 @@ export const defaultAssignment: CodeAssignmentData = {
   previous: null,
   codeLanguage: "",
   variations: {},
+  folder: "",
 };
 
 export const defaultProject: CodeAssignmentData = {
@@ -56,6 +57,7 @@ export const defaultProject: CodeAssignmentData = {
   previous: null,
   codeLanguage: null,
   variations: {},
+  folder: "",
 };
 
 export const defaultVariation: Variation = {
@@ -89,7 +91,7 @@ export const defaultModule: ModuleData = {
 export const defaultSet: SetData = {
   id: null,
   fullCourse: true,
-  module: "",
+  module: null,
   name: "",
   year: 2024,
   period: 0,

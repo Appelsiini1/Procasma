@@ -11,6 +11,7 @@ import StepperComp from "../components/StepperComp";
 import {
   CodeAssignmentData,
   CodeAssignmentDatabase,
+  CourseData,
   formatTypes,
   ModuleData,
   SetAlgoAssignmentData,
@@ -35,6 +36,7 @@ import { ActiveObjectContext, UIContext } from "../components/Context";
 import {
   calculateBadnesses,
   exportSetData,
+  exportSetToDisk,
 } from "../rendererHelpers/setHelpers";
 
 interface LegalMove {
@@ -51,6 +53,7 @@ export default function SetCreator() {
     handleActiveAssignment,
     activeAssignments,
     handleActiveAssignments,
+    activeCourse,
   }: {
     activePath: string;
     activeSet: SetData;
@@ -59,6 +62,7 @@ export default function SetCreator() {
     handleActiveAssignment: (value: CodeAssignmentData) => void;
     activeAssignments: CodeAssignmentDatabase[];
     handleActiveAssignments: (value: CodeAssignmentDatabase[]) => void;
+    activeCourse: CourseData;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
     useContext(UIContext);
@@ -174,10 +178,28 @@ export default function SetCreator() {
         await handleIPCResult(setIPCLoading, () =>
           window.api.updateSetFS(activePath, exportedSet)
         );
+        if (exportedSet.export) {
+          const result = await exportSetToDisk(
+            exportedSet,
+            setIPCLoading,
+            activeCourse
+          );
+          snackbarText = result.snackbarText;
+          snackbarSeverity = result.snackbarSeverity;
+        }
       } else {
         await handleIPCResult(setIPCLoading, () =>
           window.api.addSetFS(activePath, exportedSet)
         );
+        if (exportedSet.export) {
+          const result = await exportSetToDisk(
+            exportedSet,
+            setIPCLoading,
+            activeCourse
+          );
+          snackbarText = result.snackbarText;
+          snackbarSeverity = result.snackbarSeverity;
+        }
       }
     } catch (err) {
       snackbarText = err.message;
@@ -904,7 +926,7 @@ export default function SetCreator() {
             </ButtonComp>
             <ButtonComp
               buttonType="normal"
-              onClick={() => console.log("export set")}
+              onClick={() => console.log("export CG configs")}
               ariaLabel={parseUICode("ui_aria_export_cg_configs")}
             >
               {parseUICode("ui_export")}

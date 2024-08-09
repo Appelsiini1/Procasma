@@ -1,10 +1,12 @@
 import { COURSE_PERIODS } from "../constants";
 import {
+  CourseData,
   ExportSetAssignmentData,
   ExportSetData,
   SetAssignmentWithCheck,
   SetData,
 } from "../types";
+import { handleIPCResult } from "./errorHelpers";
 
 export function importSetData(
   inSet: ExportSetData,
@@ -47,12 +49,15 @@ export function exportSetData(inSet: SetData): ExportSetData {
 
   // Take SetAssignmentWithChecks and convert them to ExportSetAssignmentData
   const newAssignments = assignedAssignments.map((a) => {
+    const assignment = a.value;
     const newAssignment = {} as ExportSetAssignmentData;
-    newAssignment.id = a.value.assignmentID;
+    newAssignment.id = assignment.assignmentID;
     newAssignment.variationId = a.selectedVariation;
-    newAssignment.CGid = a.value.variations[a.selectedVariation]?.cgConfig?.id;
+    newAssignment.CGid =
+      assignment.variations[a.selectedVariation]?.cgConfig?.id;
     newAssignment.selectedModule = a.selectedModule;
     newAssignment.selectedPosition = a.selectedPosition;
+    newAssignment.folder = assignment.folder;
     return newAssignment;
   });
 
@@ -127,4 +132,26 @@ export function calculateBadnesses(assignments: SetAssignmentWithCheck[]) {
     });
   });
   return assignments;
+}
+
+export async function exportSetToDisk(
+  exportedSet: ExportSetData,
+  setIPCLoading: (process: string, pushing: boolean) => void,
+  activeCourse: CourseData
+) {
+  let snackbarSeverity = "success";
+  let snackbarText = "ui_export_success";
+  try {
+    const savePath = await handleIPCResult(setIPCLoading, () =>
+      window.api.selectDir()
+    );
+    await handleIPCResult(setIPCLoading, () =>
+      window.api.exportSetFS([exportedSet], activeCourse, savePath)
+    );
+  } catch (err) {
+    snackbarText = err.message;
+    snackbarSeverity = "error";
+    throw err;
+  }
+  return { snackbarText: snackbarText, snackbarSeverity: snackbarSeverity };
 }

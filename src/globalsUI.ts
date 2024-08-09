@@ -1,5 +1,10 @@
 import { codeLanguages } from "../resource/defaults.json";
-import { SupportedLanguages, CourseData, CodeLanguage } from "./types";
+import {
+  SupportedLanguages,
+  CourseData,
+  CodeLanguage,
+  SupportedModuleType,
+} from "./types";
 
 class CurrentLanguage {
   _language: SupportedLanguages;
@@ -20,7 +25,7 @@ class CurrentCourse {
   private _title: string;
   private _ID: string;
   private _modules: number;
-  private _moduleType: "week" | "module" | null;
+  private _moduleType: SupportedModuleType;
   private _language: SupportedLanguages;
   private _codeLanguage: CodeLanguage | null;
   private _CodeGradeID: number;

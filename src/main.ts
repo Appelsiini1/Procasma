@@ -37,6 +37,8 @@ import {
   updateModuleDB,
   deleteModulesDB,
 } from "./mainHelpers/databaseOperations";
+import { coursePath } from "./globalsMain";
+import { exportSetFS } from "./mainHelpers/html";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -115,6 +117,10 @@ ipcMain.on("set-title", (event, title) => {
   const webContents = event.sender;
   const win = BrowserWindow.fromWebContents(webContents);
   win.setTitle(title);
+});
+
+ipcMain.on("set-coursePath", (event, path) => {
+  coursePath.path = path;
 });
 
 // Bidirectional, renderer to main to renderer
@@ -249,6 +255,14 @@ ipcMain.handle(
 ipcMain.handle(
   "deleteSetsFS",
   formatIPCResult((path, ids) => deleteSetsFS(path, ids))
+);
+
+// Export set
+ipcMain.handle(
+  "exportSetFS",
+  formatIPCResult((setInput, courseData, savePath) =>
+    exportSetFS(setInput, courseData, savePath)
+  )
 );
 
 testDatabase();

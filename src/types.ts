@@ -3,6 +3,7 @@ export type SupportedLanguages = "FI" | "ENG";
 export type FormatType = "pdf" | "html";
 export const formatTypes: FormatType[] = ["pdf", "html"];
 export type FileTypes = "text" | "image" | "code";
+export type SupportedModuleType = "week" | "module" | "lecture" | null;
 
 export interface FileData {
   fileName: string;
@@ -40,6 +41,7 @@ export interface CommonAssignmentData {
   title: string;
   tags: Array<string>;
   module: number | null;
+  folder: string; // used to indicate the folder that the assignment is located in under assignmentData
 }
 
 export interface CodeAssignmentData extends CommonAssignmentData {
@@ -80,7 +82,7 @@ export interface CourseData {
   title?: string;
   id?: string;
   modules?: number;
-  moduleType?: "week" | "module" | null;
+  moduleType?: SupportedModuleType;
   language?: SupportedLanguages;
   codeLanguage?: CodeLanguage | null;
   CodeGradeID?: number;
@@ -90,8 +92,6 @@ export interface CourseData {
 }
 
 export type CourseLoaderData = "create" | "manage";
-
-export type SupportedModuleType = "week" | "module" | null;
 
 export interface SettingsType {
   codeLanguages: Array<CodeLanguage>;
@@ -156,11 +156,27 @@ export interface ExportSetAssignmentData {
   CGid: string;
   selectedModule: number;
   selectedPosition: number;
+  folder: string;
 }
 
 export interface ExportSetData
   extends Omit<SetData, "assignments" | "targetModule" | "targetPosition"> {
   assignments: ExportSetAssignmentData[];
+}
+
+export interface CodeAssignmentSelectionData
+  extends Omit<CommonAssignmentData, "module" | "tags"> {
+  variation: Variation;
+  CGid: string;
+  selectedModule: number;
+  selectedPosition: number;
+  level: number;
+  codeLanguage: string;
+}
+
+export interface FullAssignmentSetData
+  extends Omit<SetData, "assignments" | "targetModule" | "targetPosition"> {
+  assignmentArray: CodeAssignmentSelectionData[];
 }
 
 export type CodeAssignmentDatabase = {
@@ -211,6 +227,7 @@ export interface PDFHtmlInput {
 export type ContextBridgeAPI = {
   // One-way, Renderer to Main
   setTitle: (title: string) => IpcResult;
+  setCoursePath: (path: string) => IpcResult;
 
   // Bidirectional, renderer to main to renderer
   // General
@@ -258,4 +275,11 @@ export type ContextBridgeAPI = {
   getSetsFS: (coursePath: string, id?: string) => IpcResult;
   updateSetFS: (coursePath: string, set: ExportSetData) => IpcResult;
   deleteSetsFS: (coursePath: string, ids: string[]) => IpcResult;
+
+  //Export set
+  exportSetFS: (
+    setInput: Array<ExportSetData>,
+    coursedata: CourseData,
+    savePath: string
+  ) => IpcResult;
 };

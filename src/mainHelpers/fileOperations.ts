@@ -5,6 +5,7 @@ import {
   CourseData,
   ExportSetData,
   FileData,
+  FormatType,
   SetAlgoAssignmentData,
   SetVariation,
   Variation,
@@ -19,6 +20,9 @@ import {
   updateAssignmentDB,
 } from "./databaseOperations";
 import log from "electron-log/node";
+import { createPDF, generateHeaderFooter } from "./pdf";
+import { parseUICodeMain } from "./language";
+import { platform } from "process";
 
 // General
 
@@ -713,6 +717,116 @@ export async function deleteSetsFS(
     return "ui_delete_success";
   } catch (err) {
     log.error("Error in _handleAddOrUpdateSetFS():", err.message);
+    throw err;
+  }
+}
+
+/**
+ * Checks whether a file path exists. If it does, adds an index to the end of the filename.
+ * @param pathToCheck Path as a string
+ * @returns Path as a string. If path does not exist, will not change the path.
+ */
+export function checkFileExistanceFS(pathToCheck: string) {
+  try {
+    let index = 1;
+    const getNext = (base: string, pathToChange: string) => {
+      let baseSplit = base.split(".");
+      let newBase = "";
+      if (base.includes(`(${index})`)) {
+        newBase =
+          baseSplit[0].replace(`(${index})`, `(${index + 1})`) +
+          "." +
+          baseSplit[1];
+        index += 1;
+        pathToChange = path.join(path.dirname(pathToChange), newBase);
+      } else {
+        newBase = baseSplit[0] + ` (${index})` + "." + baseSplit[1];
+        pathToChange = path.join(path.dirname(pathToChange), newBase);
+      }
+      return pathToChange;
+    };
+    let value = fs.existsSync(pathToCheck);
+    while (value) {
+      if (platform === "win32") {
+        const base = path.win32.basename(pathToCheck);
+        pathToCheck = getNext(base, pathToCheck);
+      } else {
+        const base = path.basename(pathToCheck);
+        pathToCheck = getNext(base, pathToCheck);
+      }
+      value = fs.existsSync(pathToCheck);
+    }
+    return pathToCheck;
+  } catch (err) {
+    log.error(err.message);
+    throw err;
+  }
+}
+
+/**
+ * Saves the set to disk according to the format.
+ * @param html HTML string to save
+ * @param solutionHtml HTML string (including solutions) to save
+ * @param title Page title (that will be used as a filename)
+ * @param format Save format
+ * @param courseData CourseData object
+ * @param savePath Path to save. Will create a folder inside and place the files there.
+ * @param moduleString String that will be used in the footer of a PDF document. Only required if the format is PDF.
+ */
+
+export async function saveSetFS(
+  html: string,
+  solutionHtml: string,
+  title: string,
+  format: FormatType,
+  courseData: CourseData,
+  savePath: string,
+  moduleString?: string
+) {
+  try {
+    const filename = title.replace(" ", "");
+    const solutionFilename =
+      title.replace(" ", "") + parseUICodeMain("answers").toUpperCase();
+
+    createFolderFS(path.join(savePath, filename));
+    savePath = path.join(savePath, filename);
+    if (format === "html") {
+      let newSavePathHTML = checkFileExistanceFS(
+        path.join(savePath, filename) + ".html"
+      );
+      fs.writeFileSync(newSavePathHTML, html, "utf-8");
+
+      newSavePathHTML = checkFileExistanceFS(
+        path.join(savePath, solutionFilename + ".html")
+      );
+      fs.writeFileSync(newSavePathHTML, solutionHtml, "utf-8");
+    } else if (format === "pdf") {
+      let newSavePathPDF = checkFileExistanceFS(
+        path.join(savePath, filename) + ".pdf"
+      );
+      await createPDF(
+        {
+          html: html,
+          title: title,
+          ...generateHeaderFooter(courseData, moduleString),
+        },
+        newSavePathPDF
+      );
+
+      newSavePathPDF = checkFileExistanceFS(
+        path.join(savePath, solutionFilename) + ".pdf"
+      );
+      await createPDF(
+        {
+          html: html,
+          title: title,
+          ...generateHeaderFooter(courseData, moduleString),
+        },
+        newSavePathPDF
+      );
+    }
+  } catch (err) {
+    log.error("Error in saving set to disk: " + err.message);
     throw err;
   }
 }
