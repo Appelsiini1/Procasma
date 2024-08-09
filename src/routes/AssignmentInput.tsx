@@ -33,7 +33,7 @@ import {
   setSelectedViaChecked,
   wrapWithCheck,
 } from "../rendererHelpers/browseHelpers";
-import { isExpanding } from "../generalHelpers/assignment";
+import { isExpanding } from "../rendererHelpers/assignment";
 
 export default function AssignmentInput() {
   const {

@@ -6,7 +6,7 @@ import {
   ModuleData,
   ModuleDatabase,
 } from "../types";
-import { isExpanding } from "../generalHelpers/assignment";
+import { isExpanding } from "../rendererHelpers/assignment";
 import log from "electron-log/node";
 
 // General
