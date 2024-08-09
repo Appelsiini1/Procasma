@@ -780,44 +780,49 @@ export function saveSetFS(
   savePath: string,
   moduleString?: string
 ) {
-  const filename = title.replace(" ", "");
-  const solutionFilename =
-    title.replace(" ", "") + parseUICodeMain("answers").toUpperCase();
+  try {
+    const filename = title.replace(" ", "");
+    const solutionFilename =
+      title.replace(" ", "") + parseUICodeMain("answers").toUpperCase();
 
-  createFolderFS(path.join(savePath, filename));
-  if (format === "html") {
-    let newSavePathHTML = checkFileExistanceFS(
-      path.join(savePath, filename) + ".html"
-    );
-    fs.writeFileSync(newSavePathHTML, html, "utf-8");
+    createFolderFS(path.join(savePath, filename));
+    if (format === "html") {
+      let newSavePathHTML = checkFileExistanceFS(
+        path.join(savePath, filename) + ".html"
+      );
+      fs.writeFileSync(newSavePathHTML, html, "utf-8");
 
-    newSavePathHTML = checkFileExistanceFS(
-      path.join(savePath, solutionFilename + ".html")
-    );
-    fs.writeFileSync(newSavePathHTML, solutionHtml, "utf-8");
-  } else if (format === "pdf") {
-    let newSavePathPDF = checkFileExistanceFS(
-      path.join(savePath, filename) + ".pdf"
-    );
-    createPDF(
-      {
-        html: html,
-        title: title,
-        ...generateHeaderFooter(courseData, moduleString),
-      },
-      newSavePathPDF
-    );
+      newSavePathHTML = checkFileExistanceFS(
+        path.join(savePath, solutionFilename + ".html")
+      );
+      fs.writeFileSync(newSavePathHTML, solutionHtml, "utf-8");
+    } else if (format === "pdf") {
+      let newSavePathPDF = checkFileExistanceFS(
+        path.join(savePath, filename) + ".pdf"
+      );
+      createPDF(
+        {
+          html: html,
+          title: title,
+          ...generateHeaderFooter(courseData, moduleString),
+        },
+        newSavePathPDF
+      );
 
-    newSavePathPDF = checkFileExistanceFS(
-      path.join(savePath, solutionFilename) + ".pdf"
-    );
-    createPDF(
-      {
-        html: html,
-        title: title,
-        ...generateHeaderFooter(courseData, moduleString),
-      },
-      path.join(newSavePathPDF, solutionFilename + ".pdf")
-    );
+      newSavePathPDF = checkFileExistanceFS(
+        path.join(savePath, solutionFilename) + ".pdf"
+      );
+      createPDF(
+        {
+          html: html,
+          title: title,
+          ...generateHeaderFooter(courseData, moduleString),
+        },
+        path.join(newSavePathPDF, solutionFilename + ".pdf")
+      );
+    }
+  } catch (err) {
+    log.error("Error in saving set to disk: " + err.message);
+    throw err;
   }
 }

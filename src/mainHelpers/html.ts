@@ -165,7 +165,7 @@ export async function exportSetFS(
       );
     }
   } catch (err) {
-    log.error(err.message);
+    log.error("Error in HTML generation: " + err.message);
     throw new Error("ui_export_error");
   }
   return "ui_export_success";
@@ -179,7 +179,12 @@ export async function exportSetFS(
  */
 function formatMarkdown(text: string): string {
   //Showdown
-  return converter.makeHtml(text);
+  try {
+    return converter.makeHtml(text);
+  } catch (err) {
+    log.error("Error in Showdown converter: " + err.message);
+    throw err;
+  }
 }
 
 /**
@@ -199,10 +204,15 @@ function formatMath(text: string): string {
  * @returns HTML string
  */
 function highlightCode(code: string, language: string): string {
-  let block = `<div class="code-background"><div class="code-inner-container"><pre><code class="hljs">`;
-  block += hljs.highlight(code, { language: language }).value;
-  block += `</code></pre></div></div>`;
-  return block;
+  try {
+    let block = `<div class="code-background"><div class="code-inner-container"><pre><code class="hljs">`;
+    block += hljs.highlight(code, { language: language }).value;
+    block += `</code></pre></div></div>`;
+    return block;
+  } catch (err) {
+    log.error("Error in highlightCode(): " + err.message);
+    throw err;
+  }
 }
 
 /**
@@ -237,7 +247,7 @@ function formatSolutions(
     }
     return block;
   } catch (err) {
-    log.error(err.message);
+    log.error("Error in solution formatter: " + err.message);
     throw err;
   }
 }
@@ -282,7 +292,7 @@ function formatFiles(
     }
     return block;
   } catch (err) {
-    log.error(err.message);
+    log.error("Error in file formatter: " + err.message);
     throw err;
   }
 }
@@ -478,20 +488,25 @@ function generateToC(
   courseData: CourseData,
   set: FullAssignmentSetData
 ): string {
-  let block = `<div>`;
-  block += `<h2>${parseUICodeMain("toc")}</h2>\n`;
-  for (const assig of set.assignmentArray) {
-    block += `<h3><a href="#${assig.assignmentID}>${formatTitle(
-      {
-        assignmentIndex: set.assignmentArray.indexOf(assig),
-        courseData: courseData,
-      },
-      set,
-      true
-    )}`;
-    block += `</a></h3>`;
-  }
+  try {
+    let block = `<div>`;
+    block += `<h2>${parseUICodeMain("toc")}</h2>\n`;
+    for (const assig of set.assignmentArray) {
+      block += `<h3><a href="#${assig.assignmentID}>${formatTitle(
+        {
+          assignmentIndex: set.assignmentArray.indexOf(assig),
+          courseData: courseData,
+        },
+        set,
+        true
+      )}`;
+      block += `</a></h3>`;
+    }
 
-  block += `</div>`;
-  return block;
+    block += `</div>`;
+    return block;
+  } catch (err) {
+    log.error("Error in generateTOC: " + err.message);
+    throw err;
+  }
 }
