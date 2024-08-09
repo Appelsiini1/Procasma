@@ -16,8 +16,8 @@
   },
   "include": [
     "src/**/*",
-    "./src/images.d.tsx",
-    "./src/window.d.tsx",
+    "src/resource.d.ts",
+    "src/window.d.ts",
     "forge.env.d.ts"
   ]
 }
