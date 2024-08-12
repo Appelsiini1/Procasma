@@ -18,6 +18,8 @@ import {
   getSetsFS,
   deleteSetsFS,
   getTruncatedAssignmentsFS,
+  importAssignmentsFS,
+  autoGenerateModulesFS,
 } from "./mainHelpers/fileOperations";
 import { initialize } from "./mainHelpers/programInit";
 import { getSettings, saveSettings } from "./mainHelpers/settings";
@@ -201,6 +203,10 @@ ipcMain.handle(
   "getFilteredAssignmentsDB",
   formatIPCResult((path, filters) => getFilteredAssignmentsDB(path, filters))
 );
+ipcMain.handle(
+  "importAssignmentsFS",
+  formatIPCResult((path, importPath) => importAssignmentsFS(path, importPath))
+);
 
 // CRUD Module
 
@@ -227,6 +233,10 @@ ipcMain.handle(
 ipcMain.handle(
   "getFilteredModulesDB",
   formatIPCResult((path, filters) => getFilteredModulesDB(path, filters))
+);
+ipcMain.handle(
+  "autoGenerateModulesDB",
+  formatIPCResult((path) => autoGenerateModulesFS(path))
 );
 
 // CRUD Tag

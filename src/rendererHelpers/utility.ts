@@ -1,5 +1,10 @@
-import { codeExtensions, imageExtensions, textExtensions } from "../constants";
-import { FileTypes } from "../types";
+import {
+  codeExtensions,
+  dataExtensions,
+  imageExtensions,
+  textExtensions,
+} from "../constants";
+import { FileContents, FileTypes } from "../types";
 
 /**
  * dev sleep
@@ -29,6 +34,24 @@ export function getFileTypeUsingExtension(str: string): FileTypes {
     return "image";
   } else if (codeExtensions.includes(ext)) {
     return "code";
+  } else {
+    return null;
+  }
+}
+
+export function getFileContentUsingExtension(str: string): FileContents {
+  const substrings = str.split(".");
+
+  const ext = substrings?.[substrings.length - 1]?.toLowerCase();
+
+  if (textExtensions.includes(ext)) {
+    return "instruction";
+  } else if (imageExtensions.includes(ext)) {
+    return "instruction";
+  } else if (codeExtensions.includes(ext)) {
+    return "code";
+  } else if (dataExtensions.includes(ext)) {
+    return "data";
   } else {
     return null;
   }

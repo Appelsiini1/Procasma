@@ -207,6 +207,10 @@
     "FI": "Aiemmin luodut",
     "ENG": "Previously generated"
   },
+  "ui_generate_modules": {
+    "FI": "Luo moduulit automaattisesti",
+    "ENG": "Generate modules automatically"
+  },
   "ui_week": {
     "FI": "Viikko",
     "ENG": "Week"
@@ -442,6 +446,14 @@
   "ui_import_datafiles": {
     "FI": "Tuo datatiedostot",
     "ENG": "Import datafiles"
+  },
+  "ui_import_assignments": {
+    "FI": "Tuo tehtäviä",
+    "ENG": "Import assignments"
+  },
+  "ui_import_success": {
+    "FI": "Tehtävät tuotu onnistuneesti.",
+    "ENG": "Assignments imported succesfully."
   },
   "ui_remove_selected": {
     "FI": "Poista valittu",
@@ -1178,6 +1190,10 @@
   "ui_course_folder_invalid": {
     "FI": "Kurssin kansio ei ole validi",
     "ENG": "Course folder invalid"
+  },
+  "ui_folder_invalid": {
+    "FI": "Kansio ei ole validi",
+    "ENG": "Folder invalid"
   },
   "ui_ass": {
     "FI": "Kurssi ladattu onnistuneesti.",

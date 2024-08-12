@@ -10,9 +10,13 @@ import {
 } from "@mui/joy";
 import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
-import { ModuleData, ModuleDatabase, TagDatabase } from "../types";
 import {
+  ModuleData,
+  ModuleDatabase,
+  TagDatabase,
   WithCheckWrapper,
+} from "../types";
+import {
   filterState,
   generateChecklist,
   generateFilterList,
@@ -155,6 +159,24 @@ export default function ModuleBrowse() {
     }
   }, [activeModule, navigateToModule]);
 
+  async function autoGenerateModules() {
+    let snackbarSeverity = "success";
+    let snackbarText = "";
+    try {
+      const result = await handleIPCResult(setIPCLoading, () =>
+        window.api.autoGenerateModulesDB(activePath)
+      );
+
+      snackbarText = result;
+      refreshModules(); // get the remaining modules
+      updateFilters(); // and filters
+    } catch (err) {
+      snackbarText = err.message;
+      snackbarSeverity = "error";
+    }
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
+  }
+
   return (
     <>
       <div className="emptySpace1" />
@@ -184,6 +206,15 @@ export default function ModuleBrowse() {
           disabled={numSelected === 1 ? false : true}
         >
           {parseUICode("ui_show_edit")}
+        </ButtonComp>
+        <ButtonComp
+          buttonType="normal"
+          onClick={() => {
+            autoGenerateModules();
+          }}
+          ariaLabel={parseUICode("ui_generate_modules")}
+        >
+          {parseUICode("ui_generate_modules")}
         </ButtonComp>
       </Stack>
 

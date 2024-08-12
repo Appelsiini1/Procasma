@@ -11,7 +11,10 @@ import {
   Variation,
 } from "../types";
 import { spacesToUnderscores } from "../generalHelpers/converters";
-import { courseMetaDataFileName } from "../constants";
+import {
+  assignmentDataFolderCamel,
+  courseMetaDataFileName,
+} from "../constants";
 import { createHash } from "crypto";
 import {
   addAssignmentDB,
@@ -23,6 +26,16 @@ import log from "electron-log/node";
 import { createPDF, generateHeaderFooter } from "./pdf";
 import { parseUICodeMain } from "./language";
 import { platform } from "process";
+import {
+  deepCopy,
+  getFileContentUsingExtension,
+  getFileTypeUsingExtension,
+} from "../rendererHelpers/utility";
+import {
+  defaultAssignment,
+  defaultFile,
+  defaultVariation,
+} from "../defaultObjects";
 
 // General
 
@@ -613,6 +626,87 @@ export async function handleDeleteAssignmentsFS(
   }
 }
 
+export async function importAssignmentsFS(
+  coursePath: string,
+  importPath: string
+) {
+  try {
+    let assignmentCount = 0;
+    let variationCount = 0;
+    if (path.basename(importPath) !== assignmentDataFolderCamel) {
+      throw new Error("ui_folder_invalid");
+    }
+
+    // parse each assignment
+    const assignmentFolders = fs.readdirSync(importPath);
+    await Promise.all(
+      assignmentFolders.map(async (assignmentFolder) => {
+        const assignmentPath = path.join(importPath, assignmentFolder);
+        const newAssignment: CodeAssignmentData = deepCopy(defaultAssignment);
+
+        // extract the module and title from the folder name
+        const fileNameParts = assignmentFolder.split(" ");
+        const letterAndModule = fileNameParts.shift();
+        newAssignment.module = parseInt(letterAndModule.slice(1));
+        newAssignment.title = fileNameParts.join(" ");
+
+        // parse each variation in an assignment
+        const variationFolders = fs.readdirSync(assignmentPath);
+        variationFolders.forEach((variationFolder) => {
+          const variationPath = path.join(assignmentPath, variationFolder);
+          const newVariation: Variation = deepCopy(defaultVariation);
+
+          newAssignment.variations[variationFolder] = newVariation;
+
+          // parse each file inside a variation
+          const variationFiles = fs.readdirSync(variationPath);
+          variationFiles.forEach((variationFile) => {
+            const newFile = deepCopy(defaultFile);
+
+            newFile.path = path.join(variationPath, variationFile);
+            newFile.fileName = variationFile;
+
+            const fileType = getFileTypeUsingExtension(variationFile);
+            newFile.fileType = fileType ?? "text";
+
+            const fileContent = getFileContentUsingExtension(variationFile);
+            newFile.fileContent = fileContent ?? "instruction";
+
+            newAssignment.variations[variationFolder].files.push(newFile);
+
+            // use the assignment position number on the .md file
+            // as a possible assignment position
+            if (path.extname(variationFile) === ".md") {
+              const markdownFile = path.basename(variationFile);
+              const markdownParts = markdownFile.split("T");
+              const position = parseInt(markdownParts[1]);
+              const positionExists = newAssignment.position.findIndex(
+                (p) => p === position
+              );
+              if (positionExists === -1) {
+                newAssignment.position.push(position);
+              }
+            }
+          });
+
+          variationCount++;
+        });
+
+        //console.log(newAssignment);
+
+        await handleAddAssignmentFS(newAssignment, coursePath);
+        assignmentCount++;
+      })
+    );
+
+    return `tuotiin ${assignmentCount} tehtävää 
+      ja ${variationCount} variaatiota.`;
+  } catch (err) {
+    log.error("Error in importAssignmentsFS():", err.message);
+    throw err;
+  }
+}
+
 // CRUD Assignment set
 
 export function _handleAddOrUpdateSetFS(
@@ -684,7 +778,8 @@ export async function getSetsFS(
 
     // if an id is provided, try to find the set
     if (sets && id) {
-      return [sets.find((set) => set.id === id)] ?? [];
+      const foundSet = sets.find((set) => set.id === id);
+      return foundSet ? [foundSet] : [];
     }
 
     return sets;
@@ -730,7 +825,7 @@ export function checkFileExistanceFS(pathToCheck: string) {
   try {
     let index = 1;
     const getNext = (base: string, pathToChange: string) => {
-      let baseSplit = base.split(".");
+      const baseSplit = base.split(".");
       let newBase = "";
       if (base.includes(`(${index})`)) {
         newBase =
@@ -827,6 +922,36 @@ export async function saveSetFS(
     }
   } catch (err) {
     log.error("Error in saving set to disk: " + err.message);
+    throw err;
+  }
+}
+
+// CRUD Module
+
+/**
+ * Automatically generate modules for the assignments
+ * currently in the course.
+ */
+export async function autoGenerateModulesFS(coursePath: string) {
+  try {
+    const assignments = handleGetAssignmentsFS(coursePath);
+
+    const modules: { [key: number]: Array<number> } = {};
+
+    assignments.forEach((assignment) => {
+      if (modules[assignment.module]) {
+        const concatPositions = modules[assignment.module].concat(
+          assignment.position
+        );
+        modules[assignment.module] = concatPositions;
+      } else {
+        modules[assignment.module] = assignment.position;
+      }
+    });
+
+    console.log("modules: ", modules);
+  } catch (err) {
+    log.error("Error in _handleAddOrUpdateAssignmentFS():", err.message);
     throw err;
   }
 }
