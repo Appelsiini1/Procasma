@@ -33,7 +33,7 @@ export default function InputField({
       <Textarea
         sx={{ maxWidth: "100%", minWidth: "10em" }}
         minRows={5}
-        maxRows={5}
+        maxRows={20}
         placeholder={placeholder}
         key={fieldKey}
         disabled={disabled}

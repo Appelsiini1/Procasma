@@ -251,6 +251,15 @@ export default function AssignmentBrowse() {
     handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
   }
 
+  function selectAll() {
+    const checkedElements = courseAssignments.map((assignment) => {
+      assignment.isChecked = true;
+      return assignment;
+    });
+
+    setCourseAssignments(checkedElements);
+  }
+
   return (
     <>
       <div className="emptySpace1" />
@@ -312,11 +321,19 @@ export default function AssignmentBrowse() {
             </ButtonComp>
 
             <ButtonComp
-              buttonType="normal"
+              buttonType="import"
               onClick={() => importAssignments()}
               ariaLabel={parseUICode("ui_create_new_set")}
             >
               {parseUICode("ui_import_assignments")}
+            </ButtonComp>
+
+            <ButtonComp
+              buttonType="normal"
+              onClick={() => selectAll()}
+              ariaLabel={" debug "}
+            >
+              select all
             </ButtonComp>
           </>
         )}
@@ -401,6 +418,13 @@ export default function AssignmentBrowse() {
           ariaLabel={parseUICode("ui_aria_cancel")}
         >
           {parseUICode("ui_cancel")}
+        </ButtonComp>
+        <ButtonComp
+          buttonType="normal"
+          onClick={() => console.log(courseAssignments)}
+          ariaLabel={" debug "}
+        >
+          log all assignments
         </ButtonComp>
       </Stack>
     </>

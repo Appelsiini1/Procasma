@@ -476,7 +476,8 @@ export default function SetCreator() {
     try {
       if (
         typeof set.targetModule === "number" &&
-        typeof set.targetPosition === "number"
+        typeof set.targetPosition === "number" &&
+        navigateToBrowse
       ) {
         handleActiveSet(set);
         handleActiveAssignments([]);
@@ -484,7 +485,7 @@ export default function SetCreator() {
     } catch (err) {
       handleSnackbar({ error: parseUICode(err.message) });
     }
-  }, [set.targetModule, set.targetPosition]);
+  }, [set.targetModule, set.targetPosition, navigateToBrowse]);
 
   function moduleWindow(
     moduleName: string,

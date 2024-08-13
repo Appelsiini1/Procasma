@@ -26,6 +26,7 @@ import {
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
 import { ActiveObjectContext, UIContext } from "../components/Context";
+import HelpText from "../components/HelpText";
 
 export interface ModuleWithCheck extends WithCheckWrapper {
   value: ModuleDatabase;
@@ -207,15 +208,17 @@ export default function ModuleBrowse() {
         >
           {parseUICode("ui_show_edit")}
         </ButtonComp>
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => {
-            autoGenerateModules();
-          }}
-          ariaLabel={parseUICode("ui_generate_modules")}
-        >
-          {parseUICode("ui_generate_modules")}
-        </ButtonComp>
+        <HelpText text={parseUICode("help_generate_modules")}>
+          <ButtonComp
+            buttonType="algorithm"
+            onClick={() => {
+              autoGenerateModules();
+            }}
+            ariaLabel={parseUICode("ui_generate_modules")}
+          >
+            {parseUICode("ui_generate_modules")}
+          </ButtonComp>
+        </HelpText>
       </Stack>
 
       <div className="emptySpace2" />

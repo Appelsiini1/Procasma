@@ -3,9 +3,11 @@ import path from "path";
 import {
   CodeAssignmentData,
   CourseData,
+  ExampleRunType,
   ExportSetData,
   FileData,
   FormatType,
+  ModuleData,
   SetAlgoAssignmentData,
   SetVariation,
   Variation,
@@ -14,11 +16,16 @@ import { spacesToUnderscores } from "../generalHelpers/converters";
 import {
   assignmentDataFolderCamel,
   courseMetaDataFileName,
+  markdownExampleRun,
+  markdownInput,
+  markdownOutput,
 } from "../constants";
 import { createHash } from "crypto";
 import {
   addAssignmentDB,
+  addModuleDB,
   deleteAssignmentsDB,
+  getModulesDB,
   initDB,
   updateAssignmentDB,
 } from "./databaseOperations";
@@ -28,12 +35,15 @@ import { parseUICodeMain } from "./language";
 import { platform } from "process";
 import {
   deepCopy,
+  getCodeLanguageUsingExtension,
   getFileContentUsingExtension,
   getFileTypeUsingExtension,
 } from "../rendererHelpers/utility";
 import {
   defaultAssignment,
+  defaultExampleRun,
   defaultFile,
+  defaultModule,
   defaultVariation,
 } from "../defaultObjects";
 
@@ -626,6 +636,114 @@ export async function handleDeleteAssignmentsFS(
   }
 }
 
+/**
+ * @param markdown
+ * @returns A list of strings that contain the markdown text for
+ *  each example run in order.
+ */
+export function splitMarkdownExampleRuns(markdown: string): string[] {
+  // Split the content by line breaks
+  const lines = markdown.split(/\r?\n/);
+
+  // Initialize an array to store lines before the heading
+  let runIndex = -1;
+  const exampleRunMarkdowns: string[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // When reading e.g. the line "## Esimerkkiajo 1:", start a
+    // new example run string
+    if (line.includes("##") && line.includes(markdownExampleRun)) {
+      runIndex++;
+      exampleRunMarkdowns[runIndex] = line + "\n";
+    } else if (runIndex > -1) {
+      exampleRunMarkdowns[runIndex] += line + "\n";
+    }
+  }
+
+  return exampleRunMarkdowns;
+}
+
+/**
+ * 
+ * @param before Strings that should exist in order within the markdown. 
+    The content after the last string is kept.
+ * @param after A break string that will cut off the rest of the markdown
+ */
+export function splitMarkdown(
+  markdown: string,
+  before: string[],
+  after: string
+): string[] {
+  let beforeIndex = 0;
+
+  // Split the content by line breaks
+  const lines = markdown.split(/\r?\n/);
+
+  // Initialize an array to store lines before the heading
+  const extractedLines: string[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // if all "before" items have been found
+    // begin pushing lines to extractedLines
+    if (beforeIndex >= before.length) {
+      if (line.includes(after)) {
+        break;
+      }
+
+      // Add the line to the extracted lines
+      extractedLines.push(line);
+      continue;
+    }
+
+    if (line.includes(before[beforeIndex])) {
+      beforeIndex++;
+    }
+  }
+
+  return extractedLines;
+}
+
+export function parseMarkDownVariationFS(
+  path: string,
+  variation: Variation
+): Variation {
+  try {
+    const markdown = fs.readFileSync(path, { encoding: "utf8" });
+
+    // instructions
+    const [instructions, ...rest] = markdown.split(markdownExampleRun);
+    variation.instructions = instructions;
+
+    // example runs
+    const exampleRunMarkdowns = splitMarkdownExampleRuns(markdown);
+
+    console.log("exampleRunMarkdowns: ", exampleRunMarkdowns);
+
+    exampleRunMarkdowns.forEach((runMarkdown, index) => {
+      const newRun: ExampleRunType = deepCopy(defaultExampleRun);
+
+      // extract example run attributes from runMarkdown
+      newRun.inputs = splitMarkdown(runMarkdown, [markdownInput, "```"], "```");
+      newRun.output = splitMarkdown(
+        runMarkdown,
+        [markdownOutput, "```"],
+        "```"
+      ).join("\n");
+
+      variation.exampleRuns[index + 1] = newRun;
+    });
+
+    return null;
+  } catch (err) {
+    log.error("Error in parseMarkDownVariationFS():", err.message);
+    throw err;
+  }
+}
+
 export async function importAssignmentsFS(
   coursePath: string,
   importPath: string
@@ -650,6 +768,8 @@ export async function importAssignmentsFS(
         newAssignment.module = parseInt(letterAndModule.slice(1));
         newAssignment.title = fileNameParts.join(" ");
 
+        let newCodeLanguage = "";
+
         // parse each variation in an assignment
         const variationFolders = fs.readdirSync(assignmentPath);
         variationFolders.forEach((variationFolder) => {
@@ -662,8 +782,8 @@ export async function importAssignmentsFS(
           const variationFiles = fs.readdirSync(variationPath);
           variationFiles.forEach((variationFile) => {
             const newFile = deepCopy(defaultFile);
-
-            newFile.path = path.join(variationPath, variationFile);
+            const newFilePath = path.join(variationPath, variationFile);
+            newFile.path = newFilePath;
             newFile.fileName = variationFile;
 
             const fileType = getFileTypeUsingExtension(variationFile);
@@ -674,9 +794,10 @@ export async function importAssignmentsFS(
 
             newAssignment.variations[variationFolder].files.push(newFile);
 
+            const newExtension = path.extname(variationFile);
             // use the assignment position number on the .md file
             // as a possible assignment position
-            if (path.extname(variationFile) === ".md") {
+            if (newExtension === ".md") {
               const markdownFile = path.basename(variationFile);
               const markdownParts = markdownFile.split("T");
               const position = parseInt(markdownParts[1]);
@@ -686,11 +807,25 @@ export async function importAssignmentsFS(
               if (positionExists === -1) {
                 newAssignment.position.push(position);
               }
+
+              // parse the markdown file into the variation
+              // and example runs
+              parseMarkDownVariationFS(
+                newFilePath,
+                newAssignment.variations[variationFolder]
+              );
             }
+
+            const variationCodeLanguage =
+              getCodeLanguageUsingExtension(newExtension);
+
+            newCodeLanguage = variationCodeLanguage ?? "";
           });
 
           variationCount++;
         });
+
+        newAssignment.codeLanguage = newCodeLanguage;
 
         //console.log(newAssignment);
 
@@ -699,8 +834,11 @@ export async function importAssignmentsFS(
       })
     );
 
-    return `tuotiin ${assignmentCount} tehtävää 
-      ja ${variationCount} variaatiota.`;
+    return `${parseUICodeMain(
+      "ui_imported_assignments"
+    )} ${assignmentCount} ${parseUICodeMain(
+      "ui_and"
+    )} ${variationCount} ${parseUICodeMain("ui_variations_")}.`;
   } catch (err) {
     log.error("Error in importAssignmentsFS():", err.message);
     throw err;
@@ -934,24 +1072,55 @@ export async function saveSetFS(
  */
 export async function autoGenerateModulesFS(coursePath: string) {
   try {
+    let addedModules = 0;
     const assignments = handleGetAssignmentsFS(coursePath);
 
-    const modules: { [key: number]: Array<number> } = {};
+    // store the highest assignment position for each module
+    const newModules: { [key: number]: number } = {};
 
+    // iterate through assignments, updating the highest position
+    // for its module
     assignments.forEach((assignment) => {
-      if (modules[assignment.module]) {
-        const concatPositions = modules[assignment.module].concat(
-          assignment.position
-        );
-        modules[assignment.module] = concatPositions;
-      } else {
-        modules[assignment.module] = assignment.position;
+      const oldPosition = newModules[assignment.module];
+      let highest = assignment.position[0] ?? 0;
+      assignment.position.forEach((position) => {
+        if (position > highest) {
+          highest = position;
+        }
+      });
+
+      if (typeof oldPosition === "undefined" || oldPosition < highest) {
+        newModules[assignment.module] = highest;
       }
     });
 
-    console.log("modules: ", modules);
+    // add new modules if the module does not exist
+    const existingModules = await getModulesDB(coursePath);
+    await Promise.all(
+      Object.keys(newModules).map(async (k) => {
+        const key = parseInt(k);
+        const moduleIndex = existingModules.findIndex(
+          (existing) => existing.id === key
+        );
+
+        if (moduleIndex === -1) {
+          const newModule: ModuleData = deepCopy(defaultModule);
+          newModule.id = key;
+          newModule.name = `${parseUICodeMain("ui_week")} ${key}`;
+          newModule.assignments = newModules[key];
+
+          await addModuleDB(coursePath, newModule);
+
+          addedModules++;
+        }
+      })
+    );
+
+    return `${parseUICodeMain(
+      "ui_generated"
+    )} ${addedModules} ${parseUICodeMain("ui_modules_")}.`;
   } catch (err) {
-    log.error("Error in _handleAddOrUpdateAssignmentFS():", err.message);
+    log.error("Error in autoGenerateModulesFS():", err.message);
     throw err;
   }
 }

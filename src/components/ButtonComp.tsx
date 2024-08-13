@@ -9,6 +9,7 @@ import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import DeleteIcon from "@mui/icons-material/Delete";
 import StarIcon from "@mui/icons-material/Star";
 import AutoFixNormalIcon from "@mui/icons-material/AutoFixNormal";
+import SaveAltIcon from "@mui/icons-material/SaveAlt";
 import { useState } from "react";
 import {
   buttonMinWidth,
@@ -97,7 +98,8 @@ type ButtonProps = {
     | "largeAddAlt"
     | "starAlt"
     | "algorithm"
-    | "grey";
+    | "grey"
+    | "import";
   onClick: () => void;
   margin?: boolean;
   confirmationModal?: boolean;
@@ -180,6 +182,10 @@ export default function ButtonComp({
     case "grey":
       style = grey;
       decor = null;
+      break;
+    case "import":
+      style = normal;
+      decor = <SaveAltIcon sx={decorStyle} />;
       break;
     default:
       break;

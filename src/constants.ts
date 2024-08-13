@@ -41,3 +41,6 @@ export const ShowdownOptions: ConverterOptions = {
 export const assignmentDataFolder = "assignment_data";
 export const assignmentDataFolderCamel = "assignmentData";
 export const emptySpaceHeight = "0.5cm";
+export const markdownExampleRun = "Esimerkkiajo";
+export const markdownInput = "Syötteet";
+export const markdownOutput = "Tuloste";

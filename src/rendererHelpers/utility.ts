@@ -4,6 +4,7 @@ import {
   imageExtensions,
   textExtensions,
 } from "../constants";
+import defaults from "../../resource/defaults.json";
 import { FileContents, FileTypes } from "../types";
 
 /**
@@ -55,4 +56,22 @@ export function getFileContentUsingExtension(str: string): FileContents {
   } else {
     return null;
   }
+}
+
+export function getCodeLanguageUsingExtension(str: string): string {
+  const substrings = str.split(".");
+  const newExtension = substrings?.[substrings.length - 1]?.toLowerCase();
+
+  const languages = defaults.codeLanguages;
+  // look through codeLanguages and return the "name" of
+  // the language with any matching "fileExtensions" items
+  const newName =
+    languages.find((lang) => {
+      return lang.fileExtensions.find(
+        (extension) =>
+          extension.replace(".", "") === newExtension.replace(".", "")
+      );
+    })?.name ?? null;
+
+  return newName;
 }

@@ -203,13 +203,26 @@
     "FI": "Yksi viikko",
     "ENG": "One week"
   },
+  "ui_generated": {
+    "FI": "Generoitiin",
+    "ENG": "Generated"
+  },
+
+  "ui_modules_": {
+    "FI": "moduulia",
+    "ENG": "modules"
+  },
   "ui_prev_gen": {
     "FI": "Aiemmin luodut",
     "ENG": "Previously generated"
   },
   "ui_generate_modules": {
-    "FI": "Luo moduulit automaattisesti",
-    "ENG": "Generate modules automatically"
+    "FI": "Luo moduulit",
+    "ENG": "Generate modules"
+  },
+  "help_generate_modules": {
+    "FI": "Generoi kurssin tehtäville puuttuvat moduulit automaattisesti. Toiminto lisää moduuleihin tehtäväpaikkoja suurimman tehtävänumeron mukaan.",
+    "ENG": "Generate modules for the assignments on the course automatically. The function adds assignment positions to the module based on the highest found assignment position."
   },
   "ui_week": {
     "FI": "Viikko",
@@ -454,6 +467,14 @@
   "ui_import_success": {
     "FI": "Tehtävät tuotu onnistuneesti.",
     "ENG": "Assignments imported succesfully."
+  },
+  "ui_imported_assignments": {
+    "FI": "Tuotiin tehtäviä",
+    "ENG": "Assignments imported"
+  },
+  "ui_variations_": {
+    "FI": "variaatiota",
+    "ENG": "variations"
   },
   "ui_remove_selected": {
     "FI": "Poista valittu",
@@ -798,6 +819,10 @@
   "ui_add": {
     "FI": "Lisää",
     "ENG": "Add"
+  },
+  "ui_and": {
+    "FI": "ja",
+    "ENG": "and"
   },
   "ui_excl_exp": {
     "FI": "Ohita jatkuvat tehtävät",
