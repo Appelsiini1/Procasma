@@ -1,4 +1,5 @@
 import { ConverterOptions } from "showdown";
+import { LevelsType } from "./types";
 
 export const version = "0.9.1";
 export const courseMetaDataFileName = "course_info.json";
@@ -46,3 +47,8 @@ export const markdownExampleRun = "Esimerkkiajo";
 export const markdownInput = "Syötteet";
 export const markdownOutput = "Tuloste";
 export const markdownCLIargument = "Komentoriviparametrit";
+export const levelsTEMPORARY: LevelsType = {
+  "1": { fullName: "Minimitaso", abbreviation: "M" },
+  "2": { fullName: "Perustaso", abbreviation: "P" },
+  "3": { fullName: "Tavoitetaso", abbreviation: "T" },
+};

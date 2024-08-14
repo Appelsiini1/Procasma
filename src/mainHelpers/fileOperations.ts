@@ -16,6 +16,7 @@ import { spacesToUnderscores } from "../generalHelpers/converters";
 import {
   assignmentDataFolderCamel,
   courseMetaDataFileName,
+  levelsTEMPORARY,
   markdownAssignmentLevel,
   markdownCLIargument,
   markdownExampleRun,
@@ -712,16 +713,44 @@ export function splitMarkdown(
   return extractedLines;
 }
 
+export function markdownExtractLevel(
+  assignment: CodeAssignmentData,
+  markdown: string
+) {
+  if (!assignment.level) {
+    const lines = markdown.split(/\r?\n/);
+    const lineWithLevel = lines.find((line) =>
+      line.includes(markdownAssignmentLevel)
+    );
+
+    if (lineWithLevel) {
+      Object.keys(levelsTEMPORARY).forEach((levelNumber) => {
+        const currentLevel = levelsTEMPORARY[parseInt(levelNumber)];
+        const levelName = currentLevel.fullName;
+        if (lineWithLevel.includes(levelName)) {
+          assignment.level = parseInt(levelNumber);
+        }
+      });
+    }
+  }
+}
+
 /**
  * Reads an assignment variation markdown file and extracts
  * the Variation attributes.
  */
 export function parseMarkDownVariationFS(
   markdownPath: string,
-  variation: Variation
+  assignment: CodeAssignmentData,
+  variationId: string
 ): Variation {
   try {
+    const variation = assignment.variations[variationId];
     const markdown = fs.readFileSync(markdownPath, { encoding: "utf8" });
+
+    // assignment level
+    // TODO: get levels dictionary from course
+    markdownExtractLevel(assignment, markdown);
 
     // instructions
     variation.instructions = splitMarkdown(
@@ -760,6 +789,55 @@ export function parseMarkDownVariationFS(
   }
 }
 
+export function readVariationFile(
+  filePath: string,
+  newFileName: string,
+  newAssignment: CodeAssignmentData,
+  variationId: string,
+  isInner?: boolean
+) {
+  const newFile = deepCopy(defaultFile);
+
+  console.log("filePath: ", filePath);
+  console.log("newFileName: ", newFileName);
+  newFile.path = filePath;
+  if (isInner) {
+    const dirName = path.dirname(filePath);
+    const dirBaseName = path.basename(dirName);
+    newFile.fileName = `${dirBaseName}-${newFileName}`;
+  } else {
+    newFile.fileName = newFileName;
+  }
+
+  const fileType = getFileTypeUsingExtension(newFileName);
+  newFile.fileType = fileType ?? "text";
+
+  const fileContent = getFileContentUsingExtension(newFileName);
+  newFile.fileContent = fileContent ?? "instruction";
+
+  newAssignment.variations[variationId].files.push(newFile);
+
+  const newExtension = path.extname(newFileName);
+  // use the assignment position number on the .md file
+  // as a possible assignment position
+  if (newExtension === ".md") {
+    const markdownFile = path.basename(newFileName);
+    const markdownParts = markdownFile.split("T");
+    const position = parseInt(markdownParts[1]);
+    const positionExists = newAssignment.position.findIndex(
+      (p) => p === position
+    );
+    if (positionExists === -1) {
+      newAssignment.position.push(position);
+    }
+
+    // parse the markdown file into the variation
+    parseMarkDownVariationFS(filePath, newAssignment, variationId);
+  }
+
+  return getCodeLanguageUsingExtension(newExtension);
+}
+
 /**
  * Read an assignment directory and import all the contained assignments.
  */
@@ -786,57 +864,52 @@ export async function importAssignmentsFS(
         newAssignment.module = parseInt(letterAndModule.slice(1));
         newAssignment.title = fileNameParts.join(" ");
 
-        let newCodeLanguage = "";
+        let newCodeLanguage: string = null;
 
         // parse each variation in an assignment
         const variationFolders = fs.readdirSync(assignmentPath);
-        variationFolders.forEach((variationFolder) => {
-          const variationPath = path.join(assignmentPath, variationFolder);
+        variationFolders.forEach((variationId) => {
+          const variationPath = path.join(assignmentPath, variationId);
           const newVariation: Variation = deepCopy(defaultVariation);
 
-          newAssignment.variations[variationFolder] = newVariation;
+          newAssignment.variations[variationId] = newVariation;
 
           // parse each file inside a variation
           const variationFiles = fs.readdirSync(variationPath);
           variationFiles.forEach((variationFile) => {
-            const newFile = deepCopy(defaultFile);
+            // check if dir
             const newFilePath = path.join(variationPath, variationFile);
-            newFile.path = newFilePath;
-            newFile.fileName = variationFile;
-
-            const fileType = getFileTypeUsingExtension(variationFile);
-            newFile.fileType = fileType ?? "text";
-
-            const fileContent = getFileContentUsingExtension(variationFile);
-            newFile.fileContent = fileContent ?? "instruction";
-
-            newAssignment.variations[variationFolder].files.push(newFile);
-
-            const newExtension = path.extname(variationFile);
-            // use the assignment position number on the .md file
-            // as a possible assignment position
-            if (newExtension === ".md") {
-              const markdownFile = path.basename(variationFile);
-              const markdownParts = markdownFile.split("T");
-              const position = parseInt(markdownParts[1]);
-              const positionExists = newAssignment.position.findIndex(
-                (p) => p === position
-              );
-              if (positionExists === -1) {
-                newAssignment.position.push(position);
-              }
-
-              // parse the markdown file into the variation
-              parseMarkDownVariationFS(
+            const isDir = path.extname(variationFile) === "";
+            if (isDir) {
+              const innerFiles = fs.readdirSync(newFilePath);
+              innerFiles.forEach((innerFile) => {
+                const innerFilePath = path.join(
+                  variationPath,
+                  variationFile,
+                  innerFile
+                );
+                const codeLanguage = readVariationFile(
+                  innerFilePath,
+                  innerFile,
+                  newAssignment,
+                  variationId,
+                  true
+                );
+                if (!newCodeLanguage && codeLanguage) {
+                  newCodeLanguage = codeLanguage;
+                }
+              });
+            } else {
+              const codeLanguage = readVariationFile(
                 newFilePath,
-                newAssignment.variations[variationFolder]
+                variationFile,
+                newAssignment,
+                variationId
               );
+              if (!newCodeLanguage && codeLanguage) {
+                newCodeLanguage = codeLanguage;
+              }
             }
-
-            const variationCodeLanguage =
-              getCodeLanguageUsingExtension(newExtension);
-
-            newCodeLanguage = variationCodeLanguage ?? "";
           });
         });
 
