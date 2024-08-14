@@ -66,8 +66,8 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("deleteModulesDB", coursePath, ids),
   getFilteredModulesDB: (coursePath: string, filters: any) =>
     ipcRenderer.invoke("getFilteredModulesDB", coursePath, filters),
-  autoGenerateModulesDB: (coursePath: string) =>
-    ipcRenderer.invoke("autoGenerateModulesDB", coursePath),
+  autoGenerateModulesFS: (coursePath: string) =>
+    ipcRenderer.invoke("autoGenerateModulesFS", coursePath),
 
   // CRUD Tag
   getAssignmentTagsDB: (coursePath: string) =>

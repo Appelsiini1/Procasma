@@ -235,7 +235,7 @@ ipcMain.handle(
   formatIPCResult((path, filters) => getFilteredModulesDB(path, filters))
 );
 ipcMain.handle(
-  "autoGenerateModulesDB",
+  "autoGenerateModulesFS",
   formatIPCResult((path) => autoGenerateModulesFS(path))
 );
 

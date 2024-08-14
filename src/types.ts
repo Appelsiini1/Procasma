@@ -267,7 +267,7 @@ export type ContextBridgeAPI = {
   deleteModulesDB: (coursePath: string, ids: number[]) => IpcResult;
   getModuleCountDB: (coursePath: string) => IpcResult;
   getFilteredModulesDB: (coursePath: string, filters: any) => IpcResult;
-  autoGenerateModulesDB: (coursePath: string) => IpcResult;
+  autoGenerateModulesFS: (coursePath: string) => IpcResult;
 
   // CRUD Tag
   getAssignmentTagsDB: (coursePath: string) => IpcResult;

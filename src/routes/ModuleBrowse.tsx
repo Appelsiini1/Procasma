@@ -165,7 +165,7 @@ export default function ModuleBrowse() {
     let snackbarText = "";
     try {
       const result = await handleIPCResult(setIPCLoading, () =>
-        window.api.autoGenerateModulesDB(activePath)
+        window.api.autoGenerateModulesFS(activePath)
       );
 
       snackbarText = result;
