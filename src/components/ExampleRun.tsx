@@ -58,7 +58,7 @@ export default function ExampleRun({
           <InputField
             fieldKey={exRunID + "eInputsInput"}
             isLarge
-            defaultValue={arrayToString(exampleRun.inputs)}
+            defaultValue={exampleRun.inputs.join("\n")}
             onChange={(value: string) =>
               handleAssignment(
                 `${pathInAssignment}.inputs`,

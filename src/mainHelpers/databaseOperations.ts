@@ -516,6 +516,15 @@ export async function getAssignmentsDB(
   return _getAssignmentsDB(coursePath);
 }
 
+export async function getAssignmentByTitleDB(
+  coursePath: string,
+  title: string
+) {
+  const queryOverride = `SELECT * FROM 
+    assignments WHERE title IN (?)`;
+  return _getAssignmentsDB(coursePath, [title], queryOverride);
+}
+
 export async function updateAssignmentDB(
   coursePath: string,
   assignment: CodeAssignmentData
@@ -819,7 +828,7 @@ export async function _getModulesDB(
 export async function getModulesDB(
   coursePath: string,
   ids?: (string | number)[]
-) {
+): Promise<ModuleData[]> {
   if (ids?.length > 0) {
     const placeholders = ids.map(() => "?").join(",");
     const queryOverride = `SELECT * FROM 

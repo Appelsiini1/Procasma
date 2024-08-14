@@ -30,6 +30,8 @@ import {
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
+import HelpText from "../components/HelpText";
+import { assignmentDataFolderCamel } from "../constants";
 
 export default function AssignmentBrowse() {
   const {
@@ -320,13 +322,19 @@ export default function AssignmentBrowse() {
               {`${parseUICode("ui_delete")} ${numSelected}`}
             </ButtonComp>
 
-            <ButtonComp
-              buttonType="import"
-              onClick={() => importAssignments()}
-              ariaLabel={parseUICode("ui_create_new_set")}
+            <HelpText
+              text={`${parseUICode(
+                "help_import_assignments"
+              )}: ${assignmentDataFolderCamel}`}
             >
-              {parseUICode("ui_import_assignments")}
-            </ButtonComp>
+              <ButtonComp
+                buttonType="import"
+                onClick={() => importAssignments()}
+                ariaLabel={parseUICode("ui_import_assignments")}
+              >
+                {parseUICode("ui_import_assignments")}
+              </ButtonComp>
+            </HelpText>
 
             <ButtonComp
               buttonType="normal"

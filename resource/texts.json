@@ -221,8 +221,8 @@
     "ENG": "Generate modules"
   },
   "help_generate_modules": {
-    "FI": "Generoi kurssin tehtäville puuttuvat moduulit automaattisesti. Toiminto lisää moduuleihin tehtäväpaikkoja suurimman tehtävänumeron mukaan.",
-    "ENG": "Generate modules for the assignments on the course automatically. The function adds assignment positions to the module based on the highest found assignment position."
+    "FI": "Generoi kurssin tehtäville puuttuvat moduulit automaattisesti. Toiminto päivittää olemassa oleviin moduuleihin tehtäväpaikkoja suurimman tehtävänumeron mukaan.",
+    "ENG": "Generate modules for the assignments on the course automatically. The function updates existing modules by setting the number of assignments based on the highest found assignment position."
   },
   "ui_week": {
     "FI": "Viikko",
@@ -463,6 +463,10 @@
   "ui_import_assignments": {
     "FI": "Tuo tehtäviä",
     "ENG": "Import assignments"
+  },
+  "help_import_assignments": {
+    "FI": "Valitse selaimesta tehtävät sisältävä kansio, jonka nimi on",
+    "ENG": "Choose the assignment folder using the browser. Its name should be"
   },
   "ui_import_success": {
     "FI": "Tehtävät tuotu onnistuneesti.",

@@ -16,6 +16,8 @@ import { spacesToUnderscores } from "../generalHelpers/converters";
 import {
   assignmentDataFolderCamel,
   courseMetaDataFileName,
+  markdownAssignmentLevel,
+  markdownCLIargument,
   markdownExampleRun,
   markdownInput,
   markdownOutput,
@@ -25,9 +27,12 @@ import {
   addAssignmentDB,
   addModuleDB,
   deleteAssignmentsDB,
+  getAssignmentByTitleDB,
+  getAssignmentsDB,
   getModulesDB,
   initDB,
   updateAssignmentDB,
+  updateModuleDB,
 } from "./databaseOperations";
 import log from "electron-log/node";
 import { createPDF, generateHeaderFooter } from "./pdf";
@@ -641,7 +646,7 @@ export async function handleDeleteAssignmentsFS(
  * @returns A list of strings that contain the markdown text for
  *  each example run in order.
  */
-export function splitMarkdownExampleRuns(markdown: string): string[] {
+export function splitMarkdownExampleRunsFS(markdown: string): string[] {
   // Split the content by line breaks
   const lines = markdown.split(/\r?\n/);
 
@@ -666,9 +671,9 @@ export function splitMarkdownExampleRuns(markdown: string): string[] {
 }
 
 /**
- * 
- * @param before Strings that should exist in order within the markdown. 
-    The content after the last string is kept.
+ * Extract a string's rows that exist between the last given "before" string
+ * and the single "after" string.
+ * @param before Strings that should exist in order within the markdown.
  * @param after A break string that will cut off the rest of the markdown
  */
 export function splitMarkdown(
@@ -707,26 +712,37 @@ export function splitMarkdown(
   return extractedLines;
 }
 
+/**
+ * Reads an assignment variation markdown file and extracts
+ * the Variation attributes.
+ */
 export function parseMarkDownVariationFS(
-  path: string,
+  markdownPath: string,
   variation: Variation
 ): Variation {
   try {
-    const markdown = fs.readFileSync(path, { encoding: "utf8" });
+    const markdown = fs.readFileSync(markdownPath, { encoding: "utf8" });
 
     // instructions
-    const [instructions, ...rest] = markdown.split(markdownExampleRun);
-    variation.instructions = instructions;
+    variation.instructions = splitMarkdown(
+      markdown,
+      [markdownAssignmentLevel],
+      markdownExampleRun
+    ).join("\n");
 
     // example runs
-    const exampleRunMarkdowns = splitMarkdownExampleRuns(markdown);
-
-    console.log("exampleRunMarkdowns: ", exampleRunMarkdowns);
+    const exampleRunMarkdowns = splitMarkdownExampleRunsFS(markdown);
 
     exampleRunMarkdowns.forEach((runMarkdown, index) => {
       const newRun: ExampleRunType = deepCopy(defaultExampleRun);
 
       // extract example run attributes from runMarkdown
+      const cmdInputs = splitMarkdown(
+        runMarkdown,
+        [markdownCLIargument, "```"],
+        "```"
+      )?.[0]; // get the one and only line with cmd arguments in the md.
+      newRun.cmdInputs = cmdInputs?.split(" ") ?? [];
       newRun.inputs = splitMarkdown(runMarkdown, [markdownInput, "```"], "```");
       newRun.output = splitMarkdown(
         runMarkdown,
@@ -744,20 +760,22 @@ export function parseMarkDownVariationFS(
   }
 }
 
+/**
+ * Read an assignment directory and import all the contained assignments.
+ */
 export async function importAssignmentsFS(
   coursePath: string,
   importPath: string
 ) {
+  let newAssignments: CodeAssignmentData[] = [];
   try {
-    let assignmentCount = 0;
-    let variationCount = 0;
     if (path.basename(importPath) !== assignmentDataFolderCamel) {
       throw new Error("ui_folder_invalid");
     }
 
     // parse each assignment
     const assignmentFolders = fs.readdirSync(importPath);
-    await Promise.all(
+    newAssignments = await Promise.all(
       assignmentFolders.map(async (assignmentFolder) => {
         const assignmentPath = path.join(importPath, assignmentFolder);
         const newAssignment: CodeAssignmentData = deepCopy(defaultAssignment);
@@ -809,7 +827,6 @@ export async function importAssignmentsFS(
               }
 
               // parse the markdown file into the variation
-              // and example runs
               parseMarkDownVariationFS(
                 newFilePath,
                 newAssignment.variations[variationFolder]
@@ -821,24 +838,32 @@ export async function importAssignmentsFS(
 
             newCodeLanguage = variationCodeLanguage ?? "";
           });
-
-          variationCount++;
         });
 
         newAssignment.codeLanguage = newCodeLanguage;
-
-        //console.log(newAssignment);
-
-        await handleAddAssignmentFS(newAssignment, coursePath);
-        assignmentCount++;
+        return newAssignment;
       })
     );
 
-    return `${parseUICodeMain(
-      "ui_imported_assignments"
-    )} ${assignmentCount} ${parseUICodeMain(
-      "ui_and"
-    )} ${variationCount} ${parseUICodeMain("ui_variations_")}.`;
+    // write the assignments
+    let assignmentCount = 0;
+    await Promise.all(
+      newAssignments.map(async (newAssignment) => {
+        // look for an assignment with the same title and only
+        // add the assignment if one doesn't exist
+        const oldAssignments = await getAssignmentByTitleDB(
+          coursePath,
+          newAssignment.title
+        );
+        const isDuplicateAssignment = oldAssignments?.length > 0;
+        if (!isDuplicateAssignment) {
+          await handleAddAssignmentFS(newAssignment, coursePath);
+          assignmentCount++;
+        }
+      })
+    );
+
+    return `${parseUICodeMain("ui_imported_assignments")} ${assignmentCount}`;
   } catch (err) {
     log.error("Error in importAssignmentsFS():", err.message);
     throw err;
@@ -1102,16 +1127,29 @@ export async function autoGenerateModulesFS(coursePath: string) {
         const moduleIndex = existingModules.findIndex(
           (existing) => existing.id === key
         );
+        const newModule: ModuleData = deepCopy(defaultModule);
+        newModule.assignments = newModules[key];
 
         if (moduleIndex === -1) {
-          const newModule: ModuleData = deepCopy(defaultModule);
           newModule.id = key;
           newModule.name = `${parseUICodeMain("ui_week")} ${key}`;
-          newModule.assignments = newModules[key];
 
           await addModuleDB(coursePath, newModule);
-
           addedModules++;
+        } else {
+          // if module exists, update that module but only
+          // change the "assignments" number, so that the module
+          // reflects the new highest position
+
+          // get the old module
+          const oldModules = await getModulesDB(coursePath, [
+            existingModules[moduleIndex].id,
+          ]);
+          const oldModule = oldModules[0];
+
+          // update it
+          oldModule.assignments = newModule.assignments;
+          await updateModuleDB(coursePath, oldModule);
         }
       })
     );
