@@ -30,6 +30,8 @@ import {
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
+import HelpText from "../components/HelpText";
+import { assignmentDataFolderCamel } from "../constants";
 
 export default function AssignmentBrowse() {
   const {
@@ -224,6 +226,42 @@ export default function AssignmentBrowse() {
     handleActiveAssignments(selectedAssignments);
   }
 
+  async function importAssignments() {
+    let snackbarSeverity = "success";
+    let snackbarText = "";
+    try {
+      // get the assignmentData folder to import from the user
+      const importPath: string = await handleIPCResult(setIPCLoading, () =>
+        window.api.selectDir()
+      );
+
+      if (importPath.length === 0) {
+        throw new Error("ui_folder_invalid");
+      }
+
+      const importResult = await handleIPCResult(setIPCLoading, () =>
+        window.api.importAssignmentsFS(activePath, importPath)
+      );
+
+      snackbarText = importResult;
+      refreshAssignments(); // get the assignments
+      updateFilters(); // and filters
+    } catch (err) {
+      snackbarText = err.message;
+      snackbarSeverity = "error";
+    }
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
+  }
+
+  function selectAll() {
+    const checkedElements = courseAssignments.map((assignment) => {
+      assignment.isChecked = true;
+      return assignment;
+    });
+
+    setCourseAssignments(checkedElements);
+  }
+
   return (
     <>
       <div className="emptySpace1" />
@@ -242,6 +280,14 @@ export default function AssignmentBrowse() {
         alignItems="center"
         spacing={2}
       >
+        <ButtonComp
+          buttonType="normal"
+          onClick={() => handleOpenAssignment()}
+          ariaLabel={parseUICode("ui_aria_show_edit")}
+          disabled={numSelected === 1 ? false : true}
+        >
+          {parseUICode("ui_show_edit")}
+        </ButtonComp>
         {typeof activeAssignments !== "undefined" ? (
           <ButtonComp
             buttonType="normal"
@@ -275,17 +321,30 @@ export default function AssignmentBrowse() {
             >
               {`${parseUICode("ui_delete")} ${numSelected}`}
             </ButtonComp>
+
+            <HelpText
+              text={`${parseUICode(
+                "help_import_assignments"
+              )}: ${assignmentDataFolderCamel}`}
+            >
+              <ButtonComp
+                buttonType="import"
+                onClick={() => importAssignments()}
+                ariaLabel={parseUICode("ui_import_assignments")}
+              >
+                {parseUICode("ui_import_assignments")}
+              </ButtonComp>
+            </HelpText>
+
+            <ButtonComp
+              buttonType="normal"
+              onClick={() => selectAll()}
+              ariaLabel={" debug "}
+            >
+              select all
+            </ButtonComp>
           </>
         )}
-
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => handleOpenAssignment()}
-          ariaLabel={parseUICode("ui_aria_show_edit")}
-          disabled={numSelected === 1 ? false : true}
-        >
-          {parseUICode("ui_show_edit")}
-        </ButtonComp>
       </Stack>
 
       <div className="emptySpace2" />
@@ -367,6 +426,13 @@ export default function AssignmentBrowse() {
           ariaLabel={parseUICode("ui_aria_cancel")}
         >
           {parseUICode("ui_cancel")}
+        </ButtonComp>
+        <ButtonComp
+          buttonType="normal"
+          onClick={() => console.log(courseAssignments)}
+          ariaLabel={" debug "}
+        >
+          log all assignments
         </ButtonComp>
       </Stack>
     </>

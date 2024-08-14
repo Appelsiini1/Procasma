@@ -96,7 +96,7 @@ export async function initDB(coursePath: string): Promise<string> {
         module INTEGER,
         position TEXT NOT NULL,
         level INTEGER,
-        isExpanding TEXT NOT NULL,
+        isExpanding INTEGER NOT NULL,
         path TEXT NOT NULL);`,
       `CREATE TABLE IF NOT EXISTS modules (
         id INTEGER PRIMARY KEY,
@@ -491,9 +491,7 @@ async function _getAssignmentsDB(
             reject(err);
           } else if (rows) {
             const formattedRows = rows.map((row) => {
-              const content = row as CodeAssignmentDatabase;
-              content.isExpanding = content.isExpanding ? true : false;
-              return content;
+              return row;
             });
             resolve(formattedRows);
           } else {
@@ -516,6 +514,15 @@ export async function getAssignmentsDB(
     return _getAssignmentsDB(coursePath, ids, queryOverride);
   }
   return _getAssignmentsDB(coursePath);
+}
+
+export async function getAssignmentByTitleDB(
+  coursePath: string,
+  title: string
+) {
+  const queryOverride = `SELECT * FROM 
+    assignments WHERE title IN (?)`;
+  return _getAssignmentsDB(coursePath, [title], queryOverride);
 }
 
 export async function updateAssignmentDB(
@@ -821,7 +828,7 @@ export async function _getModulesDB(
 export async function getModulesDB(
   coursePath: string,
   ids?: (string | number)[]
-) {
+): Promise<ModuleData[]> {
   if (ids?.length > 0) {
     const placeholders = ids.map(() => "?").join(",");
     const queryOverride = `SELECT * FROM 

@@ -10,9 +10,13 @@ import {
 } from "@mui/joy";
 import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
-import { ModuleData, ModuleDatabase, TagDatabase } from "../types";
 import {
+  ModuleData,
+  ModuleDatabase,
+  TagDatabase,
   WithCheckWrapper,
+} from "../types";
+import {
   filterState,
   generateChecklist,
   generateFilterList,
@@ -22,6 +26,7 @@ import {
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
 import { ActiveObjectContext, UIContext } from "../components/Context";
+import HelpText from "../components/HelpText";
 
 export interface ModuleWithCheck extends WithCheckWrapper {
   value: ModuleDatabase;
@@ -155,6 +160,24 @@ export default function ModuleBrowse() {
     }
   }, [activeModule, navigateToModule]);
 
+  async function autoGenerateModules() {
+    let snackbarSeverity = "success";
+    let snackbarText = "";
+    try {
+      const result = await handleIPCResult(setIPCLoading, () =>
+        window.api.autoGenerateModulesFS(activePath)
+      );
+
+      snackbarText = result;
+      refreshModules(); // get the remaining modules
+      updateFilters(); // and filters
+    } catch (err) {
+      snackbarText = err.message;
+      snackbarSeverity = "error";
+    }
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
+  }
+
   return (
     <>
       <div className="emptySpace1" />
@@ -185,6 +208,17 @@ export default function ModuleBrowse() {
         >
           {parseUICode("ui_show_edit")}
         </ButtonComp>
+        <HelpText text={parseUICode("help_generate_modules")}>
+          <ButtonComp
+            buttonType="algorithm"
+            onClick={() => {
+              autoGenerateModules();
+            }}
+            ariaLabel={parseUICode("ui_generate_modules")}
+          >
+            {parseUICode("ui_generate_modules")}
+          </ButtonComp>
+        </HelpText>
       </Stack>
 
       <div className="emptySpace2" />

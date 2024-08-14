@@ -3,13 +3,14 @@ export type SupportedLanguages = "FI" | "ENG";
 export type FormatType = "pdf" | "html";
 export const formatTypes: FormatType[] = ["pdf", "html"];
 export type FileTypes = "text" | "image" | "code";
+export type FileContents = "instruction" | "result" | "code" | "data";
 export type SupportedModuleType = "week" | "module" | "lecture" | null;
 
 export interface FileData {
   fileName: string;
   path: string;
   solution: boolean;
-  fileContent: "instruction" | "result" | "code" | "data";
+  fileContent: FileContents;
   showStudent: boolean;
   fileType: FileTypes;
 }
@@ -257,6 +258,7 @@ export type ContextBridgeAPI = {
   handleDeleteAssignmentsFS: (coursePath: string, ids: string[]) => IpcResult;
   getAssignmentCountDB: (coursePath: string) => IpcResult;
   getFilteredAssignmentsDB: (coursePath: string, filters: any) => IpcResult;
+  importAssignmentsFS: (coursePath: string, importPath: string) => IpcResult;
 
   // CRUD Module
   addModuleDB: (coursePath: string, module: ModuleData) => IpcResult;
@@ -265,6 +267,7 @@ export type ContextBridgeAPI = {
   deleteModulesDB: (coursePath: string, ids: number[]) => IpcResult;
   getModuleCountDB: (coursePath: string) => IpcResult;
   getFilteredModulesDB: (coursePath: string, filters: any) => IpcResult;
+  autoGenerateModulesFS: (coursePath: string) => IpcResult;
 
   // CRUD Tag
   getAssignmentTagsDB: (coursePath: string) => IpcResult;

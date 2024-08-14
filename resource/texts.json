@@ -203,9 +203,26 @@
     "FI": "Yksi viikko",
     "ENG": "One week"
   },
+  "ui_generated": {
+    "FI": "Generoitiin",
+    "ENG": "Generated"
+  },
+
+  "ui_modules_": {
+    "FI": "moduulia",
+    "ENG": "modules"
+  },
   "ui_prev_gen": {
     "FI": "Aiemmin luodut",
     "ENG": "Previously generated"
+  },
+  "ui_generate_modules": {
+    "FI": "Luo moduulit",
+    "ENG": "Generate modules"
+  },
+  "help_generate_modules": {
+    "FI": "Generoi kurssin tehtäville puuttuvat moduulit automaattisesti. Toiminto päivittää olemassa oleviin moduuleihin tehtäväpaikkoja suurimman tehtävänumeron mukaan.",
+    "ENG": "Generate modules for the assignments on the course automatically. The function updates existing modules by setting the number of assignments based on the highest found assignment position."
   },
   "ui_week": {
     "FI": "Viikko",
@@ -442,6 +459,26 @@
   "ui_import_datafiles": {
     "FI": "Tuo datatiedostot",
     "ENG": "Import datafiles"
+  },
+  "ui_import_assignments": {
+    "FI": "Tuo tehtäviä",
+    "ENG": "Import assignments"
+  },
+  "help_import_assignments": {
+    "FI": "Valitse selaimesta tehtävät sisältävä kansio, jonka nimi on",
+    "ENG": "Choose the assignment folder using the browser. Its name should be"
+  },
+  "ui_import_success": {
+    "FI": "Tehtävät tuotu onnistuneesti.",
+    "ENG": "Assignments imported succesfully."
+  },
+  "ui_imported_assignments": {
+    "FI": "Tuotiin tehtäviä",
+    "ENG": "Assignments imported"
+  },
+  "ui_variations_": {
+    "FI": "variaatiota",
+    "ENG": "variations"
   },
   "ui_remove_selected": {
     "FI": "Poista valittu",
@@ -786,6 +823,10 @@
   "ui_add": {
     "FI": "Lisää",
     "ENG": "Add"
+  },
+  "ui_and": {
+    "FI": "ja",
+    "ENG": "and"
   },
   "ui_excl_exp": {
     "FI": "Ohita jatkuvat tehtävät",
@@ -1178,6 +1219,10 @@
   "ui_course_folder_invalid": {
     "FI": "Kurssin kansio ei ole validi",
     "ENG": "Course folder invalid"
+  },
+  "ui_folder_invalid": {
+    "FI": "Kansio ei ole validi",
+    "ENG": "Folder invalid"
   },
   "ui_ass": {
     "FI": "Kurssi ladattu onnistuneesti.",

@@ -35,11 +35,12 @@ export function wrapWithCheckAndVariation(
   assignments: SetAlgoAssignmentData[]
 ) {
   return assignments.map((assignment) => {
+    const variation = Object.keys(assignment.variations)[0];
     return {
       isChecked: false,
       value: assignment,
       selectedPosition: assignment.position[0],
-      selectedVariation: "A",
+      selectedVariation: variation,
       selectedModule: -1, // assignment.module,
     };
   });
@@ -112,7 +113,11 @@ export function handleCheckArray(
 }
 
 const UsedInBadnessIcon = ({ badness }: { badness: number }) => {
-  const clampedBadness = Math.max(0, Math.min(1, badness));
+  let safeBadness = 0;
+  if (badness >= 0 && badness <= 1) {
+    safeBadness = badness;
+  }
+  const clampedBadness = Math.max(0, Math.min(1, safeBadness));
 
   // Convert the badness value to a channel value (0-255)
   const badValue = Math.round(clampedBadness * 255);
@@ -171,7 +176,7 @@ export function generateChecklist(
               }
             >
               {titleOrName}
-              {item.value.isExpanding ? (
+              {item.value.isExpanding === "1" ? (
                 <HelpText text={parseUICode("ui_exp_assignment")}>
                   <ExpandIcon />
                 </HelpText>
@@ -269,7 +274,7 @@ export function generateChecklistSetAssignment(
             items[index]?.value?.variations?.[variation]?.usedInBadness;
 
           const isExpanding =
-            assignment?.previous.length > 0 || assignment.next?.length > 0;
+            assignment?.previous?.length > 0 || assignment?.next?.length > 0;
 
           return (
             <ListItem
@@ -295,9 +300,7 @@ export function generateChecklistSetAssignment(
                 }
               >
                 {title}
-                {badness ? (
-                  <UsedInBadnessIcon badness={badness}></UsedInBadnessIcon>
-                ) : null}
+                <UsedInBadnessIcon badness={badness}></UsedInBadnessIcon>
                 {isExpanding ? (
                   <HelpText text={parseUICode("ui_exp_assignment")}>
                     <ExpandIcon color={"primary"} />

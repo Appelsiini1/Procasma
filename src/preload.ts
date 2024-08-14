@@ -52,6 +52,8 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("getAssignmentCountDB", coursePath),
   getFilteredAssignmentsDB: (coursePath: string, filters: any) =>
     ipcRenderer.invoke("getFilteredAssignmentsDB", coursePath, filters),
+  importAssignmentsFS: (coursePath: string, importPath: string) =>
+    ipcRenderer.invoke("importAssignmentsFS", coursePath, importPath),
 
   // CRUD Module
   addModuleDB: (coursePath: string, module: ModuleData) =>
@@ -64,6 +66,8 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("deleteModulesDB", coursePath, ids),
   getFilteredModulesDB: (coursePath: string, filters: any) =>
     ipcRenderer.invoke("getFilteredModulesDB", coursePath, filters),
+  autoGenerateModulesFS: (coursePath: string) =>
+    ipcRenderer.invoke("autoGenerateModulesFS", coursePath),
 
   // CRUD Tag
   getAssignmentTagsDB: (coursePath: string) =>

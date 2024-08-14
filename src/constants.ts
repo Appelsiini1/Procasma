@@ -3,7 +3,8 @@ import { ConverterOptions } from "showdown";
 export const version = "0.9.1";
 export const courseMetaDataFileName = "course_info.json";
 export const DEVMODE = true;
-export const textExtensions = ["txt", "md", "csv", "log"];
+export const textExtensions = ["txt", "md"];
+export const dataExtensions = ["csv", "yml", "yaml", "log"];
 export const imageExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "svg"];
 export const codeExtensions = [
   "js",
@@ -38,4 +39,10 @@ export const ShowdownOptions: ConverterOptions = {
   tasklists: true,
 };
 export const assignmentDataFolder = "assignment_data";
+export const assignmentDataFolderCamel = "assignmentData";
 export const emptySpaceHeight = "0.5cm";
+export const markdownAssignmentLevel = "Tehtävän taso";
+export const markdownExampleRun = "Esimerkkiajo";
+export const markdownInput = "Syötteet";
+export const markdownOutput = "Tuloste";
+export const markdownCLIargument = "Komentoriviparametrit";
