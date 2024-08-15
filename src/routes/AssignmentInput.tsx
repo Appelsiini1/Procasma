@@ -1,5 +1,10 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
-import { dividerColor } from "../constantsUI";
+import {
+  dividerColor,
+  pageTableMaxWidth,
+  pageTableMinWidth,
+  titleCellWidth,
+} from "../constantsUI";
 import { Box, Divider, Grid, List, Stack, Table, Typography } from "@mui/joy";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
@@ -261,12 +266,15 @@ export default function AssignmentInput() {
 
   return (
     <>
-      <div key={formKey}>
+      <div
+        key={formKey}
+        style={{ maxWidth: pageTableMaxWidth, minWidth: pageTableMinWidth }}
+      >
         <Typography level="h1">{pageTitle}</Typography>
         <Table borderAxis="none">
           <tbody>
             <tr key="caTitle">
-              <td style={{ width: "25%" }}>
+              <td style={{ width: titleCellWidth }}>
                 <Typography level="h4">
                   {parseUICode("ui_assignment_title")}
                 </Typography>

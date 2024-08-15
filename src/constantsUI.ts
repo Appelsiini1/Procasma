@@ -10,6 +10,9 @@ import { language } from "./globalsUI";
 export const buttonMinWidth = "7rem";
 export const buttonMaxWidth = "15rem";
 export const largeButtonMinWidth = "18rem";
+export const pageTableMinWidth = "80%";
+export const pageTableMaxWidth = "90%";
+export const titleCellWidth = "20%";
 export const dividerColor = "#BEBEBE";
 export const supportedModuleTypes = [
   ui_week,
