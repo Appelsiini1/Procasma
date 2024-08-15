@@ -1,6 +1,6 @@
 import { ConverterOptions } from "showdown";
 
-export const version = "0.9.2";
+export const version = "0.9.3";
 export const courseMetaDataFileName = "course_info.json";
 export const DEVMODE = true;
 export const textExtensions = ["txt", "md"];
