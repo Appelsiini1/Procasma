@@ -142,7 +142,7 @@ export async function handleAddCourseFS(
     const metadataPath = path.join(coursePath, courseMetaDataFileName);
     fs.writeFileSync(metadataPath, metadata, "utf8");
 
-    const assignmentDataPath = path.join(coursePath, "assignment_data");
+    const assignmentDataPath = path.join(coursePath, assignmentDataFolder);
     createFolderFS(assignmentDataPath);
 
     const databasePath = path.join(coursePath, "database");
@@ -344,7 +344,7 @@ export function handleGetAssignmentsFS(
       throw new Error("ui_no_course_path_selected");
     }
 
-    const assignmentDataPath = path.join(coursePath, "assignment_data");
+    const assignmentDataPath = path.join(coursePath, assignmentDataFolder);
     const assignments: CodeAssignmentData[] = [];
 
     // Loop through all the files in the temp directory
@@ -452,7 +452,7 @@ function _modifyConsecutiveAssignmentsFS(
 ) {
   try {
     // loop through id/id.json files
-    const assignmentDataPath = path.join(coursePath, "assignment_data");
+    const assignmentDataPath = path.join(coursePath, assignmentDataFolder);
 
     const assignmentFolders = fs.readdirSync(assignmentDataPath);
     assignmentFolders.map((folder) => {
@@ -509,7 +509,7 @@ async function _handleAddOrUpdateAssignmentFS(
       throw new Error("ui_add_assignment_title");
     }
 
-    const assignmentDataPath = path.join(coursePath, "assignment_data");
+    const assignmentDataPath = path.join(coursePath, assignmentDataFolder);
     let assignmentHash: string | null = assignment?.assignmentID;
     if (!assignmentHash) {
       assignmentHash = _generateAssignmentHashFS(assignment);
@@ -630,7 +630,7 @@ export async function handleDeleteAssignmentsFS(
       );
 
       // remove the file hash folder and its contents
-      const assignmentPath = path.join(coursePath, "assignment_data", id);
+      const assignmentPath = path.join(coursePath, assignmentDataFolder, id);
 
       _removePathFS(assignmentPath);
     });
