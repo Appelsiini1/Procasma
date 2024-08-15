@@ -1319,5 +1319,13 @@
   "ui_filter": {
     "FI": "Suodata",
     "ENG": "Filter"
+  },
+  "ui_no_set_selected": {
+    "FI": "Mitään tehtäväsarjaa ei ole valittuna.",
+    "ENG": "No assignment set selected."
+  },
+  "ui_action_canceled": {
+    "FI": "Toiminto peruutettu.",
+    "ENG": "Action canceled."
   }
 }

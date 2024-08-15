@@ -180,7 +180,7 @@ export default function SetCreator() {
         );
         if (exportedSet.export) {
           const result = await exportSetToDisk(
-            exportedSet,
+            [exportedSet],
             setIPCLoading,
             activeCourse
           );
@@ -193,7 +193,7 @@ export default function SetCreator() {
         );
         if (exportedSet.export) {
           const result = await exportSetToDisk(
-            exportedSet,
+            [exportedSet],
             setIPCLoading,
             activeCourse
           );
