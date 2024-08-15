@@ -126,8 +126,11 @@ export default function Course() {
         if (translation === value) {
           if (translationObj["ENG"] === "No modules") {
             handleCourse("moduleType", null);
+            setDisableModuleOptions(true);
+            handleCourse("modules", 0);
           } else {
             handleCourse("moduleType", translationObj["ENG"].toLowerCase());
+            setDisableModuleOptions(false);
           }
         }
       });
@@ -163,12 +166,30 @@ export default function Course() {
         snackbarText = await handleIPCResult(setIPCLoading, () =>
           window.api.handleAddCourseFS(course, path)
         );
+        handleActiveCourse(course);
       }
     } catch (err) {
       snackbarText = err.message;
       snackbarSeverity = "error";
     }
     handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
+  }
+
+  function handleLevelsChange(value: string) {
+    const levels = splitCourseLevels(value);
+    let amount = 0;
+    for (const level in levels) {
+      amount += 1;
+    }
+    if (amount > 1) {
+      handleCourse("maxLevel", amount);
+      handleCourse("minLevel", 1);
+    } else {
+      handleCourse("maxLevel", 0);
+      handleCourse("minLevel", 0);
+    }
+
+    handleCourse("levels", levels, true);
   }
 
   useEffect(() => {
@@ -301,9 +322,7 @@ export default function Course() {
                   fieldKey="cCourseLevelsInput"
                   isLarge={true}
                   defaultValue={courseLevelsToString(course.levels)}
-                  onChange={(value: string) =>
-                    handleCourse("levels", splitCourseLevels(value), true)
-                  }
+                  onChange={(value: string) => handleLevelsChange(value)}
                 />
               </td>
             </tr>
