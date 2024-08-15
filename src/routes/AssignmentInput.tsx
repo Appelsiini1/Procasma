@@ -257,6 +257,17 @@ export default function AssignmentInput() {
     }
   }
 
+  function handleLevelValue() {
+    if (assignment && activeCourse.minLevel !== 0) {
+      if (assignment?.level === null) {
+        return activeCourse.minLevel;
+      }
+      return Number(assignment?.level);
+    } else {
+      return 0;
+    }
+  }
+
   prevAssignmentsChecklist = generateChecklist(
     prevAssignments,
     setPrevAssignments,
@@ -299,8 +310,10 @@ export default function AssignmentInput() {
               <td>
                 <NumberInput
                   disabled={levelsDisable}
-                  value={Number(assignment?.level)}
+                  value={handleLevelValue()}
                   onChange={(value: number) => handleAssignment("level", value)}
+                  min={activeCourse.minLevel}
+                  max={activeCourse.maxLevel}
                 ></NumberInput>
               </td>
             </tr>
@@ -312,7 +325,7 @@ export default function AssignmentInput() {
               <td>
                 <NumberInput
                   disabled={moduleDisable}
-                  value={Number(assignment?.module)}
+                  value={moduleDisable ? 0 : Number(assignment?.module)}
                   onChange={(value: number) =>
                     handleAssignment("module", value)
                   }
