@@ -7,6 +7,7 @@ import {
   SetData,
 } from "../types";
 import { handleIPCResult } from "./errorHelpers";
+import log from "electron-log/renderer";
 
 export function importSetData(
   inSet: ExportSetData,
@@ -65,7 +66,6 @@ export function exportSetData(inSet: SetData): ExportSetData {
     ...newSet,
     assignments: newAssignments,
   };
-
   return outSet;
 }
 
@@ -135,7 +135,7 @@ export function calculateBadnesses(assignments: SetAssignmentWithCheck[]) {
 }
 
 export async function exportSetToDisk(
-  exportedSet: ExportSetData,
+  exportedSets: Array<ExportSetData>,
   setIPCLoading: (process: string, pushing: boolean) => void,
   activeCourse: CourseData
 ) {
@@ -145,9 +145,14 @@ export async function exportSetToDisk(
     const savePath = await handleIPCResult(setIPCLoading, () =>
       window.api.selectDir()
     );
-    await handleIPCResult(setIPCLoading, () =>
-      window.api.exportSetFS([exportedSet], activeCourse, savePath)
-    );
+    if (savePath !== "") {
+      await handleIPCResult(setIPCLoading, () =>
+        window.api.exportSetFS(exportedSets, activeCourse, savePath)
+      );
+    } else {
+      snackbarSeverity = "info";
+      snackbarText = "ui_action_canceled";
+    }
   } catch (err) {
     snackbarText = err.message;
     snackbarSeverity = "error";
