@@ -143,6 +143,17 @@ export default function Root() {
     handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
   }
 
+  function checkModuleDisabled() {
+    if (activeCourse) {
+      if (activeCourse !== null && activeCourse.moduleType !== null) {
+        return false;
+      }
+      return true;
+    } else {
+      return true;
+    }
+  }
+
   return (
     <>
       <div className="menuContent">
@@ -281,7 +292,9 @@ export default function Root() {
                   <ButtonComp
                     buttonType="largeAddAlt"
                     onClick={() => {
-                      console.log("Add other");
+                      handleSnackbar({
+                        ["info"]: parseUICode("ui_action_unavailable"),
+                      });
                     }}
                     ariaLabel={parseUICode("ui_add")}
                   >
@@ -313,7 +326,7 @@ export default function Root() {
                     : navigate("/newModule");
                 }}
                 ariaLabel={parseUICode("ui_aria_nav_add_module")}
-                disabled={activeCourse ? false : true}
+                disabled={checkModuleDisabled()}
               >
                 {parseUICode("ui_module")}
               </ButtonComp>
@@ -325,7 +338,7 @@ export default function Root() {
                   navigate("/moduleBrowse");
                 }}
                 ariaLabel={parseUICode("ui_aria_nav_browse_modules")}
-                disabled={activeCourse ? false : true}
+                disabled={checkModuleDisabled()}
               >
                 {parseUICode("ui_module_management")}
               </ButtonComp>
