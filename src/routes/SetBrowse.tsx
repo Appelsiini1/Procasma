@@ -4,6 +4,8 @@ import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
 import {
+  CourseData,
+  ExportSetData,
   SetAlgoAssignmentData,
   SetAssignmentWithCheck,
   SetData,
@@ -20,18 +22,23 @@ import {
 import { ActiveObjectContext, UIContext } from "../components/Context";
 import {
   calculateBadnesses,
+  exportSetData,
+  exportSetToDisk,
   importSetData,
 } from "../rendererHelpers/setHelpers";
+import log from "electron-log/renderer";
 
 export default function SetBrowse() {
   const {
     activePath,
     activeSet,
     handleActiveSet,
+    activeCourse,
   }: {
     activePath: string;
     activeSet: SetData;
     handleActiveSet: (value: SetData) => void;
+    activeCourse: CourseData;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
     useContext(UIContext);
@@ -131,6 +138,29 @@ export default function SetBrowse() {
     }
   }, [activeSet, navigateToSet]);
 
+  // Exports set to disk
+  async function handleExportSet() {
+    let snackbarSeverity = "error";
+    let snackbarText = "ui_no_set_selected";
+    log.debug(selectedSets);
+    try {
+      if (selectedSets.length > 0) {
+        const result = await exportSetToDisk(
+          // @ts-ignore
+          selectedSets, // TypeScript reports an incompatible type even though they are compatible
+          setIPCLoading,
+          activeCourse
+        );
+        snackbarText = result.snackbarText;
+        snackbarSeverity = result.snackbarSeverity;
+      }
+    } catch (err) {
+      snackbarText = err.message;
+      snackbarSeverity = "error";
+    }
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
+  }
+
   return (
     <>
       <div className="emptySpace1" />
@@ -149,7 +179,7 @@ export default function SetBrowse() {
       >
         <ButtonComp
           buttonType="normal"
-          onClick={null}
+          onClick={() => handleExportSet()}
           ariaLabel={parseUICode("ui_aria_export_sets")}
         >
           {parseUICode("ui_export")}
