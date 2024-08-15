@@ -144,13 +144,16 @@ export default function Settings() {
       <div className="emptySpace2" style={{ marginTop: "auto" }} />
       <Stack
         direction="row"
-        justifyContent="center"
+        justifyContent="left"
         alignItems="flex-start"
         spacing={2}
       >
         <ButtonComp
           buttonType="normal"
-          onClick={() => handleSaveSettings()}
+          onClick={() => {
+            handleSaveSettings();
+            navigate("/");
+          }}
           ariaLabel={parseUICode("ui_aria_save")}
         >
           {parseUICode("ui_save")}
