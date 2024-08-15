@@ -125,6 +125,8 @@ ipcMain.on("set-coursePath", (event, path) => {
   coursePath.path = path;
 });
 
+ipcMain.on("close-app", (event) => app.quit());
+
 // Bidirectional, renderer to main to renderer
 
 // General

@@ -15,6 +15,7 @@ contextBridge.exposeInMainWorld("api", {
   // One-way, Renderer to Main
   setTitle: (title: string) => ipcRenderer.send("set-title", title),
   setCoursePath: (path: string) => ipcRenderer.send("set-coursePath", path),
+  closeApp: () => ipcRenderer.send("close-app"),
 
   // Bidirectional, renderer to main to renderer
   // General

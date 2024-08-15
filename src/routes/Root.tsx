@@ -390,9 +390,18 @@ export default function Root() {
               <ButtonComp
                 buttonType="settings"
                 onClick={() => navigate("/settings")}
-                ariaLabel={parseUICode("ui_delete")}
+                ariaLabel={parseUICode("ui_settings")}
               >
                 {parseUICode("ui_settings")}
+              </ButtonComp>
+            </Grid>
+            <Grid>
+              <ButtonComp
+                buttonType="close"
+                onClick={() => window.api.closeApp()}
+                ariaLabel={parseUICode("ui_close")}
+              >
+                {parseUICode("ui_close")}
               </ButtonComp>
             </Grid>
           </Grid>
