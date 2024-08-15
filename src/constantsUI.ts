@@ -8,7 +8,7 @@ import { language } from "./globalsUI";
 
 // UI constants
 export const buttonMinWidth = "7rem";
-export const buttonMaxWidth = "15rem";
+export const buttonMaxWidth = "16rem";
 export const largeButtonMinWidth = "18rem";
 export const pageTableMinWidth = "80%";
 export const pageTableMaxWidth = "90%";
