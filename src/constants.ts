@@ -39,8 +39,7 @@ export const ShowdownOptions: ConverterOptions = {
   tablesHeaderId: true,
   tasklists: true,
 };
-export const assignmentDataFolder = "assignment_data";
-export const assignmentDataFolderCamel = "assignmentData";
+export const assignmentDataFolder = "assignmentData";
 export const emptySpaceHeight = "0.5cm";
 export const markdownAssignmentLevel = "Tehtävän taso";
 export const markdownExampleRun = "Esimerkkiajo";

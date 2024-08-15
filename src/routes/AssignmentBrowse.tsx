@@ -31,7 +31,7 @@ import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
 import HelpText from "../components/HelpText";
-import { assignmentDataFolderCamel } from "../constants";
+import { assignmentDataFolder } from "../constants";
 
 export default function AssignmentBrowse() {
   const {
@@ -325,7 +325,7 @@ export default function AssignmentBrowse() {
             <HelpText
               text={`${parseUICode(
                 "help_import_assignments"
-              )}: ${assignmentDataFolderCamel}`}
+              )}: ${assignmentDataFolder}`}
             >
               <ButtonComp
                 buttonType="import"
