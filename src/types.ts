@@ -229,6 +229,7 @@ export type ContextBridgeAPI = {
   // One-way, Renderer to Main
   setTitle: (title: string) => IpcResult;
   setCoursePath: (path: string) => IpcResult;
+  closeApp: () => null;
 
   // Bidirectional, renderer to main to renderer
   // General

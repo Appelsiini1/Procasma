@@ -8,15 +8,14 @@ body {
 .menuContent {
   padding: 0.5em 2em;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: center !important;
+  justify-content: center !important;
   flex-direction: column;
 }
 
 .content {
   padding: 1.5rem 2rem;
   display: flex;
-  align-items: flex-start;
   justify-content: center;
   flex-direction: column;
 }
@@ -63,9 +62,4 @@ body {
   filter: blur(0px) contrast(100%);
   transition: opacity 0.3s cubic-bezier(0.62, -0.01, 0.09, 0.94),
     filter 0.2s cubic-bezier(0.93, 0.01, 0.83, 0.19);
-}
-
-/* for debugging: */
-* {
-  /*outline: 1px solid red;*/
 }

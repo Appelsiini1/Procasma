@@ -126,7 +126,7 @@ export default function PageHeaderBar() {
           </Box>
         </Grid>
 
-        <Grid xs={4}>
+        <Grid xs={5}>
           <Typography
             level="h4"
             noWrap
