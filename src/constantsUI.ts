@@ -3,6 +3,7 @@ import { language } from "./globalsUI";
 
 // UI constants
 export const buttonMinWidth = "7rem";
+export const buttonMaxWidth = "15rem";
 export const largeButtonMinWidth = "18rem";
 export const dividerColor = "#BEBEBE";
 export const supportedModuleTypes = [ui_week, ui_module, ui_no_module].map(

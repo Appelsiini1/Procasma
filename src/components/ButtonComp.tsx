@@ -16,6 +16,7 @@ import {
   buttonMinWidth,
   largeButtonMinWidth,
   buttonShadow,
+  buttonMaxWidth,
 } from "../constantsUI";
 import ModalConfirmation from "./ModalConfirmation";
 
@@ -57,6 +58,7 @@ const normalAlt = {
   padding: "0.1em 1.2em",
   fontSize: "1em",
   minWidth: buttonMinWidth,
+  maxWidth: buttonMaxWidth,
   boxShadow: buttonShadow,
 };
 
@@ -67,6 +69,7 @@ const normal = {
   padding: "0.1em 1.2em",
   fontSize: "1em",
   minWidth: buttonMinWidth,
+  maxWidth: buttonMaxWidth,
   boxShadow: buttonShadow,
 };
 
