@@ -1,5 +1,10 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
-import { dividerColor } from "../constantsUI";
+import {
+  dividerColor,
+  pageTableMaxWidth,
+  pageTableMinWidth,
+  titleCellWidth,
+} from "../constantsUI";
 import { Divider, Grid, Stack, Table, Typography } from "@mui/joy";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
@@ -80,128 +85,134 @@ export default function ProjectWorkInput() {
 
   return (
     <>
-      <Typography level="h1">{pageTitle}</Typography>
-      <Table borderAxis="none">
-        <tbody>
-          <tr key="caTitle">
-            <td style={{ width: "25%" }}>
-              <Typography level="h4">{parseUICode("ui_title")}</Typography>
-            </td>
-            <td>
-              <InputField
-                fieldKey="caTitleInput"
-                defaultValue={ForceToString(assignment?.title)}
-                onChange={(value: string) =>
-                  handleAssignment("title", value, true)
-                }
-              />
-            </td>
-          </tr>
+      <div style={{ maxWidth: pageTableMaxWidth, minWidth: pageTableMinWidth }}>
+        <Typography level="h1">{pageTitle}</Typography>
+        <Table borderAxis="none">
+          <tbody>
+            <tr key="caTitle">
+              <td style={{ width: titleCellWidth }}>
+                <Typography level="h4">{parseUICode("ui_title")}</Typography>
+              </td>
+              <td>
+                <InputField
+                  fieldKey="caTitleInput"
+                  defaultValue={ForceToString(assignment?.title)}
+                  onChange={(value: string) =>
+                    handleAssignment("title", value, true)
+                  }
+                />
+              </td>
+            </tr>
 
-          <tr key="caModule">
-            <td>
-              <Typography level="h4">{parseUICode("ui_module")}</Typography>
-            </td>
-            <td>
-              <NumberInput
-                disabled={moduleDisable}
-                value={Number(assignment?.module)}
-                onChange={(value: number) => handleAssignment("module", value)}
-              ></NumberInput>
-            </td>
-          </tr>
+            <tr key="caModule">
+              <td>
+                <Typography level="h4">{parseUICode("ui_module")}</Typography>
+              </td>
+              <td>
+                <NumberInput
+                  disabled={moduleDisable}
+                  value={Number(assignment?.module)}
+                  onChange={(value: number) =>
+                    handleAssignment("module", value)
+                  }
+                ></NumberInput>
+              </td>
+            </tr>
 
-          <tr key="caTags">
-            <td>
-              <Grid
-                container
-                direction="row"
-                justifyContent="flex-start"
-                alignItems="center"
-                spacing={1}
-              >
-                <Grid xs={10}>
-                  <Typography level="h4">{parseUICode("ui_tags")}</Typography>
+            <tr key="caTags">
+              <td>
+                <Grid
+                  container
+                  direction="row"
+                  justifyContent="flex-start"
+                  alignItems="center"
+                  spacing={1}
+                >
+                  <Grid xs={10}>
+                    <Typography level="h4">{parseUICode("ui_tags")}</Typography>
+                  </Grid>
+                  <Grid xs={2}>
+                    <HelpText text={parseUICode("help_tags")} />
+                  </Grid>
                 </Grid>
-                <Grid xs={2}>
-                  <HelpText text={parseUICode("help_tags")} />
-                </Grid>
-              </Grid>
-            </td>
-            <td>
-              <InputField
-                fieldKey="caTagsInput"
-                defaultValue={ForceToString(assignment?.tags)}
-                onChange={(value: string) =>
-                  handleAssignment("tags", splitStringToArray(value), true)
-                }
-              />
-            </td>
-          </tr>
+              </td>
+              <td>
+                <InputField
+                  fieldKey="caTagsInput"
+                  defaultValue={ForceToString(assignment?.tags)}
+                  onChange={(value: string) =>
+                    handleAssignment("tags", splitStringToArray(value), true)
+                  }
+                />
+              </td>
+            </tr>
 
-          <tr key="caCodeLanguage">
-            <td>
-              <Typography level="h4">{parseUICode("ui_code_lang")}</Typography>
-            </td>
-            <td>
-              <Dropdown
-                name="caCodeLanguageInput"
-                options={codeLanguageOptions}
-                labelKey="name"
-                defaultValue={ForceToString(assignment?.codeLanguage)}
-                onChange={(value: string) =>
-                  handleAssignment("codeLanguage", value)
-                }
-              ></Dropdown>
-            </td>
-          </tr>
-        </tbody>
-      </Table>
+            <tr key="caCodeLanguage">
+              <td>
+                <Typography level="h4">
+                  {parseUICode("ui_code_lang")}
+                </Typography>
+              </td>
+              <td>
+                <Dropdown
+                  name="caCodeLanguageInput"
+                  options={codeLanguageOptions}
+                  labelKey="name"
+                  defaultValue={ForceToString(assignment?.codeLanguage)}
+                  onChange={(value: string) =>
+                    handleAssignment("codeLanguage", value)
+                  }
+                ></Dropdown>
+              </td>
+            </tr>
+          </tbody>
+        </Table>
 
-      <div className="emptySpace1" />
-      <Divider
-        sx={{
-          padding: ".1rem",
-          marginLeft: "2rem",
-          bgcolor: dividerColor,
-          marginRight: "40%",
-        }}
-        role="presentation"
-      />
-      <div className="emptySpace2" />
-
-      <div style={{ marginLeft: "0.9rem", width: "100%" }}>
-        <Typography level="h3">{parseUICode("ui_levels")}</Typography>
         <div className="emptySpace1" />
+        <Divider
+          sx={{
+            padding: ".1rem",
+            marginLeft: "2rem",
+            bgcolor: dividerColor,
+            marginRight: "40%",
+          }}
+          role="presentation"
+        />
+        <div className="emptySpace2" />
 
-        <VariationsGroup
-          variations={variations}
-          handleAssignment={handleAssignment}
-        ></VariationsGroup>
+        <div style={{ marginLeft: "0.9rem", width: "100%" }}>
+          <Typography level="h3">{parseUICode("ui_levels")}</Typography>
+          <div className="emptySpace1" />
+
+          <VariationsGroup
+            variations={variations}
+            handleAssignment={handleAssignment}
+          ></VariationsGroup>
+        </div>
+
+        <div className="emptySpace1" />
+        <Stack
+          direction="row"
+          justifyContent="flex-start"
+          alignItems="center"
+          spacing={2}
+        >
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => handleSaveAssignment()}
+            ariaLabel={parseUICode("ui_aria_save")}
+          >
+            {parseUICode("ui_save")}
+          </ButtonComp>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => navigate(-1)}
+            ariaLabel={parseUICode("ui_aria_cancel")}
+          >
+            {parseUICode("ui_cancel")}
+          </ButtonComp>
+        </Stack>
       </div>
-
-      <div className="emptySpace1" />
-      <Stack
-        direction="row"
-        justifyContent="flex-start"
-        alignItems="center"
-        spacing={2}
-      >
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => handleSaveAssignment()}
-          ariaLabel={parseUICode("ui_aria_save")}
-        >
-          {parseUICode("ui_save")}
-        </ButtonComp>
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => navigate(-1)}
-          ariaLabel={parseUICode("ui_aria_cancel")}
-        >
-          {parseUICode("ui_cancel")}
-        </ButtonComp>
-      </Stack>
     </>
   );
 }
