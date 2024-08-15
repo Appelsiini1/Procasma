@@ -8,15 +8,14 @@ body {
 .menuContent {
   padding: 0.5em 2em;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: center !important;
+  justify-content: center !important;
   flex-direction: column;
 }
 
 .content {
   padding: 1.5rem 2rem;
   display: flex;
-  align-items: flex-start;
   justify-content: center;
   flex-direction: column;
 }
