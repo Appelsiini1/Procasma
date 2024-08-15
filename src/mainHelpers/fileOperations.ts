@@ -3,7 +3,6 @@ import path from "path";
 import {
   CodeAssignmentData,
   CourseData,
-  ExampleRunType,
   ExportSetData,
   FileData,
   FormatType,
@@ -13,22 +12,13 @@ import {
   Variation,
 } from "../types";
 import { spacesToUnderscores } from "../generalHelpers/converters";
-import {
-  assignmentDataFolderCamel,
-  courseMetaDataFileName,
-  markdownAssignmentLevel,
-  markdownCLIargument,
-  markdownExampleRun,
-  markdownInput,
-  markdownOutput,
-} from "../constants";
+import { assignmentDataFolder, courseMetaDataFileName } from "../constants";
 import { createHash } from "crypto";
 import {
   addAssignmentDB,
   addModuleDB,
   deleteAssignmentsDB,
   getAssignmentByTitleDB,
-  getAssignmentsDB,
   getModulesDB,
   initDB,
   updateAssignmentDB,
@@ -38,19 +28,13 @@ import log from "electron-log/node";
 import { createPDF, generateHeaderFooter } from "./pdf";
 import { parseUICodeMain } from "./language";
 import { platform } from "process";
-import {
-  deepCopy,
-  getCodeLanguageUsingExtension,
-  getFileContentUsingExtension,
-  getFileTypeUsingExtension,
-} from "../rendererHelpers/utility";
+import { deepCopy } from "../rendererHelpers/utility";
 import {
   defaultAssignment,
-  defaultExampleRun,
-  defaultFile,
   defaultModule,
   defaultVariation,
 } from "../defaultObjects";
+import { addFileToVariation } from "./OPCourseParsers";
 
 // General
 
@@ -274,8 +258,16 @@ function _copyVariationFilesFS(
       const files: FileData[] = variations?.[varID]?.files;
 
       files.map((file) => {
-        const fileName = path.basename(file.path);
-        const newFilePath = path.join(variantPath, fileName);
+        const baseName = path.basename(file.path);
+        const dirName = path.basename(path.dirname(file.path));
+        let newName = baseName;
+        // check if file.fileName has a directory before the file.
+        if (baseName !== file.fileName) {
+          // if so, add the directory name to the file file name
+          newName = `${dirName}-${baseName}`;
+        }
+
+        const newFilePath = path.join(variantPath, newName);
         const newFilePathRelative = _getCourseRelativePathFS(
           newFilePath,
           coursePath
@@ -317,9 +309,20 @@ async function _deleteOldFilesFromVariationsFS(
       // loop through material files in variation folder
       // deleting if not in the variation object
       files.map((fileName) => {
-        const foundFile = variationFiles.find(
-          (file) => file.fileName === fileName
-        );
+        const foundFile = variationFiles.find((file) => {
+          // if the file was originally in a directory,
+          // it should currently be part of the basename, separated
+          // by a dash "-"
+          const baseName = path.basename(file.fileName);
+          const dirName = path.dirname(file.fileName);
+          if (file.fileName === fileName) {
+            return true;
+          }
+          if (`${dirName}-${baseName}` === fileName) {
+            return true;
+          }
+          return false;
+        });
 
         if (!foundFile) {
           _removePathFS(path.join(variationPath, fileName));
@@ -642,122 +645,63 @@ export async function handleDeleteAssignmentsFS(
 }
 
 /**
- * @param markdown
- * @returns A list of strings that contain the markdown text for
- *  each example run in order.
+ * Read each variation directory in an assignment folder and parse them
+ * into variations.
  */
-export function splitMarkdownExampleRunsFS(markdown: string): string[] {
-  // Split the content by line breaks
-  const lines = markdown.split(/\r?\n/);
+function parseAssignmentFolderVariations(
+  assignment: CodeAssignmentData,
+  assignmentPath: string
+) {
+  let newCodeLanguage: string = null;
 
-  // Initialize an array to store lines before the heading
-  let runIndex = -1;
-  const exampleRunMarkdowns: string[] = [];
+  const variationFolders = fs.readdirSync(assignmentPath);
+  variationFolders.forEach((variationId) => {
+    const variationPath = path.join(assignmentPath, variationId);
+    const newVariation: Variation = deepCopy(defaultVariation);
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+    assignment.variations[variationId] = newVariation;
 
-    // When reading e.g. the line "## Esimerkkiajo 1:", start a
-    // new example run string
-    if (line.includes("##") && line.includes(markdownExampleRun)) {
-      runIndex++;
-      exampleRunMarkdowns[runIndex] = line + "\n";
-    } else if (runIndex > -1) {
-      exampleRunMarkdowns[runIndex] += line + "\n";
-    }
-  }
-
-  return exampleRunMarkdowns;
-}
-
-/**
- * Extract a string's rows that exist between the last given "before" string
- * and the single "after" string.
- * @param before Strings that should exist in order within the markdown.
- * @param after A break string that will cut off the rest of the markdown
- */
-export function splitMarkdown(
-  markdown: string,
-  before: string[],
-  after: string
-): string[] {
-  let beforeIndex = 0;
-
-  // Split the content by line breaks
-  const lines = markdown.split(/\r?\n/);
-
-  // Initialize an array to store lines before the heading
-  const extractedLines: string[] = [];
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-
-    // if all "before" items have been found
-    // begin pushing lines to extractedLines
-    if (beforeIndex >= before.length) {
-      if (line.includes(after)) {
-        break;
+    // parse each file inside a variation
+    const variationFiles = fs.readdirSync(variationPath);
+    variationFiles.forEach((variationFile) => {
+      // check if dir
+      const newFilePath = path.join(variationPath, variationFile);
+      const isDir = path.extname(variationFile) === "";
+      if (isDir) {
+        const innerFiles = fs.readdirSync(newFilePath);
+        innerFiles.forEach((innerFile) => {
+          const innerFilePath = path.join(
+            variationPath,
+            variationFile,
+            innerFile
+          );
+          const codeLanguage = addFileToVariation(
+            innerFilePath,
+            innerFile,
+            assignment,
+            variationId,
+            true
+          );
+          if (!newCodeLanguage && codeLanguage) {
+            newCodeLanguage = codeLanguage;
+          }
+        });
+      } else {
+        const codeLanguage = addFileToVariation(
+          newFilePath,
+          variationFile,
+          assignment,
+          variationId
+        );
+        if (!newCodeLanguage && codeLanguage) {
+          newCodeLanguage = codeLanguage;
+        }
       }
-
-      // Add the line to the extracted lines
-      extractedLines.push(line);
-      continue;
-    }
-
-    if (line.includes(before[beforeIndex])) {
-      beforeIndex++;
-    }
-  }
-
-  return extractedLines;
-}
-
-/**
- * Reads an assignment variation markdown file and extracts
- * the Variation attributes.
- */
-export function parseMarkDownVariationFS(
-  markdownPath: string,
-  variation: Variation
-): Variation {
-  try {
-    const markdown = fs.readFileSync(markdownPath, { encoding: "utf8" });
-
-    // instructions
-    variation.instructions = splitMarkdown(
-      markdown,
-      [markdownAssignmentLevel],
-      markdownExampleRun
-    ).join("\n");
-
-    // example runs
-    const exampleRunMarkdowns = splitMarkdownExampleRunsFS(markdown);
-
-    exampleRunMarkdowns.forEach((runMarkdown, index) => {
-      const newRun: ExampleRunType = deepCopy(defaultExampleRun);
-
-      // extract example run attributes from runMarkdown
-      const cmdInputs = splitMarkdown(
-        runMarkdown,
-        [markdownCLIargument, "```"],
-        "```"
-      )?.[0]; // get the one and only line with cmd arguments in the md.
-      newRun.cmdInputs = cmdInputs?.split(" ") ?? [];
-      newRun.inputs = splitMarkdown(runMarkdown, [markdownInput, "```"], "```");
-      newRun.output = splitMarkdown(
-        runMarkdown,
-        [markdownOutput, "```"],
-        "```"
-      ).join("\n");
-
-      variation.exampleRuns[index + 1] = newRun;
     });
+  });
 
-    return null;
-  } catch (err) {
-    log.error("Error in parseMarkDownVariationFS():", err.message);
-    throw err;
-  }
+  assignment.codeLanguage = newCodeLanguage;
+  return;
 }
 
 /**
@@ -769,7 +713,7 @@ export async function importAssignmentsFS(
 ) {
   let newAssignments: CodeAssignmentData[] = [];
   try {
-    if (path.basename(importPath) !== assignmentDataFolderCamel) {
+    if (path.basename(importPath) !== assignmentDataFolder) {
       throw new Error("ui_folder_invalid");
     }
 
@@ -786,61 +730,8 @@ export async function importAssignmentsFS(
         newAssignment.module = parseInt(letterAndModule.slice(1));
         newAssignment.title = fileNameParts.join(" ");
 
-        let newCodeLanguage = "";
-
-        // parse each variation in an assignment
-        const variationFolders = fs.readdirSync(assignmentPath);
-        variationFolders.forEach((variationFolder) => {
-          const variationPath = path.join(assignmentPath, variationFolder);
-          const newVariation: Variation = deepCopy(defaultVariation);
-
-          newAssignment.variations[variationFolder] = newVariation;
-
-          // parse each file inside a variation
-          const variationFiles = fs.readdirSync(variationPath);
-          variationFiles.forEach((variationFile) => {
-            const newFile = deepCopy(defaultFile);
-            const newFilePath = path.join(variationPath, variationFile);
-            newFile.path = newFilePath;
-            newFile.fileName = variationFile;
-
-            const fileType = getFileTypeUsingExtension(variationFile);
-            newFile.fileType = fileType ?? "text";
-
-            const fileContent = getFileContentUsingExtension(variationFile);
-            newFile.fileContent = fileContent ?? "instruction";
-
-            newAssignment.variations[variationFolder].files.push(newFile);
-
-            const newExtension = path.extname(variationFile);
-            // use the assignment position number on the .md file
-            // as a possible assignment position
-            if (newExtension === ".md") {
-              const markdownFile = path.basename(variationFile);
-              const markdownParts = markdownFile.split("T");
-              const position = parseInt(markdownParts[1]);
-              const positionExists = newAssignment.position.findIndex(
-                (p) => p === position
-              );
-              if (positionExists === -1) {
-                newAssignment.position.push(position);
-              }
-
-              // parse the markdown file into the variation
-              parseMarkDownVariationFS(
-                newFilePath,
-                newAssignment.variations[variationFolder]
-              );
-            }
-
-            const variationCodeLanguage =
-              getCodeLanguageUsingExtension(newExtension);
-
-            newCodeLanguage = variationCodeLanguage ?? "";
-          });
-        });
-
-        newAssignment.codeLanguage = newCodeLanguage;
+        // parse each variation
+        parseAssignmentFolderVariations(newAssignment, assignmentPath);
         return newAssignment;
       })
     );
