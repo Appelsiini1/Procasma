@@ -1096,7 +1096,6 @@ export function copyExportFilesFS(
         `${parseUICodeMain("assignment_letter")}${assignment.selectedPosition}`
       );
       createFolderFS(newExportPath);
-      log.debug(file.fileName);
       if (file.fileName.includes(fileFolderSeparator)) {
         const folderName = file.fileName.split(fileFolderSeparator)[0];
         createFolderFS(path.join(newExportPath, folderName));
