@@ -142,6 +142,14 @@ export default function Settings() {
       </Table>
 
       <div className="emptySpace2" style={{ marginTop: "auto" }} />
+      <ButtonComp
+        buttonType="normalAlt"
+        onClick={() => navigate("/licenses")}
+        ariaLabel={parseUICode("ui_licenses")}
+      >
+        {parseUICode("ui_licenses")}
+      </ButtonComp>
+      <div className="emptySpace2" style={{ marginTop: "auto" }} />
       <Stack
         direction="row"
         justifyContent="left"

@@ -26,6 +26,7 @@ import {
 } from "./components/Context";
 import SnackbarComp from "./components/SnackBarComp";
 import { Layout } from "./components/Layout";
+import LicensesPage from "./routes/LicensesPage";
 
 log.info("-- START OF PROCASMA RENDERER --");
 
@@ -128,6 +129,10 @@ const App = () => {
           loader: async () => {
             return "new";
           },
+        },
+        {
+          path: "/licenses",
+          element: <LicensesPage />,
         },
       ],
     },

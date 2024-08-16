@@ -1331,5 +1331,25 @@
   "ui_action_unavailable": {
     "FI": "Toiminto ei ole käytössä.",
     "ENG": "Action unavailable."
+  },
+  "ui_licenses": {
+    "FI": "Kolmannen osapuolen lisenssit",
+    "ENG": "Third-party licenses"
+  },
+  "ui_licenses_text": {
+    "FI": "Procasma rakentuu useiden vapaasti saatavilla olevien kirjastojen päälle. Osa niistä vaatii lisenssin sisällyttämisen, joten tässä ne ovat!",
+    "ENG": "Procasma is built on several open-source libraries. Some of them require us to include their license, so here they are!"
+  },
+  "ui_group": {
+    "FI": "Ryhmä",
+    "ENG": "Group"
+  },
+  "ui_licenses_group": {
+    "FI": "Seuraavat kirjastot saattavat sisältyä asennukseen:",
+    "ENG": "The following packages may be included in the installation:"
+  },
+  "ui_license_text": {
+    "FI": "Näillä kirjastoilla on seuraava lisenssi:",
+    "ENG": "These libraries have the following license:"
   }
 }
