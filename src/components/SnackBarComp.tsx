@@ -20,6 +20,7 @@ export function functionResultToSnackBar(
     error?: string;
     success?: string;
     info?: string;
+    action?: string;
   },
   setShowSnackbar: React.Dispatch<React.SetStateAction<boolean>>,
   setSnackBarAttributes: React.Dispatch<
@@ -53,6 +54,15 @@ export function functionResultToSnackBar(
       text: saveSuccessMsg ? saveSuccessMsg : result.info,
     });
   }
+
+  if (result?.action) {
+    const saveSuccessMsg = (texts as any)?.[result.action]?.[language.current];
+    setShowSnackbar(true);
+    setSnackBarAttributes({
+      color: "primary",
+      text: saveSuccessMsg ? saveSuccessMsg : result.action,
+    });
+  }
 }
 
 export default function SnackbarComp({
@@ -82,10 +92,11 @@ export default function SnackbarComp({
 
   return (
     <Snackbar
-      autoHideDuration={3000}
+      autoHideDuration={color === "primary" ? null : 3000}
       anchorOrigin={{ vertical, horizontal }}
       open={open}
       onClose={(event, reason) => {
+        if (color === "primary") return;
         setReasons((prev) => [...new Set([...prev, reason])]);
       }}
       onUnmount={() => {

@@ -142,9 +142,9 @@ export default function SetBrowse() {
   async function handleExportSet() {
     let snackbarSeverity = "error";
     let snackbarText = "ui_no_set_selected";
-    log.debug(selectedSets);
     try {
       if (selectedSets.length > 0) {
+        handleSnackbar({ ["action"]: parseUICode("ui_export_status") });
         const result = await exportSetToDisk(
           // @ts-ignore
           selectedSets, // TypeScript reports an incompatible type even though they are compatible
