@@ -33,8 +33,8 @@ export const DropzoneComp = ({
     isDragReject,
     isDragAccept,
   } = useDropzone({
-    //maxSize: ,
     onDrop,
+    noClick: true,
   });
 
   const baseStyle: CSSProperties = {

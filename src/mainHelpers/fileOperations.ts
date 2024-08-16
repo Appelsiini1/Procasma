@@ -538,6 +538,10 @@ async function _handleAddOrUpdateAssignmentFS(
     const assignmentJSON: string = JSON.stringify(assignment);
     const hashFilePath = path.join(hashFolderPath, `${assignmentHash}.json`);
 
+    assignment.folder = hashFolderPath;
+
+    console.log("assignment: ", assignment);
+
     // if updating, get the old version of this assignment,
     // take the "previous" array, compare it to the new,
     // and for each missing one in the new array,
