@@ -22,7 +22,11 @@ import hljs from "highlight.js/lib/common";
 import { coursePath } from "../globalsMain";
 import { getModulesDB } from "./databaseOperations";
 import { createMainFunctionHandler } from "./ipcHelpers";
-import { handleReadFileFS, saveSetFS } from "./fileOperations";
+import {
+  copyExportFilesFS,
+  handleReadFileFS,
+  saveSetFS,
+} from "./fileOperations";
 import { css as papercolorLight } from "../../resource/cssImports/papercolor-light";
 
 const converter = new showdown.Converter(ShowdownOptions);
@@ -38,14 +42,13 @@ export function setToFullData(set: ExportSetData): FullAssignmentSetData {
   for (const setAssignment of set.assignments) {
     const assigPath = path.join(
       coursePath.path,
-      assignmentDataFolder,
       setAssignment.folder,
-      setAssignment.id, // DELETE THIS LATER!!!
       setAssignment.id + ".json"
     );
     const fullData = handleReadFileFS(assigPath) as CodeAssignmentData;
     let newAssignment: CodeAssignmentSelectionData = {
       variation: fullData.variations[setAssignment.variationId],
+      variatioId: setAssignment.variationId,
       CGid: setAssignment.CGid,
       selectedPosition: setAssignment.selectedPosition,
       selectedModule: setAssignment.selectedModule,
@@ -181,6 +184,9 @@ export async function exportSetFS(
         savePath,
         moduleString
       );
+      const filename = mainHeader.replace(" ", "");
+      savePath = path.join(savePath, filename);
+      copyExportFilesFS(convertedSet, savePath);
     }
   } catch (err) {
     log.error("Error in HTML generation: " + err.message);
@@ -251,6 +257,7 @@ function formatSolutions(
         const filePath = path.join(
           coursePath.path,
           set.assignmentArray[meta.assignmentIndex].folder,
+          set.assignmentArray[meta.assignmentIndex].variatioId,
           file.fileName
         );
         const data = readFileSync(filePath, "utf8");
