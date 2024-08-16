@@ -1351,5 +1351,9 @@
   "ui_license_text": {
     "FI": "Näillä kirjastoilla on seuraava lisenssi:",
     "ENG": "These libraries have the following license:"
+  },
+  "ui_export_status": {
+    "FI": "Viedään tehtäväsarjaa...",
+    "ENG": "Exporting assignment set..."
   }
 }
