@@ -1327,5 +1327,9 @@
   "ui_action_canceled": {
     "FI": "Toiminto peruutettu.",
     "ENG": "Action canceled."
+  },
+  "ui_action_unavailable": {
+    "FI": "Toiminto ei ole käytössä.",
+    "ENG": "Action unavailable."
   }
 }

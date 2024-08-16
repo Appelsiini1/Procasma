@@ -1,5 +1,10 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
-import { dividerColor } from "../constantsUI";
+import {
+  dividerColor,
+  pageTableMaxWidth,
+  pageTableMinWidth,
+  titleCellWidth,
+} from "../constantsUI";
 import { Box, Divider, Grid, List, Stack, Table, Typography } from "@mui/joy";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
@@ -252,6 +257,17 @@ export default function AssignmentInput() {
     }
   }
 
+  function handleLevelValue() {
+    if (assignment && activeCourse.minLevel !== 0) {
+      if (assignment?.level === null) {
+        return activeCourse.minLevel;
+      }
+      return Number(assignment?.level);
+    } else {
+      return 0;
+    }
+  }
+
   prevAssignmentsChecklist = generateChecklist(
     prevAssignments,
     setPrevAssignments,
@@ -261,12 +277,15 @@ export default function AssignmentInput() {
 
   return (
     <>
-      <div key={formKey}>
+      <div
+        key={formKey}
+        style={{ maxWidth: pageTableMaxWidth, minWidth: pageTableMinWidth }}
+      >
         <Typography level="h1">{pageTitle}</Typography>
         <Table borderAxis="none">
           <tbody>
             <tr key="caTitle">
-              <td style={{ width: "25%" }}>
+              <td style={{ width: titleCellWidth }}>
                 <Typography level="h4">
                   {parseUICode("ui_assignment_title")}
                 </Typography>
@@ -291,8 +310,10 @@ export default function AssignmentInput() {
               <td>
                 <NumberInput
                   disabled={levelsDisable}
-                  value={Number(assignment?.level)}
+                  value={handleLevelValue()}
                   onChange={(value: number) => handleAssignment("level", value)}
+                  min={activeCourse.minLevel}
+                  max={activeCourse.maxLevel}
                 ></NumberInput>
               </td>
             </tr>
@@ -304,7 +325,7 @@ export default function AssignmentInput() {
               <td>
                 <NumberInput
                   disabled={moduleDisable}
-                  value={Number(assignment?.module)}
+                  value={moduleDisable ? 0 : Number(assignment?.module)}
                   onChange={(value: number) =>
                     handleAssignment("module", value)
                   }

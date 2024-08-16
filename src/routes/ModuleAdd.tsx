@@ -12,6 +12,11 @@ import { parseUICode } from "../rendererHelpers/translation";
 import { useContext, useEffect } from "react";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
+import {
+  pageTableMaxWidth,
+  pageTableMinWidth,
+  titleCellWidth,
+} from "../constantsUI";
 
 export default function ModuleAdd() {
   const {
@@ -65,175 +70,181 @@ export default function ModuleAdd() {
 
   return (
     <>
-      <Typography level="h1">{pageTitle}</Typography>
-      <Table borderAxis="none">
-        <tbody>
-          <tr key="mTitle">
-            <td style={{ width: "25%" }}>
-              <Typography level="h4">
-                {parseUICode("ui_module_title")}
-              </Typography>
-            </td>
-            <td>
-              <InputField
-                fieldKey="mTitleInput"
-                defaultValue={module.name}
-                onChange={(value: string) => handleModule("name", value, true)}
-              />
-            </td>
-          </tr>
+      <div style={{ maxWidth: pageTableMaxWidth, minWidth: pageTableMinWidth }}>
+        <Typography level="h1">{pageTitle}</Typography>
+        <Table borderAxis="none">
+          <tbody>
+            <tr key="mTitle">
+              <td style={{ width: titleCellWidth }}>
+                <Typography level="h4">
+                  {parseUICode("ui_module_title")}
+                </Typography>
+              </td>
+              <td>
+                <InputField
+                  fieldKey="mTitleInput"
+                  defaultValue={module.name}
+                  onChange={(value: string) =>
+                    handleModule("name", value, true)
+                  }
+                />
+              </td>
+            </tr>
 
-          <tr key="mAssignmentCount">
-            <td>
-              <Typography level="h4">
-                {parseUICode("ui_assignment_count")}
-              </Typography>
-            </td>
-            <td>
-              <NumberInput
-                value={module.assignments}
-                onChange={(value: number) => handleModule("assignments", value)}
-                min={0}
-              ></NumberInput>
-            </td>
-          </tr>
+            <tr key="mAssignmentCount">
+              <td>
+                <Typography level="h4">
+                  {parseUICode("ui_assignment_count")}
+                </Typography>
+              </td>
+              <td>
+                <NumberInput
+                  value={module.assignments}
+                  onChange={(value: number) =>
+                    handleModule("assignments", value)
+                  }
+                  min={0}
+                ></NumberInput>
+              </td>
+            </tr>
 
-          <tr key="mModuleNumber">
-            <td>
-              <Typography level="h4">
-                {parseUICode("ui_module_number")}
-              </Typography>
-            </td>
-            <td>
-              <NumberInput
-                value={module.id}
-                onChange={(value: number) => handleModule("id", value)}
-                min={0}
-              ></NumberInput>
-            </td>
-          </tr>
+            <tr key="mModuleNumber">
+              <td>
+                <Typography level="h4">
+                  {parseUICode("ui_module_number")}
+                </Typography>
+              </td>
+              <td>
+                <NumberInput
+                  value={module.id}
+                  onChange={(value: number) => handleModule("id", value)}
+                  min={0}
+                ></NumberInput>
+              </td>
+            </tr>
 
-          <tr key="mTopics">
-            <td>
-              <Grid
-                container
-                direction="row"
-                justifyContent="flex-start"
-                alignItems="center"
-                spacing={1}
-              >
-                <Grid xs={10}>
-                  <Typography level="h4">
-                    {parseUICode("ui_module_topics")}
-                  </Typography>
+            <tr key="mTopics">
+              <td>
+                <Grid
+                  container
+                  direction="row"
+                  justifyContent="flex-start"
+                  alignItems="center"
+                  spacing={1}
+                >
+                  <Grid xs={10}>
+                    <Typography level="h4">
+                      {parseUICode("ui_module_topics")}
+                    </Typography>
+                  </Grid>
+                  <Grid xs={2}>
+                    <HelpText text={parseUICode("help_module_topics")} />
+                  </Grid>
                 </Grid>
-                <Grid xs={2}>
-                  <HelpText text={parseUICode("help_module_topics")} />
-                </Grid>
-              </Grid>
-            </td>
-            <td>
-              <InputField
-                fieldKey="mTopicInput"
-                isLarge
-                defaultValue={module.subjects}
-                onChange={(value: string) =>
-                  handleModule("subjects", value, true)
-                }
-              />
-            </td>
-          </tr>
+              </td>
+              <td>
+                <InputField
+                  fieldKey="mTopicInput"
+                  isLarge
+                  defaultValue={module.subjects}
+                  onChange={(value: string) =>
+                    handleModule("subjects", value, true)
+                  }
+                />
+              </td>
+            </tr>
 
-          <tr key="mInstructions">
-            <td>
-              <Grid
-                container
-                direction="row"
-                justifyContent="flex-start"
-                alignItems="center"
-                spacing={1}
-              >
-                <Grid xs={10}>
-                  <Typography level="h4">{parseUICode("ui_inst")}</Typography>
+            <tr key="mInstructions">
+              <td>
+                <Grid
+                  container
+                  direction="row"
+                  justifyContent="flex-start"
+                  alignItems="center"
+                  spacing={1}
+                >
+                  <Grid xs={10}>
+                    <Typography level="h4">{parseUICode("ui_inst")}</Typography>
+                  </Grid>
+                  <Grid xs={2}>
+                    <HelpText text={parseUICode("help_module_inst")} />
+                  </Grid>
                 </Grid>
-                <Grid xs={2}>
-                  <HelpText text={parseUICode("help_module_inst")} />
-                </Grid>
-              </Grid>
-            </td>
-            <td>
-              <InputField
-                fieldKey="mInstructionInput"
-                isLarge
-                defaultValue={module.instructions}
-                onChange={(value: string) =>
-                  handleModule("instructions", value, true)
-                }
-              />
-            </td>
-          </tr>
+              </td>
+              <td>
+                <InputField
+                  fieldKey="mInstructionInput"
+                  isLarge
+                  defaultValue={module.instructions}
+                  onChange={(value: string) =>
+                    handleModule("instructions", value, true)
+                  }
+                />
+              </td>
+            </tr>
 
-          <tr key="mTags">
-            <td>
-              <Grid
-                container
-                direction="row"
-                justifyContent="flex-start"
-                alignItems="center"
-                spacing={1}
-              >
-                <Grid xs={10}>
-                  <Typography level="h4">
-                    {parseUICode("ui_module_tags")}
-                  </Typography>
+            <tr key="mTags">
+              <td>
+                <Grid
+                  container
+                  direction="row"
+                  justifyContent="flex-start"
+                  alignItems="center"
+                  spacing={1}
+                >
+                  <Grid xs={10}>
+                    <Typography level="h4">
+                      {parseUICode("ui_module_tags")}
+                    </Typography>
+                  </Grid>
+                  <Grid xs={2}>
+                    <HelpText text={parseUICode("help_module_tags")} />
+                  </Grid>
                 </Grid>
-                <Grid xs={2}>
-                  <HelpText text={parseUICode("help_module_tags")} />
-                </Grid>
-              </Grid>
-            </td>
-            <td>
-              <InputField
-                fieldKey="mTagInput"
-                defaultValue={module.tags.toString()}
-                onChange={(value: string) =>
-                  handleModule("tags", splitStringToArray(value), true)
-                }
-              />
-            </td>
-          </tr>
-        </tbody>
-      </Table>
+              </td>
+              <td>
+                <InputField
+                  fieldKey="mTagInput"
+                  defaultValue={module.tags.toString()}
+                  onChange={(value: string) =>
+                    handleModule("tags", splitStringToArray(value), true)
+                  }
+                />
+              </td>
+            </tr>
+          </tbody>
+        </Table>
 
-      <div className="emptySpace1" />
-      <Stack
-        direction="row"
-        justifyContent="flex-start"
-        alignItems="center"
-        spacing={2}
-      >
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => handleSaveModule()}
-          ariaLabel={parseUICode("ui_aria_save")}
+        <div className="emptySpace1" />
+        <Stack
+          direction="row"
+          justifyContent="flex-start"
+          alignItems="center"
+          spacing={2}
         >
-          {parseUICode("ui_save")}
-        </ButtonComp>
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => console.log(module)}
-          ariaLabel={parseUICode("ui_aria_save")}
-        >
-          log module state
-        </ButtonComp>
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => navigate(-1)}
-          ariaLabel={parseUICode("ui_aria_cancel")}
-        >
-          {parseUICode("ui_cancel")}
-        </ButtonComp>
-      </Stack>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => handleSaveModule()}
+            ariaLabel={parseUICode("ui_aria_save")}
+          >
+            {parseUICode("ui_save")}
+          </ButtonComp>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => console.log(module)}
+            ariaLabel={parseUICode("ui_aria_save")}
+          >
+            log module state
+          </ButtonComp>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => navigate(-1)}
+            ariaLabel={parseUICode("ui_aria_cancel")}
+          >
+            {parseUICode("ui_cancel")}
+          </ButtonComp>
+        </Stack>
+      </div>
     </>
   );
 }
