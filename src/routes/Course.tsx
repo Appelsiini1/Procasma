@@ -45,6 +45,7 @@ export default function Course() {
   const [course, handleCourse] = useCourse(initialCourseState);
   const [path, setPath] = useState(activePath ? activePath : "");
   const { handleSnackbar } = useContext(UIContext);
+  const [navigateToMenu, setNavigateToMenu] = useState(false);
 
   let pageTitle: string = null;
   let disableCourseFolderSelect = false;
@@ -157,6 +158,9 @@ export default function Course() {
         snackbarText = await handleIPCResult(setIPCLoading, () =>
           window.api.handleAddCourseFS(course, path)
         );
+
+        setNavigateToMenu(true);
+        handleActiveCourse(course);
       }
     } catch (err) {
       snackbarText = err.message;
@@ -168,6 +172,14 @@ export default function Course() {
   useEffect(() => {
     handleHeaderPageName("course_create");
   }, []);
+
+  //Navigates to the main menu after saving a new course
+  useEffect(() => {
+    if (activeCourse && navigateToMenu) {
+      setNavigateToMenu(false);
+      navigate("/");
+    }
+  }, [activeCourse, navigateToMenu]);
 
   return (
     <>
