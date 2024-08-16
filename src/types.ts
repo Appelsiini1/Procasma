@@ -173,6 +173,7 @@ export interface CodeAssignmentSelectionData
   selectedPosition: number;
   level: number;
   codeLanguage: string;
+  variatioId: string;
 }
 
 export interface FullAssignmentSetData

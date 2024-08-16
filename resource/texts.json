@@ -865,12 +865,12 @@
     "ENG": "Answers"
   },
   "ui_export_success": {
-    "FI": "Tehtäväpaperit luotu onnistuneesti.",
-    "ENG": "Assignment instruction papers succesfully created."
+    "FI": "Tehtäväsarja viety onnistuneesti.",
+    "ENG": "Assignment set succesfully exported."
   },
   "ui_export_error": {
-    "FI": "Virhe PDF tiedoston luonnissa.",
-    "ENG": "Error in PDF generation."
+    "FI": "Virhe tehtäväsarjan viennissä.",
+    "ENG": "Error in assignment set export."
   },
   "ui_del_error_disk": {
     "FI": "Virhe tehtävän poistamisessa levyltä!",

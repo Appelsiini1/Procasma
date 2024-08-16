@@ -6,13 +6,18 @@ import {
   ExportSetData,
   FileData,
   FormatType,
+  FullAssignmentSetData,
   ModuleData,
   SetAlgoAssignmentData,
   SetVariation,
   Variation,
 } from "../types";
 import { spacesToUnderscores } from "../generalHelpers/converters";
-import { assignmentDataFolder, courseMetaDataFileName } from "../constants";
+import {
+  assignmentDataFolder,
+  courseMetaDataFileName,
+  fileFolderSeparator,
+} from "../constants";
 import { createHash } from "crypto";
 import {
   addAssignmentDB,
@@ -35,6 +40,7 @@ import {
   defaultVariation,
 } from "../defaultObjects";
 import { addFileToVariation } from "./OPCourseParsers";
+import { coursePath } from "../globalsMain";
 
 // General
 
@@ -264,7 +270,7 @@ function _copyVariationFilesFS(
         // check if file.fileName has a directory before the file.
         if (baseName !== file.fileName) {
           // if so, add the directory name to the file file name
-          newName = `${dirName}-${baseName}`;
+          newName = `${dirName}${fileFolderSeparator}${baseName}`;
         }
 
         const newFilePath = path.join(variantPath, newName);
@@ -1056,4 +1062,52 @@ export async function autoGenerateModulesFS(coursePath: string) {
     log.error("Error in autoGenerateModulesFS():", err.message);
     throw err;
   }
+}
+
+export function copyExportFilesFS(
+  setInput: FullAssignmentSetData,
+  exportPath: string
+) {
+  log.info("Copying assignment files...");
+  let amount = 0;
+  for (const assignment of setInput.assignmentArray) {
+    const variationPath = path.join(
+      coursePath.path,
+      assignment.folder,
+      assignment.variatioId
+    );
+    const copyFiles = (pathToCopy: string, oldPath: string) => {
+      try {
+        // try to access the file to check if absolute path is valid
+        fs.accessSync(oldPath, fs.constants.R_OK | fs.constants.W_OK);
+
+        // then copy the file
+        fs.copyFileSync(oldPath, pathToCopy);
+        amount += 1;
+        return;
+      } catch (err) {
+        log.error("Error in copyExportFilesFS(): " + err.message);
+      }
+    };
+    for (const file of assignment.variation.files) {
+      const filePath = path.join(variationPath, file.fileName);
+      const newExportPath = path.join(
+        exportPath,
+        `${parseUICodeMain("assignment_letter")}${assignment.selectedPosition}`
+      );
+      createFolderFS(newExportPath);
+      log.debug(file.fileName);
+      if (file.fileName.includes(fileFolderSeparator)) {
+        const folderName = file.fileName.split(fileFolderSeparator)[0];
+        createFolderFS(path.join(newExportPath, folderName));
+        copyFiles(
+          path.join(newExportPath, folderName, file.fileName),
+          filePath
+        );
+      } else {
+        copyFiles(path.join(newExportPath, file.fileName), filePath);
+      }
+    }
+  }
+  log.info(`${amount} files copied to '${exportPath}'`);
 }
