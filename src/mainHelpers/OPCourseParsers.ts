@@ -108,7 +108,7 @@ export function updatePythonFileAttributes(newFile: FileData) {
     // but if it contains "Runko", show it to the student
     if (newFile.fileName.includes("Runko")) {
       newFile.solution = false;
-      newFile.showStudent = true;
+      newFile.showStudent = false;
     }
   }
 }

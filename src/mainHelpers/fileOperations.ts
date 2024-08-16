@@ -527,6 +527,9 @@ async function _handleAddOrUpdateAssignmentFS(
 
     const hashFolderPath = path.join(assignmentDataPath, assignmentHash);
 
+    const assignmentPath = _getCourseRelativePathFS(hashFolderPath, coursePath);
+    assignment.folder = assignmentPath;
+
     // create variant folders and copy files
     const variations: { [key: string]: Variation } = assignment.variations;
     _copyVariationFilesFS(variations, hashFolderPath, coursePath);
@@ -535,6 +538,7 @@ async function _handleAddOrUpdateAssignmentFS(
     _deleteOldFilesFromVariationsFS(variations, hashFolderPath);
 
     assignment.assignmentID = assignmentHash;
+
     const assignmentJSON: string = JSON.stringify(assignment);
     const hashFilePath = path.join(hashFolderPath, `${assignmentHash}.json`);
 
