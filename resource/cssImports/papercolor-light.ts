@@ -10,9 +10,7 @@
 export const css = `html {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   font-size: 15px;
-}
-ul {
-  line-height: 80%;
+  text-justify: inter-word;
 }
 
 h1 {
@@ -36,6 +34,17 @@ a {
   text-decoration: none;
   color: black;
 }
+code {
+  background-color: rgb(235, 235, 235);
+}
+table {
+  border-spacing: 10px 2px;
+}
+hr {
+  border: 2px solid black;
+  width: 100%;
+  margin-top: 0.1cm;
+}
 
 .container {
   width: 18cm;
@@ -57,6 +66,7 @@ pre code.hljs {
   overflow-x: auto;
   font-size: 13px;
   background: #eee;
+  text-justify: none;
 }
 
 .hljs {
