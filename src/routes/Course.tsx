@@ -33,10 +33,12 @@ export default function Course() {
     activeCourse,
     activePath,
     handleActiveCourse,
+    handleActivePath,
   }: {
     activeCourse: CourseData;
     activePath?: string;
     handleActiveCourse?: React.Dispatch<React.SetStateAction<CourseData>>;
+    handleActivePath: React.Dispatch<React.SetStateAction<string>>;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, setIPCLoading } = useContext(UIContext);
 
@@ -164,12 +166,13 @@ export default function Course() {
 
         handleActiveCourse(course);
       } else {
-        snackbarText = await handleIPCResult(setIPCLoading, () =>
+        const newCoursePath = await handleIPCResult(setIPCLoading, () =>
           window.api.handleAddCourseFS(course, path)
         );
 
         setNavigateToMenu(true);
         handleActiveCourse(course);
+        handleActivePath(newCoursePath);
       }
     } catch (err) {
       snackbarText = err.message;
@@ -201,11 +204,11 @@ export default function Course() {
 
   //Navigates to the main menu after saving a new course
   useEffect(() => {
-    if (activeCourse && navigateToMenu) {
+    if (activeCourse && activePath && navigateToMenu) {
       setNavigateToMenu(false);
       navigate("/");
     }
-  }, [activeCourse, navigateToMenu]);
+  }, [activeCourse, activePath, navigateToMenu]);
 
   return (
     <>
