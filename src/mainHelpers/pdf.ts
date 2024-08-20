@@ -50,7 +50,7 @@ export function generateHeaderFooter(
       </tr>
     </tbody>
   </table>
-  <hr style="width: 100%; margin-top: 0.1cm" />
+  <hr style="border: 1px solid black; width: 100%; margin-top: 0.1cm;" />
 </div>`;
   const footerString = `<div style="margin-left: 1.5cm; margin-bottom: 0.6cm">
   <table id="footer-table" style="width: 18cm">
