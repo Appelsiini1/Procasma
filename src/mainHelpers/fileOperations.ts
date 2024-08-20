@@ -128,7 +128,7 @@ function _getCourseRelativePathFS(targetPath: string, coursePath: string) {
 export async function handleAddCourseFS(
   course: CourseData,
   coursesPath: string
-) {
+): Promise<string> {
   try {
     // extract title
     const courseTitle: string = course.title;
@@ -161,7 +161,7 @@ export async function handleAddCourseFS(
     const setsPath = path.join(coursePath, "sets.json");
     fs.writeFileSync(setsPath, "", "utf8");
 
-    return "ui_course_save_success";
+    return coursePath;
   } catch (err) {
     log.error("Error in handleAddCourseFS():", err.message);
     throw err;
