@@ -52,3 +52,4 @@ export const levelsTEMPORARY: LevelsType = {
   "3": { fullName: "Tavoitetaso", abbreviation: "T" },
 };
 export const fileFolderSeparator = "-";
+export const defaultCSS = ["papercolor-light.css"];
