@@ -1,34 +1,35 @@
 import { env, platform } from "node:process";
+import path from "path";
 
 export function getApplicationDir() {
-  const path = env.APPDATA || env.HOME;
+  const basePath = env.APPDATA || env.HOME;
   let appdata: string = null;
   if (platform === "darwin") {
-    appdata = path + "/Library";
+    appdata = path.join(basePath, "Library");
   } else if (platform === "win32") {
-    appdata = path + "/Procasma/";
+    appdata = path.join(basePath, "Procasma");
   } else {
-    appdata = path + "/.Procasma/";
+    appdata = path.join(basePath, ".Procasma");
   }
   return appdata;
 }
 
 export function getCacheDir() {
   if (platform === "darwin") {
-    return getApplicationDir() + "/Caches/Procasma";
+    return path.join(getApplicationDir(), "Caches", "Procasma");
   } else {
     return getApplicationDir();
   }
 }
 
 export function getDarwinSettingsDir() {
-  return getApplicationDir() + "/Preferences/Procasma/";
+  return path.join(getApplicationDir(), "Preferences", "Procasma");
 }
 
 export function getSettingsFilepath() {
   if (platform === "darwin") {
-    return getDarwinSettingsDir() + "settings.json";
+    return path.join(getDarwinSettingsDir(), "settings.json");
   } else {
-    return getApplicationDir() + "settings.json";
+    return path.join(getApplicationDir(), "settings.json");
   }
 }
