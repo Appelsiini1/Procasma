@@ -1177,8 +1177,8 @@
     "ENG": "Export project work"
   },
   "ui_export_set": {
-    "FI": "Vie sarja",
-    "ENG": "Export set"
+    "FI": "Vie sarja tallennettaessa",
+    "ENG": "Export set when saving"
   },
   "ui_export": {
     "FI": "Vie",
