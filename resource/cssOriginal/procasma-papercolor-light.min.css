@@ -9,7 +9,7 @@
 */
 html {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 15px;
+  font-size: 14px;
   text-justify: inter-word;
 }
 
@@ -30,10 +30,14 @@ h3 {
 h4 {
   font-size: 1em !important;
 }
-a {
+a.toc {
   text-decoration: none;
   color: black;
 }
+a {
+  text-decoration: none;
+}
+
 code {
   background-color: rgb(235, 235, 235);
 }
@@ -67,6 +71,7 @@ pre code.hljs {
   font-size: 13px;
   background: #eee;
   text-justify: none;
+  white-space: pre-wrap;
 }
 
 .hljs {
