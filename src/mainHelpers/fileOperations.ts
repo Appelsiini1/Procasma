@@ -1092,22 +1092,25 @@ export function copyExportFilesFS(
       }
     };
     for (const file of assignment.variation.files) {
-      const filePath = path.join(variationPath, file.fileName);
+      let filePath = path.join(variationPath, file.fileName);
       const newExportPath = path.join(
         exportPath,
         `${parseUICodeMain("assignment_letter")}${assignment.selectedPosition}`
       );
       createFolderFS(newExportPath);
-      if (file.fileName.includes(fileFolderSeparator)) {
-        const folderName = file.fileName.split(fileFolderSeparator)[0];
-        createFolderFS(path.join(newExportPath, folderName));
-        copyFiles(
-          path.join(newExportPath, folderName, file.fileName),
-          filePath
-        );
-      } else {
-        copyFiles(path.join(newExportPath, file.fileName), filePath);
+
+      // check if the file is in a subdirectory
+      const baseName = path.basename(file.fileName);
+      const dirName = path.basename(path.dirname(file.fileName));
+
+      // check if file.fileName has a directory before the file.
+      if (baseName !== file.fileName) {
+        createFolderFS(path.join(newExportPath, dirName));
+
+        const oldNameWithFolder = `${dirName}${fileFolderSeparator}${baseName}`;
+        filePath = path.join(variationPath, oldNameWithFolder);
       }
+      copyFiles(path.join(newExportPath, file.fileName), filePath);
     }
   }
   log.info(`${amount} files copied to '${exportPath}'`);
