@@ -9,10 +9,8 @@
 */
 html {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 15px;
-}
-ul {
-  line-height: 80%;
+  font-size: 14px;
+  text-justify: inter-word;
 }
 
 h1 {
@@ -32,9 +30,24 @@ h3 {
 h4 {
   font-size: 1em !important;
 }
-a {
+a.toc {
   text-decoration: none;
   color: black;
+}
+a {
+  text-decoration: none;
+}
+
+code {
+  background-color: rgb(235, 235, 235);
+}
+table {
+  border-spacing: 10px 2px;
+}
+hr {
+  border: 2px solid black;
+  width: 100%;
+  margin-top: 0.1cm;
 }
 
 .container {
@@ -57,6 +70,8 @@ pre code.hljs {
   overflow-x: auto;
   font-size: 13px;
   background: #eee;
+  text-justify: none;
+  white-space: pre-wrap;
 }
 
 .hljs {

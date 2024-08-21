@@ -1,7 +1,7 @@
 import { ConverterOptions } from "showdown";
 import { LevelsType } from "./types";
 
-export const version = "0.11.0";
+export const version = "0.12.0";
 export const courseMetaDataFileName = "course_info.json";
 export const DEVMODE = true;
 export const textExtensions = ["txt", "md"];
@@ -52,3 +52,4 @@ export const levelsTEMPORARY: LevelsType = {
   "3": { fullName: "Tavoitetaso", abbreviation: "T" },
 };
 export const fileFolderSeparator = "-";
+export const defaultCSS = ["papercolor-light.css"];

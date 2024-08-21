@@ -13,11 +13,7 @@ import { readFileSync } from "fs";
 import path from "path";
 import log from "electron-log/node";
 import { parseUICodeMain } from "./language";
-import {
-  assignmentDataFolder,
-  emptySpaceHeight,
-  ShowdownOptions,
-} from "../constants";
+import { emptySpaceHeight, ShowdownOptions } from "../constants";
 import hljs from "highlight.js/lib/common";
 import { coursePath } from "../globalsMain";
 import { getModulesDB } from "./databaseOperations";
@@ -98,13 +94,14 @@ export async function exportSetFS(
     for (const set of setInput) {
       let moduleString = "";
       const convertedSet = setToFullData(set);
+      const css = papercolorLight;
 
       // HTML Base
       let html = `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
-    <style>${papercolorLight}</style>
+    <style>${css}</style>
   </head>
   <body>`;
       let solutionHtml = html;
@@ -175,6 +172,7 @@ export async function exportSetFS(
 </html>`;
       solutionHtml += `</body>
 </html>`;
+      log.info("HTML created.");
       await saveSetFS(
         html,
         solutionHtml,
@@ -261,9 +259,10 @@ function formatSolutions(
           file.fileName
         );
         const data = readFileSync(filePath, "utf8");
-        block += `<h3>${parseUICodeMain("ex_solution")}: '${
+        block += `<div style="margin-top: 1cm;"></div>`;
+        block += `<h2>${parseUICodeMain("ex_solution")}: '${
           file.fileName
-        }'</h3>`;
+        }'</h2>`;
         block += highlightCode(
           data,
           set.assignmentArray[meta.assignmentIndex].codeLanguage
@@ -393,7 +392,7 @@ function formatTitle(
 
   // if table of contents, add level abbreviation to the end of title
   if (toc && set.assignmentArray[meta.assignmentIndex].level != null) {
-    title += `(${
+    title += ` (${
       meta.courseData.levels[set.assignmentArray[meta.assignmentIndex].level]
         .abbreviation
     })`;
@@ -490,7 +489,11 @@ function generateExampleRun(
   let block = `<h2>${parseUICodeMain("ex_run")} ${runNumber}</h2>`;
   if (runInput.cmdInputs.length != 0 && runInput.cmdInputs[0] != "") {
     block += `<h3>${parseUICodeMain("cmd_input")}</h3>`;
-    block += highlightCode(runInput.cmdInputs.toString(), "plaintext");
+    let cmdInputs = "";
+    for (const input of runInput.cmdInputs) {
+      cmdInputs += input + " ";
+    }
+    block += highlightCode(cmdInputs, "plaintext");
   }
   const inputFormatter = (inputs: Array<string | number>) => {
     let str = ``;
@@ -524,7 +527,7 @@ function generateToC(
   try {
     let block = `<h2>${parseUICodeMain("toc")}</h2>\n`;
     for (const assig of set.assignmentArray) {
-      block += `<h3><a href="#${assig.assignmentID}">${formatTitle(
+      block += `<h3><a class="toc" href="#${assig.assignmentID}">${formatTitle(
         {
           assignmentIndex: set.assignmentArray.indexOf(assig),
           courseData: courseData,
