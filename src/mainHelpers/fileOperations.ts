@@ -975,10 +975,12 @@ export async function saveSetFS(
       newSavePathPDF = checkFileExistanceFS(
         path.join(savePath, solutionFilename) + ".pdf"
       );
+      const answerTitle =
+        title + " " + parseUICodeMain("answers").toUpperCase();
       await createPDF(
         {
-          html: html,
-          title: title,
+          html: solutionHtml,
+          title: answerTitle,
           ...generateHeaderFooter(courseData, moduleString),
         },
         newSavePathPDF
