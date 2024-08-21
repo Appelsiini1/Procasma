@@ -13,7 +13,7 @@ import { readFileSync } from "fs";
 import path from "path";
 import log from "electron-log/node";
 import { parseUICodeMain } from "./language";
-import { defaultCSS, emptySpaceHeight, ShowdownOptions } from "../constants";
+import { emptySpaceHeight, ShowdownOptions } from "../constants";
 import hljs from "highlight.js/lib/common";
 import { coursePath } from "../globalsMain";
 import { getModulesDB } from "./databaseOperations";
@@ -259,9 +259,10 @@ function formatSolutions(
           file.fileName
         );
         const data = readFileSync(filePath, "utf8");
-        block += `<h3>${parseUICodeMain("ex_solution")}: '${
+        block += `<div style="margin-top: 1cm;"></div>`;
+        block += `<h2>${parseUICodeMain("ex_solution")}: '${
           file.fileName
-        }'</h3>`;
+        }'</h2>`;
         block += highlightCode(
           data,
           set.assignmentArray[meta.assignmentIndex].codeLanguage
@@ -526,7 +527,7 @@ function generateToC(
   try {
     let block = `<h2>${parseUICodeMain("toc")}</h2>\n`;
     for (const assig of set.assignmentArray) {
-      block += `<h3><a href="#${assig.assignmentID}">${formatTitle(
+      block += `<h3><a class="toc" href="#${assig.assignmentID}">${formatTitle(
         {
           assignmentIndex: set.assignmentArray.indexOf(assig),
           courseData: courseData,
