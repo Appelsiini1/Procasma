@@ -10,6 +10,7 @@ import ButtonComp from "./ButtonComp";
 import VariationComponent from "./VariationComponent";
 import { parseUICode } from "../rendererHelpers/translation";
 import { defaultVariation } from "../defaultObjects";
+import { deepCopy } from "../rendererHelpers/utility";
 
 type ComponentProps = {
   variations: {
@@ -39,7 +40,7 @@ export default function VariationsGroup({
             buttonType="normal"
             onClick={() =>
               addVariation(
-                defaultVariation,
+                deepCopy(defaultVariation),
                 variations,
                 getNextID,
                 "variations",

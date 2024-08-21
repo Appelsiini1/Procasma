@@ -13,7 +13,11 @@ import { readFileSync } from "fs";
 import path from "path";
 import log from "electron-log/node";
 import { parseUICodeMain } from "./language";
-import { emptySpaceHeight, ShowdownOptions } from "../constants";
+import {
+  emptySpaceHeight,
+  fileFolderSeparator,
+  ShowdownOptions,
+} from "../constants";
 import hljs from "highlight.js/lib/common";
 import { coursePath } from "../globalsMain";
 import { getModulesDB } from "./databaseOperations";
@@ -298,10 +302,23 @@ function formatFiles(
         (file.fileType === "code" || file.fileType === "text") &&
         file.fileContent === type
       ) {
+        const assignment = set.assignmentArray[meta.assignmentIndex];
+
+        // check if the file is in a subdirectory
+        const baseName = path.basename(file.fileName);
+        const dirName = path.basename(path.dirname(file.fileName));
+
+        let newName = file.fileName;
+        // check if file.fileName has a directory before the file.
+        if (baseName !== file.fileName) {
+          newName = `${dirName}${fileFolderSeparator}${baseName}`;
+        }
+
         const filePath = path.join(
           coursePath.path,
-          set.assignmentArray[meta.assignmentIndex].folder,
-          file.fileName
+          assignment.folder,
+          assignment.variatioId,
+          newName
         );
         const data = readFileSync(filePath, "utf8");
         block += `<h3>${parseUICodeMain(

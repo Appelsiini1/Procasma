@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useState } from "react";
 import { functionResultToSnackBar, SnackBarAttributes } from "./SnackBarComp";
 import {
   CodeAssignmentData,
@@ -22,8 +22,6 @@ export const UIProvider = ({ children }: { children: any }) => {
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [snackBarAttributes, setSnackBarAttributes] =
     useState<SnackBarAttributes>({ color: "info", text: "" });
-  const [IPCOperationLoading, setIPCOperationLoading] = useState(false);
-  const [IPCStack, setIPCStack] = useState<Array<string>>([]);
 
   function handleSnackbar(options: { [key: string]: string }) {
     functionResultToSnackBar(options, setShowSnackbar, setSnackBarAttributes);
@@ -41,45 +39,6 @@ export const UIProvider = ({ children }: { children: any }) => {
     setCourseTitle(value);
   }
 
-  /**
-   * Push or pop an IPC function name from the loading stack
-   * (for monitoring currently active processes.)
-   */
-  function setIPCLoading(process: string, pushing: boolean) {
-    if (pushing) {
-      // push the process onto the stack
-      setIPCStack([...IPCStack, process]);
-    } else {
-      // pop one matching process name
-      const newStack = [...IPCStack];
-      const index = newStack.indexOf(process);
-      if (index !== -1) {
-        newStack.splice(index, 1); // Removes one element at the found index
-      }
-      setIPCStack(newStack);
-    }
-  }
-
-  // update the loading IPC loading indicator when the stack changes
-  /*useEffect(() => {
-    setIPCOperationLoading(IPCStack?.length > 0 ? true : false);
-  }, [IPCStack]);*/
-  useEffect(() => {
-    //let timeout: NodeJS.Timeout;
-    if (IPCStack.length > 0) {
-      //  timeout = setTimeout(() => {
-      setIPCOperationLoading(true);
-      //  }, 1);
-    } else {
-      setIPCOperationLoading(false);
-    }
-
-    // Cleanup function to clear the timeout if IPCStack changes or component unmounts
-    /*return () => {
-      clearTimeout(timeout);
-    };*/
-  }, [IPCStack]);
-
   return (
     <>
       <UIContext.Provider
@@ -94,9 +53,6 @@ export const UIProvider = ({ children }: { children: any }) => {
           showSnackbar,
           setShowSnackbar,
           handleSnackbar,
-          IPCOperationLoading,
-          setIPCLoading,
-          IPCStack,
         }}
       >
         {children}

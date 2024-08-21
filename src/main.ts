@@ -23,7 +23,6 @@ import {
 } from "./mainHelpers/fileOperations";
 import { initialize } from "./mainHelpers/programInit";
 import { getSettings, saveSettings } from "./mainHelpers/settings";
-import { testDatabase } from "./mainHelpers/testDatabase";
 import log from "electron-log";
 import { formatIPCResult } from "./mainHelpers/ipcHelpers";
 import {
@@ -276,5 +275,3 @@ ipcMain.handle(
     exportSetFS(setInput, courseData, savePath)
   )
 );
-
-testDatabase();
