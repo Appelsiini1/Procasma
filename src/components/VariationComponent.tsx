@@ -28,6 +28,7 @@ type ComponentProps = {
   variation: Variation;
   handleAssignment: HandleAssignmentFn;
   pathInAssignment: string;
+  useLevelsInstead?: boolean;
 };
 
 export default function VariationComponent({
@@ -35,6 +36,7 @@ export default function VariationComponent({
   variation,
   handleAssignment,
   pathInAssignment,
+  useLevelsInstead,
 }: ComponentProps) {
   const exampleRuns: { [key: string]: ExampleRunType } = variation.exampleRuns;
 
@@ -44,7 +46,9 @@ export default function VariationComponent({
         <Avatar color="primary">{varID}</Avatar>
         <ListItemContent>
           <Typography level="title-md">
-            {parseUICode("ui_variation") + " " + varID}
+            {useLevelsInstead
+              ? parseUICode("ui_level")
+              : parseUICode("ui_variation") + " " + varID}
           </Typography>
         </ListItemContent>
       </AccordionSummary>

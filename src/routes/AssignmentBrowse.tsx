@@ -318,7 +318,7 @@ export default function AssignmentBrowse() {
               confirmationModal={true}
               modalText={`${parseUICode("ui_delete")} 
             ${numSelected}`}
-              buttonType="normal"
+              buttonType="delete"
               onClick={() => handleDeleteSelected()}
               ariaLabel={parseUICode("ui_aria_remove_selected")}
               disabled={numSelected > 0 ? false : true}

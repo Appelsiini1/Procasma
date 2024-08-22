@@ -179,14 +179,11 @@ export default function ProjectWorkInput() {
           role="presentation"
         />
         <div className="emptySpace2" />
-
         <div style={{ marginLeft: "0.9rem", width: "100%" }}>
-          <Typography level="h3">{parseUICode("ui_levels")}</Typography>
-          <div className="emptySpace1" />
-
           <VariationsGroup
             variations={variations}
             handleAssignment={handleAssignment}
+            useLevelsInstead={true}
           ></VariationsGroup>
         </div>
 
