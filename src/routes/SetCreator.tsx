@@ -671,6 +671,8 @@ export default function SetCreator() {
     });
   }
 
+  const modulesWithoutPending = allModules.filter((module) => module?.id > -2);
+
   return (
     <>
       <StepperComp
@@ -709,7 +711,7 @@ export default function SetCreator() {
                 <td>
                   <Dropdown
                     name="caModuleInput"
-                    options={allModules}
+                    options={modulesWithoutPending}
                     labelKey="name"
                     defaultValue={ForceToString(set?.module)}
                     disabled={set.fullCourse}
