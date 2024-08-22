@@ -113,7 +113,7 @@ const App = () => {
           path: "/setCreator",
           element: <SetCreator />,
           loader: async () => {
-            return activeSet ? "new" : "new"; // TODO ...? "manage" : "new" fix
+            return activeSet ? "manage" : "new";
           },
         },
         {
