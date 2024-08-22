@@ -178,7 +178,7 @@ export default function SetCreator() {
           window.api.updateSetFS(activePath, exportedSet)
         );
         if (exportedSet.export) {
-          const result = await exportSetToDisk([exportedSet], activeCourse);
+          const result = await exportSetToDisk(exportedSet, activeCourse);
           snackbarText = result.snackbarText;
           snackbarSeverity = result.snackbarSeverity;
         }
@@ -187,7 +187,7 @@ export default function SetCreator() {
           window.api.addSetFS(activePath, exportedSet)
         );
         if (exportedSet.export) {
-          const result = await exportSetToDisk([exportedSet], activeCourse);
+          const result = await exportSetToDisk(exportedSet, activeCourse);
           snackbarText = result.snackbarText;
           snackbarSeverity = result.snackbarSeverity;
         }

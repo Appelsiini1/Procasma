@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import {
   CodeAssignmentData,
+  CodeAssignmentSelectionData,
   CourseData,
   ExportSetData,
   FileData,
@@ -925,7 +926,7 @@ export function checkFileExistanceFS(pathToCheck: string) {
 }
 
 /**
- * Saves the set to disk according to the format.
+ * Saves the set module to disk according to the format.
  * @param html HTML string to save
  * @param solutionHtml HTML string (including solutions) to save
  * @param title Page title (that will be used as a filename)
@@ -934,8 +935,7 @@ export function checkFileExistanceFS(pathToCheck: string) {
  * @param savePath Path to save. Will create a folder inside and place the files there.
  * @param moduleString String that will be used in the footer of a PDF document. Only required if the format is PDF.
  */
-
-export async function saveSetFS(
+export async function saveSetModuleFS(
   html: string,
   solutionHtml: string,
   title: string,
@@ -1069,12 +1069,12 @@ export async function autoGenerateModulesFS(coursePath: string) {
 }
 
 export function copyExportFilesFS(
-  setInput: FullAssignmentSetData,
+  assignments: CodeAssignmentSelectionData[],
   exportPath: string
 ) {
   log.info("Copying assignment files...");
   let amount = 0;
-  for (const assignment of setInput.assignmentArray) {
+  assignments.forEach((assignment) => {
     const variationPath = path.join(
       coursePath.path,
       assignment.folder,
@@ -1114,6 +1114,7 @@ export function copyExportFilesFS(
       }
       copyFiles(path.join(newExportPath, file.fileName), filePath);
     }
-  }
+  });
+
   log.info(`${amount} files copied to '${exportPath}'`);
 }
