@@ -753,6 +753,10 @@ export async function addModuleDB(
       if (!module.name || module.name.length < 1) {
         throw new Error("ui_add_module_name");
       }
+      const existingModules = await getModulesDB(coursePath, [module.id]);
+      if (existingModules?.length > 0) {
+        throw new Error("ui_module_error_duplicate_number");
+      }
       const result = await new Promise((resolve, reject) => {
         db.serialize(() => {
           db.run(

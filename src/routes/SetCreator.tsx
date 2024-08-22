@@ -64,8 +64,7 @@ export default function SetCreator() {
     handleActiveAssignments: (value: CodeAssignmentDatabase[]) => void;
     activeCourse: CourseData;
   } = useContext(ActiveObjectContext);
-  const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
-    useContext(UIContext);
+  const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [set, handleSet] = useSet(activeSet ?? deepCopy(defaultSet));
   const [allAssignments, setAllAssignments] = useState<
     Array<SetAssignmentWithCheck>
@@ -99,7 +98,9 @@ export default function SetCreator() {
     parseUICode("ui_module_selection"),
     parseUICode("ui_set_details"),
     parseUICode("ui_choose_tasks"),
-    parseUICode("ui_cg_config"),
+    set.exportCGConfigs
+      ? parseUICode("ui_cg_config")
+      : parseUICode("ui_save_and_export"),
   ];
   let assignments: Array<React.JSX.Element> = null;
   let variations: React.JSX.Element = null;
@@ -118,9 +119,8 @@ export default function SetCreator() {
         return;
       }
 
-      const resultModules: ModuleData[] = await handleIPCResult(
-        setIPCLoading,
-        () => window.api.getModulesDB(activePath)
+      const resultModules: ModuleData[] = await handleIPCResult(() =>
+        window.api.getModulesDB(activePath)
       );
 
       const pendingAssignmentModule: ModuleData = {
@@ -149,9 +149,8 @@ export default function SetCreator() {
       }
 
       // get truncated assignments
-      const assignments: SetAlgoAssignmentData[] = await handleIPCResult(
-        setIPCLoading,
-        () => window.api.getTruncatedAssignmentsFS(activePath)
+      const assignments: SetAlgoAssignmentData[] = await handleIPCResult(() =>
+        window.api.getTruncatedAssignmentsFS(activePath)
       );
 
       // wrap with check and other fields
@@ -175,28 +174,20 @@ export default function SetCreator() {
 
       console.log("exportedSet: ", exportedSet);
       if (pageType === "manage") {
-        await handleIPCResult(setIPCLoading, () =>
+        await handleIPCResult(() =>
           window.api.updateSetFS(activePath, exportedSet)
         );
         if (exportedSet.export) {
-          const result = await exportSetToDisk(
-            [exportedSet],
-            setIPCLoading,
-            activeCourse
-          );
+          const result = await exportSetToDisk([exportedSet], activeCourse);
           snackbarText = result.snackbarText;
           snackbarSeverity = result.snackbarSeverity;
         }
       } else {
-        await handleIPCResult(setIPCLoading, () =>
+        await handleIPCResult(() =>
           window.api.addSetFS(activePath, exportedSet)
         );
         if (exportedSet.export) {
-          const result = await exportSetToDisk(
-            [exportedSet],
-            setIPCLoading,
-            activeCourse
-          );
+          const result = await exportSetToDisk([exportedSet], activeCourse);
           snackbarText = result.snackbarText;
           snackbarSeverity = result.snackbarSeverity;
         }
@@ -244,7 +235,7 @@ export default function SetCreator() {
     try {
       handleActiveSet(set);
 
-      const assignmentsResult = await handleIPCResult(setIPCLoading, () =>
+      const assignmentsResult = await handleIPCResult(() =>
         window.api.handleGetAssignmentsFS(
           activePath,
           selectedAssignments[0].assignmentID
@@ -669,6 +660,8 @@ export default function SetCreator() {
     });
   }
 
+  const modulesWithoutPending = allModules.filter((module) => module?.id > -2);
+
   return (
     <>
       <StepperComp
@@ -707,7 +700,7 @@ export default function SetCreator() {
                 <td>
                   <Dropdown
                     name="caModuleInput"
-                    options={allModules}
+                    options={modulesWithoutPending}
                     labelKey="name"
                     defaultValue={ForceToString(set?.module)}
                     disabled={set.fullCourse}
@@ -851,7 +844,9 @@ export default function SetCreator() {
       {stepperState === 3 ? (
         <>
           <Typography level="h1">
-            {parseUICode("ui_codegrade_autotest")}
+            {set.exportCGConfigs
+              ? parseUICode("ui_codegrade_autotest")
+              : parseUICode("ui_save_and_export_set")}
           </Typography>
           {set.exportCGConfigs ? (
             <>
@@ -916,7 +911,7 @@ export default function SetCreator() {
           ""
         )}
 
-        {stepperState === 3 && set.exportCGConfigs ? (
+        {stepperState === 3 ? (
           <>
             <ButtonComp
               buttonType="normal"
@@ -945,28 +940,28 @@ export default function SetCreator() {
         spacing={2}
       >
         <ButtonComp
-          buttonType="normal"
+          buttonType="debug"
           onClick={() => console.log(allAssignments)}
           ariaLabel={" debug "}
         >
           log allAssignments
         </ButtonComp>
         <ButtonComp
-          buttonType="normal"
+          buttonType="debug"
           onClick={() => console.log(set)}
           ariaLabel={" debug "}
         >
           log set
         </ButtonComp>
         <ButtonComp
-          buttonType="normal"
+          buttonType="debug"
           onClick={() => console.log(activeSet)}
           ariaLabel={" debug "}
         >
           log activeSet
         </ButtonComp>
         <ButtonComp
-          buttonType="normal"
+          buttonType="debug"
           onClick={() => console.log(allModules)}
           ariaLabel={" debug "}
         >

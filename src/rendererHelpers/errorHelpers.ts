@@ -9,24 +9,12 @@ import { parseUICode } from "./translation";
  *
  * Uses parseUICode to convert message codes to text.
  */
-export async function handleIPCResult(
-  setIPCLoading: (process: string, pushing: boolean) => void,
-  IpcCall: () => IpcResult
-): Promise<any> {
+export async function handleIPCResult(IpcCall: () => IpcResult): Promise<any> {
   let result: IpcResult = {};
-  if (setIPCLoading) {
-    //console.log("pushing IpcCall:", IpcCall);
-    setIPCLoading(IpcCall.toString(), true);
-  }
   try {
     result = await IpcCall();
   } catch (err) {
     throw new Error(parseUICode(err.message));
-  } finally {
-    //console.log("popping IpcCall:", IpcCall);
-    if (setIPCLoading) {
-      setIPCLoading(IpcCall.toString(), false);
-    }
   }
 
   if (!result) {

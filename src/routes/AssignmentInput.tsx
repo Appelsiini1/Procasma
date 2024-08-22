@@ -56,8 +56,7 @@ export default function AssignmentInput() {
     activeAssignments: CodeAssignmentDatabase[];
     handleActiveAssignments: (value: CodeAssignmentDatabase[]) => void;
   } = useContext(ActiveObjectContext);
-  const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
-    useContext(UIContext);
+  const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [assignment, handleAssignment] = useAssignment(
     activeAssignment ?? deepCopy(defaultAssignment)
   );
@@ -107,7 +106,7 @@ export default function AssignmentInput() {
 
       // get the assignment's previous assignments and concat
       if (ids || assignment.previous) {
-        assignmentsResult = await handleIPCResult(setIPCLoading, () =>
+        assignmentsResult = await handleIPCResult(() =>
           window.api.getAssignmentsDB(activePath, ids ?? assignment.previous)
         );
       }
@@ -151,13 +150,12 @@ export default function AssignmentInput() {
     let snackbarText = "ui_assignment_save_success";
     try {
       if (pageType === "manage") {
-        await handleIPCResult(setIPCLoading, () =>
+        await handleIPCResult(() =>
           window.api.handleUpdateAssignmentFS(assignment, activePath)
         );
       } else {
-        const addedAssignment: CodeAssignmentData = await handleIPCResult(
-          setIPCLoading,
-          () => window.api.handleAddAssignmentFS(assignment, activePath)
+        const addedAssignment: CodeAssignmentData = await handleIPCResult(() =>
+          window.api.handleAddAssignmentFS(assignment, activePath)
         );
         // use the generated id from main
         handleAssignment("assignmentID", addedAssignment.assignmentID);
@@ -200,17 +198,17 @@ export default function AssignmentInput() {
     try {
       // First save the in-progress assignment
       if (pageType === "manage") {
-        await handleIPCResult(setIPCLoading, () =>
+        await handleIPCResult(() =>
           window.api.handleUpdateAssignmentFS(assignment, activePath)
         );
       } else {
-        await handleIPCResult(setIPCLoading, () =>
+        await handleIPCResult(() =>
           window.api.handleAddAssignmentFS(assignment, activePath)
         );
       }
 
       // Then get the full selected assignment
-      const assignmentsResult = await handleIPCResult(setIPCLoading, () =>
+      const assignmentsResult = await handleIPCResult(() =>
         window.api.handleGetAssignmentsFS(activePath, selectedAssignments[0].id)
       );
 
@@ -241,11 +239,11 @@ export default function AssignmentInput() {
       // assignment, because it has the generated id from main
       let addedAssignment: CodeAssignmentData = null;
       if (assignment.assignmentID) {
-        addedAssignment = await handleIPCResult(setIPCLoading, () =>
+        addedAssignment = await handleIPCResult(() =>
           window.api.handleUpdateAssignmentFS(assignment, activePath)
         );
       } else {
-        addedAssignment = await handleIPCResult(setIPCLoading, () =>
+        addedAssignment = await handleIPCResult(() =>
           window.api.handleAddAssignmentFS(assignment, activePath)
         );
       }
@@ -258,9 +256,9 @@ export default function AssignmentInput() {
   }
 
   function handleLevelValue() {
-    if (assignment && activeCourse.minLevel !== 0) {
+    if (assignment && activeCourse?.minLevel !== 0) {
       if (assignment?.level === null) {
-        return activeCourse.minLevel;
+        return activeCourse?.minLevel;
       }
       return Number(assignment?.level);
     } else {
@@ -312,8 +310,8 @@ export default function AssignmentInput() {
                   disabled={levelsDisable}
                   value={handleLevelValue()}
                   onChange={(value: number) => handleAssignment("level", value)}
-                  min={activeCourse.minLevel}
-                  max={activeCourse.maxLevel}
+                  min={activeCourse?.minLevel}
+                  max={activeCourse?.maxLevel}
                 ></NumberInput>
               </td>
             </tr>
@@ -543,24 +541,24 @@ export default function AssignmentInput() {
         </ButtonComp>
         <ButtonComp
           buttonType="normal"
-          onClick={() => console.log(assignment)}
-          ariaLabel={parseUICode("ui_aria_save")}
-        >
-          log assignment state
-        </ButtonComp>
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => console.log(activeAssignment)}
-          ariaLabel={parseUICode("ui_aria_save")}
-        >
-          log active assignment
-        </ButtonComp>
-        <ButtonComp
-          buttonType="normal"
           onClick={() => navigate(-1)}
           ariaLabel={parseUICode("ui_aria_cancel")}
         >
           {parseUICode("ui_cancel")}
+        </ButtonComp>
+        <ButtonComp
+          buttonType="debug"
+          onClick={() => console.log(assignment)}
+          ariaLabel={"debug"}
+        >
+          log assignment state
+        </ButtonComp>
+        <ButtonComp
+          buttonType="debug"
+          onClick={() => console.log(activeAssignment)}
+          ariaLabel={"debug"}
+        >
+          log active assignment
         </ButtonComp>
       </Stack>
     </>

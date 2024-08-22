@@ -17,6 +17,7 @@ import {
   emptySpaceHeight,
   MathJaxCSS,
   MathJaxHTMLOptions,
+  fileFolderSeparator,
   ShowdownOptions,
 } from "../constants";
 import hljs from "highlight.js/lib/common";
@@ -356,11 +357,21 @@ function formatFiles(
         file.fileContent === type
       ) {
         const assignment = set.assignmentArray[meta.assignmentIndex];
+
+        // check if the file is in a subdirectory
+        const baseName = path.basename(file.fileName);
+        const dirName = path.basename(path.dirname(file.fileName));
+
+        let newName = file.fileName;
+        // check if file.fileName has a directory before the file.
+        if (baseName !== file.fileName) {
+          newName = `${dirName}${fileFolderSeparator}${baseName}`;
+        }
         const filePath = path.join(
           coursePath.path,
           assignment.folder,
           assignment.variatioId,
-          file.fileName
+          newName
         );
         const data = readFileSync(filePath, "utf8");
         block += `<h3>${parseUICodeMain(

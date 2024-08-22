@@ -42,7 +42,6 @@ export default function Root() {
     handleHeaderPageName,
     handleHeaderCourseID,
     handleHeaderCourseTitle,
-    setIPCLoading,
   } = useContext(UIContext);
   const [addingAssignment, setAddingAssignment] = useState(false);
   const [navigateToAssignment, setNavigateToAssignment] = useState(false);
@@ -54,7 +53,7 @@ export default function Root() {
 
   const refreshAssignmentsInIndex = async () => {
     try {
-      const count = await handleIPCResult(setIPCLoading, () =>
+      const count = await handleIPCResult(() =>
         window.api.getAssignmentCountDB(activePath)
       );
 
@@ -65,7 +64,7 @@ export default function Root() {
   };
 
   useEffect(() => {
-    refreshTitle(setIPCLoading);
+    refreshTitle();
     handleHeaderPageName("ui_main");
     handleHeaderCourseID(activeCourse?.id);
     handleHeaderCourseTitle(activeCourse?.title);
@@ -114,7 +113,7 @@ export default function Root() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_course_folder_opened";
     try {
-      const coursePath: string = await handleIPCResult(setIPCLoading, () =>
+      const coursePath: string = await handleIPCResult(() =>
         window.api.selectDir()
       );
 
@@ -122,7 +121,7 @@ export default function Root() {
         throw new Error("ui_course_folder_invalid");
       }
 
-      const course: CourseData = await handleIPCResult(setIPCLoading, () =>
+      const course: CourseData = await handleIPCResult(() =>
         window.api.handleGetCourseFS(coursePath)
       );
 

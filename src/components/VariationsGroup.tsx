@@ -10,17 +10,20 @@ import ButtonComp from "./ButtonComp";
 import VariationComponent from "./VariationComponent";
 import { parseUICode } from "../rendererHelpers/translation";
 import { defaultVariation } from "../defaultObjects";
+import { deepCopy } from "../rendererHelpers/utility";
 
 type ComponentProps = {
   variations: {
     [key: string]: Variation;
   };
   handleAssignment: HandleAssignmentFn;
+  useLevelsInstead?: boolean;
 };
 
 export default function VariationsGroup({
   variations,
   handleAssignment,
+  useLevelsInstead,
 }: ComponentProps) {
   return (
     <>
@@ -32,23 +35,33 @@ export default function VariationsGroup({
         spacing={1}
       >
         <Grid>
-          <Typography level="h3">{parseUICode("ui_variations")}</Typography>
+          <Typography level="h3">
+            {useLevelsInstead
+              ? parseUICode("ui_levels")
+              : parseUICode("ui_variations")}
+          </Typography>
         </Grid>
         <Grid>
           <ButtonComp
             buttonType="normal"
             onClick={() =>
               addVariation(
-                defaultVariation,
+                deepCopy(defaultVariation),
                 variations,
                 getNextID,
                 "variations",
                 handleAssignment
               )
             }
-            ariaLabel={parseUICode("ui_aria_add_variation")}
+            ariaLabel={
+              useLevelsInstead
+                ? parseUICode("ui_aria_add_level")
+                : parseUICode("ui_aria_add_variation")
+            }
           >
-            {parseUICode("ui_add_variation")}
+            {useLevelsInstead
+              ? parseUICode("ui_add_level")
+              : parseUICode("ui_add_variation")}
           </ButtonComp>
         </Grid>
       </Grid>
@@ -77,7 +90,11 @@ export default function VariationsGroup({
                     <ButtonComp
                       confirmationModal={true}
                       modalText={`${parseUICode("ui_delete")} 
-                        ${parseUICode("ui_variation")} ${varID}`}
+                        ${
+                          useLevelsInstead
+                            ? parseUICode("ui_level")
+                            : parseUICode("ui_variation")
+                        } ${varID}`}
                       buttonType="delete"
                       onClick={() =>
                         removeVariation(
@@ -87,7 +104,11 @@ export default function VariationsGroup({
                           handleAssignment
                         )
                       }
-                      ariaLabel={parseUICode("ui_aria_delete_variation")}
+                      ariaLabel={
+                        useLevelsInstead
+                          ? parseUICode("ui_aria_delete_level")
+                          : parseUICode("ui_aria_delete_variation")
+                      }
                     >
                       {varID}
                     </ButtonComp>
@@ -98,6 +119,7 @@ export default function VariationsGroup({
                       variation={variations[varID]}
                       handleAssignment={handleAssignment}
                       pathInAssignment={`variations.${varID}`}
+                      useLevelsInstead={useLevelsInstead}
                     ></VariationComponent>
                   </Grid>
                 </Grid>

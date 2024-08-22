@@ -26,8 +26,7 @@ export default function ModuleAdd() {
     activePath: string;
     activeModule?: ModuleData;
   } = useContext(ActiveObjectContext);
-  const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
-    useContext(UIContext);
+  const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [module, handleModule] = useModule(
     activeModule ? activeModule : defaultModule
   );
@@ -49,13 +48,11 @@ export default function ModuleAdd() {
     let snackbarText = "ui_module_save_success";
     try {
       if (pageType === "manage") {
-        snackbarText = await handleIPCResult(setIPCLoading, () =>
+        await handleIPCResult(() =>
           window.api.updateModuleDB(activePath, module)
         );
       } else {
-        snackbarText = await handleIPCResult(setIPCLoading, () =>
-          window.api.addModuleDB(activePath, module)
-        );
+        await handleIPCResult(() => window.api.addModuleDB(activePath, module));
       }
     } catch (err) {
       snackbarText = err.message;
@@ -229,19 +226,21 @@ export default function ModuleAdd() {
           >
             {parseUICode("ui_save")}
           </ButtonComp>
-          <ButtonComp
-            buttonType="normal"
-            onClick={() => console.log(module)}
-            ariaLabel={parseUICode("ui_aria_save")}
-          >
-            log module state
-          </ButtonComp>
+
           <ButtonComp
             buttonType="normal"
             onClick={() => navigate(-1)}
             ariaLabel={parseUICode("ui_aria_cancel")}
           >
             {parseUICode("ui_cancel")}
+          </ButtonComp>
+
+          <ButtonComp
+            buttonType="debug"
+            onClick={() => console.log(module)}
+            ariaLabel={" debug "}
+          >
+            log module state
           </ButtonComp>
         </Stack>
       </div>

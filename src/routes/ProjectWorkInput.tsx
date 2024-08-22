@@ -36,8 +36,7 @@ export default function ProjectWorkInput() {
     activePath: string;
     activeAssignment?: CodeAssignmentData;
   } = useContext(ActiveObjectContext);
-  const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
-    useContext(UIContext);
+  const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [assignment, handleAssignment] = useAssignment(
     activeAssignment ? activeAssignment : deepCopy(defaultProject)
   );
@@ -68,11 +67,11 @@ export default function ProjectWorkInput() {
     let snackbarText = "ui_assignment_save_success";
     try {
       if (pageType === "manage") {
-        await handleIPCResult(setIPCLoading, () =>
+        await handleIPCResult(() =>
           window.api.handleUpdateAssignmentFS(assignment, activePath)
         );
       } else {
-        await handleIPCResult(setIPCLoading, () =>
+        await handleIPCResult(() =>
           window.api.handleAddAssignmentFS(assignment, activePath)
         );
       }
@@ -179,14 +178,11 @@ export default function ProjectWorkInput() {
           role="presentation"
         />
         <div className="emptySpace2" />
-
         <div style={{ marginLeft: "0.9rem", width: "100%" }}>
-          <Typography level="h3">{parseUICode("ui_levels")}</Typography>
-          <div className="emptySpace1" />
-
           <VariationsGroup
             variations={variations}
             handleAssignment={handleAssignment}
+            useLevelsInstead={true}
           ></VariationsGroup>
         </div>
 

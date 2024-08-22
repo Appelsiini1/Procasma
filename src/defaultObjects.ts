@@ -27,7 +27,11 @@ export const defaultCourse: CourseData = {
   CodeGradeID: null,
   minLevel: 1,
   maxLevel: 1,
-  levels: null,
+  levels: {
+    "1": { fullName: "Minimitaso", abbreviation: "M" },
+    "2": { fullName: "Perustaso", abbreviation: "P" },
+    "3": { fullName: "Tavoitetaso", abbreviation: "T" },
+  },
 };
 
 export const defaultAssignment: CodeAssignmentData = {

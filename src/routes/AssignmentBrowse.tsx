@@ -47,14 +47,14 @@ export default function AssignmentBrowse() {
     activeAssignments: CodeAssignmentDatabase[];
     handleActiveAssignments: (value: CodeAssignmentDatabase[]) => void;
   } = useContext(ActiveObjectContext);
-  const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
-    useContext(UIContext);
+  const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [courseAssignments, setCourseAssignments] = useState<
     Array<AssignmentWithCheck>
   >([]);
   const [selectedAssignments, setSelectedAssignments] = useState<
     Array<CodeAssignmentDatabase>
   >([]);
+  const [allSelected, setAllSelected] = useState(false);
   const [navigateToAssignment, setNavigateToAssignment] = useState(false);
   const [navigateBack, setNavigateBack] = useState(false);
 
@@ -95,7 +95,7 @@ export default function AssignmentBrowse() {
 
       let assignmentsResult: CodeAssignmentDatabase[] = [];
 
-      assignmentsResult = await handleIPCResult(setIPCLoading, () =>
+      assignmentsResult = await handleIPCResult(() =>
         window.api.getFilteredAssignmentsDB(activePath, filters)
       );
 
@@ -115,15 +115,14 @@ export default function AssignmentBrowse() {
   }
 
   async function updateFilters() {
-    const tagsResult: TagDatabase[] = await handleIPCResult(setIPCLoading, () =>
+    const tagsResult: TagDatabase[] = await handleIPCResult(() =>
       window.api.getAssignmentTagsDB(activePath)
     );
 
     handleUpdateUniqueTags(tagsResult, setUniqueTags);
 
-    const modulesResult: ModuleDatabase[] = await handleIPCResult(
-      setIPCLoading,
-      () => window.api.getModulesDB(activePath)
+    const modulesResult: ModuleDatabase[] = await handleIPCResult(() =>
+      window.api.getModulesDB(activePath)
     );
 
     handleUpdateFilter(modulesResult, setUniqueModules);
@@ -146,7 +145,7 @@ export default function AssignmentBrowse() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_delete_success";
     try {
-      await handleIPCResult(setIPCLoading, () =>
+      await handleIPCResult(() =>
         window.api.handleDeleteAssignmentsFS(
           activePath,
           selectedAssignments.map((assignment) => assignment.id)
@@ -186,7 +185,7 @@ export default function AssignmentBrowse() {
 
   async function handleOpenAssignment() {
     try {
-      const assignmentsResult = await handleIPCResult(setIPCLoading, () =>
+      const assignmentsResult = await handleIPCResult(() =>
         window.api.handleGetAssignmentsFS(activePath, selectedAssignments[0].id)
       );
 
@@ -231,7 +230,7 @@ export default function AssignmentBrowse() {
     let snackbarText = "";
     try {
       // get the assignmentData folder to import from the user
-      const importPath: string = await handleIPCResult(setIPCLoading, () =>
+      const importPath: string = await handleIPCResult(() =>
         window.api.selectDir()
       );
 
@@ -239,7 +238,7 @@ export default function AssignmentBrowse() {
         throw new Error("ui_folder_invalid");
       }
 
-      const importResult = await handleIPCResult(setIPCLoading, () =>
+      const importResult = await handleIPCResult(() =>
         window.api.importAssignmentsFS(activePath, importPath)
       );
 
@@ -253,11 +252,14 @@ export default function AssignmentBrowse() {
     handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
   }
 
-  function selectAll() {
+  function toggleAll() {
     const checkedElements = courseAssignments.map((assignment) => {
-      assignment.isChecked = true;
+      assignment.isChecked = allSelected ? false : true;
       return assignment;
     });
+
+    // invert the state
+    setAllSelected((prevState) => !prevState);
 
     setCourseAssignments(checkedElements);
   }
@@ -314,12 +316,26 @@ export default function AssignmentBrowse() {
               confirmationModal={true}
               modalText={`${parseUICode("ui_delete")} 
             ${numSelected}`}
-              buttonType="normal"
+              buttonType="delete"
               onClick={() => handleDeleteSelected()}
               ariaLabel={parseUICode("ui_aria_remove_selected")}
               disabled={numSelected > 0 ? false : true}
             >
               {`${parseUICode("ui_delete")} ${numSelected}`}
+            </ButtonComp>
+
+            <ButtonComp
+              buttonType="normal"
+              onClick={() => toggleAll()}
+              ariaLabel={
+                allSelected
+                  ? parseUICode("ui_deselect_all")
+                  : parseUICode("ui_select_all")
+              }
+            >
+              {allSelected
+                ? parseUICode("ui_deselect_all")
+                : parseUICode("ui_select_all")}
             </ButtonComp>
 
             <HelpText
@@ -335,14 +351,6 @@ export default function AssignmentBrowse() {
                 {parseUICode("ui_import_assignments")}
               </ButtonComp>
             </HelpText>
-
-            <ButtonComp
-              buttonType="normal"
-              onClick={() => selectAll()}
-              ariaLabel={" debug "}
-            >
-              select all
-            </ButtonComp>
           </>
         )}
       </Stack>
@@ -428,7 +436,7 @@ export default function AssignmentBrowse() {
           {parseUICode("ui_cancel")}
         </ButtonComp>
         <ButtonComp
-          buttonType="normal"
+          buttonType="debug"
           onClick={() => console.log(courseAssignments)}
           ariaLabel={" debug "}
         >
