@@ -55,6 +55,7 @@ export default function AssignmentBrowse() {
   const [selectedAssignments, setSelectedAssignments] = useState<
     Array<CodeAssignmentDatabase>
   >([]);
+  const [allSelected, setAllSelected] = useState(false);
   const [navigateToAssignment, setNavigateToAssignment] = useState(false);
   const [navigateBack, setNavigateBack] = useState(false);
 
@@ -253,11 +254,14 @@ export default function AssignmentBrowse() {
     handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
   }
 
-  function selectAll() {
+  function toggleAll() {
     const checkedElements = courseAssignments.map((assignment) => {
-      assignment.isChecked = true;
+      assignment.isChecked = allSelected ? false : true;
       return assignment;
     });
+
+    // invert the state
+    setAllSelected((prevState) => !prevState);
 
     setCourseAssignments(checkedElements);
   }
@@ -322,6 +326,20 @@ export default function AssignmentBrowse() {
               {`${parseUICode("ui_delete")} ${numSelected}`}
             </ButtonComp>
 
+            <ButtonComp
+              buttonType="normal"
+              onClick={() => toggleAll()}
+              ariaLabel={
+                allSelected
+                  ? parseUICode("ui_deselect_all")
+                  : parseUICode("ui_select_all")
+              }
+            >
+              {allSelected
+                ? parseUICode("ui_deselect_all")
+                : parseUICode("ui_select_all")}
+            </ButtonComp>
+
             <HelpText
               text={`${parseUICode(
                 "help_import_assignments"
@@ -335,14 +353,6 @@ export default function AssignmentBrowse() {
                 {parseUICode("ui_import_assignments")}
               </ButtonComp>
             </HelpText>
-
-            <ButtonComp
-              buttonType="normal"
-              onClick={() => selectAll()}
-              ariaLabel={" debug "}
-            >
-              select all
-            </ButtonComp>
           </>
         )}
       </Stack>
@@ -428,7 +438,7 @@ export default function AssignmentBrowse() {
           {parseUICode("ui_cancel")}
         </ButtonComp>
         <ButtonComp
-          buttonType="normal"
+          buttonType="debug"
           onClick={() => console.log(courseAssignments)}
           ariaLabel={" debug "}
         >

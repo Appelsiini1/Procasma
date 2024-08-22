@@ -258,9 +258,9 @@ export default function AssignmentInput() {
   }
 
   function handleLevelValue() {
-    if (assignment && activeCourse.minLevel !== 0) {
+    if (assignment && activeCourse?.minLevel !== 0) {
       if (assignment?.level === null) {
-        return activeCourse.minLevel;
+        return activeCourse?.minLevel;
       }
       return Number(assignment?.level);
     } else {
@@ -312,8 +312,8 @@ export default function AssignmentInput() {
                   disabled={levelsDisable}
                   value={handleLevelValue()}
                   onChange={(value: number) => handleAssignment("level", value)}
-                  min={activeCourse.minLevel}
-                  max={activeCourse.maxLevel}
+                  min={activeCourse?.minLevel}
+                  max={activeCourse?.maxLevel}
                 ></NumberInput>
               </td>
             </tr>
@@ -543,24 +543,24 @@ export default function AssignmentInput() {
         </ButtonComp>
         <ButtonComp
           buttonType="normal"
-          onClick={() => console.log(assignment)}
-          ariaLabel={parseUICode("ui_aria_save")}
-        >
-          log assignment state
-        </ButtonComp>
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => console.log(activeAssignment)}
-          ariaLabel={parseUICode("ui_aria_save")}
-        >
-          log active assignment
-        </ButtonComp>
-        <ButtonComp
-          buttonType="normal"
           onClick={() => navigate(-1)}
           ariaLabel={parseUICode("ui_aria_cancel")}
         >
           {parseUICode("ui_cancel")}
+        </ButtonComp>
+        <ButtonComp
+          buttonType="debug"
+          onClick={() => console.log(assignment)}
+          ariaLabel={"debug"}
+        >
+          log assignment state
+        </ButtonComp>
+        <ButtonComp
+          buttonType="debug"
+          onClick={() => console.log(activeAssignment)}
+          ariaLabel={"debug"}
+        >
+          log active assignment
         </ButtonComp>
       </Stack>
     </>

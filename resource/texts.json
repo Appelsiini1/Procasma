@@ -123,6 +123,14 @@
     "FI": "Tallenna",
     "ENG": "Save"
   },
+  "ui_save_and_export": {
+    "FI": "Tallenna ja vie",
+    "ENG": "Save and export"
+  },
+  "ui_save_and_export_set": {
+    "FI": "Tallenna ja vie sarja",
+    "ENG": "Save and export set"
+  },
   "ui_aria_save": {
     "FI": "Tallenna nykyiset valinnat",
     "ENG": "Save your current choices"
@@ -783,6 +791,14 @@
   "ui_select": {
     "FI": "Valitse",
     "ENG": "Select"
+  },
+  "ui_select_all": {
+    "FI": "Valitse kaikki",
+    "ENG": "Select all"
+  },
+  "ui_deselect_all": {
+    "FI": "Poista valinnat",
+    "ENG": "Deselect all"
   },
   "ui_close": {
     "FI": "Sulje",

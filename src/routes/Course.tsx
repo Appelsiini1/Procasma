@@ -415,17 +415,17 @@ export default function Course() {
           </ButtonComp>
           <ButtonComp
             buttonType="normal"
-            onClick={() => console.log(course)}
-            ariaLabel={parseUICode("ui_aria_save")}
-          >
-            log course state
-          </ButtonComp>
-          <ButtonComp
-            buttonType="normal"
             onClick={() => navigate(-1)}
             ariaLabel={parseUICode("ui_aria_cancel")}
           >
             {parseUICode("ui_cancel")}
+          </ButtonComp>
+          <ButtonComp
+            buttonType="debug"
+            onClick={() => console.log(course)}
+            ariaLabel={" debug "}
+          >
+            log course state
           </ButtonComp>
         </Stack>
       </div>

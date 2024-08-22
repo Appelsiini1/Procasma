@@ -229,19 +229,21 @@ export default function ModuleAdd() {
           >
             {parseUICode("ui_save")}
           </ButtonComp>
-          <ButtonComp
-            buttonType="normal"
-            onClick={() => console.log(module)}
-            ariaLabel={parseUICode("ui_aria_save")}
-          >
-            log module state
-          </ButtonComp>
+
           <ButtonComp
             buttonType="normal"
             onClick={() => navigate(-1)}
             ariaLabel={parseUICode("ui_aria_cancel")}
           >
             {parseUICode("ui_cancel")}
+          </ButtonComp>
+
+          <ButtonComp
+            buttonType="debug"
+            onClick={() => console.log(module)}
+            ariaLabel={" debug "}
+          >
+            log module state
           </ButtonComp>
         </Stack>
       </div>
