@@ -1,7 +1,7 @@
 import { ConverterOptions } from "showdown";
 import { LevelsType } from "./types";
 
-export const version = "0.12.0";
+export const version = "0.13.0";
 export const courseMetaDataFileName = "course_info.json";
 export const DEVMODE = true;
 export const textExtensions = ["txt", "md"];
@@ -53,3 +53,18 @@ export const levelsTEMPORARY: LevelsType = {
 };
 export const fileFolderSeparator = "-";
 export const defaultCSS = ["papercolor-light.css"];
+export const MathJaxCSS = [
+  "svg a{fill:blue;stroke:blue;}",
+  '[data-mml-node="merror"]>g{fill:red;stroke:red}',
+  '[data-mml-node="merror"]>rect[data-background]{fill:yellow;stroke:none}',
+  "[data-frame],[data-line]{stroke-width:70px;fill:none}",
+  ".mjx-dashed{stroke-dasharray:140}",
+  ".mjx-dotted{stroke-linecap:round;stroke-dasharray:0,140}",
+  "use[data-c]{stroke-width:2px}",
+].join("");
+export const MathJaxHTMLOptions = {
+  display: true,
+  em: 17,
+  ex: 9,
+  containerWidth: 90 * 20,
+};
