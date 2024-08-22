@@ -72,7 +72,7 @@ export function exportSetData(inSet: SetData): ExportSetData {
  * Calculate a relative badness for each variation
  */
 export function calculateBadnesses(assignments: SetAssignmentWithCheck[]) {
-  const currentYear = 2025;
+  const currentYear = new Date().getFullYear();
   let earliestYear = currentYear;
   let totalPeriods = 4;
 
@@ -134,7 +134,7 @@ export function calculateBadnesses(assignments: SetAssignmentWithCheck[]) {
 }
 
 export async function exportSetToDisk(
-  exportedSets: Array<ExportSetData>,
+  exportedSet: ExportSetData,
   activeCourse: CourseData
 ) {
   let snackbarSeverity = "success";
@@ -143,7 +143,7 @@ export async function exportSetToDisk(
     const savePath = await handleIPCResult(() => window.api.selectDir());
     if (savePath !== "") {
       await handleIPCResult(() =>
-        window.api.exportSetFS(exportedSets, activeCourse, savePath)
+        window.api.exportSetFS(exportedSet, activeCourse, savePath)
       );
     } else {
       snackbarSeverity = "info";

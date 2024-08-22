@@ -4,6 +4,7 @@ import {
   CodeAssignmentSelectionData,
   CourseData,
   ExampleRunType,
+  ExportSetAssignmentData,
   ExportSetData,
   FileData,
   FullAssignmentSetData,
@@ -25,7 +26,7 @@ import { createMainFunctionHandler } from "./ipcHelpers";
 import {
   copyExportFilesFS,
   handleReadFileFS,
-  saveSetFS,
+  saveSetModuleFS,
 } from "./fileOperations";
 import { css as papercolorLight } from "../../resource/cssImports/papercolor-light";
 
@@ -82,116 +83,157 @@ export function setToFullData(set: ExportSetData): FullAssignmentSetData {
   return newSet;
 }
 
+export function assignmentToFullData(
+  assignments: ExportSetAssignmentData[]
+): CodeAssignmentSelectionData[] {
+  return assignments.map((assignment) => {
+    const assignmentPath = path.join(
+      coursePath.path,
+      assignment.folder,
+      assignment.id + ".json"
+    );
+    const fullData = handleReadFileFS(assignmentPath) as CodeAssignmentData;
+    return {
+      variation: fullData.variations[assignment.variationId],
+      variatioId: assignment.variationId,
+      CGid: assignment.CGid,
+      selectedPosition: assignment.selectedPosition,
+      selectedModule: assignment.selectedModule,
+      assignmentID: fullData.assignmentID,
+      level: fullData.level,
+      folder: fullData.folder,
+      codeLanguage: fullData.codeLanguage,
+      title: fullData.title,
+    };
+  });
+}
+
 // Set exporter
 /**
  * Creates HTML strings from assignment sets and saves them to disk according to the format spesified in set data
- * @param setInput An array of ExportSetData objects with set information
+ * @param setInput ExportSetData with set information
  * @param coursedata A CourseData object with course information
  * @param savePath Path where to save the created file(s).
  */
 export async function exportSetFS(
-  setInput: Array<ExportSetData>,
+  setInput: ExportSetData,
   coursedata: CourseData,
   savePath: string
 ): Promise<String> {
   try {
-    for (const set of setInput) {
-      let moduleString = "";
-      const convertedSet = setToFullData(set);
-      const css = papercolorLight;
+    const convertedSet = setToFullData(setInput);
 
-      // HTML Base
-      let html = `<!DOCTYPE html>
+    // get all course modules
+    const selectedModules = setInput.assignments.map((a) => a.selectedModule);
+    const uniqueModules = [...new Set(selectedModules)];
+
+    const modulesResult = await createMainFunctionHandler(() =>
+      getModulesDB(coursePath.path, uniqueModules)
+    );
+    if (modulesResult.errorMessage) {
+      throw new Error(modulesResult.errorMessage);
+    }
+    const modules: ModuleData[] = modulesResult.content;
+
+    // convert assignments to full
+    const fullAssignments = assignmentToFullData(setInput.assignments);
+
+    // loop through modules
+    await Promise.all(
+      modules.map(async (module) => {
+        // get assignments where selectedModule is correct
+        const moduleAssignments = fullAssignments.filter(
+          (a) => a.selectedModule === module.id
+        );
+
+        let moduleString = "";
+        const css = papercolorLight;
+
+        // HTML Base
+        let html = `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <style>${css}</style>
   </head>
   <body>`;
-      let solutionHtml = html;
+        let solutionHtml = html;
 
-      // Main page header
-      const mainHeader = formatMainHeader(convertedSet, coursedata);
-      html += `<h1>${mainHeader}</h1>`;
-      solutionHtml += `<h1>${mainHeader} ${parseUICodeMain(
-        "answers"
-      ).toUpperCase()}</h1>`;
-
-      // Get correct module
-      if (convertedSet.module != null) {
-        const module = await createMainFunctionHandler(() =>
-          getModulesDB(coursePath.path, [convertedSet.module])
-        );
-        if (module.errorMessage) {
-          throw new Error(module.errorMessage);
-        }
+        // Main page header
+        const mainHeader = formatMainHeader(module.id, coursedata);
+        html += `<h1>${mainHeader}</h1>`;
+        solutionHtml += `<h1>${mainHeader} ${parseUICodeMain(
+          "answers"
+        ).toUpperCase()}</h1>`;
 
         // Starting instructions
-        const startingInstructions = generateStart(module.content[0]);
+        const startingInstructions = generateStart(
+          module.subjects,
+          module.instructions
+        );
         html += startingInstructions;
         solutionHtml += startingInstructions;
 
         // Module string for PDF footer
-
         switch (coursedata.moduleType) {
           case "lecture":
             moduleString +=
-              parseUICodeMain("ui_lecture") +
-              ` ${convertedSet.module.toString()}`;
+              parseUICodeMain("ui_lecture") + ` ${module.id.toString()}`;
             break;
           case "module":
             moduleString +=
-              parseUICodeMain("ui_module") +
-              ` ${convertedSet.module.toString()}`;
+              parseUICodeMain("ui_module") + ` ${module.id.toString()}`;
             break;
           case "week":
             moduleString +=
-              parseUICodeMain("ui_week") + ` ${convertedSet.module.toString()}`;
+              parseUICodeMain("ui_week") + ` ${module.id.toString()}`;
             break;
           default:
             break;
         }
-      }
 
-      // Table of contents
-      const toc = generateToC(coursedata, convertedSet);
-      html += toc;
-      solutionHtml += toc;
+        // Table of contents
+        const toc = generateToC(coursedata, moduleAssignments);
+        html += toc;
+        solutionHtml += toc;
 
-      // Assignments
-      for (
-        let index = 0;
-        index < convertedSet.assignmentArray.length;
-        index++
-      ) {
-        const meta = { assignmentIndex: index, courseData: coursedata };
-        const normalblock = generateBlock(meta, convertedSet);
-        html += normalblock;
-        solutionHtml += normalblock;
-        solutionHtml += formatSolutions(meta, convertedSet);
-      }
+        // loop through assignments
+        moduleAssignments.sort(
+          (a, b) => a.selectedPosition - b.selectedPosition
+        );
+        moduleAssignments.forEach((assignment, index) => {
+          // Assignments
+          const meta = { assignmentIndex: index, courseData: coursedata };
+          const normalblock = generateBlock(meta, assignment, convertedSet);
+          html += normalblock;
+          solutionHtml += normalblock;
+          solutionHtml += formatSolutions(meta, convertedSet);
+        });
 
-      // End body
-      html += `</body>
+        // End body
+        html += `</body>
 </html>`;
-      solutionHtml += `</body>
+        solutionHtml += `</body>
 </html>`;
-      log.info("HTML created.");
-      await saveSetFS(
-        html,
-        solutionHtml,
-        mainHeader,
-        convertedSet.format,
-        coursedata,
-        savePath,
-        moduleString
-      );
-      const filename = mainHeader.replace(" ", "");
-      savePath = path.join(savePath, filename);
-      copyExportFilesFS(convertedSet, savePath);
-    }
+        log.info("HTML created.");
+
+        await saveSetModuleFS(
+          html,
+          solutionHtml,
+          mainHeader,
+          convertedSet.format,
+          coursedata,
+          savePath,
+          moduleString
+        );
+        const filename = mainHeader.replace(" ", "");
+
+        const filesPath = path.join(savePath, filename);
+        copyExportFilesFS(moduleAssignments, filesPath);
+      })
+    );
   } catch (err) {
-    log.error("Error in HTML generation: " + err.message);
+    log.error("Error in exportSetFS():", err.message);
     throw new Error("ui_export_error");
   }
   return "ui_export_success";
@@ -344,12 +386,12 @@ function formatFiles(
  * @param courseData Course data
  * @returns
  */
-function formatMainHeader(set: FullAssignmentSetData, courseData: CourseData) {
+function formatMainHeader(module: number, courseData: CourseData) {
   let title = ``;
-  if (set.module != null) {
+  if (module != null) {
     const addToTitle = (ui_code: string) => {
       title += parseUICodeMain(ui_code);
-      title += set.module.toString();
+      title += module.toString();
     };
     switch (courseData.moduleType) {
       case "lecture":
@@ -379,14 +421,13 @@ function formatMainHeader(set: FullAssignmentSetData, courseData: CourseData) {
  */
 function formatTitle(
   meta: AssignmentInput,
-  set: FullAssignmentSetData,
+  assignment: CodeAssignmentSelectionData,
   toc = false
 ) {
   let title = ``;
   const addToTitle = (ui_code: string) => {
     title += parseUICodeMain(ui_code);
-    title +=
-      set.assignmentArray[meta.assignmentIndex].selectedModule.toString();
+    title += assignment.selectedModule.toString();
   };
   switch (meta.courseData.moduleType) {
     case "lecture":
@@ -403,16 +444,13 @@ function formatTitle(
   }
   title +=
     parseUICodeMain("assignment_letter") +
-    set.assignmentArray[meta.assignmentIndex].selectedPosition.toString() +
+    assignment.selectedPosition.toString() +
     ": ";
-  title += set.assignmentArray[meta.assignmentIndex].title;
+  title += assignment.title;
 
   // if table of contents, add level abbreviation to the end of title
-  if (toc && set.assignmentArray[meta.assignmentIndex].level != null) {
-    title += ` (${
-      meta.courseData.levels[set.assignmentArray[meta.assignmentIndex].level]
-        .abbreviation
-    })`;
+  if (toc && assignment.level != null) {
+    title += ` (${meta.courseData.levels[assignment.level].abbreviation})`;
   }
   return title;
 }
@@ -420,22 +458,23 @@ function formatTitle(
 // Block generators
 /**
  * Generates the starting instructions
- * @param moduleInput ModuleData object with module information
+ * @param subjects
+ * @param instructions
  * @returns HTML string
  */
-function generateStart(moduleInput: ModuleData | null): string {
-  if (!moduleInput) return "";
+function generateStart(subjects: string, instructions: string): string {
+  if (!subjects || !instructions) return "";
 
   let block = `<div>`;
-  const subjects = moduleInput.subjects.split("\n").map((value, index) => {
+  const splitSubjects = subjects.split("\n").map((value, index) => {
     return `<li id="${index}">${formatMarkdown(value)}</li>`;
   });
   block += "<ul>";
-  for (const item of subjects) {
+  for (const item of splitSubjects) {
     block += item;
   }
   block += "</ul>";
-  block += formatMarkdown(moduleInput.instructions);
+  block += formatMarkdown(instructions);
   block += `<div style="height: ${emptySpaceHeight};"></div>`;
   block += "</div>";
   return block;
@@ -449,37 +488,34 @@ function generateStart(moduleInput: ModuleData | null): string {
  */
 function generateBlock(
   meta: AssignmentInput,
+  assignment: CodeAssignmentSelectionData,
   set: FullAssignmentSetData
 ): string {
   let block = `<div>
     `;
   // Title
   const title = `<h2 class="assig-title"><a id="${
-    set.assignmentArray[meta.assignmentIndex].assignmentID
-  }">${formatTitle(meta, set)}</a></h2>\n`;
+    assignment.assignmentID
+  }">${formatTitle(meta, assignment)}</a></h2>\n`;
   block += `${title}`;
 
   // Assignment level
-  if (set.assignmentArray[meta.assignmentIndex].level != null) {
+  if (assignment.level != null) {
     block += `<i>${parseUICodeMain("ui_assignment_level")}: ${
-      meta.courseData.levels[set.assignmentArray[meta.assignmentIndex].level]
-        .fullName
+      meta.courseData.levels[assignment.level].fullName
     }</i>`;
   }
 
   //Instructions
   // block += `<p>`;
-  block += formatMarkdown(
-    formatMath(set.assignmentArray[meta.assignmentIndex].variation.instructions)
-  );
+  block += formatMarkdown(formatMath(assignment.variation.instructions));
   // block += `</p>`;
 
   // Datafiles
   block += formatFiles(meta, set, "data");
 
   // Example runs
-  const exampleRuns =
-    set.assignmentArray[meta.assignmentIndex].variation.exampleRuns;
+  const exampleRuns = assignment.variation.exampleRuns;
   let runNumber = 1;
   for (const run in exampleRuns) {
     block += generateExampleRun(exampleRuns[run], runNumber);
@@ -539,21 +575,23 @@ function generateExampleRun(
  */
 function generateToC(
   courseData: CourseData,
-  set: FullAssignmentSetData
+  assignments: CodeAssignmentSelectionData[]
 ): string {
   try {
     let block = `<h2>${parseUICodeMain("toc")}</h2>\n`;
-    for (const assig of set.assignmentArray) {
-      block += `<h3><a class="toc" href="#${assig.assignmentID}">${formatTitle(
+    assignments.forEach((assignment, index) => {
+      block += `<h3><a class="toc" href="#${
+        assignment.assignmentID
+      }">${formatTitle(
         {
-          assignmentIndex: set.assignmentArray.indexOf(assig),
+          assignmentIndex: index,
           courseData: courseData,
         },
-        set,
+        assignment,
         true
       )}`;
       block += `</a></h3>`;
-    }
+    });
 
     return block;
   } catch (err) {
