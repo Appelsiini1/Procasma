@@ -7,7 +7,7 @@ import {
   pageTableMinWidth,
   titleCellWidth,
 } from "../constantsUI";
-import { language } from "../globalsUI";
+import { globalSettings, language } from "../globalsUI";
 import { Grid, IconButton, Stack, Table, Typography } from "@mui/joy";
 import InputField from "../components/InputField";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
@@ -15,7 +15,6 @@ import Dropdown from "../components/Dropdown";
 import { useContext, useEffect, useState } from "react";
 import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
-import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import { useCourse } from "../rendererHelpers/assignmentHelpers";
 import { defaultCourse } from "../defaultObjects";
@@ -68,7 +67,7 @@ export default function Course() {
       abbreviation: value["abbreviation"],
     };
   });
-  const codeLanguageOptions = defaults.codeLanguages;
+  const codeLanguageOptions = globalSettings.codeLanguages;
   //get these from settings file later
 
   if (pageType == "create") {

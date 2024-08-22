@@ -26,7 +26,7 @@ import {
   getFileTypeUsingExtension,
 } from "../rendererHelpers/utility";
 import { defaultExampleRun, defaultFile } from "../defaultObjects";
-import defaults from "../../resource/defaults.json";
+import { globalSettings } from "../globalsMain";
 
 export function getFileContentFromName(fileName: string): FileContents {
   const baseName = path.basename(fileName);
@@ -56,7 +56,7 @@ export function getFileContentFromName(fileName: string): FileContents {
 }
 
 export function getCodeLanguageUsingExtension(ext: string): string {
-  const languages = defaults.codeLanguages;
+  const languages = globalSettings.codeLanguages;
   // look through codeLanguages and return the "name" of
   // the language with any matching "fileExtensions" items
   const newName =

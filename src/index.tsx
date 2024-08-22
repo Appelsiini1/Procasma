@@ -15,7 +15,7 @@ import SetBrowse from "./routes/SetBrowse";
 import Settings from "./routes/Settings";
 import ExportProject from "./routes/ExportProject";
 import { SettingsType, SupportedLanguages } from "./types";
-import { language } from "./globalsUI";
+import { globalSettings, language } from "./globalsUI";
 import log from "electron-log/renderer";
 import { handleIPCResult } from "./rendererHelpers/errorHelpers";
 import {
@@ -151,6 +151,7 @@ const App = () => {
         settings.language as SupportedLanguages;
 
       language.current = abbreviation;
+      globalSettings.fromIPC(settings);
     } catch (err) {
       log.error("Error in updateLanguageInit():", err.message);
     }
