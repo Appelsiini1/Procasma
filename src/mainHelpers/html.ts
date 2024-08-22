@@ -13,7 +13,12 @@ import { readFileSync } from "fs";
 import path from "path";
 import log from "electron-log/node";
 import { parseUICodeMain } from "./language";
-import { emptySpaceHeight, ShowdownOptions } from "../constants";
+import {
+  emptySpaceHeight,
+  MathJaxCSS,
+  MathJaxHTMLOptions,
+  ShowdownOptions,
+} from "../constants";
 import hljs from "highlight.js/lib/common";
 import { coursePath } from "../globalsMain";
 import { getModulesDB } from "./databaseOperations";
@@ -25,7 +30,16 @@ import {
 } from "./fileOperations";
 import { css as papercolorLight } from "../../resource/cssImports/papercolor-light";
 
+const { mathjax } = require("mathjax-full/js/mathjax.js");
+const { TeX } = require("mathjax-full/js/input/tex.js");
+const { SVG } = require("mathjax-full/js/output/svg.js");
+const { liteAdaptor } = require("mathjax-full/js/adaptors/liteAdaptor.js");
+const { RegisterHTMLHandler } = require("mathjax-full/js/handlers/html.js");
+const { AllPackages } = require("mathjax-full/js/input/tex/AllPackages.js");
+
 const converter = new showdown.Converter(ShowdownOptions);
+const regexParentheses = /(?<=\\\().+?(?=\\\))/g;
+const regexBrackets = /(?<=\\\[).+?(?=\\\])/g;
 
 interface AssignmentInput {
   assignmentIndex: number;
@@ -216,7 +230,50 @@ function formatMarkdown(text: string): string {
  */
 function formatMath(text: string): string {
   //Depends on MathJax
-  return text;
+  const adaptor = liteAdaptor();
+  const handler = RegisterHTMLHandler(adaptor);
+
+  //
+  //  Create input and output jax and a document using them on the content from the HTML file
+  //
+  const tex = new TeX({
+    packages: AllPackages.sort()
+      .join(", ")
+      .split(/\s*,\s*/),
+  });
+  const svg = new SVG({
+    fontCache: "local",
+    scale: 2,
+    minScale: 2,
+    exFactor: 2,
+  });
+  // const chtml = new CHTML({
+  //   fontURL: "[mathjax]/components/output/chtml/fonts/woff-v2",
+  // });
+  const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
+
+  //  Typeset the math from the command line
+  //
+  let matched: RegExpExecArray;
+  let finalStr = text;
+  let finalHtml: string;
+  while ((matched = regexParentheses.exec(text)) !== null) {
+    const node = html.convert(`${matched[0]}` || "", MathJaxHTMLOptions);
+    finalHtml = adaptor
+      .innerHTML(node)
+      .replace(/<defs>/, `<defs><style>${MathJaxCSS}</style>`);
+    finalStr = finalStr.replace(`\\(${matched[0]}\\)`, finalHtml);
+  }
+  while ((matched = regexBrackets.exec(text)) !== null) {
+    const node = html.convert(`${matched[0]}` || "", MathJaxHTMLOptions);
+    finalHtml = adaptor
+      .innerHTML(node)
+      .replace(/<defs>/, `<defs><style>${MathJaxCSS}</style>`);
+    finalStr = finalStr.replace(`\\[${matched[0]}\\]`, finalHtml);
+  }
+  // log.debug(finalStr);
+
+  return finalStr;
 }
 
 /**
@@ -298,9 +355,11 @@ function formatFiles(
         (file.fileType === "code" || file.fileType === "text") &&
         file.fileContent === type
       ) {
+        const assignment = set.assignmentArray[meta.assignmentIndex];
         const filePath = path.join(
           coursePath.path,
-          set.assignmentArray[meta.assignmentIndex].folder,
+          assignment.folder,
+          assignment.variatioId,
           file.fileName
         );
         const data = readFileSync(filePath, "utf8");
