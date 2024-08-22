@@ -786,7 +786,7 @@ export function _handleAddOrUpdateSetFS(
     }
 
     const setsPath = path.join(coursePath, "sets.json");
-    const oldSets: ExportSetData[] = handleReadFileFS(setsPath, true);
+    let oldSets: ExportSetData[] = handleReadFileFS(setsPath, true);
 
     if (oldSets) {
       // find a set with a matching name
@@ -800,6 +800,8 @@ export function _handleAddOrUpdateSetFS(
 
       // add the old sets to the new array
       newSets = newSets.concat(oldSets);
+    } else {
+      oldSets = [];
     }
 
     // generate an id for the set if it is new

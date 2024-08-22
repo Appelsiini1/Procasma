@@ -22,8 +22,6 @@ import { DropzoneComp } from "./DropzoneComp";
 import log from "electron-log/renderer";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
-import { UIContext } from "./Context";
-import { useContext } from "react";
 
 interface FileContentSelectProps {
   fileIndex: number;
@@ -71,7 +69,6 @@ export default function FileList({
   handleAssignment,
   pathInAssignment,
 }: FileListProps) {
-  const { setIPCLoading } = useContext(UIContext);
   /**
    * Modify a file in the files list (in the assignment).
    */
@@ -88,9 +85,8 @@ export default function FileList({
 
   async function handleSelectFiles() {
     try {
-      const filePaths: Array<string> = await handleIPCResult(
-        setIPCLoading,
-        () => window.api.selectFiles()
+      const filePaths: Array<string> = await handleIPCResult(() =>
+        window.api.selectFiles()
       );
 
       if (filePaths.length < 1) {

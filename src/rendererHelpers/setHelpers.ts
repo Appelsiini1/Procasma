@@ -7,7 +7,6 @@ import {
   SetData,
 } from "../types";
 import { handleIPCResult } from "./errorHelpers";
-import log from "electron-log/renderer";
 
 export function importSetData(
   inSet: ExportSetData,
@@ -136,17 +135,14 @@ export function calculateBadnesses(assignments: SetAssignmentWithCheck[]) {
 
 export async function exportSetToDisk(
   exportedSets: Array<ExportSetData>,
-  setIPCLoading: (process: string, pushing: boolean) => void,
   activeCourse: CourseData
 ) {
   let snackbarSeverity = "success";
   let snackbarText = "ui_export_success";
   try {
-    const savePath = await handleIPCResult(setIPCLoading, () =>
-      window.api.selectDir()
-    );
+    const savePath = await handleIPCResult(() => window.api.selectDir());
     if (savePath !== "") {
-      await handleIPCResult(setIPCLoading, () =>
+      await handleIPCResult(() =>
         window.api.exportSetFS(exportedSets, activeCourse, savePath)
       );
     } else {

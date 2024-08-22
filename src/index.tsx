@@ -33,7 +33,7 @@ log.info("-- START OF PROCASMA RENDERER --");
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 const App = () => {
-  const { snackBarAttributes, showSnackbar, setShowSnackbar, setIPCLoading } =
+  const { snackBarAttributes, showSnackbar, setShowSnackbar } =
     useContext(UIContext);
   const { activeAssignment, activeModule, activeSet } =
     useContext(ActiveObjectContext);
@@ -140,7 +140,7 @@ const App = () => {
 
   const updateLanguageInit = async () => {
     try {
-      const settings: SettingsType = await handleIPCResult(setIPCLoading, () =>
+      const settings: SettingsType = await handleIPCResult(() =>
         window.api.getSettings()
       );
       if (!settings.language) {

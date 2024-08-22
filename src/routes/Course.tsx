@@ -40,7 +40,11 @@ export default function Course() {
     handleActiveCourse?: React.Dispatch<React.SetStateAction<CourseData>>;
     handleActivePath: React.Dispatch<React.SetStateAction<string>>;
   } = useContext(ActiveObjectContext);
-  const { handleHeaderPageName, setIPCLoading } = useContext(UIContext);
+  const {
+    handleHeaderPageName,
+    handleHeaderCourseID,
+    handleHeaderCourseTitle,
+  } = useContext(UIContext);
 
   let pageType = useLoaderData();
 
@@ -51,7 +55,7 @@ export default function Course() {
   const initialCourseState =
     pageType == "create" ? defaultCourse : activeCourse;
   const [course, handleCourse] = useCourse(initialCourseState);
-  const [path, setPath] = useState(activePath ? activePath : "");
+  const [path, setPath] = useState(pageType == "create" ? "" : activePath);
   const { handleSnackbar } = useContext(UIContext);
   const [navigateToMenu, setNavigateToMenu] = useState(false);
 
@@ -77,9 +81,7 @@ export default function Course() {
 
   async function handleFolderOpen() {
     try {
-      const path: string = await handleIPCResult(setIPCLoading, () =>
-        window.api.selectDir()
-      );
+      const path: string = await handleIPCResult(() => window.api.selectDir());
       handlePath(path);
     } catch (err) {
       handleSnackbar({ error: parseUICode(err.message) });
@@ -160,13 +162,13 @@ export default function Course() {
       }
 
       if (pageType == "manage") {
-        snackbarText = await handleIPCResult(setIPCLoading, () =>
+        snackbarText = await handleIPCResult(() =>
           window.api.handleUpdateCourseFS(course, path)
         );
 
         handleActiveCourse(course);
       } else {
-        const newCoursePath = await handleIPCResult(setIPCLoading, () =>
+        const newCoursePath = await handleIPCResult(() =>
           window.api.handleAddCourseFS(course, path)
         );
 
@@ -200,6 +202,12 @@ export default function Course() {
 
   useEffect(() => {
     handleHeaderPageName("course_create");
+    if (pageType == "create") {
+      handleActiveCourse(null);
+      handleActivePath(null);
+      handleHeaderCourseID(null);
+      handleHeaderCourseTitle(null);
+    }
   }, []);
 
   //Navigates to the main menu after saving a new course

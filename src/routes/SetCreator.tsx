@@ -64,8 +64,7 @@ export default function SetCreator() {
     handleActiveAssignments: (value: CodeAssignmentDatabase[]) => void;
     activeCourse: CourseData;
   } = useContext(ActiveObjectContext);
-  const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
-    useContext(UIContext);
+  const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [set, handleSet] = useSet(activeSet ?? deepCopy(defaultSet));
   const [allAssignments, setAllAssignments] = useState<
     Array<SetAssignmentWithCheck>
@@ -120,9 +119,8 @@ export default function SetCreator() {
         return;
       }
 
-      const resultModules: ModuleData[] = await handleIPCResult(
-        setIPCLoading,
-        () => window.api.getModulesDB(activePath)
+      const resultModules: ModuleData[] = await handleIPCResult(() =>
+        window.api.getModulesDB(activePath)
       );
 
       const pendingAssignmentModule: ModuleData = {
@@ -151,9 +149,8 @@ export default function SetCreator() {
       }
 
       // get truncated assignments
-      const assignments: SetAlgoAssignmentData[] = await handleIPCResult(
-        setIPCLoading,
-        () => window.api.getTruncatedAssignmentsFS(activePath)
+      const assignments: SetAlgoAssignmentData[] = await handleIPCResult(() =>
+        window.api.getTruncatedAssignmentsFS(activePath)
       );
 
       // wrap with check and other fields
@@ -177,28 +174,20 @@ export default function SetCreator() {
 
       console.log("exportedSet: ", exportedSet);
       if (pageType === "manage") {
-        await handleIPCResult(setIPCLoading, () =>
+        await handleIPCResult(() =>
           window.api.updateSetFS(activePath, exportedSet)
         );
         if (exportedSet.export) {
-          const result = await exportSetToDisk(
-            [exportedSet],
-            setIPCLoading,
-            activeCourse
-          );
+          const result = await exportSetToDisk([exportedSet], activeCourse);
           snackbarText = result.snackbarText;
           snackbarSeverity = result.snackbarSeverity;
         }
       } else {
-        await handleIPCResult(setIPCLoading, () =>
+        await handleIPCResult(() =>
           window.api.addSetFS(activePath, exportedSet)
         );
         if (exportedSet.export) {
-          const result = await exportSetToDisk(
-            [exportedSet],
-            setIPCLoading,
-            activeCourse
-          );
+          const result = await exportSetToDisk([exportedSet], activeCourse);
           snackbarText = result.snackbarText;
           snackbarSeverity = result.snackbarSeverity;
         }
@@ -246,7 +235,7 @@ export default function SetCreator() {
     try {
       handleActiveSet(set);
 
-      const assignmentsResult = await handleIPCResult(setIPCLoading, () =>
+      const assignmentsResult = await handleIPCResult(() =>
         window.api.handleGetAssignmentsFS(
           activePath,
           selectedAssignments[0].assignmentID
