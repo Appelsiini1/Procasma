@@ -191,7 +191,7 @@ export default function ModuleBrowse() {
           confirmationModal={true}
           modalText={`${parseUICode("ui_delete")} 
             ${numSelected}`}
-          buttonType="normal"
+          buttonType="delete"
           onClick={() => handleDeleteSelected()}
           ariaLabel={parseUICode("ui_remove_selected_modules")}
           disabled={numSelected > 0 ? false : true}

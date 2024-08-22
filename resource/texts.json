@@ -1052,6 +1052,10 @@
     "FI": "Samanniminen tehtävä on jo olemassa.",
     "ENG": "An assignment with that title already exists."
   },
+  "ui_module_error_duplicate_number": {
+    "FI": "Samannumeroinen moduuli on jo olemassa.",
+    "ENG": "A module with that number already exists."
+  },
   "ui_set_error_duplicate_name": {
     "FI": "Samanniminen sarja on jo olemassa.",
     "ENG": "A set with that name already exists."

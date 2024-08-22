@@ -188,7 +188,7 @@ export default function SetBrowse() {
           confirmationModal={true}
           modalText={`${parseUICode("ui_delete")} 
             ${numSelected}`}
-          buttonType="normal"
+          buttonType="delete"
           onClick={() => handleDeleteSelected()}
           ariaLabel={parseUICode("ui_aria_delete_sets")}
           disabled={numSelected > 0 ? false : true}
