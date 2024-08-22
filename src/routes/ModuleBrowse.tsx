@@ -42,8 +42,7 @@ export default function ModuleBrowse() {
     activeModule: ModuleData;
     handleActiveModule: (value: ModuleData) => void;
   } = useContext(ActiveObjectContext);
-  const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
-    useContext(UIContext);
+  const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [courseModules, setCourseModules] = useState<Array<ModuleWithCheck>>(
     []
   );
@@ -75,7 +74,7 @@ export default function ModuleBrowse() {
 
       let moduleResults: ModuleDatabase[] = [];
 
-      moduleResults = await handleIPCResult(setIPCLoading, () =>
+      moduleResults = await handleIPCResult(() =>
         window.api.getFilteredModulesDB(activePath, filters)
       );
 
@@ -96,7 +95,7 @@ export default function ModuleBrowse() {
   };
 
   async function updateFilters() {
-    const tagsResult: TagDatabase[] = await handleIPCResult(setIPCLoading, () =>
+    const tagsResult: TagDatabase[] = await handleIPCResult(() =>
       window.api.getModuleTagsDB(activePath)
     );
 
@@ -117,7 +116,7 @@ export default function ModuleBrowse() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_delete_success";
     try {
-      await handleIPCResult(setIPCLoading, () =>
+      await handleIPCResult(() =>
         window.api.deleteModulesDB(
           activePath,
           selectedModules.map((module) => module.id)
@@ -164,7 +163,7 @@ export default function ModuleBrowse() {
     let snackbarSeverity = "success";
     let snackbarText = "";
     try {
-      const result = await handleIPCResult(setIPCLoading, () =>
+      const result = await handleIPCResult(() =>
         window.api.autoGenerateModulesFS(activePath)
       );
 

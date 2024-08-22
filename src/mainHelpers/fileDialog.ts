@@ -1,5 +1,4 @@
 import { dialog } from "electron";
-import { sleep } from "../rendererHelpers/utility";
 
 export async function handleFileOpen() {
   // see https://www.electronjs.org/docs/latest/api/dialog for dialog options

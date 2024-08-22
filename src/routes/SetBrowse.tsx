@@ -5,7 +5,6 @@ import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
 import {
   CourseData,
-  ExportSetData,
   SetAlgoAssignmentData,
   SetAssignmentWithCheck,
   SetData,
@@ -22,11 +21,9 @@ import {
 import { ActiveObjectContext, UIContext } from "../components/Context";
 import {
   calculateBadnesses,
-  exportSetData,
   exportSetToDisk,
   importSetData,
 } from "../rendererHelpers/setHelpers";
-import log from "electron-log/renderer";
 
 export default function SetBrowse() {
   const {
@@ -40,8 +37,7 @@ export default function SetBrowse() {
     handleActiveSet: (value: SetData) => void;
     activeCourse: CourseData;
   } = useContext(ActiveObjectContext);
-  const { handleHeaderPageName, handleSnackbar, setIPCLoading } =
-    useContext(UIContext);
+  const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [allSets, setAllSets] = useState<Array<SetWithCheck>>([]);
   const [selectedSets, setSelectedSets] = useState<Array<SetData>>([]);
   const [navigateToSet, setNavigateToSet] = useState(false);
@@ -55,7 +51,7 @@ export default function SetBrowse() {
         return;
       }
 
-      const setsResult = await handleIPCResult(setIPCLoading, () =>
+      const setsResult = await handleIPCResult(() =>
         window.api.getSetsFS(activePath)
       );
 
@@ -81,7 +77,7 @@ export default function SetBrowse() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_delete_success";
     try {
-      await handleIPCResult(setIPCLoading, () =>
+      await handleIPCResult(() =>
         window.api.deleteSetsFS(
           activePath,
           selectedSets.map((set) => set.id)
@@ -107,13 +103,12 @@ export default function SetBrowse() {
 
   async function handleOpenSet() {
     try {
-      const setsResult = await handleIPCResult(setIPCLoading, () =>
+      const setsResult = await handleIPCResult(() =>
         window.api.getSetsFS(activePath, selectedSets[0].id)
       );
 
-      const assignments: SetAlgoAssignmentData[] = await handleIPCResult(
-        setIPCLoading,
-        () => window.api.getTruncatedAssignmentsFS(activePath)
+      const assignments: SetAlgoAssignmentData[] = await handleIPCResult(() =>
+        window.api.getTruncatedAssignmentsFS(activePath)
       );
 
       const assignmentsWithCheck: SetAssignmentWithCheck[] =
@@ -148,7 +143,6 @@ export default function SetBrowse() {
         const result = await exportSetToDisk(
           // @ts-ignore
           selectedSets, // TypeScript reports an incompatible type even though they are compatible
-          setIPCLoading,
           activeCourse
         );
         snackbarText = result.snackbarText;
