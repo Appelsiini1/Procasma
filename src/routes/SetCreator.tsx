@@ -99,7 +99,9 @@ export default function SetCreator() {
     parseUICode("ui_module_selection"),
     parseUICode("ui_set_details"),
     parseUICode("ui_choose_tasks"),
-    parseUICode("ui_cg_config"),
+    set.exportCGConfigs
+      ? parseUICode("ui_cg_config")
+      : parseUICode("ui_save_and_export"),
   ];
   let assignments: Array<React.JSX.Element> = null;
   let variations: React.JSX.Element = null;
@@ -851,7 +853,9 @@ export default function SetCreator() {
       {stepperState === 3 ? (
         <>
           <Typography level="h1">
-            {parseUICode("ui_codegrade_autotest")}
+            {set.exportCGConfigs
+              ? parseUICode("ui_codegrade_autotest")
+              : parseUICode("ui_save_and_export_set")}
           </Typography>
           {set.exportCGConfigs ? (
             <>
@@ -916,7 +920,7 @@ export default function SetCreator() {
           ""
         )}
 
-        {stepperState === 3 && set.exportCGConfigs ? (
+        {stepperState === 3 ? (
           <>
             <ButtonComp
               buttonType="normal"
@@ -945,28 +949,28 @@ export default function SetCreator() {
         spacing={2}
       >
         <ButtonComp
-          buttonType="normal"
+          buttonType="debug"
           onClick={() => console.log(allAssignments)}
           ariaLabel={" debug "}
         >
           log allAssignments
         </ButtonComp>
         <ButtonComp
-          buttonType="normal"
+          buttonType="debug"
           onClick={() => console.log(set)}
           ariaLabel={" debug "}
         >
           log set
         </ButtonComp>
         <ButtonComp
-          buttonType="normal"
+          buttonType="debug"
           onClick={() => console.log(activeSet)}
           ariaLabel={" debug "}
         >
           log activeSet
         </ButtonComp>
         <ButtonComp
-          buttonType="normal"
+          buttonType="debug"
           onClick={() => console.log(allModules)}
           ariaLabel={" debug "}
         >

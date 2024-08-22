@@ -11,6 +11,7 @@ import StarIcon from "@mui/icons-material/Star";
 import AutoFixNormalIcon from "@mui/icons-material/AutoFixNormal";
 import SaveAltIcon from "@mui/icons-material/SaveAlt";
 import CloseIcon from "@mui/icons-material/Close";
+import BugReportIcon from "@mui/icons-material/BugReport";
 import { useState } from "react";
 import {
   buttonMinWidth,
@@ -104,7 +105,8 @@ type ButtonProps = {
     | "algorithm"
     | "grey"
     | "import"
-    | "close";
+    | "close"
+    | "debug";
   onClick: () => void;
   margin?: boolean;
   confirmationModal?: boolean;
@@ -195,6 +197,11 @@ export default function ButtonComp({
     case "close":
       style = largeNormal;
       decor = <CloseIcon sx={decorStyle} />;
+      break;
+    case "debug":
+      style = smallWarning;
+      decor = <BugReportIcon sx={decorStyle} />;
+      break;
     default:
       break;
   }
