@@ -11,8 +11,12 @@ import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
 import { UIContext } from "../components/Context";
 import SwitchComp from "../components/SwitchComp";
-import log from "electron-log/renderer";
-import NumberInput from "src/components/NumberInput";
+import NumberInput from "../components/NumberInput";
+import {
+  pageTableMaxWidth,
+  pageTableMinWidth,
+  titleCellWidth,
+} from "../constantsUI";
 
 export default function Settings() {
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
@@ -82,10 +86,13 @@ export default function Settings() {
   return (
     <>
       <Typography level="h1">{parseUICode("ui_settings")}</Typography>
-      <Table borderAxis="none" sx={{ width: "70%" }}>
+      <Table
+        borderAxis="none"
+        sx={{ minWidth: pageTableMinWidth, maxWidth: pageTableMaxWidth }}
+      >
         <tbody>
           <tr key="sUsername">
-            <td style={{ width: "40%" }}>
+            <td style={{ width: titleCellWidth }}>
               <Typography level="h4">
                 {`CodeGrade ${parseUICode("ui_username")}`}
               </Typography>
@@ -96,7 +103,7 @@ export default function Settings() {
           </tr>
 
           <tr key="sPassword">
-            <td style={{ width: "25%" }}>
+            <td style={{ width: titleCellWidth }}>
               <Typography level="h4">
                 {`CodeGrade ${parseUICode("ui_password")}`}
               </Typography>
@@ -107,7 +114,7 @@ export default function Settings() {
           </tr>
 
           <tr key="sOrganisation">
-            <td style={{ width: "25%" }}>
+            <td style={{ width: titleCellWidth }}>
               <Typography level="h4">
                 {`CodeGrade ${parseUICode("ui_organisation")}`}
               </Typography>
@@ -118,7 +125,7 @@ export default function Settings() {
           </tr>
 
           <tr key="caSignIn">
-            <td style={{ width: "25%" }}>
+            <td style={{ width: titleCellWidth }}>
               <ButtonComp
                 buttonType="normalAlt"
                 onClick={null}
