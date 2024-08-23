@@ -10,7 +10,6 @@ import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
 import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
-import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import { useAssignment } from "../rendererHelpers/assignmentHelpers";
 import { defaultProject } from "../defaultObjects";
@@ -25,6 +24,7 @@ import { deepCopy } from "../rendererHelpers/utility";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
+import { globalSettings } from "../globalsUI";
 
 export default function ProjectWorkInput() {
   const {
@@ -46,7 +46,7 @@ export default function ProjectWorkInput() {
   const navigate = useNavigate();
   let pageTitle: string = null;
   const moduleDisable = activeCourse?.moduleType !== null ? false : true;
-  const codeLanguageOptions = defaults.codeLanguages; //get these from settings file later
+  const codeLanguageOptions = globalSettings.codeLanguages;
 
   if (pageType === "new") {
     pageTitle = parseUICode("ui_new_project_work");

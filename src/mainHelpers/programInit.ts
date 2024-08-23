@@ -1,7 +1,6 @@
 import { createFolderFS } from "./fileOperations";
 import fs from "fs";
 import { platform } from "node:process";
-import defaults from "../../resource/defaults.json";
 import { saveSettings } from "./settings";
 import log from "electron-log/node";
 import {
@@ -10,6 +9,7 @@ import {
   getDarwinSettingsDir,
   getSettingsFilepath,
 } from "./osOperations";
+import { globalSettings } from "../globalsMain";
 
 export function initialize() {
   try {
@@ -26,7 +26,7 @@ export function initialize() {
       }
     }
     if (!fs.existsSync(getSettingsFilepath())) {
-      saveSettings(defaults);
+      saveSettings(globalSettings.toJSON());
     }
     /* else {
     }*/

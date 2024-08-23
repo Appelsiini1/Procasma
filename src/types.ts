@@ -97,6 +97,8 @@ export type CourseLoaderData = "create" | "manage";
 export interface SettingsType {
   codeLanguages: Array<CodeLanguage>;
   language: string;
+  shortenFiles: boolean;
+  fileMaxLinesDisplay: number;
 }
 
 export interface SetVariation

@@ -1,9 +1,9 @@
-import { codeLanguages } from "../resource/defaults.json";
 import {
   SupportedLanguages,
   CourseData,
   CodeLanguage,
   SupportedModuleType,
+  SettingsType,
 } from "./types";
 
 class CurrentLanguage {
@@ -69,13 +69,15 @@ class CurrentCourse {
     return this._CodeGradeID;
   }
   constructor() {
-    // course data should be fetched from file later
     this._title = "Untitled Course";
     this._ID = "0000";
     this._modules = 0;
     this._moduleType = null;
     this._language = "FI";
-    this._codeLanguage = codeLanguages[0];
+    this._codeLanguage = {
+      name: "Python",
+      fileExtensions: [".py"],
+    };
     this._CodeGradeID = 0;
     this._minLevel = 0;
     this._maxLevel = 0;
@@ -96,5 +98,80 @@ class CurrentCourse {
   }
 }
 
+class Settings implements SettingsType {
+  private _codeLanguages: Array<CodeLanguage>;
+  private _language: string;
+  private _shortenFiles: boolean;
+  private _fileMaxLinesDisplay: number;
+
+  get codeLanguages() {
+    return this._codeLanguages;
+  }
+  get language() {
+    return this._language;
+  }
+  get shortenFiles() {
+    return this._shortenFiles;
+  }
+  get fileMaxLinesDisplay() {
+    return this._fileMaxLinesDisplay;
+  }
+
+  constructor() {
+    this._codeLanguages = [
+      {
+        name: "Python",
+        fileExtensions: [".py"],
+      },
+      { name: "C", fileExtensions: [".c", ".h"] },
+      { name: "JavaScript", fileExtensions: [".js", ".jsx"] },
+      { name: "TypeScript", fileExtensions: [".ts", ".tsx"] },
+    ];
+    this._language = "ENG";
+    this._shortenFiles = true;
+    this._fileMaxLinesDisplay = 15;
+  }
+
+  set values(data: SettingsType) {
+    this._codeLanguages = data.codeLanguages;
+    this._language = data.language;
+    this._shortenFiles = data.shortenFiles;
+    this._fileMaxLinesDisplay = data.fileMaxLinesDisplay;
+  }
+  get values() {
+    return {
+      codeLanguages: this._codeLanguages,
+      language: this._language,
+      shortenFiles: this._shortenFiles,
+      fileMaxLinesDisplay: this._fileMaxLinesDisplay,
+    };
+  }
+
+  toJSON() {
+    return {
+      codeLanguages: this._codeLanguages,
+      language: this._language,
+      shortenFiles: this._shortenFiles,
+      fileMaxLinesDisplay: this._fileMaxLinesDisplay,
+    };
+  }
+
+  fromIPC(data: any) {
+    this._language = data.language;
+    this._shortenFiles = data.shortenFiles;
+    this._fileMaxLinesDisplay = data.fileMaxLinesDisplay;
+
+    const newCLS = [];
+    for (const cl of data.codeLanguages) {
+      newCLS.push({
+        name: cl.name,
+        fileExtensions: cl.fileExtensions.split(";"),
+      });
+    }
+    this._codeLanguages = newCLS;
+  }
+}
+
 export const language = new CurrentLanguage();
 export const currentCourse = new CurrentCourse();
+export const globalSettings = new Settings();

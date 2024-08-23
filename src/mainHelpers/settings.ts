@@ -4,12 +4,14 @@ import { handleReadFileFS } from "./fileOperations";
 import { SettingsType, SupportedLanguages } from "../types";
 import { language } from "./language";
 import { getSettingsFilepath } from "./osOperations";
+import { globalSettings } from "../globalsMain";
 
 export function getSettings() {
   try {
     const settings = handleReadFileFS(getSettingsFilepath()) as SettingsType;
     language.current = settings.language as SupportedLanguages;
-    return settings;
+    globalSettings.values = settings;
+    return globalSettings.toIPC();
   } catch (err) {
     // "ui_load_settings_failed"
     log.error("Error in getSettings():", err.message);

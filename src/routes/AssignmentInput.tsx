@@ -11,7 +11,6 @@ import Dropdown from "../components/Dropdown";
 import { useContext, useEffect, useState } from "react";
 import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
-import defaults from "../../resource/defaults.json";
 import ButtonComp from "../components/ButtonComp";
 import SwitchComp from "../components/SwitchComp";
 import { defaultAssignment } from "../defaultObjects";
@@ -39,6 +38,7 @@ import {
   wrapWithCheck,
 } from "../rendererHelpers/browseHelpers";
 import { isExpanding } from "../rendererHelpers/assignment";
+import { globalSettings } from "../globalsUI";
 
 export default function AssignmentInput() {
   const {
@@ -77,7 +77,7 @@ export default function AssignmentInput() {
   const moduleDisable = activeCourse?.moduleType !== null ? false : true;
   const levelsDisable = activeCourse?.levels !== null ? false : true;
   const [expanding, setExpanding] = useState(isExpanding(assignment));
-  const codeLanguageOptions = defaults.codeLanguages; //get these from settings file later
+  const codeLanguageOptions = globalSettings.codeLanguages;
   let prevAssignmentsChecklist: Array<React.JSX.Element> = null;
 
   if (pageType === "new") {

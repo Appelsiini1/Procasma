@@ -1375,5 +1375,25 @@
   "ui_export_status": {
     "FI": "Viedään tehtäväsarjaa...",
     "ENG": "Exporting assignment set..."
+  },
+  "ui_shorten_files": {
+    "FI": "Lyhennä tiedostoja",
+    "ENG": "Shorten files"
+  },
+  "ui_max_lines": {
+    "FI": "Suurin rivien määrä",
+    "ENG": "Maximum number of lines"
+  },
+  "help_shorten_files": {
+    "FI": "Jos rivien määrä ylittää määritetyn rajan tehtäväsarjaa viedessä, näytettävä tiedosto lyhennetään keskeltä. Tiedoston otsikon alle lisätään huomautus, että tiedostoa on lyhennetty.",
+    "ENG": "When exporting an assignment set, if the number of lines on a file goes over the set limit, the file is shortened. A notice of the file being shortened is added under the file header."
+  },
+  "help_max_lines": {
+    "FI": "Rivien määrän raja ennen kuin näytettävää tiedostoa lyhennetään tehtäväsarjojen viennissä. Lyhennys merkitään kolmella pisteellä ('...'), joka lasketaan mukaan suurimpaan rivien määrään.",
+    "ENG": "The limit of lines to show before the file is shortened in assignment set export. The excluded part is marked with a line of three dots ('...'), which is counted towards the maximum number of lines."
+  },
+  "file_shortened": {
+    "FI": "Tätä tiedostoa on lyhennetty tähän esimerkkiin. Tiedostosta näytetään alku ja loppu. Lyhennys on merkitty tiedostoon kolmella pisteellä.",
+    "ENG": "This file has been shortened for this example. The start and end of the file is shown. The three dots represent the shortened part of the file."
   }
 }
