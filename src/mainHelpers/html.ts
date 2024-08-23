@@ -30,6 +30,7 @@ import {
   saveSetFS,
 } from "./fileOperations";
 import { css as papercolorLight } from "../../resource/cssImports/papercolor-light";
+import { globalSettings } from "../globalsUI";
 
 const { mathjax } = require("mathjax-full/js/mathjax.js");
 const { TeX } = require("mathjax-full/js/input/tex.js");
@@ -381,7 +382,23 @@ function formatFiles(
           file.fileContent === "code"
             ? set.assignmentArray[meta.assignmentIndex].codeLanguage
             : "plaintext";
-        block += highlightCode(data, language);
+        if (data.split("\n").length > globalSettings.fileMaxLinesDisplay) {
+          const splitLines = data.split("\n");
+          const half = globalSettings.fileMaxLinesDisplay / 2;
+          const firstHalf = splitLines.slice(0, half);
+          const secondHalf = splitLines.slice(-(half + 1));
+
+          const newData = `${firstHalf.join("\n")}\n...\n${secondHalf.join(
+            "\n"
+          )}`;
+
+          block += `<p style="color: red; font-style: italic;">${parseUICodeMain(
+            "file_shortened"
+          )}</p>`;
+          block += highlightCode(newData, language);
+        } else {
+          block += highlightCode(data, language);
+        }
       }
     }
     return block;
