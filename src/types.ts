@@ -289,4 +289,9 @@ export type ContextBridgeAPI = {
     coursedata: CourseData,
     savePath: string
   ) => IpcResult;
+  exportManySetsFS: (
+    setInput: Array<ExportSetData>,
+    coursedata: CourseData,
+    savePath: string
+  ) => IpcResult;
 };

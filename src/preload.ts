@@ -88,8 +88,13 @@ contextBridge.exposeInMainWorld("api", {
 
   // Export set to disk
   exportSetFS: (
-    setInput: Array<ExportSetData>,
+    setInput: ExportSetData,
     courseData: CourseData,
     savePath: string
   ) => ipcRenderer.invoke("exportSetFS", setInput, courseData, savePath),
+  exportManySetsFS: (
+    setInput: Array<ExportSetData>,
+    courseData: CourseData,
+    savePath: string
+  ) => ipcRenderer.invoke("exportManySetsFS", setInput, courseData, savePath),
 });

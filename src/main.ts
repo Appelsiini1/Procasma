@@ -39,7 +39,7 @@ import {
   deleteModulesDB,
 } from "./mainHelpers/databaseOperations";
 import { coursePath } from "./globalsMain";
-import { exportSetFS } from "./mainHelpers/html";
+import { exportManySetsFS, exportSetFS } from "./mainHelpers/html";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -273,5 +273,11 @@ ipcMain.handle(
   "exportSetFS",
   formatIPCResult((setInput, courseData, savePath) =>
     exportSetFS(setInput, courseData, savePath)
+  )
+);
+ipcMain.handle(
+  "exportManySetsFS",
+  formatIPCResult((setInput, courseData, savePath) =>
+    exportManySetsFS(setInput, courseData, savePath)
   )
 );
