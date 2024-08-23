@@ -1,7 +1,8 @@
 import { ConverterOptions } from "showdown";
 import { LevelsType } from "./types";
+import { version as packageVersion } from "../package.json";
 
-export const version = "0.14.1";
+export const version = packageVersion;
 export const courseMetaDataFileName = "course_info.json";
 export const DEVMODE = true;
 export const textExtensions = ["txt", "md"];

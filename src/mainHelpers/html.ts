@@ -27,11 +27,13 @@ import { getModulesDB } from "./databaseOperations";
 import { createMainFunctionHandler } from "./ipcHelpers";
 import {
   copyExportFilesFS,
+  getBase64String,
   handleReadFileFS,
   saveSetModuleFS,
 } from "./fileOperations";
 import { css as papercolorLight } from "../../resource/cssImports/papercolor-light";
 import { globalSettings } from "../globalsUI";
+import { platform } from "node:process";
 
 const { mathjax } = require("mathjax-full/js/mathjax.js");
 const { TeX } = require("mathjax-full/js/input/tex.js");
@@ -41,8 +43,10 @@ const { RegisterHTMLHandler } = require("mathjax-full/js/handlers/html.js");
 const { AllPackages } = require("mathjax-full/js/input/tex/AllPackages.js");
 
 const converter = new showdown.Converter(ShowdownOptions);
+
 const regexParentheses = /(?<=\\\().+?(?=\\\))/g;
 const regexBrackets = /(?<=\\\[).+?(?=\\\])/g;
+const regexImage = /(?<![\\`])!\[.*?\]\((\S*?)(?:\s*".*?")?(?:\s*=.*?)?\)/gm;
 
 interface AssignmentInput {
   assignmentIndex: number;
@@ -286,7 +290,44 @@ function formatMarkdown(text: string): string {
 }
 
 /**
- * Formats a string containing MathML or LaTeX mathematical formulas into HTML
+ * Turns images into Base64 strings for embedding
+ * @param text The text to search images from
+ * @param files Array of filedata
+ * @returns HTML string
+ */
+function formatImage(text: string, files: Array<FileData>): string {
+  let newText = text;
+  let matched: RegExpExecArray;
+  while ((matched = regexImage.exec(text)) !== null) {
+    const imageName = matched[1];
+    const fullMatch = matched[0];
+
+    const fileObject = files.find((value) => {
+      if (platform === "win32") {
+        if (path.win32.basename(value.fileName) === imageName) {
+          return true;
+        }
+      } else {
+        if (path.basename(value.fileName) === imageName) {
+          return true;
+        }
+      }
+      return false;
+    });
+
+    if (fileObject === undefined) continue;
+
+    const imageData = getBase64String(
+      path.join(coursePath.path, fileObject.path)
+    );
+    const newMatch = fullMatch.replace(imageName, imageData);
+    newText = newText.replace(fullMatch, newMatch);
+  }
+  return newText;
+}
+
+/**
+ * Formats a string containing MathML or LaTeX mathematical formulas into SVG images
  * @param text String containing MML or LaTeX formatting
  * @returns HTML string
  */
@@ -459,6 +500,35 @@ function formatFiles(
         } else {
           block += highlightCode(data, language);
         }
+      } else if (
+        !file.solution &&
+        file.showStudent &&
+        file.fileType === "image" &&
+        file.fileContent === type
+      ) {
+        const assignment = set.assignmentArray[meta.assignmentIndex];
+
+        // check if the file is in a subdirectory
+        const baseName = path.basename(file.fileName);
+        const dirName = path.basename(path.dirname(file.fileName));
+
+        let newName = file.fileName;
+        // check if file.fileName has a directory before the file.
+        if (baseName !== file.fileName) {
+          newName = `${dirName}${fileFolderSeparator}${baseName}`;
+        }
+        const filePath = path.join(
+          coursePath.path,
+          assignment.folder,
+          assignment.variatioId,
+          newName
+        );
+        const data = getBase64String(filePath);
+        block += `<h3>${parseUICodeMain(
+          type === "data" ? "input_datafile" : "ex_resultfile"
+        )}: '${file.fileName}'</h3>`;
+
+        block += `<img src="${data}" alt="${file.fileName}" />`;
       }
     }
     return block;
@@ -596,7 +666,11 @@ function generateBlock(
 
   //Instructions
   // block += `<p>`;
-  block += formatMarkdown(formatMath(assignment.variation.instructions));
+  block += formatMarkdown(
+    formatMath(
+      formatImage(assignment.variation.instructions, assignment.variation.files)
+    )
+  );
   // block += `</p>`;
 
   // Datafiles
