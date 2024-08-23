@@ -21,6 +21,7 @@ import {
 import { ActiveObjectContext, UIContext } from "../components/Context";
 import {
   calculateBadnesses,
+  exportManySetsToDisk,
   exportSetToDisk,
   importSetData,
 } from "../rendererHelpers/setHelpers";
@@ -140,7 +141,7 @@ export default function SetBrowse() {
     try {
       if (selectedSets.length > 0) {
         handleSnackbar({ ["action"]: parseUICode("ui_export_status") });
-        const result = await exportSetToDisk(
+        const result = await exportManySetsToDisk(
           // @ts-ignore
           selectedSets, // TypeScript reports an incompatible type even though they are compatible
           activeCourse

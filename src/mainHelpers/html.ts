@@ -120,7 +120,25 @@ export function assignmentToFullData(
   });
 }
 
-// Set exporter
+// Set exporters
+/**
+ * Exports multiple assignment sets
+ * @param setInput Array of ExportSetData objects
+ * @param courseData A CourseData object with course information
+ * @param savePath Path where to save the created file(s)
+ */
+export async function exportManySetsFS(
+  setInput: Array<ExportSetData>,
+  courseData: CourseData,
+  savePath: string
+) {
+  let result;
+  for (const expSet of setInput) {
+    result = await exportSetFS(expSet, courseData, savePath);
+  }
+  return result;
+}
+
 /**
  * Creates HTML strings from assignment sets and saves them to disk according to the format spesified in set data
  * @param setInput ExportSetData with set information

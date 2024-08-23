@@ -156,3 +156,27 @@ export async function exportSetToDisk(
   }
   return { snackbarText: snackbarText, snackbarSeverity: snackbarSeverity };
 }
+
+export async function exportManySetsToDisk(
+  exportedSet: Array<ExportSetData>,
+  activeCourse: CourseData
+) {
+  let snackbarSeverity = "success";
+  let snackbarText = "ui_export_success";
+  try {
+    const savePath = await handleIPCResult(() => window.api.selectDir());
+    if (savePath !== "") {
+      await handleIPCResult(() =>
+        window.api.exportManySetsFS(exportedSet, activeCourse, savePath)
+      );
+    } else {
+      snackbarSeverity = "info";
+      snackbarText = "ui_action_canceled";
+    }
+  } catch (err) {
+    snackbarText = err.message;
+    snackbarSeverity = "error";
+    throw err;
+  }
+  return { snackbarText: snackbarText, snackbarSeverity: snackbarSeverity };
+}
