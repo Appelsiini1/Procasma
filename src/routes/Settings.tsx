@@ -1,5 +1,5 @@
 import texts from "../../resource/texts.json";
-import { language } from "../globalsUI";
+import { globalSettings, language } from "../globalsUI";
 import { useNavigate } from "react-router-dom";
 import { Stack, Table, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
@@ -10,14 +10,18 @@ import { useContext, useEffect, useState } from "react";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
 import { UIContext } from "../components/Context";
+import SwitchComp from "../components/SwitchComp";
+import log from "electron-log/renderer";
+import NumberInput from "src/components/NumberInput";
 
 export default function Settings() {
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const navigate = useNavigate();
-  const [settings, setSettings] = useState<SettingsType>({
-    codeLanguages: [],
-    language: "ENG",
-  });
+  const [checked, setChecked] = useState<boolean>(globalSettings.shortenFiles);
+  const [settings, setSettings] = useState<SettingsType>(globalSettings.values);
+  const [maxLines, setMaxLines] = useState<number>(
+    globalSettings.fileMaxLinesDisplay
+  );
 
   const languageOptions = texts.languages.map((value) => {
     return {
@@ -50,12 +54,20 @@ export default function Settings() {
   }
 
   async function handleSaveSettings() {
+    const newSettings: SettingsType = {
+      ...settings,
+      shortenFiles: checked,
+      fileMaxLinesDisplay: maxLines,
+    };
+    setSettings(newSettings);
+
     let snackbarSeverity = "success";
     let snackbarText = "";
     try {
       snackbarText = await handleIPCResult(() =>
-        window.api.saveSettings(settings)
+        window.api.saveSettings(newSettings)
       );
+      globalSettings.values = newSettings;
     } catch (err) {
       snackbarText = err.message;
       snackbarSeverity = "error";
@@ -72,7 +84,7 @@ export default function Settings() {
       <Typography level="h1">{parseUICode("ui_settings")}</Typography>
       <Table borderAxis="none" sx={{ width: "70%" }}>
         <tbody>
-          <tr key="caUsername">
+          <tr key="sUsername">
             <td style={{ width: "40%" }}>
               <Typography level="h4">
                 {`CodeGrade ${parseUICode("ui_username")}`}
@@ -83,7 +95,7 @@ export default function Settings() {
             </td>
           </tr>
 
-          <tr key="caPassword">
+          <tr key="sPassword">
             <td style={{ width: "25%" }}>
               <Typography level="h4">
                 {`CodeGrade ${parseUICode("ui_password")}`}
@@ -94,7 +106,7 @@ export default function Settings() {
             </td>
           </tr>
 
-          <tr key="caOrganisation">
+          <tr key="sOrganisation">
             <td style={{ width: "25%" }}>
               <Typography level="h4">
                 {`CodeGrade ${parseUICode("ui_organisation")}`}
@@ -117,7 +129,7 @@ export default function Settings() {
             </td>
           </tr>
 
-          <tr key="caLanguage">
+          <tr key="sLanguage">
             <td>
               <Typography level="h4">
                 {parseUICode("ui_interface_language")}
@@ -125,7 +137,7 @@ export default function Settings() {
             </td>
             <td>
               <Dropdown
-                name="cLanguageInput"
+                name="sLanguageInput"
                 options={languageOptions}
                 labelKey="languageName"
                 defaultValue={
@@ -135,6 +147,26 @@ export default function Settings() {
                 }
                 onChange={(value: string) => handleSetLanguage(value)}
               ></Dropdown>
+            </td>
+          </tr>
+
+          <tr key="sShortenFilesInput">
+            <td style={{ width: "25%" }}>
+              <Typography level="h4">
+                {parseUICode("ui_shorten_files")}
+              </Typography>
+            </td>
+            <td>
+              <SwitchComp checked={checked} setChecked={setChecked} />
+            </td>
+          </tr>
+
+          <tr key="sMaxLinesInput">
+            <td style={{ width: "25%" }}>
+              <Typography level="h4">{parseUICode("ui_max_lines")}</Typography>
+            </td>
+            <td>
+              <NumberInput min={1} value={maxLines} onChange={setMaxLines} />
             </td>
           </tr>
         </tbody>

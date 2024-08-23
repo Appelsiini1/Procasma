@@ -1375,5 +1375,12 @@
   "ui_export_status": {
     "FI": "Viedään tehtäväsarjaa...",
     "ENG": "Exporting assignment set..."
+  },
+  "ui_shorten_files": {
+    "FI": "Lyhennä tiedostoja",
+    "ENG": "Shorten files"
+  },
+  "ui_max_lines": {
+    "FI": ""
   }
 }
