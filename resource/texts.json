@@ -1381,6 +1381,7 @@
     "ENG": "Shorten files"
   },
   "ui_max_lines": {
-    "FI": ""
+    "FI": "Suurin rivien määrä",
+    "ENG": "Maximum number of lines"
   }
 }
