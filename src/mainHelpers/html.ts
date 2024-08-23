@@ -500,6 +500,35 @@ function formatFiles(
         } else {
           block += highlightCode(data, language);
         }
+      } else if (
+        !file.solution &&
+        file.showStudent &&
+        file.fileType === "image" &&
+        file.fileContent === type
+      ) {
+        const assignment = set.assignmentArray[meta.assignmentIndex];
+
+        // check if the file is in a subdirectory
+        const baseName = path.basename(file.fileName);
+        const dirName = path.basename(path.dirname(file.fileName));
+
+        let newName = file.fileName;
+        // check if file.fileName has a directory before the file.
+        if (baseName !== file.fileName) {
+          newName = `${dirName}${fileFolderSeparator}${baseName}`;
+        }
+        const filePath = path.join(
+          coursePath.path,
+          assignment.folder,
+          assignment.variatioId,
+          newName
+        );
+        const data = getBase64String(filePath);
+        block += `<h3>${parseUICodeMain(
+          type === "data" ? "input_datafile" : "ex_resultfile"
+        )}: '${file.fileName}'</h3>`;
+
+        block += `<img src="${data}" alt="${file.fileName}"`;
       }
     }
     return block;
