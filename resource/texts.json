@@ -1383,5 +1383,13 @@
   "ui_max_lines": {
     "FI": "Suurin rivien määrä",
     "ENG": "Maximum number of lines"
+  },
+  "help_shorten_files": {
+    "FI": "Jos rivien määrä ylittää määritetyn rajan tehtäväsarjaa viedessä, näytettävä tiedosto lyhennetään keskeltä.",
+    "ENG": "When exporting an assignment set, if the number of lines on a file goes over the set limit, the file is shortened."
+  },
+  "help_max_lines": {
+    "FI": "Rivien määrän raja ennen kuin näytettävää tiedostoa lyhennetään tehtäväsarjojen viennissä.",
+    "ENG": "The limit of lines to show before the file is shortened in assignment set export."
   }
 }

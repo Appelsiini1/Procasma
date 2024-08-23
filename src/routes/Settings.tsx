@@ -1,7 +1,7 @@
 import texts from "../../resource/texts.json";
 import { globalSettings, language } from "../globalsUI";
 import { useNavigate } from "react-router-dom";
-import { Stack, Table, Typography } from "@mui/joy";
+import { Grid, Stack, Table, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
@@ -17,6 +17,7 @@ import {
   pageTableMinWidth,
   titleCellWidth,
 } from "../constantsUI";
+import HelpText from "../components/HelpText";
 
 export default function Settings() {
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
@@ -158,10 +159,23 @@ export default function Settings() {
           </tr>
 
           <tr key="sShortenFilesInput">
-            <td style={{ width: "25%" }}>
-              <Typography level="h4">
-                {parseUICode("ui_shorten_files")}
-              </Typography>
+            <td style={{ width: titleCellWidth }}>
+              <Grid
+                container
+                direction="row"
+                justifyContent="flex-start"
+                alignItems="center"
+                spacing={1}
+              >
+                <Grid xs={10}>
+                  <Typography level="h4">
+                    {parseUICode("ui_shorten_files")}
+                  </Typography>
+                </Grid>
+                <Grid xs={2}>
+                  <HelpText text={parseUICode("help_shorten_files")} />
+                </Grid>
+              </Grid>
             </td>
             <td>
               <SwitchComp checked={checked} setChecked={setChecked} />
@@ -169,8 +183,23 @@ export default function Settings() {
           </tr>
 
           <tr key="sMaxLinesInput">
-            <td style={{ width: "25%" }}>
-              <Typography level="h4">{parseUICode("ui_max_lines")}</Typography>
+            <td style={{ width: titleCellWidth }}>
+              <Grid
+                container
+                direction="row"
+                justifyContent="flex-start"
+                alignItems="center"
+                spacing={1}
+              >
+                <Grid xs={10}>
+                  <Typography level="h4">
+                    {parseUICode("ui_max_lines")}
+                  </Typography>
+                </Grid>
+                <Grid xs={2}>
+                  <HelpText text={parseUICode("help_max_lines")} />
+                </Grid>
+              </Grid>
             </td>
             <td>
               <NumberInput min={1} value={maxLines} onChange={setMaxLines} />
