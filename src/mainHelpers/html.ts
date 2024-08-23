@@ -528,7 +528,7 @@ function formatFiles(
           type === "data" ? "input_datafile" : "ex_resultfile"
         )}: '${file.fileName}'</h3>`;
 
-        block += `<img src="${data}" alt="${file.fileName}"`;
+        block += `<img src="${data}" alt="${file.fileName}" />`;
       }
     }
     return block;
