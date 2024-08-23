@@ -45,9 +45,13 @@ table {
   border-spacing: 10px 2px;
 }
 hr {
-  border: 2px solid black;
+  border: 1px solid rgb(180, 180, 180);
   width: 100%;
   margin-top: 0.1cm;
+}
+
+img {
+  max-width: 100%;
 }
 
 .container {
