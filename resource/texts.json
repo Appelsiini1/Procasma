@@ -1395,5 +1395,9 @@
   "file_shortened": {
     "FI": "Tätä tiedostoa on lyhennetty tähän esimerkkiin. Tiedostosta näytetään alku ja loppu. Lyhennys on merkitty tiedostoon kolmella pisteellä.",
     "ENG": "This file has been shortened for this example. The start and end of the file is shown. The three dots represent the shortened part of the file."
+  },
+  "error_unsupported_image": {
+    "FI": "Datassa on kuvatyyppi, jonka upotusta ei tueta.",
+    "ENG": "Data has an unsupported image type for embedding."
   }
 }

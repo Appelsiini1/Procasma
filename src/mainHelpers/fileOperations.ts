@@ -1118,3 +1118,35 @@ export function copyExportFilesFS(
 
   log.info(`${amount} files copied to '${exportPath}'`);
 }
+
+export function getBase64String(filepath: string): string {
+  try {
+    const data = fs.readFileSync(filepath, "base64");
+    const extension = path.extname(filepath);
+    let dataString = `data:image/`;
+    switch (extension.replace(".", "")) {
+      case "png":
+        dataString += "png";
+        break;
+      case "jpg":
+        dataString += "jpeg";
+        break;
+      case "jpeg":
+        dataString += "jpeg";
+        break;
+      case "gif":
+        dataString += "gif";
+        break;
+      case "svg":
+        dataString += "svg+xml";
+        break;
+      default:
+        throw new Error("error_unsupported_image");
+    }
+    dataString += `;base64,${data}`;
+    return dataString;
+  } catch (err) {
+    log.error("Error in getBase64String():", err.message);
+    throw err;
+  }
+}
