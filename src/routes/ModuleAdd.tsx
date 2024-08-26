@@ -13,6 +13,7 @@ import { useContext, useEffect } from "react";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
 import {
+  DEVMODE,
   pageTableMaxWidth,
   pageTableMinWidth,
   titleCellWidth,
@@ -235,13 +236,17 @@ export default function ModuleAdd() {
             {parseUICode("ui_cancel")}
           </ButtonComp>
 
-          <ButtonComp
-            buttonType="debug"
-            onClick={() => console.log(module)}
-            ariaLabel={" debug "}
-          >
-            log module state
-          </ButtonComp>
+          {DEVMODE ? (
+            <ButtonComp
+              buttonType="debug"
+              onClick={() => console.log(module)}
+              ariaLabel={" debug "}
+            >
+              log module state
+            </ButtonComp>
+          ) : (
+            ""
+          )}
         </Stack>
       </div>
     </>

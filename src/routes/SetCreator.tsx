@@ -1,5 +1,5 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
-import { dividerSX } from "../constantsUI";
+import { DEVMODE, dividerSX } from "../constantsUI";
 import { Box, Divider, Grid, List, Stack, Table, Typography } from "@mui/joy";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
@@ -933,41 +933,45 @@ export default function SetCreator() {
         )}
       </Stack>
       <div className="emptySpace2" style={{ marginTop: "auto" }} />
-      <Stack
-        direction="row"
-        justifyContent="flex-start"
-        alignItems="center"
-        spacing={2}
-      >
-        <ButtonComp
-          buttonType="debug"
-          onClick={() => console.log(allAssignments)}
-          ariaLabel={" debug "}
+      {DEVMODE ? (
+        <Stack
+          direction="row"
+          justifyContent="flex-start"
+          alignItems="center"
+          spacing={2}
         >
-          log allAssignments
-        </ButtonComp>
-        <ButtonComp
-          buttonType="debug"
-          onClick={() => console.log(set)}
-          ariaLabel={" debug "}
-        >
-          log set
-        </ButtonComp>
-        <ButtonComp
-          buttonType="debug"
-          onClick={() => console.log(activeSet)}
-          ariaLabel={" debug "}
-        >
-          log activeSet
-        </ButtonComp>
-        <ButtonComp
-          buttonType="debug"
-          onClick={() => console.log(allModules)}
-          ariaLabel={" debug "}
-        >
-          log allModules
-        </ButtonComp>
-      </Stack>
+          <ButtonComp
+            buttonType="debug"
+            onClick={() => console.log(allAssignments)}
+            ariaLabel={" debug "}
+          >
+            log allAssignments
+          </ButtonComp>
+          <ButtonComp
+            buttonType="debug"
+            onClick={() => console.log(set)}
+            ariaLabel={" debug "}
+          >
+            log set
+          </ButtonComp>
+          <ButtonComp
+            buttonType="debug"
+            onClick={() => console.log(activeSet)}
+            ariaLabel={" debug "}
+          >
+            log activeSet
+          </ButtonComp>
+          <ButtonComp
+            buttonType="debug"
+            onClick={() => console.log(allModules)}
+            ariaLabel={" debug "}
+          >
+            log allModules
+          </ButtonComp>
+        </Stack>
+      ) : (
+        ""
+      )}
     </>
   );
 }

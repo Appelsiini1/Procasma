@@ -1,5 +1,6 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
 import {
+  DEVMODE,
   dividerColor,
   pageTableMaxWidth,
   pageTableMinWidth,
@@ -546,20 +547,26 @@ export default function AssignmentInput() {
         >
           {parseUICode("ui_cancel")}
         </ButtonComp>
-        <ButtonComp
-          buttonType="debug"
-          onClick={() => console.log(assignment)}
-          ariaLabel={"debug"}
-        >
-          log assignment state
-        </ButtonComp>
-        <ButtonComp
-          buttonType="debug"
-          onClick={() => console.log(activeAssignment)}
-          ariaLabel={"debug"}
-        >
-          log active assignment
-        </ButtonComp>
+        {DEVMODE ? (
+          <>
+            <ButtonComp
+              buttonType="debug"
+              onClick={() => console.log(assignment)}
+              ariaLabel={"debug"}
+            >
+              log assignment state
+            </ButtonComp>
+            <ButtonComp
+              buttonType="debug"
+              onClick={() => console.log(activeAssignment)}
+              ariaLabel={"debug"}
+            >
+              log active assignment
+            </ButtonComp>
+          </>
+        ) : (
+          ""
+        )}
       </Stack>
     </>
   );

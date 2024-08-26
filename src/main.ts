@@ -50,10 +50,6 @@ log.initialize();
 log.info("-- STARTING PROCASMA MAIN --");
 log.info(`Procasma v${version}`);
 
-const getVersion = () => {
-  return version;
-};
-
 const createWindow = () => {
   // Create the browser window.
 
@@ -132,8 +128,9 @@ ipcMain.on("close-app", (event) => app.quit());
 
 ipcMain.handle(
   "getAppVersion",
-  formatIPCResult(() => getVersion())
+  formatIPCResult(() => version)
 );
+ipcMain.handle("getDevMode", () => DEVMODE);
 ipcMain.handle(
   "selectDir",
   formatIPCResult(() => handleDirectorySelect())

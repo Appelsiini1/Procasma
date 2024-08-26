@@ -237,6 +237,7 @@ export type ContextBridgeAPI = {
   // Bidirectional, renderer to main to renderer
   // General
   getAppVersion: () => IpcResult;
+  getDevMode: () => boolean;
   selectDir: () => IpcResult;
   selectFiles: () => IpcResult;
   saveSettings: (settings: SettingsType) => IpcResult;

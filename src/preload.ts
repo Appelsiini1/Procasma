@@ -20,6 +20,7 @@ contextBridge.exposeInMainWorld("api", {
   // Bidirectional, renderer to main to renderer
   // General
   getAppVersion: () => ipcRenderer.invoke("getAppVersion"),
+  getDevMode: () => ipcRenderer.invoke("getDevMode"),
   selectDir: () => ipcRenderer.invoke("selectDir"),
   selectFiles: () => ipcRenderer.invoke("selectFiles"),
   saveSettings: (settings: SettingsType) =>
