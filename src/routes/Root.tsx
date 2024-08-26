@@ -118,22 +118,23 @@ export default function Root() {
       );
 
       if (coursePath.length === 0) {
-        throw new Error("ui_course_folder_invalid");
-      }
-
-      const course: CourseData = await handleIPCResult(() =>
-        window.api.handleGetCourseFS(coursePath)
-      );
-
-      if (course) {
-        handleActiveCourse(course);
-        handleActivePath(coursePath);
-        handleHeaderCourseID(course.id);
-        handleHeaderCourseTitle(course.title);
-        window.api.setCoursePath(coursePath);
-      } else {
         snackbarSeverity = "info";
-        snackbarText = "ui_course_folder_invalid";
+        snackbarText = "ui_action_canceled";
+      } else {
+        const course: CourseData = await handleIPCResult(() =>
+          window.api.handleGetCourseFS(coursePath)
+        );
+
+        if (course) {
+          handleActiveCourse(course);
+          handleActivePath(coursePath);
+          handleHeaderCourseID(course.id);
+          handleHeaderCourseTitle(course.title);
+          window.api.setCoursePath(coursePath);
+        } else {
+          snackbarSeverity = "error";
+          snackbarText = "ui_course_folder_invalid";
+        }
       }
     } catch (err) {
       snackbarSeverity = "error";
