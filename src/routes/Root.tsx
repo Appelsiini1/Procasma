@@ -283,6 +283,7 @@ export default function Root() {
                         : navigate("/inputCodeProjectWork");
                     }}
                     ariaLabel={parseUICode("ui_aria_nav_add_project")}
+                    disabled={true}
                   >
                     {parseUICode("ui_project_work")}
                   </ButtonComp>
@@ -297,6 +298,7 @@ export default function Root() {
                       });
                     }}
                     ariaLabel={parseUICode("ui_add")}
+                    disabled={true}
                   >
                     {parseUICode("ui_other")}
                   </ButtonComp>
@@ -383,7 +385,10 @@ export default function Root() {
                 buttonType="export"
                 onClick={() => navigate("/exportProject")}
                 ariaLabel={parseUICode("ui_aria_nav_export_project")}
-                disabled={activeCourse ? false : true}
+                disabled={
+                  //activeCourse ? false : true
+                  true
+                }
               >
                 {parseUICode("ui_export_project")}
               </ButtonComp>
