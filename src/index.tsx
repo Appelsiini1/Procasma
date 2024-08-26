@@ -27,8 +27,10 @@ import {
 import SnackbarComp from "./components/SnackBarComp";
 import { Layout } from "./components/Layout";
 import LicensesPage from "./routes/LicensesPage";
+import { DEVMODE } from "./constantsUI";
 
 log.info("-- START OF PROCASMA RENDERER --");
+log.info(`DEVMODE: ${DEVMODE}`);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 

@@ -32,6 +32,7 @@ import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
 import HelpText from "../components/HelpText";
 import { assignmentDataFolder } from "../constants";
+import { DEVMODE } from "../constantsUI";
 
 export default function AssignmentBrowse() {
   const {
@@ -435,13 +436,17 @@ export default function AssignmentBrowse() {
         >
           {parseUICode("ui_cancel")}
         </ButtonComp>
-        <ButtonComp
-          buttonType="debug"
-          onClick={() => console.log(courseAssignments)}
-          ariaLabel={" debug "}
-        >
-          log all assignments
-        </ButtonComp>
+        {DEVMODE ? (
+          <ButtonComp
+            buttonType="debug"
+            onClick={() => console.log(courseAssignments)}
+            ariaLabel={" debug "}
+          >
+            log all assignments
+          </ButtonComp>
+        ) : (
+          ""
+        )}
       </Stack>
     </>
   );
