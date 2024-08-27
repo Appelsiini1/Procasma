@@ -522,6 +522,8 @@ async function _handleAddOrUpdateAssignmentFS(
       assignmentHash = _generateAssignmentHashFS(assignment);
     }
 
+    let hashFolderPath;
+    let assignmentPath;
     if (!oldAssignment) {
       // if saving new assignment, throw error if
       // identically named one exists
@@ -530,12 +532,13 @@ async function _handleAddOrUpdateAssignmentFS(
       }
 
       _createAssignmentFolderFS(assignment, assignmentDataPath, assignmentHash);
+      hashFolderPath = path.join(assignmentDataPath, assignmentHash);
+
+      assignmentPath = _getCourseRelativePathFS(hashFolderPath, coursePath);
+      assignment.folder = assignmentPath;
+    } else {
+      hashFolderPath = path.join(coursePath, assignment.folder);
     }
-
-    const hashFolderPath = path.join(assignmentDataPath, assignmentHash);
-
-    const assignmentPath = _getCourseRelativePathFS(hashFolderPath, coursePath);
-    assignment.folder = assignmentPath;
 
     // create variant folders and copy files
     const variations: { [key: string]: Variation } = assignment.variations;
@@ -860,10 +863,12 @@ export function _handleAddOrUpdateSetFS(
     const setsPath = path.join(coursePath, "sets.json");
     let oldSets: ExportSetData[] = handleReadFileFS(setsPath, true);
 
+    let isOldSet: boolean;
     if (oldSets) {
       // find a set with a matching name
       const match = oldSets.find((isOldSet) => isOldSet.name === set.name);
 
+      isOldSet = match ? true : false;
       // a name match when adding a new set throws an error and
       // if the set is old, make sure that the id is the same
       if (match && (!isOldSet || match.id !== set.id)) {
@@ -874,6 +879,7 @@ export function _handleAddOrUpdateSetFS(
       newSets = newSets.concat(oldSets);
     } else {
       oldSets = [];
+      isOldSet = false;
     }
 
     // generate an id for the set if it is new

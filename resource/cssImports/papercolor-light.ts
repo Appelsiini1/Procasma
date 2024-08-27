@@ -54,6 +54,10 @@ img {
   max-width: 100%;
 }
 
+ul.start {
+  line-height: 90%;
+}
+
 .container {
   width: 18cm;
   margin-top: 0.5cm;
