@@ -228,6 +228,11 @@ export interface PDFHtmlInput {
   title: string;
 }
 
+export interface ImportAssignment {
+  originalFolder: string;
+  assignmentData: CodeAssignmentData;
+}
+
 export type ContextBridgeAPI = {
   // One-way, Renderer to Main
   setTitle: (title: string) => IpcResult;

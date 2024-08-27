@@ -428,12 +428,6 @@ export async function addAssignmentDB(
 ): Promise<string> {
   return _execOperationDB(coursePath, async (db: sqlite3.Database) => {
     try {
-      // This may need to be changed in the future!!
-      const assignmentPath = path.join(
-        "assignmentData",
-        assignment.assignmentID
-      );
-
       const result = await new Promise((resolve, reject) => {
         db.serialize(() => {
           db.run(
@@ -449,7 +443,7 @@ export async function addAssignmentDB(
               assignment.position.toString(),
               assignment.level,
               isExpanding(assignment) ? 1 : 0,
-              assignmentPath,
+              assignment.folder,
             ],
             (err) => {
               if (err) {
