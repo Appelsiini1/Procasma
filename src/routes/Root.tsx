@@ -157,7 +157,7 @@ export default function Root() {
   return (
     <>
       <div className="menuContent">
-        <div style={{ height: "10rem" }}>
+        <div style={{ height: "8rem" }}>
           <FadeInImage src={LogoText} className="textLogo" alt="main logo" />
         </div>
 
