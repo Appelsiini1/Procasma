@@ -53,6 +53,25 @@ interface AssignmentInput {
   courseData: CourseData;
 }
 
+function sortAssignments(
+  a: CodeAssignmentSelectionData,
+  b: CodeAssignmentSelectionData
+) {
+  if (a.selectedModule < b.selectedModule) {
+    return -1;
+  } else if (a.selectedModule > b.selectedModule) {
+    return 1;
+  } else if (a.selectedModule === b.selectedModule) {
+    if (a.selectedPosition < b.selectedPosition) {
+      return -1;
+    } else if (a.selectedPosition > b.selectedPosition) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
 // Set converter
 export function setToFullData(set: ExportSetData): FullAssignmentSetData {
   let assignmentArray: CodeAssignmentSelectionData[] = [];
@@ -77,21 +96,7 @@ export function setToFullData(set: ExportSetData): FullAssignmentSetData {
     };
     assignmentArray.push(newAssignment);
   }
-  assignmentArray.sort((a, b) => {
-    if (a.selectedModule < b.selectedModule) {
-      return -1;
-    } else if (a.selectedModule > b.selectedModule) {
-      return 1;
-    } else if (a.selectedModule === b.selectedModule) {
-      if (a.selectedPosition < b.selectedPosition) {
-        return -1;
-      } else if (a.selectedPosition > b.selectedPosition) {
-        return 1;
-      }
-    }
-
-    return 0;
-  });
+  assignmentArray.sort((a, b) => sortAssignments(a, b));
   const newSet: FullAssignmentSetData = {
     assignmentArray: assignmentArray,
     ...set,
@@ -176,9 +181,9 @@ export async function exportSetFS(
     await Promise.all(
       modules.map(async (module) => {
         // get assignments where selectedModule is correct
-        const moduleAssignments = fullAssignments.filter(
-          (a) => a.selectedModule === module.id
-        );
+        const moduleAssignments = fullAssignments
+          .filter((a) => a.selectedModule === module.id)
+          .sort((a, b) => sortAssignments(a, b));
 
         let moduleString = "";
         const css = papercolorLight;
@@ -627,7 +632,7 @@ function generateStart(subjects: string, instructions: string): string {
   const splitSubjects = subjects.split("\n").map((value, index) => {
     return `<li id="${index}">${formatMarkdown(value)}</li>`;
   });
-  block += "<ul>";
+  block += '<ul class="start">';
   for (const item of splitSubjects) {
     block += item;
   }

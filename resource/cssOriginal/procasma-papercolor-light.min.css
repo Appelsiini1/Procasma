@@ -54,6 +54,9 @@ img {
   min-width: 15%;
   max-width: 100%;
 }
+ul.start {
+  line-height: 90%;
+}
 
 .container {
   width: 18cm;
