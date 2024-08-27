@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createHashRouter, RouterProvider } from "react-router-dom";
 import ErrorPage from "./routes/ErrorPage";
 import Root from "./routes/Root";
 import Course from "./routes/Course";
@@ -27,11 +27,10 @@ import {
 import SnackbarComp from "./components/SnackBarComp";
 import { Layout } from "./components/Layout";
 import LicensesPage from "./routes/LicensesPage";
-import { DEVMODE } from "./globalsUI";
+import { DEVMODE } from "./constantsUI";
 
-DEVMODE.devmode = await window.api.getDevMode();
 log.info("-- START OF PROCASMA RENDERER --");
-log.info(`DEVMODE: ${DEVMODE.devmode}`);
+log.info(`DEVMODE: ${DEVMODE}`);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -40,7 +39,7 @@ const App = () => {
     useContext(UIContext);
   const { activeAssignment, activeModule, activeSet } =
     useContext(ActiveObjectContext);
-  const router = createBrowserRouter([
+  const router = createHashRouter([
     {
       path: "/",
       element: <Layout />,
