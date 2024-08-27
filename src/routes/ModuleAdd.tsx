@@ -16,8 +16,8 @@ import {
   pageTableMaxWidth,
   pageTableMinWidth,
   titleCellWidth,
+  DEVMODE,
 } from "../constantsUI";
-import { DEVMODE } from "../globalsUI";
 
 export default function ModuleAdd() {
   const {
@@ -236,7 +236,7 @@ export default function ModuleAdd() {
             {parseUICode("ui_cancel")}
           </ButtonComp>
 
-          {DEVMODE.devmode ? (
+          {DEVMODE ? (
             <ButtonComp
               buttonType="debug"
               onClick={() => console.log(module)}

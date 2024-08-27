@@ -175,4 +175,3 @@ class Settings implements SettingsType {
 export const language = new CurrentLanguage();
 export const currentCourse = new CurrentCourse();
 export const globalSettings = new Settings();
-export const DEVMODE: { devmode: boolean } = { devmode: null };

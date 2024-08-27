@@ -4,7 +4,7 @@ import { version as packageVersion } from "../package.json";
 
 export const version = packageVersion;
 export const courseMetaDataFileName = "course_info.json";
-export const DEVMODE = false;
+export const DEVMODE = true;
 export const textExtensions = ["txt", "md"];
 export const dataExtensions = ["csv", "yml", "yaml", "log"];
 export const imageExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "svg"];

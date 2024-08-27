@@ -4,6 +4,7 @@ import {
   pageTableMaxWidth,
   pageTableMinWidth,
   titleCellWidth,
+  DEVMODE,
 } from "../constantsUI";
 import { Box, Divider, Grid, List, Stack, Table, Typography } from "@mui/joy";
 import InputField from "../components/InputField";
@@ -38,7 +39,7 @@ import {
   wrapWithCheck,
 } from "../rendererHelpers/browseHelpers";
 import { isExpanding } from "../rendererHelpers/assignment";
-import { globalSettings, DEVMODE } from "../globalsUI";
+import { globalSettings } from "../globalsUI";
 
 export default function AssignmentInput() {
   const {
@@ -546,7 +547,7 @@ export default function AssignmentInput() {
         >
           {parseUICode("ui_cancel")}
         </ButtonComp>
-        {DEVMODE.devmode ? (
+        {DEVMODE ? (
           <>
             <ButtonComp
               buttonType="debug"
