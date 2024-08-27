@@ -522,6 +522,8 @@ async function _handleAddOrUpdateAssignmentFS(
       assignmentHash = _generateAssignmentHashFS(assignment);
     }
 
+    let hashFolderPath;
+    let assignmentPath;
     if (!oldAssignment) {
       // if saving new assignment, throw error if
       // identically named one exists
@@ -530,12 +532,13 @@ async function _handleAddOrUpdateAssignmentFS(
       }
 
       _createAssignmentFolderFS(assignment, assignmentDataPath, assignmentHash);
+      hashFolderPath = path.join(assignmentDataPath, assignmentHash);
+
+      assignmentPath = _getCourseRelativePathFS(hashFolderPath, coursePath);
+      assignment.folder = assignmentPath;
+    } else {
+      hashFolderPath = path.join(coursePath, assignment.folder);
     }
-
-    const hashFolderPath = path.join(assignmentDataPath, assignmentHash);
-
-    const assignmentPath = _getCourseRelativePathFS(hashFolderPath, coursePath);
-    assignment.folder = assignmentPath;
 
     // create variant folders and copy files
     const variations: { [key: string]: Variation } = assignment.variations;
