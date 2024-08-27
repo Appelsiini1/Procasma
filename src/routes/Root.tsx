@@ -1,5 +1,5 @@
 import { dividerSX, smallDividerSX } from "../constantsUI";
-import LogoText from "../../resource/LogoText.png";
+import LogoText from "../../resource/LogoTextSmall.png";
 import { Box, Divider, Grid, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
 import { useNavigate } from "react-router-dom";
