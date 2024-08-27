@@ -7,7 +7,7 @@ import {
   ExportSetData,
   FileData,
   FormatType,
-  FullAssignmentSetData,
+  ImportAssignment,
   ModuleData,
   SetAlgoAssignmentData,
   SetVariation,
@@ -25,6 +25,7 @@ import {
   addModuleDB,
   deleteAssignmentsDB,
   getAssignmentByTitleDB,
+  getAssignmentsDB,
   getModulesDB,
   initDB,
   updateAssignmentDB,
@@ -342,30 +343,29 @@ async function _deleteOldFilesFromVariationsFS(
   }
 }
 
-export function handleGetAssignmentsFS(
+export async function handleGetAssignmentsFS(
   coursePath: string,
   id?: string
-): CodeAssignmentData[] | null {
+): Promise<CodeAssignmentData[]> {
   try {
     if (!coursePath || coursePath.length === 0) {
       throw new Error("ui_no_course_path_selected");
     }
-
-    const assignmentDataPath = path.join(coursePath, assignmentDataFolder);
     const assignments: CodeAssignmentData[] = [];
 
     // Loop through all the files in the temp directory
-    const files = fs.readdirSync(assignmentDataPath);
+    const assignmentsDB = await getAssignmentsDB(coursePath);
 
-    files.forEach(function (file) {
-      if (id && file != id) {
+    assignmentsDB.forEach(function (assignmentDB) {
+      const currentID = assignmentDB.id;
+      if (id && currentID !== id) {
         // if id is provided...
         return; // skip the file if id does not match.
       }
-      const hashFile = `${file}.json`;
+      const hashFile = `${currentID}.json`;
       const assignmentPath: string = path.join(
-        assignmentDataPath,
-        file,
+        coursePath,
+        assignmentDB.path,
         hashFile
       );
 
@@ -387,12 +387,12 @@ export function handleGetAssignmentsFS(
  * example run attributes such that only the information
  * relevant to (e.g.) the set generation algorithm is kept.
  */
-export function getTruncatedAssignmentsFS(
+export async function getTruncatedAssignmentsFS(
   coursePath: string,
   id?: string
-): SetAlgoAssignmentData[] {
+): Promise<SetAlgoAssignmentData[]> {
   try {
-    const originals = handleGetAssignmentsFS(coursePath, id);
+    const originals = await handleGetAssignmentsFS(coursePath, id);
     const truncateds: SetAlgoAssignmentData[] = originals.map((assignment) => {
       const oldVariations = assignment.variations;
       const truncatedVariations = Object.keys(oldVariations).reduce(
@@ -424,12 +424,12 @@ export function getTruncatedAssignmentsFS(
   }
 }
 
-function _AssignmentExistsFS(
+async function _AssignmentExistsFS(
   assignmentName: string,
   coursePath: string
-): boolean {
+): Promise<boolean> {
   try {
-    const assignments = handleGetAssignmentsFS(coursePath);
+    const assignments = await handleGetAssignmentsFS(coursePath);
 
     const sameNameAssignment = assignments.find((prevAssignment) => {
       return prevAssignment?.title === assignmentName ? true : false;
@@ -620,9 +620,9 @@ export async function handleDeleteAssignmentsFS(
   ids: string[]
 ) {
   try {
-    ids.map((id) => {
+    ids.map(async (id) => {
       // delete the id from the "next" field of other assignments
-      const assignmentsResult = handleGetAssignmentsFS(coursePath, id);
+      const assignmentsResult = await handleGetAssignmentsFS(coursePath, id);
       _modifyConsecutiveAssignmentsFS(
         coursePath,
         assignmentsResult[0].assignmentID,
@@ -715,6 +715,60 @@ function parseAssignmentFolderVariations(
   return;
 }
 
+export async function _handleAddImportedAssignmentWithSameFolderFS(
+  assignmentData: ImportAssignment,
+  coursePath: string
+) {
+  try {
+    const assignment = assignmentData.assignmentData;
+    const assignmentFolder = assignmentData.originalFolder;
+    const title = assignment?.title;
+    if (!title || title.length < 1) {
+      throw new Error("ui_add_assignment_title");
+    }
+    const assignmentDataPath = path.join(
+      coursePath,
+      assignmentDataFolder,
+      assignmentFolder
+    );
+    let assignmentHash: string | null = assignment?.assignmentID;
+    if (!assignmentHash) {
+      assignmentHash = _generateAssignmentHashFS(assignment);
+    }
+
+    assignment.folder = path.join(assignmentDataFolder, assignmentFolder);
+
+    // create variant folders and copy files
+    const variations: { [key: string]: Variation } = assignment.variations;
+    _copyVariationFilesFS(variations, assignmentDataPath, coursePath);
+
+    assignment.assignmentID = assignmentHash;
+
+    const assignmentJSON: string = JSON.stringify(assignment);
+    const hashFilePath = path.join(
+      assignmentDataPath,
+      `${assignmentHash}.json`
+    );
+
+    // add the id to the "next" field of all "previous" assignments
+    _modifyConsecutiveAssignmentsFS(
+      coursePath,
+      assignment.assignmentID,
+      assignment.previous,
+      "next",
+      true
+    );
+
+    // save assignment data
+    fs.writeFileSync(hashFilePath, assignmentJSON, "utf8");
+
+    await addAssignmentDB(coursePath, assignment);
+  } catch (err) {
+    log.error("Error in _handleAddOrUpdateAssignmentFS():", err.message);
+    throw err;
+  }
+}
+
 /**
  * Read an assignment directory and import all the contained assignments.
  */
@@ -722,27 +776,31 @@ export async function importAssignmentsFS(
   coursePath: string,
   importPath: string
 ) {
-  let newAssignments: CodeAssignmentData[] = [];
+  let newAssignments: ImportAssignment[] = [];
   try {
-    if (path.basename(importPath) !== assignmentDataFolder) {
-      throw new Error("ui_folder_invalid");
-    }
-
     // parse each assignment
     const assignmentFolders = fs.readdirSync(importPath);
     newAssignments = await Promise.all(
       assignmentFolders.map(async (assignmentFolder) => {
         const assignmentPath = path.join(importPath, assignmentFolder);
-        const newAssignment: CodeAssignmentData = deepCopy(defaultAssignment);
+        const newAssignment: ImportAssignment = {
+          assignmentData: deepCopy(defaultAssignment),
+          originalFolder: assignmentFolder,
+        };
 
         // extract the module and title from the folder name
         const fileNameParts = assignmentFolder.split(" ");
         const letterAndModule = fileNameParts.shift();
-        newAssignment.module = parseInt(letterAndModule.slice(1));
-        newAssignment.title = fileNameParts.join(" ");
+        newAssignment.assignmentData.module = parseInt(
+          letterAndModule.slice(1)
+        );
+        newAssignment.assignmentData.title = fileNameParts.join(" ");
 
         // parse each variation
-        parseAssignmentFolderVariations(newAssignment, assignmentPath);
+        parseAssignmentFolderVariations(
+          newAssignment.assignmentData,
+          assignmentPath
+        );
         return newAssignment;
       })
     );
@@ -750,22 +808,35 @@ export async function importAssignmentsFS(
     // write the assignments
     let assignmentCount = 0;
     await Promise.all(
-      newAssignments.map(async (newAssignment) => {
+      newAssignments.map(async (importedAssignment) => {
         // look for an assignment with the same title and only
         // add the assignment if one doesn't exist
+        const newAssignment = importedAssignment.assignmentData;
         const oldAssignments = await getAssignmentByTitleDB(
           coursePath,
           newAssignment.title
         );
         const isDuplicateAssignment = oldAssignments?.length > 0;
-        if (!isDuplicateAssignment) {
+        if (
+          !isDuplicateAssignment &&
+          path.join(coursePath, assignmentDataFolder) !== importPath
+        ) {
           await handleAddAssignmentFS(newAssignment, coursePath);
+          assignmentCount++;
+        } else if (
+          !isDuplicateAssignment &&
+          path.join(coursePath, assignmentDataFolder) === importPath
+        ) {
+          _handleAddImportedAssignmentWithSameFolderFS(
+            importedAssignment,
+            coursePath
+          );
           assignmentCount++;
         }
       })
     );
 
-    return `${parseUICodeMain("ui_imported_assignments")} ${assignmentCount}`;
+    return `${assignmentCount} ${parseUICodeMain("ui_imported_assignments")}`;
   } catch (err) {
     log.error("Error in importAssignmentsFS():", err.message);
     throw err;
@@ -1003,7 +1074,7 @@ export async function saveSetModuleFS(
 export async function autoGenerateModulesFS(coursePath: string) {
   try {
     let addedModules = 0;
-    const assignments = handleGetAssignmentsFS(coursePath);
+    const assignments = await handleGetAssignmentsFS(coursePath);
 
     // store the highest assignment position for each module
     const newModules: { [key: number]: number } = {};
