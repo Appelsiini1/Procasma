@@ -9,6 +9,7 @@ const { FuseV1Options, FuseVersion } = require("@electron/fuses");
 const config = {
   packagerConfig: {
     asar: true,
+    icon: "resource/icons/Logo",
   },
   rebuildConfig: {},
   makers: [

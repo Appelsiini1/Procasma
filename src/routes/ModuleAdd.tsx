@@ -13,10 +13,10 @@ import { useContext, useEffect } from "react";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
 import {
-  DEVMODE,
   pageTableMaxWidth,
   pageTableMinWidth,
   titleCellWidth,
+  DEVMODE,
 } from "../constantsUI";
 
 export default function ModuleAdd() {

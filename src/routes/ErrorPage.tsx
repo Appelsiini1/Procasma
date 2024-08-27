@@ -1,5 +1,6 @@
 import {
   isRouteErrorResponse,
+  useLocation,
   useNavigate,
   useRouteError,
 } from "react-router-dom";
@@ -28,14 +29,19 @@ export default function ErrorPage() {
     errorMessage = `${error.status} ${error.statusText}`;
   } else if (error != undefined && isRouterError(error)) {
     errorMessage = error.message;
+    log.error(error.message);
   } else if (typeof error === "string") {
     errorMessage = error;
+    log.error(error);
   } else {
     console.error(error);
     log.error(error);
     errorMessage = "Unknown error";
   }
   const navigate = useNavigate();
+  const location = useLocation();
+  log.error(location.pathname);
+  log.error(location.state);
   return (
     <div id="error-page" className="menuContent">
       <img src={LogoText} className="textLogo" />

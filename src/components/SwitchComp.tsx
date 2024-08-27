@@ -4,9 +4,14 @@ import React from "react";
 type ButtonProps = {
   checked: boolean;
   setChecked: React.Dispatch<React.SetStateAction<boolean>>;
+  disabled?: boolean;
 };
 
-export default function SwitchComp({ checked, setChecked }: ButtonProps) {
+export default function SwitchComp({
+  checked,
+  setChecked,
+  disabled = false,
+}: ButtonProps) {
   return (
     <Switch
       size="lg"
@@ -14,6 +19,7 @@ export default function SwitchComp({ checked, setChecked }: ButtonProps) {
       onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
         setChecked(event.target.checked)
       }
+      disabled={disabled}
       sx={{
         "--Switch-thumbSize": "18px",
         "--Switch-trackWidth": "60px",

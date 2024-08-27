@@ -1,5 +1,5 @@
 import { dividerSX, smallDividerSX } from "../constantsUI";
-import LogoText from "../../resource/LogoText.png";
+import LogoText from "../../resource/LogoTextSmall.png";
 import { Box, Divider, Grid, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
 import { useNavigate } from "react-router-dom";
@@ -118,22 +118,23 @@ export default function Root() {
       );
 
       if (coursePath.length === 0) {
-        throw new Error("ui_course_folder_invalid");
-      }
-
-      const course: CourseData = await handleIPCResult(() =>
-        window.api.handleGetCourseFS(coursePath)
-      );
-
-      if (course) {
-        handleActiveCourse(course);
-        handleActivePath(coursePath);
-        handleHeaderCourseID(course.id);
-        handleHeaderCourseTitle(course.title);
-        window.api.setCoursePath(coursePath);
-      } else {
         snackbarSeverity = "info";
-        snackbarText = "ui_course_folder_invalid";
+        snackbarText = "ui_action_canceled";
+      } else {
+        const course: CourseData = await handleIPCResult(() =>
+          window.api.handleGetCourseFS(coursePath)
+        );
+
+        if (course) {
+          handleActiveCourse(course);
+          handleActivePath(coursePath);
+          handleHeaderCourseID(course.id);
+          handleHeaderCourseTitle(course.title);
+          window.api.setCoursePath(coursePath);
+        } else {
+          snackbarSeverity = "error";
+          snackbarText = "ui_course_folder_invalid";
+        }
       }
     } catch (err) {
       snackbarSeverity = "error";
@@ -156,7 +157,7 @@ export default function Root() {
   return (
     <>
       <div className="menuContent">
-        <div style={{ height: "10rem" }}>
+        <div style={{ height: "8rem" }}>
           <FadeInImage src={LogoText} className="textLogo" alt="main logo" />
         </div>
 
@@ -282,6 +283,7 @@ export default function Root() {
                         : navigate("/inputCodeProjectWork");
                     }}
                     ariaLabel={parseUICode("ui_aria_nav_add_project")}
+                    disabled={true}
                   >
                     {parseUICode("ui_project_work")}
                   </ButtonComp>
@@ -296,6 +298,7 @@ export default function Root() {
                       });
                     }}
                     ariaLabel={parseUICode("ui_add")}
+                    disabled={true}
                   >
                     {parseUICode("ui_other")}
                   </ButtonComp>
@@ -382,7 +385,10 @@ export default function Root() {
                 buttonType="export"
                 onClick={() => navigate("/exportProject")}
                 ariaLabel={parseUICode("ui_aria_nav_export_project")}
-                disabled={activeCourse ? false : true}
+                disabled={
+                  //activeCourse ? false : true
+                  true
+                }
               >
                 {parseUICode("ui_export_project")}
               </ButtonComp>

@@ -39,4 +39,4 @@ export const smallDividerSX = {
   marginLeft: "7rem",
   marginRight: "7rem",
 };
-export const DEVMODE = await window.api.getDevMode();
+export const DEVMODE = false;

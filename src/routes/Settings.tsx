@@ -99,7 +99,11 @@ export default function Settings() {
               </Typography>
             </td>
             <td>
-              <InputField fieldKey="caSetName" onChange={null} />
+              <InputField
+                fieldKey="caSetName"
+                onChange={null}
+                disabled={true}
+              />
             </td>
           </tr>
 
@@ -110,7 +114,11 @@ export default function Settings() {
               </Typography>
             </td>
             <td>
-              <InputField fieldKey="caSetName" onChange={null} />
+              <InputField
+                fieldKey="caSetName"
+                onChange={null}
+                disabled={true}
+              />
             </td>
           </tr>
 
@@ -121,7 +129,11 @@ export default function Settings() {
               </Typography>
             </td>
             <td>
-              <InputField fieldKey="caSetName" onChange={null} />
+              <InputField
+                fieldKey="caSetName"
+                onChange={null}
+                disabled={true}
+              />
             </td>
           </tr>
 
@@ -131,6 +143,7 @@ export default function Settings() {
                 buttonType="normalAlt"
                 onClick={null}
                 ariaLabel={parseUICode("ui_aria_cg_sign_in")}
+                disabled={true}
               >
                 {parseUICode("ui_sign_in")}
               </ButtonComp>

@@ -22,7 +22,6 @@ import { ActiveObjectContext, UIContext } from "../components/Context";
 import {
   calculateBadnesses,
   exportManySetsToDisk,
-  exportSetToDisk,
   importSetData,
 } from "../rendererHelpers/setHelpers";
 

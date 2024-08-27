@@ -76,7 +76,7 @@ export const defaultVariation: Variation = {
 };
 
 export const defaultExampleRun: ExampleRunType = {
-  generate: true,
+  generate: false,
   inputs: [],
   cmdInputs: [],
   output: "",

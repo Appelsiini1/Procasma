@@ -109,6 +109,7 @@ export default function ExampleRun({
               setChecked={(value: boolean) =>
                 handleAssignment(`${pathInAssignment}.generate`, value)
               }
+              disabled={true}
             />
           </Stack>
 

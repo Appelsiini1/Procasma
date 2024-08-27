@@ -60,6 +60,7 @@ const createWindow = () => {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
     },
+    icon: "../resource/icons/icon",
   });
 
   // and load the index.html of the app.
