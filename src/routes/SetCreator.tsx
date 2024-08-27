@@ -1,5 +1,5 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
-import { DEVMODE, dividerSX } from "../constantsUI";
+import { dividerSX } from "../constantsUI";
 import { Box, Divider, Grid, List, Stack, Table, Typography } from "@mui/joy";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
@@ -38,6 +38,7 @@ import {
   exportSetData,
   exportSetToDisk,
 } from "../rendererHelpers/setHelpers";
+import { DEVMODE } from "../globalsUI";
 
 interface LegalMove {
   module: number;
@@ -933,7 +934,7 @@ export default function SetCreator() {
         )}
       </Stack>
       <div className="emptySpace2" style={{ marginTop: "auto" }} />
-      {DEVMODE ? (
+      {DEVMODE.devmode ? (
         <Stack
           direction="row"
           justifyContent="flex-start"

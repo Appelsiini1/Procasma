@@ -1,6 +1,5 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
 import {
-  DEVMODE,
   dividerColor,
   pageTableMaxWidth,
   pageTableMinWidth,
@@ -39,7 +38,7 @@ import {
   wrapWithCheck,
 } from "../rendererHelpers/browseHelpers";
 import { isExpanding } from "../rendererHelpers/assignment";
-import { globalSettings } from "../globalsUI";
+import { globalSettings, DEVMODE } from "../globalsUI";
 
 export default function AssignmentInput() {
   const {
@@ -547,7 +546,7 @@ export default function AssignmentInput() {
         >
           {parseUICode("ui_cancel")}
         </ButtonComp>
-        {DEVMODE ? (
+        {DEVMODE.devmode ? (
           <>
             <ButtonComp
               buttonType="debug"

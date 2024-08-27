@@ -13,11 +13,11 @@ import { useContext, useEffect } from "react";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
 import {
-  DEVMODE,
   pageTableMaxWidth,
   pageTableMinWidth,
   titleCellWidth,
 } from "../constantsUI";
+import { DEVMODE } from "../globalsUI";
 
 export default function ModuleAdd() {
   const {
@@ -236,7 +236,7 @@ export default function ModuleAdd() {
             {parseUICode("ui_cancel")}
           </ButtonComp>
 
-          {DEVMODE ? (
+          {DEVMODE.devmode ? (
             <ButtonComp
               buttonType="debug"
               onClick={() => console.log(module)}

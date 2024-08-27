@@ -6,9 +6,8 @@ import {
   pageTableMaxWidth,
   pageTableMinWidth,
   titleCellWidth,
-  DEVMODE,
 } from "../constantsUI";
-import { globalSettings, language } from "../globalsUI";
+import { globalSettings, language, DEVMODE } from "../globalsUI";
 import { Grid, IconButton, Stack, Table, Typography } from "@mui/joy";
 import InputField from "../components/InputField";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
@@ -428,7 +427,7 @@ export default function Course() {
           >
             {parseUICode("ui_cancel")}
           </ButtonComp>
-          {DEVMODE ? (
+          {DEVMODE.devmode ? (
             <ButtonComp
               buttonType="debug"
               onClick={() => console.log(course)}
