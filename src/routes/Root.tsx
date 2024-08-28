@@ -157,11 +157,11 @@ export default function Root() {
   return (
     <>
       <div className="menuContent">
-        <div style={{ height: "8rem" }}>
+        <div style={{ height: "7rem" }}>
           <FadeInImage src={LogoText} className="textLogo" alt="main logo" />
         </div>
 
-        <Typography level="h4" sx={{ paddingBottom: "2rem" }}>
+        <Typography level="h4" sx={{ paddingBottom: "1.5rem" }}>
           {parseUICode("ui_no_assignments_index") +
             ": " +
             `${assignmentsInIndex ? String(assignmentsInIndex) : "0"}`}
