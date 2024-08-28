@@ -54,8 +54,8 @@ img {
   min-width: 15%;
   max-width: 100%;
 }
-ul.start {
-  line-height: 90%;
+li {
+  line-height: 1;
 }
 
 .container {
