@@ -50,6 +50,7 @@ export default function Root() {
   const [navigateToSet, setNavigateToSet] = useState(false);
   const [assignmentsInIndex, setAssignmentsInIndex] = useState(null);
   const navigate = useNavigate();
+  const [version, setVersion] = useState("");
 
   const refreshAssignmentsInIndex = async () => {
     try {
@@ -64,12 +65,21 @@ export default function Root() {
   };
 
   useEffect(() => {
-    refreshTitle();
+    //refreshTitle();
     handleHeaderPageName("ui_main");
     handleHeaderCourseID(activeCourse?.id);
     handleHeaderCourseTitle(activeCourse?.title);
   }, []);
 
+  useEffect(() => {
+    async function getVersion() {
+      const versionTemp = await handleIPCResult(() =>
+        window.api.getAppVersion()
+      );
+      setVersion(versionTemp);
+    }
+    getVersion();
+  }, []);
   // update the assignments in index count
   useEffect(() => {
     if (activePath) {
@@ -425,6 +435,8 @@ export default function Root() {
           </Grid>
           <div className="emptySpace3" />
         </Box>
+        <Typography>Procasma {version}</Typography>
+        <div />
       </div>
     </>
   );
