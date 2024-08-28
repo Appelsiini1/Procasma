@@ -170,9 +170,9 @@ export default function SetCreator() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_set_save_success";
     try {
+      handleSnackbar({ ["action"]: parseUICode("ui_export_status") });
       const exportedSet = exportSetData(set);
 
-      console.log("exportedSet: ", exportedSet);
       if (pageType === "manage") {
         await handleIPCResult(() =>
           window.api.updateSetFS(activePath, exportedSet)
