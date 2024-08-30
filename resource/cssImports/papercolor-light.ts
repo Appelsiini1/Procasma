@@ -63,8 +63,6 @@ img {
   background: #eee;
   width: 18cm;
   margin-top: 0.5cm;
-  padding-top: 1px;
-  padding-bottom: 1px;
 }
 .code-inner-container {
   margin-left: 6px;
