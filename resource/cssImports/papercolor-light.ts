@@ -54,10 +54,6 @@ img {
   max-width: 100%;
 }
 
-li {
-  line-height: 1.0;
-}
-
 .container {
   width: 18cm;
   margin-top: 0.5cm;
