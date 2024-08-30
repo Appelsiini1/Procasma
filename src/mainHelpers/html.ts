@@ -630,7 +630,9 @@ function generateStart(subjects: string, instructions: string): string {
 
   let block = `<div>`;
   const splitSubjects = subjects.split("\n").map((value, index) => {
-    return `<li id="${index}">${formatMarkdown(value)}</li>`;
+    return `<li id="${index}">${formatMarkdown(value)
+      .replaceAll("<p>", "")
+      .replaceAll("</p>", "")}</li>`;
   });
   block += '<ul class="start">';
   for (const item of splitSubjects) {
