@@ -339,11 +339,7 @@ export default function AssignmentBrowse() {
                 : parseUICode("ui_select_all")}
             </ButtonComp>
 
-            <HelpText
-              text={`${parseUICode(
-                "help_import_assignments"
-              )}: ${assignmentDataFolder}`}
-            >
+            <HelpText text={parseUICode("help_import_assignments")}>
               <ButtonComp
                 buttonType="import"
                 onClick={() => importAssignments()}

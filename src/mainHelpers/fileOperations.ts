@@ -666,56 +666,64 @@ function parseAssignmentFolderVariations(
   assignment: CodeAssignmentData,
   assignmentPath: string
 ) {
-  let newCodeLanguage: string = null;
+  try {
+    let newCodeLanguage: string = null;
 
-  const variationFolders = fs.readdirSync(assignmentPath);
-  variationFolders.forEach((variationId) => {
-    const variationPath = path.join(assignmentPath, variationId);
-    const newVariation: Variation = deepCopy(defaultVariation);
+    const variationFolders = fs.readdirSync(assignmentPath);
+    variationFolders.forEach((variationId) => {
+      try {
+        const variationPath = path.join(assignmentPath, variationId);
+        const newVariation: Variation = deepCopy(defaultVariation);
 
-    assignment.variations[variationId] = newVariation;
+        assignment.variations[variationId] = newVariation;
 
-    // parse each file inside a variation
-    const variationFiles = fs.readdirSync(variationPath);
-    variationFiles.forEach((variationFile) => {
-      // check if dir
-      const newFilePath = path.join(variationPath, variationFile);
-      const isDir = path.extname(variationFile) === "";
-      if (isDir) {
-        const innerFiles = fs.readdirSync(newFilePath);
-        innerFiles.forEach((innerFile) => {
-          const innerFilePath = path.join(
-            variationPath,
-            variationFile,
-            innerFile
-          );
-          const codeLanguage = addFileToVariation(
-            innerFilePath,
-            innerFile,
-            assignment,
-            variationId,
-            true
-          );
-          if (!newCodeLanguage && codeLanguage) {
-            newCodeLanguage = codeLanguage;
+        // parse each file inside a variation
+        const variationFiles = fs.readdirSync(variationPath);
+        variationFiles.forEach((variationFile) => {
+          // check if dir
+          const newFilePath = path.join(variationPath, variationFile);
+          const isDir = path.extname(variationFile) === "";
+          if (isDir) {
+            const innerFiles = fs.readdirSync(newFilePath);
+            innerFiles.forEach((innerFile) => {
+              const innerFilePath = path.join(
+                variationPath,
+                variationFile,
+                innerFile
+              );
+              const codeLanguage = addFileToVariation(
+                innerFilePath,
+                innerFile,
+                assignment,
+                variationId,
+                true
+              );
+              if (!newCodeLanguage && codeLanguage) {
+                newCodeLanguage = codeLanguage;
+              }
+            });
+          } else {
+            const codeLanguage = addFileToVariation(
+              newFilePath,
+              variationFile,
+              assignment,
+              variationId
+            );
+            if (!newCodeLanguage && codeLanguage) {
+              newCodeLanguage = codeLanguage;
+            }
           }
         });
-      } else {
-        const codeLanguage = addFileToVariation(
-          newFilePath,
-          variationFile,
-          assignment,
-          variationId
-        );
-        if (!newCodeLanguage && codeLanguage) {
-          newCodeLanguage = codeLanguage;
-        }
+      } catch (err) {
+        log.debug(err.name);
       }
     });
-  });
 
-  assignment.codeLanguage = newCodeLanguage;
-  return;
+    assignment.codeLanguage = newCodeLanguage;
+    return;
+  } catch (err) {
+    log.error("Error in parseAssignmentFolderVariations():", err.message);
+  }
 }
 
 export async function _handleAddImportedAssignmentWithSameFolderFS(
@@ -773,6 +781,56 @@ export async function _handleAddImportedAssignmentWithSameFolderFS(
 }
 
 /**
+ * Check if there is a JSON metadata in folder. If there is, add it.
+ * @param folder String of folder path
+ * @param coursePath CoursePath string
+ * @returns Boolean true if there was a JSON added
+ */
+async function checkJSONInFolder(folder: string, coursePath: string) {
+  try {
+    const assignmentFolders = fs.readdirSync(folder, {
+      withFileTypes: true,
+    });
+    const possibleJSON = assignmentFolders.find((value) => {
+      if (value.name.toLowerCase().endsWith(".json")) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    if (possibleJSON) {
+      const readjson: CodeAssignmentData = handleReadFileFS(
+        path.join(folder, possibleJSON.name)
+      );
+      if (readjson.title && readjson.assignmentType === "assignment") {
+        if (!readjson.assignmentID)
+          readjson.assignmentID = _generateAssignmentHashFS(readjson);
+        await addAssignmentDB(coursePath, readjson);
+        _modifyConsecutiveAssignmentsFS(
+          coursePath,
+          readjson.assignmentID,
+          readjson.next,
+          "next",
+          true
+        );
+        _modifyConsecutiveAssignmentsFS(
+          coursePath,
+          readjson.assignmentID,
+          readjson.previous,
+          "previous",
+          true
+        );
+        return true;
+      }
+    }
+    return false;
+  } catch (err) {
+    log.error("Error in checkJSONInFolder: ", err.message);
+    throw err;
+  }
+}
+
+/**
  * Read an assignment directory and import all the contained assignments.
  */
 export async function importAssignmentsFS(
@@ -780,19 +838,60 @@ export async function importAssignmentsFS(
   importPath: string
 ) {
   let newAssignments: ImportAssignment[] = [];
+  let assignmentCount = 0;
   try {
     // parse each assignment
-    const assignmentFolders = fs.readdirSync(importPath);
-    newAssignments = await Promise.all(
-      assignmentFolders.map(async (assignmentFolder) => {
-        const assignmentPath = path.join(importPath, assignmentFolder);
+    const assignmentFolders = fs.readdirSync(importPath, {
+      withFileTypes: true,
+    });
+    const folderMaxLength = Math.max(
+      ...assignmentFolders.map((value) => {
+        if (value.isDirectory()) {
+          return value.name.length;
+        } else return 0;
+      })
+    );
+    if (folderMaxLength <= 3) {
+      const possibleJSON = assignmentFolders.find((value) => {
+        if (value.name.toLowerCase().endsWith(".json")) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+      if (possibleJSON) {
+        const readjson: CodeAssignmentData = handleReadFileFS(
+          path.join(importPath, possibleJSON.name)
+        );
+        if (readjson.title && readjson.assignmentType === "assignment") {
+          if (!readjson.assignmentID)
+            readjson.assignmentID = _generateAssignmentHashFS(readjson);
+          await addAssignmentDB(coursePath, readjson);
+          _modifyConsecutiveAssignmentsFS(
+            coursePath,
+            readjson.assignmentID,
+            readjson.next,
+            "next",
+            true
+          );
+          _modifyConsecutiveAssignmentsFS(
+            coursePath,
+            readjson.assignmentID,
+            readjson.previous,
+            "previous",
+            true
+          );
+          return `${1} ${parseUICodeMain("ui_imported_assignments")}`;
+        } else {
+          throw new Error("error_unsupported_json_import");
+        }
+      } else {
         const newAssignment: ImportAssignment = {
           assignmentData: deepCopy(defaultAssignment),
-          originalFolder: assignmentFolder,
+          originalFolder: path.basename(importPath),
         };
-
-        // extract the module and title from the folder name
-        const fileNameParts = assignmentFolder.split(" ");
+        const fileNameParts = path.basename(importPath).split(" ");
+        log.debug("File name parts: ", fileNameParts);
         const letterAndModule = fileNameParts.shift();
         newAssignment.assignmentData.module = parseInt(
           letterAndModule.slice(1)
@@ -802,14 +901,54 @@ export async function importAssignmentsFS(
         // parse each variation
         parseAssignmentFolderVariations(
           newAssignment.assignmentData,
-          assignmentPath
+          importPath
         );
-        return newAssignment;
-      })
-    );
+        newAssignments.push(newAssignment);
+      }
+    } else {
+      newAssignments = await Promise.all(
+        assignmentFolders.map(async (assignmentFolder) => {
+          if (
+            !checkJSONInFolder(
+              path.join(importPath, assignmentFolder.name),
+              coursePath
+            )
+          ) {
+            const folderPath = path.join(
+              assignmentFolder.parentPath,
+              assignmentFolder.name
+            );
+            const assignmentPath = path.join(importPath, folderPath);
+            const newAssignment: ImportAssignment = {
+              assignmentData: deepCopy(defaultAssignment),
+              originalFolder: folderPath,
+            };
+
+            // extract the module and title from the folder name
+            const fileNameParts = assignmentFolder.name.split(" ");
+            const letterAndModule = fileNameParts.shift();
+            newAssignment.assignmentData.module = parseInt(
+              letterAndModule.slice(1)
+            );
+            newAssignment.assignmentData.title = fileNameParts.join(" ");
+
+            // parse each variation
+            parseAssignmentFolderVariations(
+              newAssignment.assignmentData,
+              assignmentPath
+            );
+            return newAssignment;
+          } else {
+            assignmentCount++;
+            return null;
+          }
+        })
+      );
+    }
+
+    log.debug(newAssignments);
 
     // write the assignments
-    let assignmentCount = 0;
     await Promise.all(
       newAssignments.map(async (importedAssignment) => {
         // look for an assignment with the same title and only
@@ -819,17 +958,25 @@ export async function importAssignmentsFS(
           coursePath,
           newAssignment.title
         );
+        const fullAssignmentDataFolder = path.join(
+          coursePath,
+          assignmentDataFolder
+        );
         const isDuplicateAssignment = oldAssignments?.length > 0;
         if (
           !isDuplicateAssignment &&
-          path.join(coursePath, assignmentDataFolder) !== importPath
+          fullAssignmentDataFolder !== importPath &&
+          fullAssignmentDataFolder !== path.dirname(importPath)
         ) {
+          log.debug("here");
           await handleAddAssignmentFS(newAssignment, coursePath);
           assignmentCount++;
         } else if (
           !isDuplicateAssignment &&
-          path.join(coursePath, assignmentDataFolder) === importPath
+          (fullAssignmentDataFolder === importPath ||
+            fullAssignmentDataFolder === path.dirname(importPath))
         ) {
+          log.debug("here2");
           _handleAddImportedAssignmentWithSameFolderFS(
             importedAssignment,
             coursePath
