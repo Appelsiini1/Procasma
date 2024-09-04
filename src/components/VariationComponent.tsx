@@ -19,7 +19,7 @@ import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
 import ExampleRunsGroup from "./ExampleRunsGroup";
 import { parseUICode } from "../rendererHelpers/translation";
 import {
-  ForceToString,
+  arrayToString,
   splitStringToArray,
 } from "../generalHelpers/converters";
 
@@ -113,7 +113,7 @@ export default function VariationComponent({
             <Grid xs={8}>
               <InputField
                 fieldKey="caUsedInInput"
-                defaultValue={ForceToString(variation?.usedIn)}
+                defaultValue={arrayToString(variation?.usedIn)}
                 onChange={(value: string) =>
                   handleAssignment(
                     `${pathInAssignment}.usedIn`,
