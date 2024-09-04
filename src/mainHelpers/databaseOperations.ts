@@ -489,7 +489,7 @@ async function _getAssignmentsDB(
             });
             resolve(formattedRows);
           } else {
-            reject(new Error("Could not find assignment in database."));
+            reject(undefined);
           }
         });
       });

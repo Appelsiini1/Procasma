@@ -99,9 +99,6 @@ function _SHAhashFS(content: string) {
  */
 function _removePathFS(path: string) {
   try {
-    if (!path.includes("Procasma")) {
-      throw new Error("ui_path_to_delete_not_in_project");
-    }
     fs.rmSync(path, { recursive: true, force: true });
     return;
   } catch (err) {
@@ -715,7 +712,7 @@ function parseAssignmentFolderVariations(
           }
         });
       } catch (err) {
-        log.debug(err.name);
+        log.error(err.name);
       }
     });
 
@@ -803,8 +800,14 @@ async function checkJSONInFolder(folder: string, coursePath: string) {
         path.join(folder, possibleJSON.name)
       );
       if (readjson.title && readjson.assignmentType === "assignment") {
-        if (!readjson.assignmentID)
+        if (!readjson.assignmentID) {
           readjson.assignmentID = _generateAssignmentHashFS(readjson);
+        } else {
+          const assig = await getAssignmentsDB(coursePath, [
+            readjson.assignmentID,
+          ]);
+          if (assig.length !== 0) return 0;
+        }
         await addAssignmentDB(coursePath, readjson);
         _modifyConsecutiveAssignmentsFS(
           coursePath,
@@ -820,10 +823,10 @@ async function checkJSONInFolder(folder: string, coursePath: string) {
           "previous",
           true
         );
-        return true;
+        return 1;
       }
     }
-    return false;
+    return -1;
   } catch (err) {
     log.error("Error in checkJSONInFolder: ", err.message);
     throw err;
@@ -907,20 +910,18 @@ export async function importAssignmentsFS(
     } else {
       newAssignments = await Promise.all(
         assignmentFolders.map(async (assignmentFolder) => {
-          if (
-            !checkJSONInFolder(
-              path.join(importPath, assignmentFolder.name),
-              coursePath
-            )
-          ) {
+          const checkJson = await checkJSONInFolder(
+            path.join(importPath, assignmentFolder.name),
+            coursePath
+          );
+          if (checkJson === -1) {
             const folderPath = path.join(
               assignmentFolder.parentPath,
               assignmentFolder.name
             );
-            const assignmentPath = path.join(importPath, folderPath);
             const newAssignment: ImportAssignment = {
               assignmentData: deepCopy(defaultAssignment),
-              originalFolder: folderPath,
+              originalFolder: assignmentFolder.name,
             };
 
             // extract the module and title from the folder name
@@ -934,9 +935,11 @@ export async function importAssignmentsFS(
             // parse each variation
             parseAssignmentFolderVariations(
               newAssignment.assignmentData,
-              assignmentPath
+              folderPath
             );
             return newAssignment;
+          } else if (checkJson === 0) {
+            return null;
           } else {
             assignmentCount++;
             return null;
@@ -948,29 +951,22 @@ export async function importAssignmentsFS(
     // write the assignments
     await Promise.all(
       newAssignments.map(async (importedAssignment) => {
-        // look for an assignment with the same title and only
-        // add the assignment if one doesn't exist
+        if (importedAssignment === null) return;
+
         const newAssignment = importedAssignment.assignmentData;
-        const oldAssignments = await getAssignmentByTitleDB(
-          coursePath,
-          newAssignment.title
-        );
         const fullAssignmentDataFolder = path.join(
           coursePath,
           assignmentDataFolder
         );
-        const isDuplicateAssignment = oldAssignments?.length > 0;
         if (
-          !isDuplicateAssignment &&
           fullAssignmentDataFolder !== importPath &&
           fullAssignmentDataFolder !== path.dirname(importPath)
         ) {
           await handleAddAssignmentFS(newAssignment, coursePath);
           assignmentCount++;
         } else if (
-          !isDuplicateAssignment &&
-          (fullAssignmentDataFolder === importPath ||
-            fullAssignmentDataFolder === path.dirname(importPath))
+          fullAssignmentDataFolder === importPath ||
+          fullAssignmentDataFolder === path.dirname(importPath)
         ) {
           _handleAddImportedAssignmentWithSameFolderFS(
             importedAssignment,
