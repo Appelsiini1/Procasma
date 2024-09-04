@@ -1008,15 +1008,9 @@ export function _handleAddOrUpdateSetFS(
     let isOldSet: boolean;
     if (oldSets) {
       // find a set with a matching name
-      const match = oldSets.find((isOldSet) => isOldSet.name === set.name);
+      const match = oldSets.find((isOldSet) => isOldSet.id === set.id);
 
       isOldSet = match ? true : false;
-      // a name match when adding a new set throws an error and
-      // if the set is old, make sure that the id is the same
-      if (match && (!isOldSet || match.id !== set.id)) {
-        throw new Error("ui_set_error_duplicate_name");
-      }
-
       // add the old sets to the new array
       newSets = newSets.concat(oldSets);
     } else {

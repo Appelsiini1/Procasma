@@ -93,7 +93,7 @@ export const defaultModule: ModuleData = {
 };
 
 export const defaultSet: SetData = {
-  id: null,
+  id: "",
   fullCourse: true,
   module: null,
   name: "",
