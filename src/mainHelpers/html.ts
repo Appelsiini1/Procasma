@@ -188,18 +188,27 @@ export async function exportSetFS(
         let moduleString = "";
         const css = papercolorLight;
 
+        const mainHeader = formatMainHeader(module.id, coursedata);
+
         // HTML Base
         let html = `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
+    <title>${mainHeader}</title>
     <style>${css}</style>
   </head>
   <body>`;
-        let solutionHtml = html;
+        let solutionHtml = `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>${mainHeader} ${parseUICodeMain("answers").toUpperCase()}</title>
+    <style>${css}</style>
+  </head>
+  <body>`;
 
         // Main page header
-        const mainHeader = formatMainHeader(module.id, coursedata);
         html += `<h1>${mainHeader}</h1>`;
         solutionHtml += `<h1>${mainHeader} ${parseUICodeMain(
           "answers"
