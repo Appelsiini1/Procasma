@@ -15,7 +15,7 @@ export function splitStringToNumberArray(input: string): number[] {
 }
 
 export function arrayToString(arr: Array<string | number>): string {
-  return arr.join(",");
+  return arr.join(", ");
 }
 
 export function splitCourseLevels(input: string): LevelsType {
