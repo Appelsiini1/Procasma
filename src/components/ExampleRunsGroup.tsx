@@ -1,6 +1,6 @@
 import ButtonComp from "./ButtonComp";
 import { ExampleRunType } from "../types";
-import { getNextIDNumeric } from "../rendererHelpers/getNextID";
+import { getNextIDNumeric } from "../generalHelpers/getNextID";
 import {
   addVariation,
   removeVariation,

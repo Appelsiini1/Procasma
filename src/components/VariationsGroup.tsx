@@ -1,6 +1,6 @@
 import { AccordionGroup, Box, Grid, Typography } from "@mui/joy";
 import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
-import { getNextID } from "../rendererHelpers/getNextID";
+import { getNextID } from "../generalHelpers/getNextID";
 import {
   addVariation,
   removeVariation,
