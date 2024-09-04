@@ -726,7 +726,7 @@ export default function SetCreator() {
           <Typography level="h1">{parseUICode("ui_set_details")}</Typography>
           <Table borderAxis="none">
             <tbody>
-              <tr key="caSetName">
+              <tr key="asSetName">
                 <td style={{ width: "25%" }}>
                   <Typography level="h4">
                     {parseUICode("ui_set_name")}
@@ -734,14 +734,31 @@ export default function SetCreator() {
                 </td>
                 <td>
                   <InputField
-                    fieldKey="caSetName"
+                    fieldKey="asSetNameInput"
                     defaultValue={ForceToString(set?.name)}
                     onChange={(value: string) => handleSet("name", value, true)}
                   />
                 </td>
               </tr>
 
-              <tr key="caYear">
+              <tr key="asVisibleHeader">
+                <td style={{ width: "25%" }}>
+                  <Typography level="h4">
+                    {parseUICode("ui_custom_header")}
+                  </Typography>
+                </td>
+                <td>
+                  <InputField
+                    fieldKey="asVisibleHeaderInput"
+                    defaultValue={ForceToString(set?.visibleHeader)}
+                    onChange={(value: string) =>
+                      handleSet("visibleHeader", value, true)
+                    }
+                  />
+                </td>
+              </tr>
+
+              <tr key="asYear">
                 <td>
                   <Typography level="h4">{parseUICode("ui_year")}</Typography>
                 </td>
@@ -754,7 +771,7 @@ export default function SetCreator() {
                 </td>
               </tr>
 
-              <tr key="caPeriod">
+              <tr key="asPeriod">
                 <td>
                   <Typography level="h4">
                     {parseUICode("ui_study_period")}
@@ -769,7 +786,7 @@ export default function SetCreator() {
                 </td>
               </tr>
 
-              <tr key="caExportSet">
+              <tr key="asExportSet">
                 <td style={{ width: "25%" }}>
                   <Typography level="h4">
                     {parseUICode("ui_export_set")}
@@ -783,13 +800,13 @@ export default function SetCreator() {
                 </td>
               </tr>
 
-              <tr key="caFormat">
+              <tr key="asFormat">
                 <td>
                   <Typography level="h4">{parseUICode("ui_format")}</Typography>
                 </td>
                 <td>
                   <Dropdown
-                    name="caModuleInput"
+                    name="asModuleInput"
                     options={formats}
                     labelKey="name"
                     defaultValue={ForceToString(set?.format)}
@@ -798,7 +815,7 @@ export default function SetCreator() {
                 </td>
               </tr>
 
-              <tr key="caExportCodeGrade">
+              <tr key="asExportCodeGrade">
                 <td style={{ width: "25%" }}>
                   <Typography level="h4">
                     {parseUICode("ui_export_codegrade_config")}
