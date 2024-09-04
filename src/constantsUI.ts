@@ -5,6 +5,7 @@ import {
   ui_lecture,
 } from "../resource/texts.json";
 import { language } from "./globalsUI";
+import { devmode } from "../resource/DEVMODE.json";
 
 // UI constants
 export const buttonMinWidth = "7rem";
@@ -39,4 +40,4 @@ export const smallDividerSX = {
   marginLeft: "7rem",
   marginRight: "7rem",
 };
-export const DEVMODE = false;
+export const DEVMODE = devmode;
