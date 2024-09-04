@@ -925,7 +925,9 @@ export async function importAssignmentsFS(
             };
 
             // extract the module and title from the folder name
-            const fileNameParts = assignmentFolder.name.split(" ");
+            const fileNameParts = assignmentFolder.name
+              .replaceAll("_", " ")
+              .split(" ");
             const letterAndModule = fileNameParts.shift();
             newAssignment.assignmentData.module = parseInt(
               letterAndModule.slice(1)
