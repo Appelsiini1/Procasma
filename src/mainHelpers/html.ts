@@ -188,7 +188,10 @@ export async function exportSetFS(
         let moduleString = "";
         const css = papercolorLight;
 
-        const mainHeader = formatMainHeader(module.id, coursedata);
+        const mainHeader =
+          convertedSet?.visibleHeader === ""
+            ? formatMainHeader(module.id, coursedata)
+            : convertedSet.visibleHeader;
 
         // HTML Base
         let html = `<!DOCTYPE html>

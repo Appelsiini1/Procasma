@@ -1403,5 +1403,9 @@
   "error_unsupported_json_import": {
     "FI": "Tuontikansion juuressa on JSON-tiedosto, joka ei ole ohjelman mallin mukainen tallennettaessa tehtäviä.",
     "ENG": "Root of the import folder has a JSON file that does not conform to the schema this program uses for assignment metadata."
+  },
+  "ui_custom_header": {
+    "FI": "Mukautettu sivun otsikko",
+    "ENG": "Custom page header"
   }
 }

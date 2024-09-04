@@ -741,6 +741,23 @@ export default function SetCreator() {
                 </td>
               </tr>
 
+              <tr key="asVisibleHeader">
+                <td style={{ width: "25%" }}>
+                  <Typography level="h4">
+                    {parseUICode("ui_custom_header")}
+                  </Typography>
+                </td>
+                <td>
+                  <InputField
+                    fieldKey="asVisibleHeaderInput"
+                    defaultValue={ForceToString(set?.visibleHeader)}
+                    onChange={(value: string) =>
+                      handleSet("visibleHeader", value, true)
+                    }
+                  />
+                </td>
+              </tr>
+
               <tr key="asYear">
                 <td>
                   <Typography level="h4">{parseUICode("ui_year")}</Typography>

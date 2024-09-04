@@ -97,6 +97,7 @@ export const defaultSet: SetData = {
   fullCourse: true,
   module: null,
   name: "",
+  visibleHeader: "",
   year: 2024,
   period: 0,
   export: false,
