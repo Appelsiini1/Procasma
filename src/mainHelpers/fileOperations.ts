@@ -891,7 +891,6 @@ export async function importAssignmentsFS(
           originalFolder: path.basename(importPath),
         };
         const fileNameParts = path.basename(importPath).split(" ");
-        log.debug("File name parts: ", fileNameParts);
         const letterAndModule = fileNameParts.shift();
         newAssignment.assignmentData.module = parseInt(
           letterAndModule.slice(1)
@@ -946,8 +945,6 @@ export async function importAssignmentsFS(
       );
     }
 
-    log.debug(newAssignments);
-
     // write the assignments
     await Promise.all(
       newAssignments.map(async (importedAssignment) => {
@@ -968,7 +965,6 @@ export async function importAssignmentsFS(
           fullAssignmentDataFolder !== importPath &&
           fullAssignmentDataFolder !== path.dirname(importPath)
         ) {
-          log.debug("here");
           await handleAddAssignmentFS(newAssignment, coursePath);
           assignmentCount++;
         } else if (
@@ -976,7 +972,6 @@ export async function importAssignmentsFS(
           (fullAssignmentDataFolder === importPath ||
             fullAssignmentDataFolder === path.dirname(importPath))
         ) {
-          log.debug("here2");
           _handleAddImportedAssignmentWithSameFolderFS(
             importedAssignment,
             coursePath
