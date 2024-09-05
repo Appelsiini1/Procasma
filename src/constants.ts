@@ -1,7 +1,7 @@
 import { ConverterOptions } from "showdown";
 import { LevelsType } from "./types";
 import { version as packageVersion } from "../package.json";
-import { devmode } from "../resource/DEVMODE.json";
+import { devmode } from "./DEVMODE.json";
 
 export const version = packageVersion;
 export const courseMetaDataFileName = "course_info.json";
