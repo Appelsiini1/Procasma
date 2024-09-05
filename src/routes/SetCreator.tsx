@@ -54,6 +54,8 @@ export default function SetCreator() {
     activeAssignments,
     handleActiveAssignments,
     activeCourse,
+    setFromBrowse,
+    handleSetFromBrowse,
   }: {
     activePath: string;
     activeSet: SetData;
@@ -63,6 +65,8 @@ export default function SetCreator() {
     activeAssignments: CodeAssignmentDatabase[];
     handleActiveAssignments: (value: CodeAssignmentDatabase[]) => void;
     activeCourse: CourseData;
+    setFromBrowse: boolean;
+    handleSetFromBrowse: (value: boolean) => void;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [set, handleSet] = useSet(activeSet ?? deepCopy(defaultSet));
@@ -344,7 +348,7 @@ export default function SetCreator() {
 
     // use the target module and position in the set state to
     // define the use of the new assignment from the browser
-    if (activeAssignments) {
+    if (activeAssignments && !setFromBrowse) {
       allAssignments.map((a) => {
         if (a.value.assignmentID === activeAssignments[0]?.id) {
           a.selectedModule = set.targetModule;
@@ -356,6 +360,21 @@ export default function SetCreator() {
       });
       handleActiveAssignments(undefined);
     }
+    // else if (activeAssignments && setFromBrowse) {
+    //   const newSet = set;
+    //   for (const tempAssignment of activeAssignments) {
+    //     const foundAssignment = allAssignments.find((value) => {
+    //       if (tempAssignment.id === value.value.assignmentID) {
+    //         return true;
+    //       } else {
+    //         return false;
+    //       }
+    //     });
+    //     foundAssignment.selectedModule = -2;
+    //     newSet.assignments.push(foundAssignment);
+    //   }
+    //   handleActiveAssignments(null);
+    // }
   }, []);
 
   // Update the selected assignments counter

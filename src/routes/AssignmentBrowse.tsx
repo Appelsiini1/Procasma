@@ -16,6 +16,7 @@ import {
   CodeAssignmentData,
   CodeAssignmentDatabase,
   ModuleDatabase,
+  SetData,
   TagDatabase,
 } from "../types";
 import {
@@ -31,7 +32,6 @@ import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
 import HelpText from "../components/HelpText";
-import { assignmentDataFolder } from "../constants";
 import { DEVMODE } from "../constantsUI";
 
 export default function AssignmentBrowse() {
@@ -41,12 +41,18 @@ export default function AssignmentBrowse() {
     handleActiveAssignment,
     activeAssignments,
     handleActiveAssignments,
+    handleActiveSet,
+    setFromBrowse,
+    handleSetFromBrowse,
   }: {
     activePath: string;
     activeAssignment: CodeAssignmentData;
     handleActiveAssignment: (value: CodeAssignmentData) => void;
     activeAssignments: CodeAssignmentDatabase[];
     handleActiveAssignments: (value: CodeAssignmentDatabase[]) => void;
+    handleActiveSet: (value: SetData) => void;
+    setFromBrowse: boolean;
+    handleSetFromBrowse: (value: boolean) => void;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [courseAssignments, setCourseAssignments] = useState<
@@ -265,6 +271,17 @@ export default function AssignmentBrowse() {
     setCourseAssignments(checkedElements);
   }
 
+  // function handleCreateSet() {
+  //   if (selectedAssignments?.length > 0) {
+  //     handleActiveAssignments(selectedAssignments);
+  //     handleActiveSet(undefined);
+  //     handleSetFromBrowse(true);
+  //     navigate("/setCreator");
+  //   } else {
+  //     handleSnackbar({ ["error"]: parseUICode("ui_no_assignment_seleted") });
+  //   }
+  // }
+
   return (
     <>
       <div className="emptySpace1" />
@@ -303,16 +320,16 @@ export default function AssignmentBrowse() {
           </ButtonComp>
         ) : (
           <>
-            <ButtonComp
+            {/* <ButtonComp
               buttonType="normal"
               onClick={() => {
-                //handleCreateSet();
+                handleCreateSet();
               }}
               ariaLabel={parseUICode("ui_create_new_set")}
               disabled={numSelected > 0 ? false : true}
             >
               {parseUICode("ui_create_set")}
-            </ButtonComp>
+            </ButtonComp> */}
             <ButtonComp
               confirmationModal={true}
               modalText={`${parseUICode("ui_delete")} 
