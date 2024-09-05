@@ -5,7 +5,7 @@ import {
   ui_lecture,
 } from "../resource/texts.json";
 import { language } from "./globalsUI";
-import { devmode } from "../resource/DEVMODE.json";
+import { devmode } from "./DEVMODE.json";
 
 // UI constants
 export const buttonMinWidth = "7rem";
