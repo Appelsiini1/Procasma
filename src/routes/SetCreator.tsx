@@ -56,6 +56,8 @@ export default function SetCreator() {
     handleActiveAssignments,
     activeCourse,
     handleSelectAssignment,
+    genericModuleAssignmentCount,
+    handleGenericModuleAssignmentCount,
   }: {
     activePath: string;
     activeSet: SetData;
@@ -67,6 +69,8 @@ export default function SetCreator() {
     activeCourse: CourseData;
     selectAssignment: boolean;
     handleSelectAssignment: (value: boolean) => void;
+    genericModuleAssignmentCount: number;
+    handleGenericModuleAssignmentCount: (value: number) => void;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [set, handleSet] = useSet(activeSet ?? deepCopy(defaultSet));
@@ -150,11 +154,8 @@ export default function SetCreator() {
       resultModules.push(pendingAssignmentModule);
       resultModules.sort((a, b) => a.id - b.id);
       if (set.module === -3 || set.targetModule === -3) {
-        if (activeSet) {
-          let numAssignments = 0;
-          activeSet.assignments.forEach((value) =>
-            value.selectedModule === -3 ? numAssignments++ : null
-          );
+        if (activeSet && genericModuleAssignmentCount) {
+          genericModule.assignments = genericModuleAssignmentCount;
         }
         resultModules.push(genericModule);
         setHasGenericModule(true);
@@ -722,6 +723,7 @@ export default function SetCreator() {
       setAllModules(copyModules);
       handleSet("module", -3);
       handleActiveSet(set);
+      handleGenericModuleAssignmentCount(5);
 
       setHasGenericModule(true);
       handleStepperState(1);
@@ -740,6 +742,7 @@ export default function SetCreator() {
       }
       copyModules.push(value);
       setAllModules(copyModules);
+      handleGenericModuleAssignmentCount(genericModuleAssignmentCount + 1);
     });
   }
 

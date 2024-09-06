@@ -50,8 +50,6 @@ export default function AssignmentBrowse() {
     activeAssignments: CodeAssignmentDatabase[];
     handleActiveAssignments: (value: CodeAssignmentDatabase[]) => void;
     handleActiveSet: (value: SetData) => void;
-    setFromBrowse: boolean;
-    handleSetFromBrowse: (value: boolean) => void;
     selectAssignment: boolean;
     handleSelectAssignment: (value: boolean) => void;
   } = useContext(ActiveObjectContext);
