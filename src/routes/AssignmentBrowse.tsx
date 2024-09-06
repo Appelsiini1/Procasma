@@ -41,9 +41,8 @@ export default function AssignmentBrowse() {
     handleActiveAssignment,
     activeAssignments,
     handleActiveAssignments,
-    handleActiveSet,
-    setFromBrowse,
-    handleSetFromBrowse,
+    selectAssignment,
+    handleSelectAssignment,
   }: {
     activePath: string;
     activeAssignment: CodeAssignmentData;
@@ -53,6 +52,8 @@ export default function AssignmentBrowse() {
     handleActiveSet: (value: SetData) => void;
     setFromBrowse: boolean;
     handleSetFromBrowse: (value: boolean) => void;
+    selectAssignment: boolean;
+    handleSelectAssignment: (value: boolean) => void;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [courseAssignments, setCourseAssignments] = useState<
@@ -229,6 +230,7 @@ export default function AssignmentBrowse() {
     // go back to AssignmentInput
     //setNavigateToAssignment(true);
     setNavigateBack(true);
+    handleSelectAssignment(false);
     handleActiveAssignments(selectedAssignments);
   }
 
@@ -308,7 +310,7 @@ export default function AssignmentBrowse() {
         >
           {parseUICode("ui_show_edit")}
         </ButtonComp>
-        {typeof activeAssignments !== "undefined" ? (
+        {typeof activeAssignments !== "undefined" || selectAssignment ? (
           <ButtonComp
             buttonType="normal"
             onClick={() => {

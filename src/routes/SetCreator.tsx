@@ -54,8 +54,8 @@ export default function SetCreator() {
     activeAssignments,
     handleActiveAssignments,
     activeCourse,
-    setFromBrowse,
-    handleSetFromBrowse,
+    selectAssignment,
+    handleSelectAssignment,
   }: {
     activePath: string;
     activeSet: SetData;
@@ -65,8 +65,8 @@ export default function SetCreator() {
     activeAssignments: CodeAssignmentDatabase[];
     handleActiveAssignments: (value: CodeAssignmentDatabase[]) => void;
     activeCourse: CourseData;
-    setFromBrowse: boolean;
-    handleSetFromBrowse: (value: boolean) => void;
+    selectAssignment: boolean;
+    handleSelectAssignment: (value: boolean) => void;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [set, handleSet] = useSet(activeSet ?? deepCopy(defaultSet));
@@ -348,7 +348,7 @@ export default function SetCreator() {
 
     // use the target module and position in the set state to
     // define the use of the new assignment from the browser
-    if (activeAssignments && !setFromBrowse) {
+    if (activeAssignments) {
       allAssignments.map((a) => {
         if (a.value.assignmentID === activeAssignments[0]?.id) {
           a.selectedModule = set.targetModule;
@@ -522,6 +522,7 @@ export default function SetCreator() {
     function handleTargetPosition(position: number) {
       handleSet("targetModule", moduleId);
       handleSet("targetPosition", position);
+      handleSelectAssignment(true);
       setNavigateToBrowse(true);
     }
 

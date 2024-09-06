@@ -76,6 +76,7 @@ export const ActiveObjectProvider = ({ children }: { children: any }) => {
   const [activeModule, setActiveModule] = useState<ModuleData>(null);
   const [activeSet, setActiveSet] = useState<SetData>(null);
   const [setFromBrowse, setSetFromBrowse] = useState<boolean>(null);
+  const [selectAssignment, setSelectAssignment] = useState<boolean>(null);
 
   function handleActiveCourse(value: CourseData) {
     setActiveCourse(value);
@@ -103,6 +104,9 @@ export const ActiveObjectProvider = ({ children }: { children: any }) => {
   function handleSetFromBrowse(value: boolean) {
     setSetFromBrowse(value);
   }
+  function handleSelectAssignment(value: boolean) {
+    setSelectAssignment(value);
+  }
 
   return (
     <>
@@ -122,6 +126,8 @@ export const ActiveObjectProvider = ({ children }: { children: any }) => {
           handleActiveSet,
           setFromBrowse,
           handleSetFromBrowse,
+          selectAssignment,
+          handleSelectAssignment,
         }}
       >
         {children}
