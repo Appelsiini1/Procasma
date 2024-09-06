@@ -23,6 +23,7 @@ import { createHash } from "crypto";
 import {
   addAssignmentDB,
   addModuleDB,
+  assignmentExistsDB,
   deleteAssignmentsDB,
   getAssignmentByTitleDB,
   getAssignmentsDB,
@@ -421,24 +422,6 @@ export async function getTruncatedAssignmentsFS(
   }
 }
 
-async function _AssignmentExistsFS(
-  assignmentName: string,
-  coursePath: string
-): Promise<boolean> {
-  try {
-    const assignments = await handleGetAssignmentsFS(coursePath);
-
-    const sameNameAssignment = assignments.find((prevAssignment) => {
-      return prevAssignment?.title === assignmentName ? true : false;
-    });
-
-    return sameNameAssignment ? true : false;
-  } catch (err) {
-    log.error("Error in _AssignmentExistsFS():", err.message);
-    throw err;
-  }
-}
-
 /**
  * Add or delete an assignment id from the "next" or "previous"
  * array of the assignments specified by ids.
@@ -524,7 +507,7 @@ async function _handleAddOrUpdateAssignmentFS(
     if (!oldAssignment) {
       // if saving new assignment, throw error if
       // identically named one exists
-      if (_AssignmentExistsFS(assignment?.title, coursePath)) {
+      if (assignmentExistsDB(assignment?.title, coursePath)) {
         throw new Error("ui_assignment_error_duplicate_title");
       }
 
