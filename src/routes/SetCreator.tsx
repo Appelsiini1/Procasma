@@ -38,6 +38,7 @@ import {
   exportSetData,
   exportSetToDisk,
 } from "../rendererHelpers/setHelpers";
+import log from "electron-log/renderer";
 
 interface LegalMove {
   module: number;
@@ -54,7 +55,6 @@ export default function SetCreator() {
     activeAssignments,
     handleActiveAssignments,
     activeCourse,
-    selectAssignment,
     handleSelectAssignment,
   }: {
     activePath: string;
@@ -97,6 +97,7 @@ export default function SetCreator() {
     [key: string]: SetVariation;
   }>({});
   const [legalMoves, setLegalMoves] = useState<Array<LegalMove>>([]);
+  const [hasGenericModule, setHasGenericModule] = useState<boolean>(null);
 
   const stepHeadings: string[] = [
     parseUICode("ui_module_selection"),
@@ -136,9 +137,28 @@ export default function SetCreator() {
         tags: null,
         instructions: null,
       };
+      const genericModule: ModuleData = {
+        id: -3,
+        name: parseUICode("assignments"),
+        letters: false,
+        assignments: 5,
+        subjects: null,
+        tags: null,
+        instructions: null,
+      };
 
       resultModules.push(pendingAssignmentModule);
       resultModules.sort((a, b) => a.id - b.id);
+      if (set.module === -3 || set.targetModule === -3) {
+        if (activeSet) {
+          let numAssignments = 0;
+          activeSet.assignments.forEach((value) =>
+            value.selectedModule === -3 ? numAssignments++ : null
+          );
+        }
+        resultModules.push(genericModule);
+        setHasGenericModule(true);
+      }
 
       setAllModules(resultModules);
     } catch (err) {
@@ -680,6 +700,49 @@ export default function SetCreator() {
     });
   }
 
+  function handleNext() {
+    // log.debug(stepperState, set.fullCourse, allModules);
+    if (stepperState === 0 && !set.fullCourse && allModules.length === 1) {
+      handleSnackbar({ ["error"]: parseUICode("error_no_modules_in_set") });
+    } else if (
+      stepperState === 1 &&
+      set.fullCourse &&
+      allModules.length === 1
+    ) {
+      const copyModules = allModules;
+      copyModules.push({
+        id: -3,
+        name: parseUICode("assignments"),
+        letters: false,
+        assignments: 5,
+        subjects: null,
+        tags: null,
+        instructions: null,
+      });
+      setAllModules(copyModules);
+      handleSet("module", -3);
+      handleActiveSet(set);
+
+      setHasGenericModule(true);
+      handleStepperState(1);
+    } else {
+      // log.debug(allModules);
+      setHasGenericModule(false);
+      handleStepperState(1);
+    }
+  }
+
+  function handleAddAssignment() {
+    const copyModules: ModuleData[] = [];
+    allModules.forEach((value) => {
+      if (value.id === -3) {
+        value.assignments += 1;
+      }
+      copyModules.push(value);
+      setAllModules(copyModules);
+    });
+  }
+
   const modulesWithoutPending = allModules.filter((module) => module?.id > -2);
 
   return (
@@ -723,7 +786,9 @@ export default function SetCreator() {
                     options={modulesWithoutPending}
                     labelKey="name"
                     defaultValue={ForceToString(set?.module)}
-                    disabled={set.fullCourse}
+                    disabled={
+                      set.fullCourse || (allModules.length === 1 ? true : false)
+                    }
                     onChange={(value: string) => {
                       handleSet("module", value);
                       handleSet(
@@ -871,6 +936,17 @@ export default function SetCreator() {
           <Box width="100%">
             <List>{moduleWindows()}</List>
           </Box>
+          {hasGenericModule ? (
+            <ButtonComp
+              buttonType="normal"
+              onClick={() => handleAddAssignment()}
+              ariaLabel={parseUICode("ui_add_assignment")}
+            >
+              {parseUICode("ui_add_assignment")}
+            </ButtonComp>
+          ) : (
+            ""
+          )}
 
           <Divider sx={dividerSX} role="presentation" />
         </>
@@ -939,7 +1015,7 @@ export default function SetCreator() {
         {stepperState < 3 ? (
           <ButtonComp
             buttonType="normal"
-            onClick={() => handleStepperState(1)}
+            onClick={() => handleNext()}
             ariaLabel={parseUICode("ui_aria_nav_next")}
           >
             {parseUICode("ui_next")}

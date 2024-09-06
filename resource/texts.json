@@ -1407,5 +1407,9 @@
   "ui_custom_header": {
     "FI": "Mukautettu sivun otsikko",
     "ENG": "Custom page header"
+  },
+  "error_no_modules_in_set": {
+    "FI": "Mitään moduulia ei ole valittuna. Valitse 'Koko toteutus', jos kurssillasi ei ole moduuleja.",
+    "ENG": "No module selected. Choose 'Full course' if you don't have any modules present on your course."
   }
 }

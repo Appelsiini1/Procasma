@@ -10,12 +10,14 @@ import {
   SetAlgoAssignmentData,
   SetAssignmentWithCheck,
   SetVariation,
+  SupportedModuleType,
   TagDatabase,
   WithCheckWrapper,
 } from "../types";
 import { parseUICode } from "./translation";
 import ButtonComp from "../components/ButtonComp";
 import HelpText from "../components/HelpText";
+import { currentCourse } from "../globalsUI";
 
 export type filterState = {
   isChecked: boolean;
@@ -130,6 +132,19 @@ const UsedInBadnessIcon = ({ badness }: { badness: number }) => {
     </HelpText>
   );
 };
+
+function getModuleLetter(moduleType: SupportedModuleType) {
+  switch (moduleType) {
+    case "lecture":
+      return parseUICode("lecture_letter");
+    case "module":
+      return parseUICode("module_letter");
+    case "week":
+      return parseUICode("week_letter");
+    default:
+      throw new Error("Unsupported module type in getModuleLetter()!");
+  }
+}
 
 export function generateChecklist(
   items: WithCheckWrapper[],
@@ -261,7 +276,17 @@ export function generateChecklistSetAssignment(
 
           const assignment: SetAlgoAssignmentData = item.value;
           if (!isPendingModule) {
-            title += `L${module}T${position} - `;
+            let lectureLetter: string = null;
+            if (module !== -3) {
+              lectureLetter = `${getModuleLetter(
+                currentCourse.moduleType
+              )}${module}`;
+            } else {
+              lectureLetter = "";
+            }
+            title += `${lectureLetter}${parseUICode(
+              "assignment_letter"
+            )}${position} - `;
           }
 
           title += assignment?.title;
