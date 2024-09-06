@@ -141,6 +141,8 @@ function getModuleLetter(moduleType: SupportedModuleType) {
       return parseUICode("module_letter");
     case "week":
       return parseUICode("week_letter");
+    case null:
+      return "";
     default:
       throw new Error("Unsupported module type in getModuleLetter()!");
   }
@@ -158,7 +160,14 @@ export function generateChecklist(
         const variation = item?.selectedVariation;
         if (isAssignment) {
           const assignment: CodeAssignmentDatabase = item.value;
-          titleOrName = `L${assignment?.module}T${assignment?.position} - 
+          let titlePart: string = "";
+          if (currentCourse.moduleType)
+            titlePart += `${getModuleLetter(currentCourse.moduleType)}${
+              assignment?.module
+            }`;
+          titleOrName = `${titlePart}${parseUICode("assignment_letter")}${
+            assignment?.position
+          } - 
           ${assignment?.title}`;
 
           titleOrName += variation
