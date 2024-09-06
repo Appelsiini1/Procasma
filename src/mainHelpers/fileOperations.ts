@@ -507,7 +507,7 @@ async function _handleAddOrUpdateAssignmentFS(
     if (!oldAssignment) {
       // if saving new assignment, throw error if
       // identically named one exists
-      if (assignmentExistsDB(assignment?.title, coursePath)) {
+      if (await assignmentExistsDB(assignment?.title, coursePath)) {
         throw new Error("ui_assignment_error_duplicate_title");
       }
 
