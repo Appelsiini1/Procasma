@@ -23,7 +23,7 @@ import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { useSet } from "../rendererHelpers/assignmentHelpers";
 import { deepCopy } from "../rendererHelpers/utility";
-import { defaultSet } from "../defaultObjects";
+import { defaultSet, genericModule } from "../defaultObjects";
 import { ForceToString } from "../generalHelpers/converters";
 import {
   generateChecklistExpandingAssignment,
@@ -141,23 +141,16 @@ export default function SetCreator() {
         tags: null,
         instructions: null,
       };
-      const genericModule: ModuleData = {
-        id: -3,
-        name: parseUICode("assignments"),
-        letters: false,
-        assignments: 5,
-        subjects: null,
-        tags: null,
-        instructions: null,
-      };
+      const genModule: ModuleData = genericModule;
+      genModule.name = parseUICode("assignments");
 
       resultModules.push(pendingAssignmentModule);
       resultModules.sort((a, b) => a.id - b.id);
       if (set.module === -3 || set.targetModule === -3) {
         if (activeSet && genericModuleAssignmentCount) {
-          genericModule.assignments = genericModuleAssignmentCount;
+          genModule.assignments = genericModuleAssignmentCount;
         }
-        resultModules.push(genericModule);
+        resultModules.push(genModule);
         setHasGenericModule(true);
       }
 
@@ -711,15 +704,7 @@ export default function SetCreator() {
       allModules.length === 1
     ) {
       const copyModules = allModules;
-      copyModules.push({
-        id: -3,
-        name: parseUICode("assignments"),
-        letters: false,
-        assignments: 5,
-        subjects: null,
-        tags: null,
-        instructions: null,
-      });
+      copyModules.push({ ...genericModule, name: parseUICode("assignments") });
       setAllModules(copyModules);
       handleSet("module", -3);
       handleActiveSet(set);

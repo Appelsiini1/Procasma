@@ -34,6 +34,7 @@ import {
 import { css as papercolorLight } from "../../resource/cssImports/papercolor-light";
 import { globalSettings } from "../globalsUI";
 import { platform } from "node:process";
+import { genericModule } from "../defaultObjects";
 
 const { mathjax } = require("mathjax-full/js/mathjax.js");
 const { TeX } = require("mathjax-full/js/input/tex.js");
@@ -82,10 +83,7 @@ export function setToFullData(set: ExportSetData): FullAssignmentSetData {
         setAssignment.folder,
         setAssignment.id + ".json"
       );
-      log.debug(setAssignment.folder);
-      log.debug(assigPath);
       const fullData = handleReadFileFS(assigPath) as CodeAssignmentData;
-      log.debug("here4");
       let newAssignment: CodeAssignmentSelectionData = {
         variation: fullData.variations[setAssignment.variationId],
         variatioId: setAssignment.variationId,
@@ -168,7 +166,6 @@ export async function exportSetFS(
   savePath: string
 ): Promise<String> {
   try {
-    log.debug("here3");
     const convertedSet = setToFullData(setInput);
 
     // get all course modules
@@ -183,10 +180,12 @@ export async function exportSetFS(
     }
     const modules: ModuleData[] = modulesResult.content;
 
-    log.debug("here2");
     // convert assignments to full
     const fullAssignments = assignmentToFullData(setInput.assignments);
-    log.debug("here");
+
+    if (fullAssignments[0].selectedModule === -3) {
+      modules.push({ ...genericModule, name: parseUICodeMain("assignments") });
+    }
 
     // loop through modules
     await Promise.all(
