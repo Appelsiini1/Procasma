@@ -107,3 +107,13 @@ export const defaultSet: SetData = {
   targetModule: null,
   targetPosition: null,
 };
+
+export const genericModule: ModuleData = {
+  id: -3,
+  name: "",
+  letters: false,
+  assignments: 5,
+  subjects: "",
+  tags: [],
+  instructions: "",
+};

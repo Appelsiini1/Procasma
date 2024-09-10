@@ -162,11 +162,13 @@ export default function AssignmentInput() {
         // use the generated id from main
         handleAssignment("assignmentID", addedAssignment.assignmentID);
       }
+      handleActiveAssignment(null);
     } catch (err) {
       snackbarText = err.message;
       snackbarSeverity = "error";
     }
     handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
+    navigate("/");
   }
 
   // Update the selected assignments

@@ -1,11 +1,5 @@
-import {
-  codeExtensions,
-  dataExtensions,
-  imageExtensions,
-  textExtensions,
-} from "../constants";
-import defaults from "../../resource/defaults.json";
-import { FileContents, FileTypes } from "../types";
+import { codeExtensions, imageExtensions, textExtensions } from "../constants";
+import { FileTypes } from "../types";
 
 /**
  * dev sleep
