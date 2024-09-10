@@ -94,3 +94,6 @@ out/
 # Testaus
 testiKurssit/
 database/
+
+# Bundler visualizer
+stats.html
