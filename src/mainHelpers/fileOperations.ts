@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import {
   CodeAssignmentData,
+  CodeAssignmentDatabase,
   CodeAssignmentSelectionData,
   CourseData,
   ExportSetData,
@@ -524,7 +525,8 @@ async function _handleAddOrUpdateAssignmentFS(
     if (!oldAssignment) {
       // if saving new assignment, throw error if
       // identically named one exists
-      if (_AssignmentExistsFS(assignment?.title, coursePath)) {
+      const exists = await _AssignmentExistsFS(assignment?.title, coursePath);
+      if (exists) {
         throw new Error("ui_assignment_error_duplicate_title");
       }
 
@@ -666,53 +668,59 @@ function parseAssignmentFolderVariations(
   try {
     let newCodeLanguage: string = null;
 
-    const variationFolders = fs.readdirSync(assignmentPath);
-    variationFolders.forEach((variationId) => {
-      try {
-        const variationPath = path.join(assignmentPath, variationId);
-        const newVariation: Variation = deepCopy(defaultVariation);
+    const variationFolders = fs.readdirSync(assignmentPath, {
+      withFileTypes: true,
+    });
+    variationFolders.forEach((varFolder) => {
+      if (varFolder.isDirectory()) {
+        const variationId = varFolder.name;
+        try {
+          const variationPath = path.join(assignmentPath, variationId);
+          const newVariation: Variation = deepCopy(defaultVariation);
 
-        assignment.variations[variationId] = newVariation;
+          assignment.variations[variationId] = newVariation;
 
-        // parse each file inside a variation
-        const variationFiles = fs.readdirSync(variationPath);
-        variationFiles.forEach((variationFile) => {
-          // check if dir
-          const newFilePath = path.join(variationPath, variationFile);
-          const isDir = path.extname(variationFile) === "";
-          if (isDir) {
-            const innerFiles = fs.readdirSync(newFilePath);
-            innerFiles.forEach((innerFile) => {
-              const innerFilePath = path.join(
-                variationPath,
-                variationFile,
-                innerFile
-              );
+          // parse each file inside a variation
+          const variationFiles = fs.readdirSync(variationPath);
+          variationFiles.forEach((variationFile) => {
+            // check if dir
+            const newFilePath = path.join(variationPath, variationFile);
+            const isDir = path.extname(variationFile) === "";
+            if (isDir) {
+              const innerFiles = fs.readdirSync(newFilePath);
+              innerFiles.forEach((innerFile) => {
+                const innerFilePath = path.join(
+                  variationPath,
+                  variationFile,
+                  innerFile
+                );
+                const codeLanguage = addFileToVariation(
+                  innerFilePath,
+                  innerFile,
+                  assignment,
+                  variationId,
+                  true
+                );
+                if (!newCodeLanguage && codeLanguage) {
+                  newCodeLanguage = codeLanguage;
+                }
+              });
+            } else {
               const codeLanguage = addFileToVariation(
-                innerFilePath,
-                innerFile,
+                newFilePath,
+                variationFile,
                 assignment,
-                variationId,
-                true
+                variationId
               );
               if (!newCodeLanguage && codeLanguage) {
                 newCodeLanguage = codeLanguage;
               }
-            });
-          } else {
-            const codeLanguage = addFileToVariation(
-              newFilePath,
-              variationFile,
-              assignment,
-              variationId
-            );
-            if (!newCodeLanguage && codeLanguage) {
-              newCodeLanguage = codeLanguage;
             }
-          }
-        });
-      } catch (err) {
-        log.error(err.name);
+          });
+        } catch (err) {
+          log.error(err.name);
+          throw err;
+        }
       }
     });
 
@@ -783,7 +791,11 @@ export async function _handleAddImportedAssignmentWithSameFolderFS(
  * @param coursePath CoursePath string
  * @returns Boolean true if there was a JSON added
  */
-async function checkJSONInFolder(folder: string, coursePath: string) {
+async function checkJSONInFolder(
+  folder: string,
+  coursePath: string,
+  addAssignment = true
+): Promise<{ result: 0 | 1 | -1; data: CodeAssignmentData | null }> {
   try {
     const assignmentFolders = fs.readdirSync(folder, {
       withFileTypes: true,
@@ -806,27 +818,29 @@ async function checkJSONInFolder(folder: string, coursePath: string) {
           const assig = await getAssignmentsDB(coursePath, [
             readjson.assignmentID,
           ]);
-          if (assig.length !== 0) return 0;
+          if (assig.length !== 0) return { result: 0, data: null };
         }
-        await addAssignmentDB(coursePath, readjson);
-        _modifyConsecutiveAssignmentsFS(
-          coursePath,
-          readjson.assignmentID,
-          readjson.next,
-          "next",
-          true
-        );
-        _modifyConsecutiveAssignmentsFS(
-          coursePath,
-          readjson.assignmentID,
-          readjson.previous,
-          "previous",
-          true
-        );
-        return 1;
+        if (addAssignment) {
+          await addAssignmentDB(coursePath, readjson);
+          _modifyConsecutiveAssignmentsFS(
+            coursePath,
+            readjson.assignmentID,
+            readjson.next,
+            "next",
+            true
+          );
+          _modifyConsecutiveAssignmentsFS(
+            coursePath,
+            readjson.assignmentID,
+            readjson.previous,
+            "previous",
+            true
+          );
+        }
+        return { result: 1, data: readjson };
       }
     }
-    return -1;
+    return { result: -1, data: null };
   } catch (err) {
     log.error("Error in checkJSONInFolder: ", err.message);
     throw err;
@@ -912,9 +926,10 @@ export async function importAssignmentsFS(
         assignmentFolders.map(async (assignmentFolder) => {
           const checkJson = await checkJSONInFolder(
             path.join(importPath, assignmentFolder.name),
-            coursePath
+            coursePath,
+            false
           );
-          if (checkJson === -1) {
+          if (checkJson.result === -1) {
             const folderPath = path.join(
               assignmentFolder.parentPath,
               assignmentFolder.name
@@ -940,10 +955,40 @@ export async function importAssignmentsFS(
               folderPath
             );
             return newAssignment;
-          } else if (checkJson === 0) {
+          } else if (checkJson.result === 0) {
             return null;
           } else {
-            assignmentCount++;
+            if (importPath !== path.join(coursePath, assignmentDataFolder)) {
+              const assignment = checkJson.data;
+              for (const variation in assignment.variations) {
+                delete assignment.variations[variation].files;
+                assignment.variations[variation].files = [];
+              }
+              parseAssignmentFolderVariations(
+                assignment,
+                path.join(importPath, assignmentFolder.name)
+              );
+              return {
+                assignmentData: assignment,
+                originalFolder: assignmentFolder.name,
+              };
+            }
+            await addAssignmentDB(coursePath, checkJson.data);
+            _modifyConsecutiveAssignmentsFS(
+              coursePath,
+              checkJson.data.assignmentID,
+              checkJson.data.next,
+              "next",
+              true
+            );
+            _modifyConsecutiveAssignmentsFS(
+              coursePath,
+              checkJson.data.assignmentID,
+              checkJson.data.previous,
+              "previous",
+              true
+            );
+
             return null;
           }
         })
