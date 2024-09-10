@@ -143,6 +143,7 @@ export interface SetData {
   fullCourse: boolean;
   module: number;
   name: string;
+  visibleHeader: string;
   year: number;
   period: number;
   export: boolean;

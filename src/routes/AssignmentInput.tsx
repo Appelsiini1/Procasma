@@ -23,6 +23,7 @@ import {
   Variation,
 } from "../types";
 import {
+  arrayToString,
   ForceToString,
   splitStringToArray,
   splitStringToNumberArray,
@@ -161,11 +162,13 @@ export default function AssignmentInput() {
         // use the generated id from main
         handleAssignment("assignmentID", addedAssignment.assignmentID);
       }
+      handleActiveAssignment(null);
     } catch (err) {
       snackbarText = err.message;
       snackbarSeverity = "error";
     }
     handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
+    navigate("/");
   }
 
   // Update the selected assignments
@@ -388,7 +391,7 @@ export default function AssignmentInput() {
               <td>
                 <InputField
                   fieldKey="caTagsInput"
-                  defaultValue={ForceToString(assignment?.tags)}
+                  defaultValue={arrayToString(assignment?.tags)}
                   onChange={(value: string) =>
                     handleAssignment("tags", splitStringToArray(value), true)
                   }

@@ -34,6 +34,7 @@ import {
 import { css as papercolorLight } from "../../resource/cssImports/papercolor-light";
 import { globalSettings } from "../globalsUI";
 import { platform } from "node:process";
+import { genericModule } from "../defaultObjects";
 
 const { mathjax } = require("mathjax-full/js/mathjax.js");
 const { TeX } = require("mathjax-full/js/input/tex.js");
@@ -74,34 +75,39 @@ function sortAssignments(
 
 // Set converter
 export function setToFullData(set: ExportSetData): FullAssignmentSetData {
-  let assignmentArray: CodeAssignmentSelectionData[] = [];
-  for (const setAssignment of set.assignments) {
-    const assigPath = path.join(
-      coursePath.path,
-      setAssignment.folder,
-      setAssignment.id + ".json"
-    );
-    const fullData = handleReadFileFS(assigPath) as CodeAssignmentData;
-    let newAssignment: CodeAssignmentSelectionData = {
-      variation: fullData.variations[setAssignment.variationId],
-      variatioId: setAssignment.variationId,
-      CGid: setAssignment.CGid,
-      selectedPosition: setAssignment.selectedPosition,
-      selectedModule: setAssignment.selectedModule,
-      assignmentID: fullData.assignmentID,
-      level: fullData.level,
-      folder: fullData.folder,
-      codeLanguage: fullData.codeLanguage,
-      title: fullData.title,
+  try {
+    let assignmentArray: CodeAssignmentSelectionData[] = [];
+    for (const setAssignment of set.assignments) {
+      const assigPath = path.join(
+        coursePath.path,
+        setAssignment.folder,
+        setAssignment.id + ".json"
+      );
+      const fullData = handleReadFileFS(assigPath) as CodeAssignmentData;
+      let newAssignment: CodeAssignmentSelectionData = {
+        variation: fullData.variations[setAssignment.variationId],
+        variatioId: setAssignment.variationId,
+        CGid: setAssignment.CGid,
+        selectedPosition: setAssignment.selectedPosition,
+        selectedModule: setAssignment.selectedModule,
+        assignmentID: fullData.assignmentID,
+        level: fullData.level,
+        folder: fullData.folder,
+        codeLanguage: fullData.codeLanguage,
+        title: fullData.title,
+      };
+      assignmentArray.push(newAssignment);
+    }
+    assignmentArray.sort((a, b) => sortAssignments(a, b));
+    const newSet: FullAssignmentSetData = {
+      assignmentArray: assignmentArray,
+      ...set,
     };
-    assignmentArray.push(newAssignment);
+    return newSet;
+  } catch (err) {
+    log.error("Error in setToFullData:", err.message);
+    throw err;
   }
-  assignmentArray.sort((a, b) => sortAssignments(a, b));
-  const newSet: FullAssignmentSetData = {
-    assignmentArray: assignmentArray,
-    ...set,
-  };
-  return newSet;
 }
 
 export function assignmentToFullData(
@@ -177,6 +183,10 @@ export async function exportSetFS(
     // convert assignments to full
     const fullAssignments = assignmentToFullData(setInput.assignments);
 
+    if (fullAssignments[0].selectedModule === -3) {
+      modules.push({ ...genericModule, name: parseUICodeMain("assignments") });
+    }
+
     // loop through modules
     await Promise.all(
       modules.map(async (module) => {
@@ -188,18 +198,30 @@ export async function exportSetFS(
         let moduleString = "";
         const css = papercolorLight;
 
+        const mainHeader =
+          convertedSet?.visibleHeader === "" || !convertedSet?.visibleHeader
+            ? formatMainHeader(module.id, coursedata)
+            : convertedSet.visibleHeader;
+
         // HTML Base
         let html = `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
+    <title>${mainHeader}</title>
     <style>${css}</style>
   </head>
   <body>`;
-        let solutionHtml = html;
+        let solutionHtml = `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>${mainHeader} ${parseUICodeMain("answers").toUpperCase()}</title>
+    <style>${css}</style>
+  </head>
+  <body>`;
 
         // Main page header
-        const mainHeader = formatMainHeader(module.id, coursedata);
         html += `<h1>${mainHeader}</h1>`;
         solutionHtml += `<h1>${mainHeader} ${parseUICodeMain(
           "answers"

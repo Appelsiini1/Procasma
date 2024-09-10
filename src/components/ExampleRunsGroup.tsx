@@ -1,6 +1,6 @@
 import ButtonComp from "./ButtonComp";
 import { ExampleRunType } from "../types";
-import { getNextIDNumeric } from "../rendererHelpers/getNextID";
+import { getNextIDNumeric } from "../generalHelpers/getNextID";
 import {
   addVariation,
   removeVariation,
@@ -10,6 +10,7 @@ import { AccordionGroup, Box, Grid, Stack, Typography } from "@mui/joy";
 import ExampleRun from "./ExampleRun";
 import { parseUICode } from "../rendererHelpers/translation";
 import { defaultExampleRun } from "../defaultObjects";
+import { deepCopy } from "../rendererHelpers/utility";
 
 type ComponentProps = {
   exampleRuns: {
@@ -41,7 +42,7 @@ export default function ExampleRunsGroup({
             buttonType="normal"
             onClick={() =>
               addVariation(
-                defaultExampleRun,
+                deepCopy(defaultExampleRun),
                 exampleRuns,
                 getNextIDNumeric,
                 `${pathInAssignment}.exampleRuns`,

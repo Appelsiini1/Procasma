@@ -489,7 +489,7 @@ async function _getAssignmentsDB(
             });
             resolve(formattedRows);
           } else {
-            reject(new Error("Could not find assignment in database."));
+            reject(undefined);
           }
         });
       });
@@ -734,6 +734,24 @@ export async function getFilteredAssignmentsDB(
       throw err;
     }
   });
+}
+
+export async function assignmentExistsDB(
+  assignmentName: string,
+  coursePath: string
+): Promise<boolean> {
+  try {
+    const assignments = await getAssignmentsDB(coursePath);
+
+    const sameNameAssignment = assignments.find((prevAssignment) => {
+      return prevAssignment?.title === assignmentName ? true : false;
+    });
+
+    return sameNameAssignment ? true : false;
+  } catch (err) {
+    log.error("Error in _AssignmentExistsFS():", err.message);
+    throw err;
+  }
 }
 
 // CRUD Module

@@ -93,10 +93,11 @@ export const defaultModule: ModuleData = {
 };
 
 export const defaultSet: SetData = {
-  id: null,
+  id: "",
   fullCourse: true,
   module: null,
   name: "",
+  visibleHeader: "",
   year: 2024,
   period: 0,
   export: false,
@@ -105,4 +106,14 @@ export const defaultSet: SetData = {
   assignments: [],
   targetModule: null,
   targetPosition: null,
+};
+
+export const genericModule: ModuleData = {
+  id: -3,
+  name: "",
+  letters: false,
+  assignments: 5,
+  subjects: "",
+  tags: [],
+  instructions: "",
 };

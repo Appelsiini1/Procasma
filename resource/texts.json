@@ -473,8 +473,8 @@
     "ENG": "Import assignments"
   },
   "help_import_assignments": {
-    "FI": "Valitse selaimesta tehtävät sisältävä kansio, jonka nimi on",
-    "ENG": "Choose the assignment folder using the browser. Its name should be"
+    "FI": "Valitse selaimesta tehtävät sisältävä kansio. Voit tuoda useamman tai vain yhden tehtävän kerrallaan.",
+    "ENG": "Choose the assignment folder using the browser. You can import one or multiple assignments."
   },
   "ui_import_success": {
     "FI": "Tehtävät tuotu onnistuneesti.",
@@ -1399,5 +1399,17 @@
   "error_unsupported_image": {
     "FI": "Datassa on kuvatyyppi, jonka upotusta ei tueta.",
     "ENG": "Data has an unsupported image type for embedding."
+  },
+  "error_unsupported_json_import": {
+    "FI": "Tuontikansion juuressa on JSON-tiedosto, joka ei ole ohjelman mallin mukainen tallennettaessa tehtäviä.",
+    "ENG": "Root of the import folder has a JSON file that does not conform to the schema this program uses for assignment metadata."
+  },
+  "ui_custom_header": {
+    "FI": "Mukautettu sivun otsikko",
+    "ENG": "Custom page header"
+  },
+  "error_no_modules_in_set": {
+    "FI": "Mitään moduulia ei ole valittuna. Valitse 'Koko toteutus', jos kurssillasi ei ole moduuleja.",
+    "ENG": "No module selected. Choose 'Full course' if you don't have any modules present on your course."
   }
 }

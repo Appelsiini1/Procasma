@@ -43,9 +43,6 @@ export default function Settings() {
           const abbreviation: SupportedLanguages =
             option.abbreviation as SupportedLanguages;
 
-          // set the current global language
-          language.current = abbreviation;
-
           setSettings((prevSettings) => {
             const newSettings = prevSettings;
             newSettings.language = abbreviation;
@@ -73,6 +70,7 @@ export default function Settings() {
         window.api.saveSettings(newSettings)
       );
       globalSettings.values = newSettings;
+      language.current = newSettings.language as SupportedLanguages;
     } catch (err) {
       snackbarText = err.message;
       snackbarSeverity = "error";
