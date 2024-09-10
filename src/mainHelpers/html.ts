@@ -74,34 +74,42 @@ function sortAssignments(
 
 // Set converter
 export function setToFullData(set: ExportSetData): FullAssignmentSetData {
-  let assignmentArray: CodeAssignmentSelectionData[] = [];
-  for (const setAssignment of set.assignments) {
-    const assigPath = path.join(
-      coursePath.path,
-      setAssignment.folder,
-      setAssignment.id + ".json"
-    );
-    const fullData = handleReadFileFS(assigPath) as CodeAssignmentData;
-    let newAssignment: CodeAssignmentSelectionData = {
-      variation: fullData.variations[setAssignment.variationId],
-      variatioId: setAssignment.variationId,
-      CGid: setAssignment.CGid,
-      selectedPosition: setAssignment.selectedPosition,
-      selectedModule: setAssignment.selectedModule,
-      assignmentID: fullData.assignmentID,
-      level: fullData.level,
-      folder: fullData.folder,
-      codeLanguage: fullData.codeLanguage,
-      title: fullData.title,
+  try {
+    let assignmentArray: CodeAssignmentSelectionData[] = [];
+    for (const setAssignment of set.assignments) {
+      const assigPath = path.join(
+        coursePath.path,
+        setAssignment.folder,
+        setAssignment.id + ".json"
+      );
+      log.debug(setAssignment.folder);
+      log.debug(assigPath);
+      const fullData = handleReadFileFS(assigPath) as CodeAssignmentData;
+      log.debug("here4");
+      let newAssignment: CodeAssignmentSelectionData = {
+        variation: fullData.variations[setAssignment.variationId],
+        variatioId: setAssignment.variationId,
+        CGid: setAssignment.CGid,
+        selectedPosition: setAssignment.selectedPosition,
+        selectedModule: setAssignment.selectedModule,
+        assignmentID: fullData.assignmentID,
+        level: fullData.level,
+        folder: fullData.folder,
+        codeLanguage: fullData.codeLanguage,
+        title: fullData.title,
+      };
+      assignmentArray.push(newAssignment);
+    }
+    assignmentArray.sort((a, b) => sortAssignments(a, b));
+    const newSet: FullAssignmentSetData = {
+      assignmentArray: assignmentArray,
+      ...set,
     };
-    assignmentArray.push(newAssignment);
+    return newSet;
+  } catch (err) {
+    log.error("Error in setToFullData:", err.message);
+    throw err;
   }
-  assignmentArray.sort((a, b) => sortAssignments(a, b));
-  const newSet: FullAssignmentSetData = {
-    assignmentArray: assignmentArray,
-    ...set,
-  };
-  return newSet;
 }
 
 export function assignmentToFullData(
@@ -160,6 +168,7 @@ export async function exportSetFS(
   savePath: string
 ): Promise<String> {
   try {
+    log.debug("here3");
     const convertedSet = setToFullData(setInput);
 
     // get all course modules
@@ -174,8 +183,10 @@ export async function exportSetFS(
     }
     const modules: ModuleData[] = modulesResult.content;
 
+    log.debug("here2");
     // convert assignments to full
     const fullAssignments = assignmentToFullData(setInput.assignments);
+    log.debug("here");
 
     // loop through modules
     await Promise.all(

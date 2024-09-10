@@ -736,6 +736,24 @@ export async function getFilteredAssignmentsDB(
   });
 }
 
+export async function assignmentExistsDB(
+  assignmentName: string,
+  coursePath: string
+): Promise<boolean> {
+  try {
+    const assignments = await getAssignmentsDB(coursePath);
+
+    const sameNameAssignment = assignments.find((prevAssignment) => {
+      return prevAssignment?.title === assignmentName ? true : false;
+    });
+
+    return sameNameAssignment ? true : false;
+  } catch (err) {
+    log.error("Error in _AssignmentExistsFS():", err.message);
+    throw err;
+  }
+}
+
 // CRUD Module
 
 export async function addModuleDB(
