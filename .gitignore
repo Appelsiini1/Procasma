@@ -96,4 +96,7 @@ testiKurssit/
 database/
 
 # Bundler visualizer
-stats.html
+mainStats.html
+preloadStats.html
+rendererStats.html
+dist/

@@ -22,9 +22,17 @@ export default defineConfig((env) => {
       },
       rollupOptions: {
         external,
+        treeshake: true,
       },
     },
-    plugins: [pluginHotRestart("restart"), visualizer() as PluginOption],
+    plugins: [
+      pluginHotRestart("restart"),
+      visualizer({
+        template: "treemap",
+        open: true,
+        filename: "mainStats.html",
+      }) as PluginOption,
+    ],
     define,
     resolve: {
       // Load the Node.js entry.
