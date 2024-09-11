@@ -235,6 +235,7 @@ export default function AssignmentBrowse() {
   async function importAssignments() {
     let snackbarSeverity = "success";
     let snackbarText = "";
+    handleSnackbar({ ["action"]: parseUICode("ui_importing_assignments") });
     try {
       // get the assignmentData folder to import from the user
       const importPath: string = await handleIPCResult(() =>

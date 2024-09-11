@@ -1411,5 +1411,13 @@
   "error_no_modules_in_set": {
     "FI": "Mitään moduulia ei ole valittuna. Valitse 'Koko toteutus', jos kurssillasi ei ole moduuleja.",
     "ENG": "No module selected. Choose 'Full course' if you don't have any modules present on your course."
+  },
+  "ui_importing_assignments": {
+    "FI": "Tuodaan tehtäviä...",
+    "ENG": "Importing assignments..."
+  },
+  "ui_creating_modules": {
+    "FI": "Luodaan moduuleja...",
+    "ENG": "Creating modules..."
   }
 }
