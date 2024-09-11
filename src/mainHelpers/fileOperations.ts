@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 import {
   CodeAssignmentData,
-  CodeAssignmentDatabase,
   CodeAssignmentSelectionData,
   CourseData,
   ExportSetData,
@@ -26,7 +25,6 @@ import {
   addModuleDB,
   assignmentExistsDB,
   deleteAssignmentsDB,
-  getAssignmentByTitleDB,
   getAssignmentsDB,
   getModulesDB,
   initDB,
