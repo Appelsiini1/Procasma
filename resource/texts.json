@@ -229,8 +229,8 @@
     "ENG": "Generate modules"
   },
   "help_generate_modules": {
-    "FI": "Generoi kurssin tehtäville puuttuvat moduulit automaattisesti. Toiminto päivittää olemassa oleviin moduuleihin tehtäväpaikkoja suurimman tehtävänumeron mukaan.",
-    "ENG": "Generate modules for the assignments on the course automatically. The function updates existing modules by setting the number of assignments based on the highest found assignment position."
+    "FI": "Generoi kurssin tehtäville puuttuvat moduulit automaattisesti. Toiminto päivittää myös olemassa oleviin moduuleihin tehtäväpaikkoja suurimman tehtävänumeron mukaan.",
+    "ENG": "Generate modules for the assignments on the course automatically. The function also updates existing modules by setting the number of assignments based on the highest found assignment position."
   },
   "ui_week": {
     "FI": "Viikko",
@@ -749,16 +749,16 @@
     "ENG": "Input the week a title. If left empty, the default will be used."
   },
   "help_module_topics": {
-    "FI": "Lisää tähän moduulissa käsiteltävät aiheet. Erottele aiheet rivinvaihdolla. Aiheet tulostuvat sivun alkuun tehtäväsarjaa viedessä.",
-    "ENG": "Add the topics that are covered on this module. Separate topics with a new line. The topics will be printed to the top of the page when exporting assignment sets."
+    "FI": "Lisää tähän moduulissa käsiteltävät aiheet. Erottele aiheet rivinvaihdolla. Aiheet tulostuvat sivun alkuun tehtäväsarjaa viedessä. Kenttä tukee Markdown'n perussyntaksia. Katso lisää rajoitteista ja tuetuista ominaisuuksista Showdown kirjaston ohjeista: https://showdownjs.com/docs/markdown-syntax/\nKuvia lisätessä on suositeltaa kirjoittaa vain tiedoston nimi. Kuvatagien käyttämistä ei suositella tässä kentässä.",
+    "ENG": "Add the topics that are covered on this module. Separate topics with a new line. The topics will be printed to the top of the page when exporting assignment sets. This field supports basic Markdown syntax. See more on the limitations and supported features from Showdown library's documentation: https://showdownjs.com/docs/markdown-syntax/\nIt is not recommended to add image tags to this field."
   },
   "help_module_tags": {
     "FI": "Syötä moduulin aihetunnisteet. Erote aihetunnisteet pilkulla.",
     "ENG": "Input the tags for the module here. Separate each of them with a comma."
   },
   "help_module_inst": {
-    "FI": "Syötä moduulin erikoisohjeet. Nämä tulostuvat aihelistan perään.",
-    "ENG": "Input any special instructions for the module. These will be printed after the topic list."
+    "FI": "Syötä moduulin erikoisohjeet. Nämä tulostuvat aihelistan perään. Kenttä tukee Markdown'n perussyntaksia. Katso lisää rajoitteista ja tuetuista ominaisuuksista Showdown kirjaston ohjeista: https://showdownjs.com/docs/markdown-syntax/\nKuvia lisätessä on suositeltaa kirjoittaa vain tiedoston nimi. Kuvan koon voi määrittää Showdown'in syntaksilla.",
+    "ENG": "Input any special instructions for the module. These will be printed after the topic list. This field supports basic Markdown syntax. See more on the limitations and supported features from Showdown library's documentation: https://showdownjs.com/docs/markdown-syntax/\nWhen adding images it is recommended to only write the file name. The size of an image can be defined with Showdown's syntax."
   },
   "ui_assignment_browse": {
     "FI": "Tehtävien selaus",
