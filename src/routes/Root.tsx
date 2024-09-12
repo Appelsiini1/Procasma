@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import FadeInImage from "../components/FadeInImage";
 import { CodeAssignmentData, CourseData, ModuleData, SetData } from "../types";
 import { useContext, useEffect, useState } from "react";
-import { refreshTitle } from "../rendererHelpers/requests";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
 import { ActiveObjectContext, UIContext } from "../components/Context";
