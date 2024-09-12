@@ -91,9 +91,10 @@ typings/
 # Electron-Forge
 out/
 
-# Testaus
+# Testing
 testiKurssit/
 database/
+test/output
 
 # Bundler visualizer
 mainStats.html
