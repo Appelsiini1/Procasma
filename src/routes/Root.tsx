@@ -10,6 +10,7 @@ import { refreshTitle } from "../rendererHelpers/requests";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
 import { ActiveObjectContext, UIContext } from "../components/Context";
+import { currentCourse } from "../globalsUI";
 
 export default function Root() {
   const {
@@ -141,6 +142,7 @@ export default function Root() {
           handleHeaderCourseID(course.id);
           handleHeaderCourseTitle(course.title);
           window.api.setCoursePath(coursePath);
+          currentCourse.values = course;
         } else {
           snackbarSeverity = "error";
           snackbarText = "ui_course_folder_invalid";
