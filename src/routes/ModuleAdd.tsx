@@ -60,6 +60,7 @@ export default function ModuleAdd() {
       snackbarSeverity = "error";
     }
     handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
+    navigate(-1);
   }
 
   useEffect(() => {
