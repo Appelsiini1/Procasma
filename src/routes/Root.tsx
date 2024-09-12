@@ -6,10 +6,10 @@ import { useNavigate } from "react-router-dom";
 import FadeInImage from "../components/FadeInImage";
 import { CodeAssignmentData, CourseData, ModuleData, SetData } from "../types";
 import { useContext, useEffect, useState } from "react";
-import { refreshTitle } from "../rendererHelpers/requests";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
 import { ActiveObjectContext, UIContext } from "../components/Context";
+import { currentCourse } from "../globalsUI";
 
 export default function Root() {
   const {
@@ -141,6 +141,7 @@ export default function Root() {
           handleHeaderCourseID(course.id);
           handleHeaderCourseTitle(course.title);
           window.api.setCoursePath(coursePath);
+          currentCourse.values = course;
         } else {
           snackbarSeverity = "error";
           snackbarText = "ui_course_folder_invalid";
