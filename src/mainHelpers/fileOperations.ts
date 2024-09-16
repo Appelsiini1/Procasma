@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 import {
   CodeAssignmentData,
-  CodeAssignmentDatabase,
   CodeAssignmentSelectionData,
   CourseData,
   ExportSetData,
@@ -26,7 +25,6 @@ import {
   addModuleDB,
   assignmentExistsDB,
   deleteAssignmentsDB,
-  getAssignmentByTitleDB,
   getAssignmentsDB,
   getModulesDB,
   initDB,
@@ -905,7 +903,7 @@ export async function importAssignmentsFS(
       }
     } else {
       newAssignments = await Promise.all(
-        assignmentFolders.map(async (assignmentFolder) => {
+        await assignmentFolders.map(async (assignmentFolder) => {
           const checkJson = await checkJSONInFolder(
             path.join(importPath, assignmentFolder.name),
             coursePath,
@@ -978,33 +976,31 @@ export async function importAssignmentsFS(
     }
 
     // write the assignments
-    await Promise.all(
-      newAssignments.map(async (importedAssignment) => {
-        if (importedAssignment === null) return;
+    for (const importedAssignment of newAssignments) {
+      if (importedAssignment === null) continue;
 
-        const newAssignment = importedAssignment.assignmentData;
-        const fullAssignmentDataFolder = path.join(
-          coursePath,
-          assignmentDataFolder
+      const newAssignment = importedAssignment.assignmentData;
+      const fullAssignmentDataFolder = path.join(
+        coursePath,
+        assignmentDataFolder
+      );
+      if (
+        fullAssignmentDataFolder !== importPath &&
+        fullAssignmentDataFolder !== path.dirname(importPath)
+      ) {
+        await handleAddAssignmentFS(newAssignment, coursePath);
+        assignmentCount++;
+      } else if (
+        fullAssignmentDataFolder === importPath ||
+        fullAssignmentDataFolder === path.dirname(importPath)
+      ) {
+        _handleAddImportedAssignmentWithSameFolderFS(
+          importedAssignment,
+          coursePath
         );
-        if (
-          fullAssignmentDataFolder !== importPath &&
-          fullAssignmentDataFolder !== path.dirname(importPath)
-        ) {
-          await handleAddAssignmentFS(newAssignment, coursePath);
-          assignmentCount++;
-        } else if (
-          fullAssignmentDataFolder === importPath ||
-          fullAssignmentDataFolder === path.dirname(importPath)
-        ) {
-          _handleAddImportedAssignmentWithSameFolderFS(
-            importedAssignment,
-            coursePath
-          );
-          assignmentCount++;
-        }
-      })
-    );
+        assignmentCount++;
+      }
+    }
 
     return `${assignmentCount} ${parseUICodeMain("ui_imported_assignments")}`;
   } catch (err) {

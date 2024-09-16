@@ -126,6 +126,7 @@ class Settings implements SettingsType {
       { name: "C", fileExtensions: [".c", ".h"] },
       { name: "JavaScript", fileExtensions: [".js", ".jsx"] },
       { name: "TypeScript", fileExtensions: [".ts", ".tsx"] },
+      { name: "Java", fileExtensions: [".java"] },
     ];
     this._language = "ENG";
     this._shortenFiles = true;

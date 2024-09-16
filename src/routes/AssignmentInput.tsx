@@ -168,7 +168,7 @@ export default function AssignmentInput() {
       snackbarSeverity = "error";
     }
     handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
-    navigate("/");
+    navigate(-1);
   }
 
   // Update the selected assignments

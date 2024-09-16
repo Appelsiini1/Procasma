@@ -162,6 +162,7 @@ export default function ModuleBrowse() {
   async function autoGenerateModules() {
     let snackbarSeverity = "success";
     let snackbarText = "";
+    handleSnackbar({ ["action"]: parseUICode("ui_creating_modules") });
     try {
       const result = await handleIPCResult(() =>
         window.api.autoGenerateModulesFS(activePath)
