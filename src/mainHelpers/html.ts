@@ -29,6 +29,7 @@ import {
   getBase64String,
   handleReadFileFS,
   saveSetModuleFS,
+  setUsedIn,
 } from "./fileOperations";
 import { css as papercolorLight } from "../../resource/cssImports/papercolor-light";
 import { globalSettings } from "../globalsUI";
@@ -284,6 +285,19 @@ export async function exportSetFS(
 
         const filesPath = path.join(savePath, filename);
         copyExportFilesFS(moduleAssignments, filesPath);
+
+        for (const setAssignment of convertedSet.assignmentArray) {
+          const filePath = path.join(
+            coursePath.path,
+            setAssignment.folder,
+            setAssignment.assignmentID + ".json"
+          );
+          setUsedIn(
+            filePath,
+            setAssignment.variatioId,
+            `${convertedSet.year}/${convertedSet.period}`
+          );
+        }
       })
     );
   } catch (err) {
