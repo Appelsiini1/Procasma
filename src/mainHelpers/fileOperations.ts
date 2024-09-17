@@ -1228,6 +1228,26 @@ export async function saveSetModuleFS(
   }
 }
 
+export function setUsedIn(
+  assignmentPath: string,
+  variationID: string,
+  period: string
+) {
+  try {
+    const assignmentData: CodeAssignmentData = handleReadFileFS(assignmentPath);
+    const result = assignmentData.variations[variationID].usedIn.filter(
+      (value) => period === value
+    );
+    if (result.length === 0) {
+      assignmentData.variations[variationID].usedIn.push(period);
+      fs.writeFileSync(assignmentPath, JSON.stringify(assignmentData), "utf8");
+    }
+  } catch (err) {
+    log.error("Error in setUsedIn:", err.message);
+    throw err;
+  }
+}
+
 // CRUD Module
 
 /**
