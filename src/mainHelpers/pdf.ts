@@ -92,7 +92,7 @@ export function generateHeaderFooter(
 export async function createPDF(input: PDFHtmlInput, path: string) {
   try {
     log.info("Starting PDF creation...");
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({ headless: true });
     log.info("Puppeteer launched.");
     const page = await browser.newPage();
     await page.setContent(input.html);
