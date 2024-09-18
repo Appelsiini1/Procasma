@@ -194,6 +194,7 @@ export default function SetBrowse() {
           buttonType="normal"
           onClick={() => handleExportSet()}
           ariaLabel={parseUICode("ui_aria_export_sets")}
+          disabled={numSelected > 0 ? false : true}
         >
           {parseUICode("ui_export")}
         </ButtonComp>
