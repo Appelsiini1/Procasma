@@ -188,6 +188,16 @@ export default function ModuleBrowse() {
         spacing={2}
       >
         <ButtonComp
+          buttonType="normal"
+          onClick={() => {
+            handleOpenModule();
+          }}
+          ariaLabel={parseUICode("ui_aria_show_edit")}
+          disabled={numSelected === 1 ? false : true}
+        >
+          {parseUICode("ui_show_edit")}
+        </ButtonComp>
+        <ButtonComp
           confirmationModal={true}
           modalText={`${parseUICode("ui_delete")} 
             ${numSelected}`}
@@ -197,16 +207,6 @@ export default function ModuleBrowse() {
           disabled={numSelected > 0 ? false : true}
         >
           {`${parseUICode("ui_delete")} ${numSelected}`}
-        </ButtonComp>
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => {
-            handleOpenModule();
-          }}
-          ariaLabel={parseUICode("ui_aria_show_edit")}
-          disabled={numSelected === 1 ? false : true}
-        >
-          {parseUICode("ui_show_edit")}
         </ButtonComp>
         <HelpText text={parseUICode("help_generate_modules")}>
           <ButtonComp
