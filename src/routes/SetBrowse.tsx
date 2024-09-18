@@ -173,10 +173,11 @@ export default function SetBrowse() {
       >
         <ButtonComp
           buttonType="normal"
-          onClick={() => handleExportSet()}
-          ariaLabel={parseUICode("ui_aria_export_sets")}
+          onClick={() => handleOpenSet()}
+          ariaLabel={parseUICode("ui_aria_modify_sets")}
+          disabled={numSelected === 1 ? false : true}
         >
-          {parseUICode("ui_export")}
+          {parseUICode("ui_modify")}
         </ButtonComp>
         <ButtonComp
           confirmationModal={true}
@@ -191,11 +192,10 @@ export default function SetBrowse() {
         </ButtonComp>
         <ButtonComp
           buttonType="normal"
-          onClick={() => handleOpenSet()}
-          ariaLabel={parseUICode("ui_aria_modify_sets")}
-          disabled={numSelected === 1 ? false : true}
+          onClick={() => handleExportSet()}
+          ariaLabel={parseUICode("ui_aria_export_sets")}
         >
-          {parseUICode("ui_modify")}
+          {parseUICode("ui_export")}
         </ButtonComp>
       </Stack>
 
