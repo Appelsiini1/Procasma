@@ -23,6 +23,7 @@ const createWindow = () => {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
+      spellcheck: false,
     },
     icon: "../resource/icons/icon",
   });
