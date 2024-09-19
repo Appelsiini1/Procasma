@@ -21,7 +21,6 @@ import {
   fileFolderSeparator,
   ShowdownOptions,
 } from "../constants";
-import hljs from "highlight.js/lib/common";
 import { coursePath } from "../globalsMain";
 import { getModulesDB } from "./databaseOperations";
 import { createMainFunctionHandler } from "./ipcHelpers";
@@ -30,18 +29,13 @@ import {
   getBase64String,
   handleReadFileFS,
   saveSetModuleFS,
+  setUsedIn,
 } from "./fileOperations";
 import { css as papercolorLight } from "../../resource/cssImports/papercolor-light";
 import { globalSettings } from "../globalsUI";
 import { platform } from "node:process";
 import { genericModule } from "../defaultObjects";
-
-const { mathjax } = require("mathjax-full/js/mathjax.js");
-const { TeX } = require("mathjax-full/js/input/tex.js");
-const { SVG } = require("mathjax-full/js/output/svg.js");
-const { liteAdaptor } = require("mathjax-full/js/adaptors/liteAdaptor.js");
-const { RegisterHTMLHandler } = require("mathjax-full/js/handlers/html.js");
-const { AllPackages } = require("mathjax-full/js/input/tex/AllPackages.js");
+import { highlightCode } from "./highlighters";
 
 const converter = new showdown.Converter(ShowdownOptions);
 
@@ -291,6 +285,19 @@ export async function exportSetFS(
 
         const filesPath = path.join(savePath, filename);
         copyExportFilesFS(moduleAssignments, filesPath);
+
+        for (const setAssignment of convertedSet.assignmentArray) {
+          const filePath = path.join(
+            coursePath.path,
+            setAssignment.folder,
+            setAssignment.assignmentID + ".json"
+          );
+          setUsedIn(
+            filePath,
+            setAssignment.variatioId,
+            `${convertedSet.year}/${convertedSet.period}`
+          );
+        }
       })
     );
   } catch (err) {
@@ -359,6 +366,12 @@ function formatImage(text: string, files: Array<FileData>): string {
  * @returns HTML string
  */
 function formatMath(text: string): string {
+  const { mathjax } = require("mathjax-full/js/mathjax.js");
+  const { TeX } = require("mathjax-full/js/input/tex.js");
+  const { SVG } = require("mathjax-full/js/output/svg.js");
+  const { liteAdaptor } = require("mathjax-full/js/adaptors/liteAdaptor.js");
+  const { RegisterHTMLHandler } = require("mathjax-full/js/handlers/html.js");
+  const { AllPackages } = require("mathjax-full/js/input/tex/AllPackages.js");
   //Depends on MathJax
   const adaptor = liteAdaptor();
   const handler = RegisterHTMLHandler(adaptor);
@@ -404,24 +417,6 @@ function formatMath(text: string): string {
   // log.debug(finalStr);
 
   return finalStr;
-}
-
-/**
- * Formats a string into HTML with language-spesific highlighting
- * @param code String to highlight
- * @param language Language to use in highlighting
- * @returns HTML string
- */
-function highlightCode(code: string, language: string): string {
-  try {
-    let block = `<div class="code-background"><div class="code-inner-container"><pre><code class="hljs">`;
-    block += hljs.highlight(code, { language: language }).value;
-    block += `</code></pre></div></div>`;
-    return block;
-  } catch (err) {
-    log.error("Error in highlightCode(): " + err.message);
-    throw err;
-  }
 }
 
 /**
