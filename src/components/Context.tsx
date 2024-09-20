@@ -78,6 +78,8 @@ export const ActiveObjectProvider = ({ children }: { children: any }) => {
   const [selectAssignment, setSelectAssignment] = useState<boolean>(null);
   const [genericModuleAssignmentCount, setGenericModuleAssignmentCount] =
     useState<number>(null);
+  const [tempAssignment, setTempAssignment] =
+    useState<CodeAssignmentData>(undefined);
 
   function handleActiveCourse(value: CourseData) {
     setActiveCourse(value);
@@ -108,6 +110,9 @@ export const ActiveObjectProvider = ({ children }: { children: any }) => {
   function handleGenericModuleAssignmentCount(value: number) {
     setGenericModuleAssignmentCount(value);
   }
+  function handleTempAssignment(value: CodeAssignmentData) {
+    setTempAssignment(value);
+  }
 
   return (
     <>
@@ -129,6 +134,8 @@ export const ActiveObjectProvider = ({ children }: { children: any }) => {
           handleSelectAssignment,
           genericModuleAssignmentCount,
           handleGenericModuleAssignmentCount,
+          tempAssignment,
+          handleTempAssignment,
         }}
       >
         {children}
