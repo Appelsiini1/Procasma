@@ -13,7 +13,6 @@ import { useContext, useEffect, useState } from "react";
 import NumberInput from "../components/NumberInput";
 import HelpText from "../components/HelpText";
 import ButtonComp from "../components/ButtonComp";
-import SwitchComp from "../components/SwitchComp";
 import { defaultAssignment } from "../defaultObjects";
 import {
   AssignmentWithCheck,
@@ -39,7 +38,6 @@ import {
   setSelectedViaChecked,
   wrapWithCheck,
 } from "../rendererHelpers/browseHelpers";
-import { isExpanding } from "../rendererHelpers/assignment";
 import { globalSettings } from "../globalsUI";
 
 export default function AssignmentInput() {
@@ -50,6 +48,8 @@ export default function AssignmentInput() {
     handleActiveAssignment,
     activeAssignments,
     handleActiveAssignments,
+    tempAssignment,
+    handleTempAssignment,
   }: {
     activeCourse: CourseData;
     activePath: string;
@@ -57,10 +57,12 @@ export default function AssignmentInput() {
     handleActiveAssignment: (value: CodeAssignmentData) => void;
     activeAssignments: CodeAssignmentDatabase[];
     handleActiveAssignments: (value: CodeAssignmentDatabase[]) => void;
+    tempAssignment: CodeAssignmentData;
+    handleTempAssignment: (value: CodeAssignmentData) => void;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [assignment, handleAssignment] = useAssignment(
-    activeAssignment ?? deepCopy(defaultAssignment)
+    tempAssignment ?? activeAssignment ?? deepCopy(defaultAssignment)
   );
   const [prevAssignments, setPrevAssignments] = useState<
     Array<AssignmentWithCheck>
@@ -78,7 +80,6 @@ export default function AssignmentInput() {
   let pageTitle: string = null;
   const moduleDisable = activeCourse?.moduleType !== null ? false : true;
   const levelsDisable = activeCourse?.levels !== null ? false : true;
-  const [expanding, setExpanding] = useState(isExpanding(assignment));
   const codeLanguageOptions = globalSettings.codeLanguages;
   let prevAssignmentsChecklist: Array<React.JSX.Element> = null;
 
@@ -141,8 +142,14 @@ export default function AssignmentInput() {
     handleHeaderPageName("ui_add_assignment");
 
     // use the global "activeAssignment" as the page assignment to manage
-    if (activeAssignment) {
+    if (activeAssignment && !tempAssignment) {
       handleAssignment("", activeAssignment);
+    } else if (activeAssignment && tempAssignment) {
+      handleAssignment("", activeAssignment);
+      handleActiveAssignment(undefined);
+    } else if (tempAssignment) {
+      handleAssignment("", tempAssignment);
+      handleTempAssignment(null);
     }
     getPrevAssignments();
   }, []);
@@ -163,6 +170,7 @@ export default function AssignmentInput() {
         handleAssignment("assignmentID", addedAssignment.assignmentID);
       }
       handleActiveAssignment(null);
+      handleTempAssignment(null);
     } catch (err) {
       snackbarText = err.message;
       snackbarSeverity = "error";
@@ -201,15 +209,7 @@ export default function AssignmentInput() {
   async function handleOpenPrevAssignment() {
     try {
       // First save the in-progress assignment
-      if (pageType === "manage") {
-        await handleIPCResult(() =>
-          window.api.handleUpdateAssignmentFS(assignment, activePath)
-        );
-      } else {
-        await handleIPCResult(() =>
-          window.api.handleAddAssignmentFS(assignment, activePath)
-        );
-      }
+      handleTempAssignment(assignment);
 
       // Then get the full selected assignment
       const assignmentsResult = await handleIPCResult(() =>
@@ -231,27 +231,17 @@ export default function AssignmentInput() {
 
   // Navigates to the assignment browse page by listening to activeAssignments
   useEffect(() => {
-    if (activeAssignments && navigateToBrowse) {
+    if (tempAssignment && navigateToBrowse) {
       setNavigateToBrowse(false);
       navigate("/AssignmentBrowse");
     }
-  }, [activeAssignments, navigateToBrowse]);
+  }, [tempAssignment, navigateToBrowse]);
 
   async function handleNavigateToBrowse() {
     try {
       // save the in-progress assignment, and use the received
       // assignment, because it has the generated id from main
-      let addedAssignment: CodeAssignmentData = null;
-      if (assignment.assignmentID) {
-        addedAssignment = await handleIPCResult(() =>
-          window.api.handleUpdateAssignmentFS(assignment, activePath)
-        );
-      } else {
-        addedAssignment = await handleIPCResult(() =>
-          window.api.handleAddAssignmentFS(assignment, activePath)
-        );
-      }
-      handleActiveAssignment(addedAssignment);
+      handleTempAssignment(assignment);
       handleActiveAssignments([]);
       setNavigateToBrowse(true);
     } catch (err) {
@@ -273,8 +263,7 @@ export default function AssignmentInput() {
   prevAssignmentsChecklist = generateChecklist(
     prevAssignments,
     setPrevAssignments,
-    true,
-    !expanding
+    true
   );
 
   return (
@@ -418,17 +407,6 @@ export default function AssignmentInput() {
               </td>
             </tr>
 
-            <tr key="caExpanding">
-              <td>
-                <Typography level="h4">
-                  {parseUICode("ui_exp_assignment")}
-                </Typography>
-              </td>
-              <td>
-                <SwitchComp checked={expanding} setChecked={setExpanding} />
-              </td>
-            </tr>
-
             <tr key="caPrevious">
               <td>
                 <Grid
@@ -481,7 +459,6 @@ export default function AssignmentInput() {
                       handleNavigateToBrowse();
                     }}
                     ariaLabel={parseUICode("ui_add")}
-                    disabled={expanding ? false : true}
                   >
                     {parseUICode("ui_add")}
                   </ButtonComp>{" "}
