@@ -4,6 +4,7 @@ import ExpandIcon from "@mui/icons-material/Expand";
 import PendingIcon from "@mui/icons-material/Pending";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {
+  CodeAssignmentData,
   CodeAssignmentDatabase,
   ModuleData,
   ModuleDatabase,
@@ -148,12 +149,41 @@ function getModuleLetter(moduleType: SupportedModuleType) {
   }
 }
 
+function sortAssignments(a: CodeAssignmentData, b: CodeAssignmentData) {
+  if (a.module < b.module) {
+    return -1;
+  } else if (a.module > b.module) {
+    return 1;
+  } else if (a.module === b.module) {
+    if (Math.min(...a.position) < Math.min(...b.position)) {
+      return -1;
+    } else if (Math.min(...a.position) > Math.min(...b.position)) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
 export function generateChecklist(
   items: WithCheckWrapper[],
   setItems: React.Dispatch<React.SetStateAction<WithCheckWrapper[]>>,
   isAssignment?: boolean,
+  isSet?: boolean,
   disabled?: boolean
 ) {
+  items.sort((a, b) => {
+    console.log(a.value, b.value);
+    if (isSet) {
+      const valueStr = new String(a.value?.name);
+      return valueStr.localeCompare(b.value?.name);
+    } else if (!isAssignment && !isSet) {
+      const valueStr = new String(a.value?.title);
+      return valueStr.localeCompare(b.value?.title);
+    } else {
+      return sortAssignments(a.value, b.value);
+    }
+  });
   return items
     ? items.map((item: any) => {
         let titleOrName = "";
