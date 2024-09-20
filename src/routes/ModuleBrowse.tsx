@@ -143,7 +143,7 @@ export default function ModuleBrowse() {
     refreshModules();
   }, [uniqueTags]);
 
-  modules = generateChecklist(courseModules, setCourseModules);
+  modules = generateChecklist(courseModules, setCourseModules, false);
   tags = generateFilterList(uniqueTags, setUniqueTags);
 
   async function handleOpenModule() {
