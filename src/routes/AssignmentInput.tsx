@@ -250,13 +250,17 @@ export default function AssignmentInput() {
   }
 
   function handleLevelValue() {
-    if (assignment && activeCourse?.minLevel !== 0) {
-      if (assignment?.level === null) {
-        return activeCourse?.minLevel;
+    try {
+      if (assignment && activeCourse?.levels.length !== 0) {
+        if (assignment?.level === null) {
+          return activeCourse?.levels[0].fullName;
+        }
+        return activeCourse?.levels[assignment?.level].fullName;
+      } else {
+        return "";
       }
-      return Number(assignment?.level);
-    } else {
-      return 0;
+    } catch (err) {
+      return "";
     }
   }
 
@@ -299,13 +303,20 @@ export default function AssignmentInput() {
                 </Typography>
               </td>
               <td>
-                <NumberInput
-                  disabled={levelsDisable}
-                  value={handleLevelValue()}
-                  onChange={(value: number) => handleAssignment("level", value)}
-                  min={activeCourse?.minLevel}
-                  max={activeCourse?.maxLevel}
-                ></NumberInput>
+                <Dropdown
+                  options={!activeCourse?.levels ? [] : activeCourse.levels}
+                  labelKey="fullName"
+                  onChange={(value: string) => {
+                    let index = activeCourse.levels.findIndex(
+                      (element) => value === element.fullName
+                    );
+                    if (index === -1) index = null;
+                    handleAssignment("level", index);
+                  }}
+                  defaultValue={handleLevelValue()}
+                  name="caLevel"
+                  disabled={!activeCourse?.levels ? true : false}
+                ></Dropdown>
               </td>
             </tr>
 

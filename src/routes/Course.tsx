@@ -167,6 +167,7 @@ export default function Course() {
         );
 
         handleActiveCourse(course);
+        setNavigateToMenu(true);
       } else {
         const newCoursePath = await handleIPCResult(() =>
           window.api.handleAddCourseFS(course, path)
@@ -184,7 +185,7 @@ export default function Course() {
   }
 
   function handleLevelsChange(value: string) {
-    const levels = splitCourseLevels(value);
+    let levels = splitCourseLevels(value);
     let amount = 0;
     for (const level in levels) {
       amount += 1;
