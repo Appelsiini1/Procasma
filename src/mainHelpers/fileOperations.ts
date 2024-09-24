@@ -643,7 +643,8 @@ export async function handleDeleteAssignmentsFS(
  */
 function parseAssignmentFolderVariations(
   assignment: CodeAssignmentData,
-  assignmentPath: string
+  assignmentPath: string,
+  course: CourseData
 ) {
   try {
     let newCodeLanguage: string = null;
@@ -679,6 +680,7 @@ function parseAssignmentFolderVariations(
                   innerFile,
                   assignment,
                   variationId,
+                  course,
                   true
                 );
                 if (!newCodeLanguage && codeLanguage) {
@@ -690,7 +692,8 @@ function parseAssignmentFolderVariations(
                 newFilePath,
                 variationFile,
                 assignment,
-                variationId
+                variationId,
+                course
               );
               if (!newCodeLanguage && codeLanguage) {
                 newCodeLanguage = codeLanguage;
@@ -837,6 +840,7 @@ export async function importAssignmentsFS(
   let newAssignments: ImportAssignment[] = [];
   let assignmentCount = 0;
   try {
+    const course = handleGetCourseFS(coursePath);
     // parse each assignment
     const assignmentFolders = fs.readdirSync(importPath, {
       withFileTypes: true,
@@ -897,7 +901,8 @@ export async function importAssignmentsFS(
         // parse each variation
         parseAssignmentFolderVariations(
           newAssignment.assignmentData,
-          importPath
+          importPath,
+          course
         );
         newAssignments.push(newAssignment);
       }
@@ -932,7 +937,8 @@ export async function importAssignmentsFS(
             // parse each variation
             parseAssignmentFolderVariations(
               newAssignment.assignmentData,
-              folderPath
+              folderPath,
+              course
             );
             return newAssignment;
           } else if (checkJson.result === 0) {
@@ -946,7 +952,8 @@ export async function importAssignmentsFS(
               }
               parseAssignmentFolderVariations(
                 assignment,
-                path.join(importPath, assignmentFolder.name)
+                path.join(importPath, assignmentFolder.name),
+                course
               );
               return {
                 assignmentData: assignment,
