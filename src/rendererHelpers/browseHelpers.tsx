@@ -173,7 +173,6 @@ export function generateChecklist(
   disabled?: boolean
 ) {
   items.sort((a, b) => {
-    console.log(a.value, b.value);
     if (isSet) {
       const valueStr = new String(a.value?.name);
       return valueStr.localeCompare(b.value?.name);

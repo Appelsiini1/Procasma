@@ -73,10 +73,8 @@ export interface CodeLanguage {
 }
 
 export interface LevelsType {
-  [key: number]: {
-    fullName: string;
-    abbreviation: string;
-  };
+  fullName: string;
+  abbreviation: string;
 }
 
 export interface CourseData {
@@ -89,7 +87,7 @@ export interface CourseData {
   CodeGradeID?: number;
   minLevel?: number;
   maxLevel?: number;
-  levels?: LevelsType | null;
+  levels?: LevelsType[] | null;
 }
 
 export type CourseLoaderData = "create" | "manage";
