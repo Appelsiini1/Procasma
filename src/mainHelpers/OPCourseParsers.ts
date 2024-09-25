@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import {
   CodeAssignmentData,
+  CourseData,
   ExampleRunType,
   FileContents,
   FileData,
@@ -9,7 +10,6 @@ import {
   Variation,
 } from "../types";
 import {
-  levelsTEMPORARY,
   markdownAssignmentLevel,
   markdownCLIargument,
   markdownExampleRun,
@@ -191,7 +191,7 @@ export function splitMarkdown(
 export function markdownExtractLevel(
   assignment: CodeAssignmentData,
   markdown: string,
-  levels: LevelsType
+  levels: LevelsType[]
 ) {
   if (!assignment.level) {
     const lines = markdown.split(/\r?\n/);
@@ -200,11 +200,10 @@ export function markdownExtractLevel(
     );
 
     if (lineWithLevel) {
-      Object.keys(levels).forEach((levelNumber) => {
-        const currentLevel = levels[parseInt(levelNumber)];
-        const levelName = currentLevel.fullName;
+      levels.forEach((level, index) => {
+        const levelName = level.fullName;
         if (lineWithLevel.includes(levelName)) {
-          assignment.level = parseInt(levelNumber);
+          assignment.level = index;
         }
       });
     }
@@ -218,7 +217,8 @@ export function markdownExtractLevel(
 export function parseMarkDownVariationFS(
   markdownPath: string,
   assignment: CodeAssignmentData,
-  variationId: string
+  variationId: string,
+  course: CourseData
 ): Variation {
   try {
     const variation = assignment.variations[variationId];
@@ -226,8 +226,8 @@ export function parseMarkDownVariationFS(
 
     // assignment level
     // TODO: get levels dictionary from course
-    const levels = levelsTEMPORARY;
-    markdownExtractLevel(assignment, markdown, levels);
+
+    markdownExtractLevel(assignment, markdown, course.levels);
 
     // instructions
     variation.instructions = splitMarkdown(
@@ -275,6 +275,7 @@ export function addFileToVariation(
   fileName: string,
   assignment: CodeAssignmentData,
   variationId: string,
+  course: CourseData,
   isInner?: boolean
 ) {
   const newFile: FileData = deepCopy(defaultFile);
@@ -307,7 +308,7 @@ export function addFileToVariation(
     }
 
     // parse the markdown file into the variation
-    parseMarkDownVariationFS(filePath, assignment, variationId);
+    parseMarkDownVariationFS(filePath, assignment, variationId, course);
   }
 
   return getCodeLanguageUsingExtension(newExtension);

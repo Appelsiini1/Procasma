@@ -18,46 +18,39 @@ export function arrayToString(arr: Array<string | number>): string {
   return arr.join(", ");
 }
 
-export function splitCourseLevels(input: string): LevelsType {
+export function splitCourseLevels(input: string, check = false): LevelsType[] {
   const trimmedInput = input.trim();
+  if (trimmedInput === "") return null;
   const levels = trimmedInput.split("\n").map((item) => item.trim());
 
-  const result: LevelsType = {};
+  const result: LevelsType[] = [];
 
   levels.forEach((level) => {
     const parts = level.split(":").map((item) => item.trim());
 
     // Ensure parts[0] (key) and parts[1] (fullName) are not empty
-    if (parts.length !== 3 || !parts[0] || !parts[1]) {
-      return;
+    if (check && (parts.length !== 2 || !parts[0] || !parts[1])) {
+      throw new Error("ui_level_error");
     }
 
-    const key = parseInt(parts[0], 10);
-    const fullName = parts[1];
-    const abbreviation = parts[2];
-    result[key] = { fullName, abbreviation };
+    const fullName = parts[0];
+    const abbreviation = parts[1];
 
-    // Validate types before assigning
-    if (
-      typeof key === "number" &&
-      typeof fullName === "string" &&
-      typeof abbreviation === "string"
-    ) {
-      result[key] = { fullName, abbreviation };
-    }
+    result.push({ fullName, abbreviation });
   });
 
-  return Object.keys(result).length > 0 ? result : null;
+  console.log(result);
+  return result.length > 0 ? result : null;
 }
 
-export function courseLevelsToString(levels: LevelsType): string {
-  if (!levels) {
+export function courseLevelsToString(levels: LevelsType[]): string {
+  if (!levels || levels.length === 0) {
     return "";
   }
-  const result: string = Object.keys(levels)
-    .map((key) => {
-      const { fullName, abbreviation } = levels[parseInt(key, 10)];
-      return `${key}:${fullName}:${abbreviation}`;
+  const result: string = levels
+    .map((value) => {
+      const { fullName, abbreviation } = value;
+      return `${fullName}:${abbreviation}`;
     })
     .join("\n");
 

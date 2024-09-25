@@ -48,11 +48,6 @@ export const markdownExampleRun = "Esimerkkiajo";
 export const markdownInput = "Syötteet";
 export const markdownOutput = "Tuloste";
 export const markdownCLIargument = "Komentoriviparametrit";
-export const levelsTEMPORARY: LevelsType = {
-  "1": { fullName: "Minimitaso", abbreviation: "M" },
-  "2": { fullName: "Perustaso", abbreviation: "P" },
-  "3": { fullName: "Tavoitetaso", abbreviation: "T" },
-};
 export const fileFolderSeparator = "-";
 export const defaultCSS = ["papercolor-light.css"];
 export const MathJaxCSS = [
