@@ -15,11 +15,13 @@ import {
   markdownExampleRun,
   markdownInput,
   markdownOutput,
+} from "../constants";
+import {
   codeExtensions,
   dataExtensions,
   imageExtensions,
   textExtensions,
-} from "../constants";
+} from "../constantsUI";
 import log from "electron-log/node";
 import {
   deepCopy,

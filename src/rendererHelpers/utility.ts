@@ -1,4 +1,8 @@
-import { codeExtensions, imageExtensions, textExtensions } from "../constants";
+import {
+  codeExtensions,
+  imageExtensions,
+  textExtensions,
+} from "../constantsUI";
 import { FileTypes } from "../types";
 
 /**

@@ -41,3 +41,19 @@ export const smallDividerSX = {
   marginRight: "7rem",
 };
 export const DEVMODE = devmode;
+export const codegradeAPIEndpointV1 = "https://app.codegra.de/api/v1";
+export const COURSE_PERIODS = 4;
+export const textExtensions = ["txt", "md"];
+export const dataExtensions = ["csv", "yml", "yaml", "log"];
+export const imageExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "svg"];
+export const codeExtensions = [
+  "js",
+  "ts",
+  "py",
+  "cpp",
+  "c",
+  "cs",
+  "html",
+  "css",
+  "json",
+];
