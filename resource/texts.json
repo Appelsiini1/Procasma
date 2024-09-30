@@ -649,7 +649,7 @@
     "ENG": "Click 'Import output files' to import the assignment example output files."
   },
   "help_used_in": {
-    "FI": "Syötä tähän setit joissa tehtävää on aiemmin käytetty. Oletusformaatti on '[vuosi]/[periodi]', esim. 2023/1",
+    "FI": "Syötä tähän periodit, joissa tehtävää on aiemmin käytetty. Oletusformaatti on '[vuosi]/[periodi]', esim. 2023/1",
     "ENG": "Input the sets where this assignment has been used before. Default format is '[year]/[period]', ex. 2023/1"
   },
   "ui_ok": {
@@ -1419,5 +1419,13 @@
   "ui_creating_modules": {
     "FI": "Luodaan moduuleja...",
     "ENG": "Creating modules..."
+  },
+  "ui_loading": {
+    "FI": "Ladataan...",
+    "ENG": "Loading..."
+  },
+  "ui_cg_settings": {
+    "FI": "CodeGrade asetukset",
+    "ENG": "CodeGrade Settings"
   }
 }
