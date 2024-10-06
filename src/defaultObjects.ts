@@ -117,3 +117,87 @@ export const genericModule: ModuleData = {
   tags: [],
   instructions: "",
 };
+
+export const defaultATv2Config: object = {
+  assignmentId: null,
+  publishedSnapshot: {
+    published: null,
+  },
+  setup: {
+    metadata: {
+      baseImageId: "base-image-2023-10-04-v1",
+    },
+    steps: [
+      {
+        installPython: {
+          id: null,
+          version: "3.11",
+        },
+      },
+      {
+        uploadFiles: {
+          description: {
+            behavior: "collapse",
+            value: "",
+          },
+          files: [
+            /*{ SG_testi.sh appears in all OP assignments
+                          "id": "37857c03-10e4-448a-88ae-055f72c98763",
+                          "path": "SG_testi.sh",
+                          "size": 363
+                      },*/
+          ],
+          id: null,
+          name: "",
+        },
+      },
+      {
+        script: {
+          description: {
+            behavior: "collapse",
+            value: "",
+          },
+          id: null,
+          name: "",
+          script:
+            "# Write your bash script here.\npython3 -m pip install semgrep",
+        },
+      },
+    ],
+  },
+  test: {
+    steps: [],
+  },
+};
+
+export const defaultConnectRubric: object = {
+  connectRubric: {
+    children: [],
+    id: null,
+    rubricRowId: null,
+  },
+};
+
+export const defaultIoTest: object = {
+  ioTest: {
+    children: [],
+    id: null,
+    name: null,
+    script: null,
+  },
+};
+
+export const defaultSimpleMatch: object = {
+  simpleMatch: {
+    caseSensitivity: "sensitive",
+    description: {
+      behavior: "collapse",
+      value: "",
+    },
+    id: null,
+    inputText: null,
+    name: "Testi 1",
+    outputText: null,
+    whitespacesPolicy: "include",
+  },
+};

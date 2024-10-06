@@ -36,6 +36,7 @@ import { coursePath } from "../globalsMain";
 import { exportManySetsFS, exportSetFS } from "./html";
 import { getSettings, saveSettings } from "./settings";
 import { version, DEVMODE } from "../constants";
+import { generateATv2Config } from "./ATv2Functions";
 
 type IpcHandler = (
   event: IpcMainInvokeEvent,
@@ -253,5 +254,11 @@ export function registerHandlers() {
     formatIPCResult((setInput, courseData, savePath) =>
       exportManySetsFS(setInput, courseData, savePath)
     )
+  );
+
+  // CodeGrade ATv2
+  ipcMain.handle(
+    "generateConfig",
+    formatIPCResult((assignment) => generateATv2Config(assignment))
   );
 }

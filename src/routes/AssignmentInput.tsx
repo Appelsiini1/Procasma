@@ -270,6 +270,18 @@ export default function AssignmentInput() {
     true
   );
 
+  async function handleGenerateConfig() {
+    let snackbarSeverity = "success";
+    let snackbarText = "debug: config generated";
+    try {
+      await handleIPCResult(() => window.api.generateConfig(assignment));
+    } catch (err) {
+      snackbarText = err.message;
+      snackbarSeverity = "error";
+    }
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
+  }
+
   return (
     <>
       <div
@@ -553,6 +565,13 @@ export default function AssignmentInput() {
               ariaLabel={"debug"}
             >
               log active assignment
+            </ButtonComp>
+            <ButtonComp
+              buttonType="debug"
+              onClick={() => handleGenerateConfig()}
+              ariaLabel={"debug"}
+            >
+              handleGenerateConfig
             </ButtonComp>
           </>
         ) : (

@@ -40,7 +40,7 @@ const config = {
         },
       ],
     }),
-    // Fuses are used to enable/disable various Electron functionality
+    /*// Fuses are used to enable/disable various Electron functionality
     // at package time, before code signing the application
     new FusesPlugin({
       version: FuseVersion.V1,
@@ -50,7 +50,7 @@ const config = {
       [FuseV1Options.EnableNodeCliInspectArguments]: false,
       [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
-    }),
+    }),*/
   ],
 };
 

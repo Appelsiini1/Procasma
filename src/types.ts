@@ -299,4 +299,7 @@ export type ContextBridgeAPI = {
     coursedata: CourseData,
     savePath: string
   ) => IpcResult;
+
+  // CodeGrade ATv2
+  generateConfig: (assignment: CodeAssignmentData) => IpcResult;
 };

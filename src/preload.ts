@@ -98,4 +98,8 @@ contextBridge.exposeInMainWorld("api", {
     courseData: CourseData,
     savePath: string
   ) => ipcRenderer.invoke("exportManySetsFS", setInput, courseData, savePath),
+
+  // CodeGrade ATv2
+  generateConfig: (assignment: CodeAssignmentData) =>
+    ipcRenderer.invoke("generateConfig", assignment),
 });
