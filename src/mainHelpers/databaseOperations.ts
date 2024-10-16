@@ -724,6 +724,16 @@ export async function getFilteredAssignmentsDB(
         ids = ids.concat(filters.module);
       }
 
+      // form the query extension for the assignment type
+      if (filters?.assignmentType?.length > 0) {
+        if (uniqueIds.length > 0) {
+          queryExtension += " AND";
+        }
+
+        queryExtension += ` assignments.type IN (?)`;
+        ids = ids.concat(filters.assignmentType);
+      }
+
       if (queryExtension.length > 0) {
         queryExtension = " WHERE" + queryExtension;
       }
