@@ -1419,5 +1419,13 @@
   "ui_creating_modules": {
     "FI": "Luodaan moduuleja...",
     "ENG": "Creating modules..."
+  },
+  "assignment": {
+    "FI": "Tehtävä",
+    "ENG": "Assignment"
+  },
+  "finalWork": {
+    "FI": "Harjoitustyö",
+    "ENG": "Final work"
   }
 }
