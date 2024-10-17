@@ -715,7 +715,7 @@ export async function getFilteredAssignmentsDB(
 
       // form the query extension for the modules
       if (filters?.module?.length > 0) {
-        if (uniqueIds.length > 0) {
+        if (queryExtension.length > 0) {
           queryExtension += " AND";
         }
 
@@ -726,7 +726,7 @@ export async function getFilteredAssignmentsDB(
 
       // form the query extension for the assignment type
       if (filters?.assignmentType?.length > 0) {
-        if (uniqueIds.length > 0) {
+        if (queryExtension.length > 0) {
           queryExtension += " AND";
         }
 
