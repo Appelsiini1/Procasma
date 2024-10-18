@@ -1,5 +1,5 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
-import { dividerSX } from "../constantsUI";
+import { DEVMODE, dividerSX } from "../constantsUI";
 import {
   Card,
   CardContent,
@@ -15,7 +15,16 @@ import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import StepperComp from "../components/StepperComp";
 import { parseUICode } from "../rendererHelpers/translation";
-import { UIContext } from "../components/Context";
+import { ActiveObjectContext, UIContext } from "../components/Context";
+import {
+  CodeAssignmentDatabase,
+  CourseData,
+  FormatType,
+  formatTypes,
+} from "../types";
+import { useAssignment } from "../rendererHelpers/assignmentHelpers";
+import { ForceToString } from "../generalHelpers/converters";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 
 // Get list of assignments via IPC later
 const testAssignments = [
@@ -24,19 +33,33 @@ const testAssignments = [
 ];
 
 export default function ExportProject() {
+  const {
+    activeAssignments,
+    handleActiveAssignments,
+    activeCourse,
+  }: {
+    activeAssignments: CodeAssignmentDatabase[];
+    handleActiveAssignments: (value: CodeAssignmentDatabase[]) => void;
+    activeCourse: CourseData;
+  } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
+  const [assignment, handleAssignment] = useAssignment(null);
+  const [navigateToBrowse, setNavigateToBrowse] = useState(false);
   const pageType = useLoaderData();
   const navigate = useNavigate();
   const pageTitle: string = null;
-  const [moduleNumber, setmoduleNumber] = useState("1");
   const [stepperState, setStepperState] = useState<number>(0);
-  const formats: object[] = [];
-  const [splitLevels, setSplitLevels] = useState(false);
-  const [selectedLevel, setSelectedLevel] = useState("A");
   const stepHeadings: string[] = [
     parseUICode("ui_choose_project"),
     parseUICode("ui_cg_config"),
   ];
+  const formats: object[] = formatTypes.map((format) => {
+    return {
+      name: format,
+    };
+  });
+  const [format, setFormat] = useState(formatTypes[0]);
+  const [splitLevels, setSplitLevels] = useState(false);
 
   const handleStepperState = (navigation: number) => {
     setStepperState((prevState) => {
@@ -51,6 +74,53 @@ export default function ExportProject() {
   useEffect(() => {
     handleHeaderPageName("ui_export_project");
   }, []);
+
+  useEffect(() => {
+    // use the assignment chose in the browser
+    if (activeAssignments) {
+      if (activeAssignments[0]) {
+        handleAssignment("", activeAssignments[0]);
+        handleActiveAssignments(undefined);
+      }
+    }
+  }, []);
+
+  async function handleNavigateToBrowse() {
+    try {
+      handleActiveAssignments([]);
+      setNavigateToBrowse(true);
+    } catch (err) {
+      handleSnackbar({ error: parseUICode(err.message) });
+    }
+  }
+
+  // Navigates to the assignment browse page by listening to activeAssignments
+  useEffect(() => {
+    if (typeof activeAssignments !== "undefined" && navigateToBrowse) {
+      setNavigateToBrowse(false);
+      navigate("/AssignmentBrowse");
+    }
+  }, [activeAssignments, navigateToBrowse]);
+
+  async function exportProject() {
+    let snackbarSeverity = "success";
+    let snackbarText = "ui_export_project_success";
+    try {
+      const savePath = await handleIPCResult(() => window.api.selectDir());
+      if (savePath !== "") {
+        await handleIPCResult(() =>
+          window.api.exportProjectFS(assignment, activeCourse, savePath)
+        );
+      } else {
+        snackbarSeverity = "info";
+        snackbarText = "ui_action_canceled";
+      }
+    } catch (err) {
+      snackbarText = err.message;
+      snackbarSeverity = "error";
+    }
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
+  }
 
   return (
     <>
@@ -67,31 +137,31 @@ export default function ExportProject() {
           <div className="emptySpace1" />
           <ButtonComp
             buttonType="normal"
-            onClick={null}
+            onClick={() => handleNavigateToBrowse()}
             ariaLabel={parseUICode("ui_aria_choose_project")}
           >
             {parseUICode("ui_select")}
           </ButtonComp>
 
-          {selectedLevel ? (
+          {assignment ? (
             <>
               <div className="emptySpace1" />
               <Stack
                 direction="row"
                 justifyContent="flex-start"
-                alignItems="start"
+                alignItems="center"
                 spacing={0.5}
                 sx={{ width: "100%", height: "3.5rem" }}
               >
                 <Card variant="soft" sx={{ width: "100%" }}>
                   <CardContent>
-                    <Typography level="title-md">{selectedLevel}</Typography>
+                    <Typography level="title-md">{assignment.title}</Typography>
                   </CardContent>
                 </Card>
 
                 <ButtonComp
                   buttonType="delete"
-                  onClick={() => setSelectedLevel(null)}
+                  onClick={() => handleAssignment("", null)}
                   ariaLabel={parseUICode("ui_aria_delete_level")}
                 >
                   {" "}
@@ -114,8 +184,8 @@ export default function ExportProject() {
                     name="caModuleInput"
                     options={formats}
                     labelKey="name"
-                    placeholder={"..."}
-                    onChange={null}
+                    defaultValue={ForceToString(format)}
+                    onChange={(value: string) => setFormat(value as FormatType)}
                   ></Dropdown>
                 </td>
               </tr>
@@ -149,7 +219,7 @@ export default function ExportProject() {
           <Typography level="h4">
             {`${parseUICode(
               "ui_project_work"
-            )} ${selectedLevel} - CodeGrade ${parseUICode(
+            )} selected here - CodeGrade ${parseUICode(
               "ui_assignment"
             )} ${parseUICode("ui_ids")}`}
           </Typography>
@@ -183,7 +253,7 @@ export default function ExportProject() {
         {stepperState === 1 ? (
           <ButtonComp
             buttonType="normal"
-            onClick={null}
+            onClick={() => exportProject()}
             ariaLabel={parseUICode("ui_aria_export_cg_configs")}
           >
             {parseUICode("ui_export")}
@@ -219,6 +289,19 @@ export default function ExportProject() {
           >
             {parseUICode("ui_previous")}
           </ButtonComp>
+        ) : (
+          ""
+        )}
+        {DEVMODE ? (
+          <>
+            <ButtonComp
+              buttonType="debug"
+              onClick={() => console.log(assignment)}
+              ariaLabel={"debug"}
+            >
+              log assignment state
+            </ButtonComp>
+          </>
         ) : (
           ""
         )}

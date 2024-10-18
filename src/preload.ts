@@ -56,6 +56,11 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("getFilteredAssignmentsDB", coursePath, filters),
   importAssignmentsFS: (coursePath: string, importPath: string) =>
     ipcRenderer.invoke("importAssignmentsFS", coursePath, importPath),
+  exportProjectFS: (
+    assignment: CodeAssignmentData,
+    courseData: CourseData,
+    savePath: string
+  ) => ipcRenderer.invoke("exportProjectFS", assignment, courseData, savePath),
 
   // CRUD Module
   addModuleDB: (coursePath: string, module: ModuleData) =>

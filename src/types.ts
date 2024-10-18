@@ -268,6 +268,11 @@ export type ContextBridgeAPI = {
   getAssignmentCountDB: (coursePath: string) => IpcResult;
   getFilteredAssignmentsDB: (coursePath: string, filters: any) => IpcResult;
   importAssignmentsFS: (coursePath: string, importPath: string) => IpcResult;
+  exportProjectFS: (
+    assignment: CodeAssignmentData,
+    coursedata: CourseData,
+    savePath: string
+  ) => IpcResult;
 
   // CRUD Module
   addModuleDB: (coursePath: string, module: ModuleData) => IpcResult;

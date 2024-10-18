@@ -892,6 +892,10 @@
     "FI": "Virhe tehtävän poistamisessa levyltä!",
     "ENG": "Error deleting assignment files from disk!"
   },
+  "ui_export_project_success": {
+    "FI": "Harjoitustyö viety onnistuneesti.",
+    "ENG": "Project work succesfully exported."
+  },
   "ui_del_error_index": {
     "FI": "Virhe poistettaessa tehtävää indeksistä.",
     "ENG": "Error deleting assignment from index."

@@ -181,6 +181,12 @@ export function registerHandlers() {
     "importAssignmentsFS",
     formatIPCResult((path, importPath) => importAssignmentsFS(path, importPath))
   );
+  ipcMain.handle(
+    "exportProjectFS",
+    formatIPCResult((assignment, courseData, savePath) =>
+      exportSetFS(assignment, courseData, savePath)
+    )
+  );
 
   // CRUD Module
 
