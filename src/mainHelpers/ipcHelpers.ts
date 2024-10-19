@@ -33,7 +33,7 @@ import {
   deleteModulesDB,
 } from "./databaseOperations";
 import { coursePath } from "../globalsMain";
-import { exportManySetsFS, exportSetFS } from "./html";
+import { exportManySetsFS, exportProjectFS, exportSetFS } from "./html";
 import { getSettings, saveSettings } from "./settings";
 import { version, DEVMODE } from "../constants";
 
@@ -184,7 +184,7 @@ export function registerHandlers() {
   ipcMain.handle(
     "exportProjectFS",
     formatIPCResult((assignment, courseData, savePath) =>
-      exportSetFS(assignment, courseData, savePath)
+      exportProjectFS(assignment, courseData, savePath)
     )
   );
 

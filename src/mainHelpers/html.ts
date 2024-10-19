@@ -262,7 +262,9 @@ export async function exportSetFS(
           const normalblock = generateBlock(meta, assignment, convertedSet);
           html += normalblock;
           solutionHtml += normalblock;
-          solutionHtml += formatSolutions(meta, convertedSet);
+          const assignmentToFormat =
+            convertedSet.assignmentArray[meta.assignmentIndex];
+          solutionHtml += formatSolutions(assignmentToFormat);
         });
 
         // End body
@@ -300,6 +302,131 @@ export async function exportSetFS(
         }
       })
     );
+  } catch (err) {
+    log.error("Error in exportSetFS():", err.message);
+    throw new Error("ui_export_error");
+  }
+  return "ui_export_success";
+}
+
+/**
+ * Creates HTML strings from a project assignment and saves them to disk according to the format specified
+ * @param projectInput CodeAssignmentData project
+ * @param coursedata A CourseData object with course information
+ * @param savePath Path where to save the created file(s).
+ */
+export async function exportProjectFS(
+  projectInput: CodeAssignmentData,
+  coursedata: CourseData,
+  savePath: string
+): Promise<string> {
+  const splitLevels = true;
+
+  async function _exportProjectLevelFS(level: string) {
+    let moduleString = "";
+    const css = papercolorLight;
+
+    const mainHeader = "mainHeader"; //formatMainHeader(module.id, coursedata)
+
+    // HTML Base
+    let html = `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>${mainHeader}</title>
+    <style>${css}</style>
+  </head>
+  <body>`;
+    let solutionHtml = `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>${mainHeader} ${parseUICodeMain("answers").toUpperCase()}</title>
+    <style>${css}</style>
+  </head>
+  <body>`;
+
+    // Main page header
+    html += `<h1>${mainHeader}</h1>`;
+    solutionHtml += `<h1>${mainHeader} ${parseUICodeMain(
+      "answers"
+    ).toUpperCase()}</h1>`;
+
+    // Starting instructions
+    const startingInstructions = generateStart(
+      "subjects...", //module.subjects,
+      "instructions..." //module.instructions
+    );
+    html += startingInstructions;
+    solutionHtml += startingInstructions;
+
+    moduleString += parseUICodeMain("ui_finalWork");
+
+    // Table of contents
+    const toc = "toc..."; //generateToC(coursedata, moduleAssignments);
+    html += toc;
+    solutionHtml += toc;
+
+    // Assignments
+    const meta = { assignmentIndex: 0, courseData: coursedata };
+    const normalblock = generateBlock(
+      meta,
+      projectInput as unknown as CodeAssignmentSelectionData,
+      convertedSet
+    );
+    html += normalblock;
+    solutionHtml += normalblock;
+    solutionHtml += formatSolutions(
+      projectInput as unknown as CodeAssignmentSelectionData
+    );
+
+    // End body
+    html += `</body>
+</html>`;
+    solutionHtml += `</body>
+</html>`;
+    log.info("HTML created.");
+
+    await saveSetModuleFS(
+      html,
+      solutionHtml,
+      mainHeader,
+      convertedSet.format,
+      coursedata,
+      savePath,
+      moduleString
+    );
+    const filename = mainHeader.replace(" ", "");
+
+    const filesPath = path.join(savePath, filename);
+    copyExportFilesFS(moduleAssignments, filesPath);
+
+    for (const setAssignment of convertedSet.assignmentArray) {
+      const filePath = path.join(
+        coursePath.path,
+        setAssignment.folder,
+        setAssignment.assignmentID + ".json"
+      );
+      setUsedIn(
+        filePath,
+        setAssignment.variatioId,
+        `${convertedSet.year}/${convertedSet.period}`
+      );
+    }
+  }
+
+  try {
+    // loop through levels individually
+    /*await Promise.all(
+      modules.map(async (module) => {
+
+        
+      })
+    );*/
+
+    if (!splitLevels) {
+      _exportProjectLevelFS("A");
+    }
   } catch (err) {
     log.error("Error in exportSetFS():", err.message);
     throw new Error("ui_export_error");
@@ -421,23 +548,19 @@ function formatMath(text: string): string {
 
 /**
  * Formats solution files
- * @param meta Course data and assignment index
- * @param set Set data
+ * @param assignment
  * @returns HTML string
  */
-function formatSolutions(
-  meta: AssignmentInput,
-  set: FullAssignmentSetData
-): string {
+function formatSolutions(assignment: CodeAssignmentSelectionData): string {
   try {
     let block = ``;
-    const files = set.assignmentArray[meta.assignmentIndex].variation.files;
+    const files = assignment.variation.files;
     for (const file of files) {
       if (file.solution && file.fileContent === "code") {
         const filePath = path.join(
           coursePath.path,
-          set.assignmentArray[meta.assignmentIndex].folder,
-          set.assignmentArray[meta.assignmentIndex].variatioId,
+          assignment.folder,
+          assignment.variatioId,
           file.fileName
         );
         const data = readFileSync(filePath, "utf8");
@@ -445,10 +568,7 @@ function formatSolutions(
         block += `<h2>${parseUICodeMain("ex_solution")}: '${
           file.fileName
         }'</h2>`;
-        block += highlightCode(
-          data,
-          set.assignmentArray[meta.assignmentIndex].codeLanguage
-        );
+        block += highlightCode(data, assignment.codeLanguage);
       }
     }
     return block;
@@ -460,19 +580,17 @@ function formatSolutions(
 
 /**
  * Formats files that are not solution files. Will make titles based on file content type.
- * @param meta Course data and assignment index
- * @param set Set data
+ * @param assignment
  * @param type Type of file to make title for
  * @returns
  */
 function formatFiles(
-  meta: AssignmentInput,
-  set: FullAssignmentSetData,
+  assignment: CodeAssignmentSelectionData,
   type: FileData["fileContent"]
 ): string {
   try {
     let block = ``;
-    const files = set.assignmentArray[meta.assignmentIndex].variation.files;
+    const files = assignment.variation.files;
     for (const file of files) {
       if (
         !file.solution &&
@@ -480,8 +598,6 @@ function formatFiles(
         (file.fileType === "code" || file.fileType === "text") &&
         file.fileContent === type
       ) {
-        const assignment = set.assignmentArray[meta.assignmentIndex];
-
         // check if the file is in a subdirectory
         const baseName = path.basename(file.fileName);
         const dirName = path.basename(path.dirname(file.fileName));
@@ -502,9 +618,7 @@ function formatFiles(
           type === "data" ? "input_datafile" : "ex_resultfile"
         )}: '${file.fileName}'</h3>`;
         const language =
-          file.fileContent === "code"
-            ? set.assignmentArray[meta.assignmentIndex].codeLanguage
-            : "plaintext";
+          file.fileContent === "code" ? assignment.codeLanguage : "plaintext";
         if (data.split("\n").length > globalSettings.fileMaxLinesDisplay) {
           const splitLines = data.split("\n");
           const half = globalSettings.fileMaxLinesDisplay / 2;
@@ -528,8 +642,6 @@ function formatFiles(
         file.fileType === "image" &&
         file.fileContent === type
       ) {
-        const assignment = set.assignmentArray[meta.assignmentIndex];
-
         // check if the file is in a subdirectory
         const baseName = path.basename(file.fileName);
         const dirName = path.basename(path.dirname(file.fileName));
@@ -698,7 +810,8 @@ function generateBlock(
   // block += `</p>`;
 
   // Datafiles
-  block += formatFiles(meta, set, "data");
+  const setAssignment = set.assignmentArray[meta.assignmentIndex];
+  block += formatFiles(setAssignment, "data");
 
   // Example runs
   const exampleRuns = assignment.variation.exampleRuns;
@@ -709,7 +822,7 @@ function generateBlock(
   }
 
   // Result files
-  block += formatFiles(meta, set, "result");
+  block += formatFiles(setAssignment, "result");
 
   block += `</div>`;
   return block;

@@ -22,7 +22,6 @@ import {
   FormatType,
   formatTypes,
 } from "../types";
-import { useAssignment } from "../rendererHelpers/assignmentHelpers";
 import { ForceToString } from "../generalHelpers/converters";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 
@@ -37,13 +36,15 @@ export default function ExportProject() {
     activeAssignments,
     handleActiveAssignments,
     activeCourse,
+    activePath,
   }: {
     activeAssignments: CodeAssignmentDatabase[];
     handleActiveAssignments: (value: CodeAssignmentDatabase[]) => void;
     activeCourse: CourseData;
+    activePath: string;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
-  const [assignment, handleAssignment] = useAssignment(null);
+  const [assignment, handleAssignment] = useState<CodeAssignmentDatabase>(null);
   const [navigateToBrowse, setNavigateToBrowse] = useState(false);
   const pageType = useLoaderData();
   const navigate = useNavigate();
@@ -79,7 +80,7 @@ export default function ExportProject() {
     // use the assignment chose in the browser
     if (activeAssignments) {
       if (activeAssignments[0]) {
-        handleAssignment("", activeAssignments[0]);
+        handleAssignment(activeAssignments[0]);
         handleActiveAssignments(undefined);
       }
     }
@@ -108,8 +109,16 @@ export default function ExportProject() {
     try {
       const savePath = await handleIPCResult(() => window.api.selectDir());
       if (savePath !== "") {
+        // Get the full selected assignment
+        const assignmentsResult = await handleIPCResult(() =>
+          window.api.handleGetAssignmentsFS(activePath, assignment.id)
+        );
         await handleIPCResult(() =>
-          window.api.exportProjectFS(assignment, activeCourse, savePath)
+          window.api.exportProjectFS(
+            assignmentsResult[0],
+            activeCourse,
+            savePath
+          )
         );
       } else {
         snackbarSeverity = "info";
@@ -161,7 +170,7 @@ export default function ExportProject() {
 
                 <ButtonComp
                   buttonType="delete"
-                  onClick={() => handleAssignment("", null)}
+                  onClick={() => handleAssignment(null)}
                   ariaLabel={parseUICode("ui_aria_delete_level")}
                 >
                   {" "}
