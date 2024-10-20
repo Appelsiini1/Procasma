@@ -19,6 +19,18 @@
     "FI": "Tehtävät",
     "ENG": "Assignments"
   },
+  "project_minimum_level_assignment_description": {
+    "FI": "Harjoitustyön minimitason tehtävänanto",
+    "ENG": "Basic level final work description"
+  },
+  "project_basic_level_assignment_description": {
+    "FI": "Harjoitustyön perustason tehtävänanto",
+    "ENG": "Basic level final work description"
+  },
+  "project_target_level_assignment_description": {
+    "FI": "Harjoitustyön tavoitetason tehtävänanto",
+    "ENG": "Target level final work description"
+  },
   "ex_run": {
     "FI": "Esimerkkiajo",
     "ENG": "Example run"

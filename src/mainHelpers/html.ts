@@ -9,6 +9,8 @@ import {
   FileData,
   FullAssignmentSetData,
   ModuleData,
+  SupportedModuleType,
+  Variation,
 } from "../types";
 import { readFileSync } from "fs";
 import path from "path";
@@ -26,6 +28,7 @@ import { getModulesDB } from "./databaseOperations";
 import { createMainFunctionHandler } from "./ipcHelpers";
 import {
   copyExportFilesFS,
+  copyExportProjectFilesFS,
   getBase64String,
   handleReadFileFS,
   saveSetModuleFS,
@@ -194,7 +197,7 @@ export async function exportSetFS(
 
         const mainHeader =
           convertedSet?.visibleHeader === "" || !convertedSet?.visibleHeader
-            ? formatMainHeader(module.id, coursedata)
+            ? formatMainHeader(module.id, coursedata.moduleType)
             : convertedSet.visibleHeader;
 
         // HTML Base
@@ -259,12 +262,21 @@ export async function exportSetFS(
         moduleAssignments.forEach((assignment, index) => {
           // Assignments
           const meta = { assignmentIndex: index, courseData: coursedata };
-          const normalblock = generateBlock(meta, assignment, convertedSet);
+          const normalblock = generateBlock(
+            meta,
+            assignment,
+            assignment.variation,
+            assignment.variatioId
+          );
           html += normalblock;
           solutionHtml += normalblock;
           const assignmentToFormat =
             convertedSet.assignmentArray[meta.assignmentIndex];
-          solutionHtml += formatSolutions(assignmentToFormat);
+          solutionHtml += formatSolutions(
+            assignmentToFormat,
+            assignment.variation.files,
+            assignment.variatioId
+          );
         });
 
         // End body
@@ -322,11 +334,11 @@ export async function exportProjectFS(
 ): Promise<string> {
   const splitLevels = true;
 
-  async function _exportProjectLevelFS(level: string) {
+  async function _exportProjectLevelFS(levelID: string) {
     let moduleString = "";
     const css = papercolorLight;
 
-    const mainHeader = "mainHeader"; //formatMainHeader(module.id, coursedata)
+    const mainHeader = formatMainHeaderProject(levelID);
 
     // HTML Base
     let html = `<!DOCTYPE html>
@@ -352,32 +364,30 @@ export async function exportProjectFS(
       "answers"
     ).toUpperCase()}</h1>`;
 
-    // Starting instructions
-    const startingInstructions = generateStart(
-      "subjects...", //module.subjects,
-      "instructions..." //module.instructions
-    );
-    html += startingInstructions;
-    solutionHtml += startingInstructions;
-
     moduleString += parseUICodeMain("ui_finalWork");
-
-    // Table of contents
-    const toc = "toc..."; //generateToC(coursedata, moduleAssignments);
-    html += toc;
-    solutionHtml += toc;
 
     // Assignments
     const meta = { assignmentIndex: 0, courseData: coursedata };
     const normalblock = generateBlock(
       meta,
       projectInput as unknown as CodeAssignmentSelectionData,
-      convertedSet
+      projectInput.variations[levelID],
+      levelID,
+      true
     );
+
+    // Table of contents
+    // Adds anchor tags to the ToC based on the generated block
+    const toc = generateToCProject(normalblock);
+    html += toc;
+    solutionHtml += toc;
+
     html += normalblock;
     solutionHtml += normalblock;
     solutionHtml += formatSolutions(
-      projectInput as unknown as CodeAssignmentSelectionData
+      projectInput as unknown as CodeAssignmentSelectionData,
+      projectInput.variations[levelID].files,
+      levelID
     );
 
     // End body
@@ -391,7 +401,7 @@ export async function exportProjectFS(
       html,
       solutionHtml,
       mainHeader,
-      convertedSet.format,
+      "pdf",
       coursedata,
       savePath,
       moduleString
@@ -399,9 +409,10 @@ export async function exportProjectFS(
     const filename = mainHeader.replace(" ", "");
 
     const filesPath = path.join(savePath, filename);
-    copyExportFilesFS(moduleAssignments, filesPath);
+    copyExportProjectFilesFS(projectInput, filesPath, levelID);
 
-    for (const setAssignment of convertedSet.assignmentArray) {
+    // TODO refactor setUsedIn for the case of a project
+    /*for (const setAssignment of convertedSet.assignmentArray) {
       const filePath = path.join(
         coursePath.path,
         setAssignment.folder,
@@ -412,21 +423,17 @@ export async function exportProjectFS(
         setAssignment.variatioId,
         `${convertedSet.year}/${convertedSet.period}`
       );
-    }
+    }*/
   }
 
   try {
     // loop through levels individually
-    /*await Promise.all(
-      modules.map(async (module) => {
-
-        
+    // TODO levels combined export
+    await Promise.all(
+      Object.keys(projectInput.variations).map(async (levelID) => {
+        _exportProjectLevelFS(levelID);
       })
-    );*/
-
-    if (!splitLevels) {
-      _exportProjectLevelFS("A");
-    }
+    );
   } catch (err) {
     log.error("Error in exportSetFS():", err.message);
     throw new Error("ui_export_error");
@@ -551,16 +558,19 @@ function formatMath(text: string): string {
  * @param assignment
  * @returns HTML string
  */
-function formatSolutions(assignment: CodeAssignmentSelectionData): string {
+function formatSolutions(
+  assignment: CodeAssignmentSelectionData,
+  files: FileData[],
+  variationId: string
+): string {
   try {
     let block = ``;
-    const files = assignment.variation.files;
     for (const file of files) {
       if (file.solution && file.fileContent === "code") {
         const filePath = path.join(
           coursePath.path,
           assignment.folder,
-          assignment.variatioId,
+          variationId,
           file.fileName
         );
         const data = readFileSync(filePath, "utf8");
@@ -586,11 +596,13 @@ function formatSolutions(assignment: CodeAssignmentSelectionData): string {
  */
 function formatFiles(
   assignment: CodeAssignmentSelectionData,
-  type: FileData["fileContent"]
+  type: FileData["fileContent"],
+  variationID: string,
+  files: FileData[],
+  addAnchor?: boolean
 ): string {
   try {
     let block = ``;
-    const files = assignment.variation.files;
     for (const file of files) {
       if (
         !file.solution &&
@@ -610,13 +622,21 @@ function formatFiles(
         const filePath = path.join(
           coursePath.path,
           assignment.folder,
-          assignment.variatioId,
+          variationID,
           newName
         );
         const data = readFileSync(filePath, "utf8");
-        block += `<h3>${parseUICodeMain(
+
+        const titleText = `${parseUICodeMain(
           type === "data" ? "input_datafile" : "ex_resultfile"
-        )}: '${file.fileName}'</h3>`;
+        )}: '${file.fileName}'`;
+
+        if (addAnchor) {
+          block += `<h3><a id="${titleText}">${titleText}</a></h3>`;
+        } else {
+          block += `<h3>${titleText}</h3>`;
+        }
+
         const language =
           file.fileContent === "code" ? assignment.codeLanguage : "plaintext";
         if (data.split("\n").length > globalSettings.fileMaxLinesDisplay) {
@@ -654,7 +674,7 @@ function formatFiles(
         const filePath = path.join(
           coursePath.path,
           assignment.folder,
-          assignment.variatioId,
+          variationID,
           newName
         );
         const data = getBase64String(filePath);
@@ -674,18 +694,18 @@ function formatFiles(
 
 /**
  * Generates a main page header. If the set has no module, will not add a module letter or number to it.
- * @param set Set data
- * @param courseData Course data
- * @returns
+ * @param module Module number
+ * @param moduleType The type of module
+ * @returns The title string.
  */
-function formatMainHeader(module: number, courseData: CourseData) {
+function formatMainHeader(module: number, moduleType: SupportedModuleType) {
   let title = ``;
   if (module != null) {
     const addToTitle = (ui_code: string) => {
       title += parseUICodeMain(ui_code);
       title += module.toString();
     };
-    switch (courseData.moduleType) {
+    switch (moduleType) {
       case "lecture":
         addToTitle("lecture_letter");
         break;
@@ -701,6 +721,35 @@ function formatMainHeader(module: number, courseData: CourseData) {
     title += " ";
   }
   title += parseUICodeMain("assignments");
+  return title;
+}
+
+/**
+ * Generates a main page header for a project.
+ * @param level The project level.
+ * @returns The title string.
+ */
+function formatMainHeaderProject(level: string) {
+  let title = ``;
+  const addToTitle = (ui_code: string) => {
+    title += parseUICodeMain(ui_code);
+  };
+  switch (level) {
+    case "1":
+      addToTitle("project_minimum_level_assignment_description");
+      break;
+    case "2":
+      addToTitle("project_basic_level_assignment_description");
+      break;
+    case "3":
+      addToTitle("project_target_level_assignment_description");
+      break;
+    default:
+      // TODO remove this. If the correct level is not found,
+      // no title should be added.
+      addToTitle("project_basic_level_assignment_description");
+      break;
+  }
   return title;
 }
 
@@ -777,44 +826,52 @@ function generateStart(subjects: string, instructions: string): string {
 /**
  * Generates an assignment block
  * @param meta Course data and assignment index
- * @param set Set data
+ * @param assignment The assignment
  * @returns HTML string
  */
 function generateBlock(
   meta: AssignmentInput,
   assignment: CodeAssignmentSelectionData,
-  set: FullAssignmentSetData
+  variation: Variation,
+  variationID: string,
+  isProject: boolean = false
 ): string {
   let block = `<div>
     `;
-  // Title
-  const title = `<h2 class="assig-title"><a id="${
-    assignment.assignmentID
-  }">${formatTitle(meta, assignment)}</a></h2>\n`;
-  block += `${title}`;
 
-  // Assignment level
-  if (assignment.level != null) {
-    block += `<i>${parseUICodeMain("ui_assignment_level")}: ${
-      meta.courseData.levels[assignment.level].fullName
-    }</i>`;
+  if (!isProject) {
+    // Title
+    const title = `<h2 class="assig-title"><a id="${
+      assignment.assignmentID
+    }">${formatTitle(meta, assignment)}</a></h2>\n`;
+    block += `${title}`;
+
+    // Assignment level
+    if (assignment.level != null) {
+      block += `<i>${parseUICodeMain("ui_assignment_level")}: ${
+        meta.courseData.levels[assignment.level].fullName
+      }</i>`;
+    }
   }
 
   //Instructions
   // block += `<p>`;
   block += formatMarkdown(
-    formatMath(
-      formatImage(assignment.variation.instructions, assignment.variation.files)
-    )
+    formatMath(formatImage(variation.instructions, variation.files))
   );
   // block += `</p>`;
 
   // Datafiles
-  const setAssignment = set.assignmentArray[meta.assignmentIndex];
-  block += formatFiles(setAssignment, "data");
+  block += formatFiles(
+    assignment,
+    "data",
+    variationID,
+    variation.files,
+    isProject
+  );
 
   // Example runs
-  const exampleRuns = assignment.variation.exampleRuns;
+  const exampleRuns = variation.exampleRuns;
   let runNumber = 1;
   for (const run in exampleRuns) {
     block += generateExampleRun(exampleRuns[run], runNumber);
@@ -822,9 +879,17 @@ function generateBlock(
   }
 
   // Result files
-  block += formatFiles(setAssignment, "result");
+  block += formatFiles(
+    assignment,
+    "result",
+    variationID,
+    variation.files,
+    isProject
+  );
 
   block += `</div>`;
+
+  console.log("block: ", block);
   return block;
 }
 
@@ -889,6 +954,52 @@ function generateToC(
         assignment,
         true
       )}`;
+      block += `</a></h3>`;
+    });
+
+    return block;
+  } catch (err) {
+    log.error("Error in generateTOC: " + err.message);
+    throw err;
+  }
+}
+
+function getAnchorTagIdsAndText(html: string): { id: string; text: string }[] {
+  // Regular expression to match <a> tags, capturing the id attribute and inner text
+  const anchorTagRegex = /<a[^>]*\sid=["']([^"']+)["'][^>]*>(.*?)<\/a>/g;
+  const result: { id: string; text: string }[] = [];
+  let match;
+
+  while ((match = anchorTagRegex.exec(html)) !== null) {
+    result.push({
+      id: match[1],
+      text: match[2].trim(),
+    });
+  }
+
+  return result;
+}
+
+// TODO generateToC, but instead of adding assignments as items
+// that can be navigated to, add subheadings of a single assignment's
+// instructions as navigatable items
+// - step through the lines of the instruction .md to
+// find the subheadings?
+
+/**
+ * Generates the table of contents
+ * @param courseData Course data
+ * @param set Set data
+ * @returns HTML string
+ */
+function generateToCProject(html: string): string {
+  try {
+    // parse through html to find and extract anchor tags to list
+    const anchorIdsAndTexts = getAnchorTagIdsAndText(html);
+
+    let block = `<h2>${parseUICodeMain("toc")}</h2>\n`;
+    anchorIdsAndTexts.forEach((anchorIdAndText) => {
+      block += `<h3><a class="toc" href="#${anchorIdAndText.id}">${anchorIdAndText.text}`;
       block += `</a></h3>`;
     });
 

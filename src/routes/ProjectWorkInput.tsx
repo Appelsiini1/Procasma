@@ -47,7 +47,7 @@ export default function ProjectWorkInput() {
   const navigate = useNavigate();
   let pageTitle: string = null;
   const moduleDisable = activeCourse?.moduleType !== null ? false : true;
-  const codeLanguageOptions = globalSettings.codeLanguages;
+  const codeLanguageOptions = deepCopy(globalSettings.codeLanguages);
 
   if (pageType === "new") {
     pageTitle = parseUICode("ui_new_project_work");

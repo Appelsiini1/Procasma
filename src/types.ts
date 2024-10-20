@@ -87,7 +87,9 @@ export interface CourseData {
   CodeGradeID?: number;
   minLevel?: number;
   maxLevel?: number;
-  levels?: LevelsType[] | null;
+  levels?: {
+    [key: string]: LevelsType | null;
+  };
 }
 
 export type CourseLoaderData = "create" | "manage";

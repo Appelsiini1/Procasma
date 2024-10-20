@@ -162,14 +162,15 @@ class Settings implements SettingsType {
     this._shortenFiles = data.shortenFiles;
     this._fileMaxLinesDisplay = data.fileMaxLinesDisplay;
 
-    const newCLS = [];
+    // TODO this empties the code languages in the constructor
+    /*const newCLS = [];
     for (const cl of data.codeLanguages) {
       newCLS.push({
         name: cl.name,
         fileExtensions: cl.fileExtensions.split(";"),
       });
     }
-    this._codeLanguages = newCLS;
+    this._codeLanguages = newCLS;*/
   }
 }
 

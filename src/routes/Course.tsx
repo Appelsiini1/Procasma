@@ -27,6 +27,7 @@ import { CourseData } from "../types";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
+import { deepCopy } from "../rendererHelpers/utility";
 
 export default function Course() {
   const {
@@ -68,7 +69,7 @@ export default function Course() {
       abbreviation: value["abbreviation"],
     };
   });
-  const codeLanguageOptions = globalSettings.codeLanguages;
+  const codeLanguageOptions = deepCopy(globalSettings.codeLanguages);
   //get these from settings file later
 
   if (pageType == "create") {
