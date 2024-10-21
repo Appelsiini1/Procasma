@@ -333,19 +333,17 @@ export async function exportProjectFS(
   coursedata: CourseData,
   savePath: string
 ): Promise<string> {
-  const splitLevels = false;
-  let htmlStarted = false;
+  const splitLevels = true;
   let html = "";
   let solutionHtml = "";
 
-  async function _exportProjectLevelFS(levelID: string) {
+  async function _exportProjectLevelFS(levelID: string, isLastLevel: boolean) {
     let moduleString = "";
     const css = papercolorLight;
 
     const mainHeader = formatMainHeaderProject(levelID);
 
-    if (!splitLevels && !htmlStarted) {
-      htmlStarted = true;
+    if (splitLevels || html.length === 0) {
       // HTML Base
       html = `<!DOCTYPE html>
  <html>
@@ -397,16 +395,14 @@ export async function exportProjectFS(
       levelID
     );
 
-    // End body
-    html += `</body>
-</html>`;
-    solutionHtml += `</body>
-</html>`;
-    log.info("HTML created.");
-
-    const fileNameLevel =
+    let fileNameLevel =
       coursedata.levels[levelID]?.fullName ??
       "_" + parseUICodeMain("ui_level") + "_" + levelID;
+
+    if (!splitLevels) {
+      fileNameLevel = parseUICodeMain("all");
+    }
+
     let fileName = parseUICodeMain("assignment_description") + fileNameLevel;
 
     await saveSetModuleFS(
@@ -423,27 +419,44 @@ export async function exportProjectFS(
     const filesPath = path.join(savePath, fileName);
     copyExportProjectFilesFS(projectInput, filesPath, levelID);
 
-    // TODO refactor setUsedIn for the case of a project
-    /*for (const setAssignment of convertedSet.assignmentArray) {
-      const filePath = path.join(
-        coursePath.path,
-        setAssignment.folder,
-        setAssignment.assignmentID + ".json"
-      );
-      setUsedIn(
-        filePath,
-        setAssignment.variatioId,
-        `${convertedSet.year}/${convertedSet.period}`
-      );
-    }*/
+    if (splitLevels || isLastLevel) {
+      // End body
+      html += `</body>
+    </html>`;
+      solutionHtml += `</body>
+    </html>`;
+      log.info("HTML created.");
+
+      // TODO refactor setUsedIn for the case of a project
+      /*for (const setAssignment of convertedSet.assignmentArray) {
+          const filePath = path.join(
+            coursePath.path,
+            setAssignment.folder,
+            setAssignment.assignmentID + ".json"
+          );
+          setUsedIn(
+            filePath,
+            setAssignment.variatioId,
+            `${convertedSet.year}/${convertedSet.period}`
+          );
+        }*/
+    }
   }
 
   try {
     // loop through levels individually
     // TODO levels combined export
+    const levelKeys = Object.keys(projectInput.variations);
     await Promise.all(
-      Object.keys(projectInput.variations).map(async (levelID) => {
-        _exportProjectLevelFS(levelID);
+      levelKeys.map((levelID, index) => {
+        let isLastLevel = index === levelKeys.length - 1;
+
+        // isLastLevel should only be true on the last iteration,
+        // if the levels are to be split
+        if (splitLevels) {
+          isLastLevel = false;
+        }
+        _exportProjectLevelFS(levelID, isLastLevel);
       })
     );
   } catch (err) {

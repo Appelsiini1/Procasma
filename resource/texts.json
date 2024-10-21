@@ -35,6 +35,10 @@
     "FI": "Tehtävänanto",
     "ENG": "Assignment"
   },
+  "all": {
+    "FI": "Kaikki",
+    "ENG": "All"
+  },
   "ex_run": {
     "FI": "Esimerkkiajo",
     "ENG": "Example run"
