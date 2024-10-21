@@ -1,6 +1,6 @@
 import { AccordionGroup, Box, Grid, Typography } from "@mui/joy";
 import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
-import { getNextID } from "../generalHelpers/getNextID";
+import { getNextID, getNextIDNumeric } from "../generalHelpers/getNextID";
 import {
   addVariation,
   removeVariation,
@@ -48,7 +48,7 @@ export default function VariationsGroup({
               addVariation(
                 deepCopy(defaultVariation),
                 variations,
-                getNextID,
+                useLevelsInstead ? getNextIDNumeric : getNextID,
                 "variations",
                 handleAssignment
               )

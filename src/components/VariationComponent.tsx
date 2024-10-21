@@ -14,7 +14,7 @@ import HelpText from "./HelpText";
 import InputField from "./InputField";
 import ButtonComp from "./ButtonComp";
 import FileList from "./FileList";
-import { ExampleRunType, Variation } from "../types";
+import { CourseData, ExampleRunType, Variation } from "../types";
 import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
 import ExampleRunsGroup from "./ExampleRunsGroup";
 import { parseUICode } from "../rendererHelpers/translation";
@@ -22,6 +22,8 @@ import {
   arrayToString,
   splitStringToArray,
 } from "../generalHelpers/converters";
+import { useContext } from "react";
+import { ActiveObjectContext } from "./Context";
 
 type ComponentProps = {
   varID: string;
@@ -38,6 +40,11 @@ export default function VariationComponent({
   pathInAssignment,
   useLevelsInstead,
 }: ComponentProps) {
+  const {
+    activeCourse,
+  }: {
+    activeCourse: CourseData;
+  } = useContext(ActiveObjectContext);
   const exampleRuns: { [key: string]: ExampleRunType } = variation.exampleRuns;
 
   return (
@@ -47,7 +54,7 @@ export default function VariationComponent({
         <ListItemContent>
           <Typography level="title-md">
             {useLevelsInstead
-              ? parseUICode("ui_level")
+              ? activeCourse?.levels[varID]?.fullName ?? parseUICode("ui_level")
               : parseUICode("ui_variation") + " " + varID}
           </Typography>
         </ListItemContent>

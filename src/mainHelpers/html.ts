@@ -39,6 +39,7 @@ import { globalSettings } from "../globalsUI";
 import { platform } from "node:process";
 import { genericModule } from "../defaultObjects";
 import { highlightCode } from "./highlighters";
+import { spacesToUnderscores } from "../generalHelpers/converters";
 
 const converter = new showdown.Converter(ShowdownOptions);
 
@@ -632,7 +633,7 @@ function formatFiles(
         )}: '${file.fileName}'`;
 
         if (addAnchor) {
-          block += `<h3><a id="${titleText}">${titleText}</a></h3>`;
+          block += `<h3><a id="${file.fileName}">${titleText}</a></h3>`;
         } else {
           block += `<h3>${titleText}</h3>`;
         }
@@ -823,6 +824,26 @@ function generateStart(subjects: string, instructions: string): string {
   return block;
 }
 
+function addAnchorTagsToHeadings(html: string): string {
+  let newHtml = html;
+
+  // Function to process each heading (h2 or h3)
+  const addAnchorToHeading = (
+    match: string,
+    tag: string,
+    attributes: string,
+    titleText: string
+  ) => {
+    const sanitizedTitle = titleText.trim().replace(/\s+/g, "-"); // Convert spaces to dashes for valid ids
+    return `<${tag}${attributes}><a id="${sanitizedTitle}">${titleText}</a></${tag}>`;
+  };
+
+  // Replace all h2 and h3 tags with arbitrary attributes inside
+  newHtml = newHtml.replace(/<(h[23])([^>]*)>(.*?)<\/\1>/g, addAnchorToHeading);
+
+  return newHtml;
+}
+
 /**
  * Generates an assignment block
  * @param meta Course data and assignment index
@@ -859,6 +880,14 @@ function generateBlock(
   block += formatMarkdown(
     formatMath(formatImage(variation.instructions, variation.files))
   );
+  console.log("block: ", block);
+
+  if (isProject) {
+    block = addAnchorTagsToHeadings(block);
+
+    console.log("block with anchors: ", block);
+  }
+
   // block += `</p>`;
 
   // Datafiles
@@ -874,7 +903,7 @@ function generateBlock(
   const exampleRuns = variation.exampleRuns;
   let runNumber = 1;
   for (const run in exampleRuns) {
-    block += generateExampleRun(exampleRuns[run], runNumber);
+    block += generateExampleRun(exampleRuns[run], runNumber, isProject);
     runNumber += 1;
   }
 
@@ -889,7 +918,6 @@ function generateBlock(
 
   block += `</div>`;
 
-  console.log("block: ", block);
   return block;
 }
 
@@ -901,9 +929,18 @@ function generateBlock(
  */
 function generateExampleRun(
   runInput: ExampleRunType,
-  runNumber: number
+  runNumber: number,
+  addAnchor?: boolean
 ): string {
-  let block = `<h2>${parseUICodeMain("ex_run")} ${runNumber}</h2>`;
+  let block = "";
+  const titleText = `${parseUICodeMain("ex_run")} ${runNumber}`;
+
+  if (addAnchor) {
+    block += `<h2><a id="${titleText}">${titleText}</a></h2>`;
+  } else {
+    block += `<h2h2>${spacesToUnderscores(titleText)}</h2>`;
+  }
+
   if (runInput.cmdInputs.length != 0 && runInput.cmdInputs[0] != "") {
     block += `<h3>${parseUICodeMain("cmd_input")}</h3>`;
     let cmdInputs = "";
@@ -979,12 +1016,6 @@ function getAnchorTagIdsAndText(html: string): { id: string; text: string }[] {
 
   return result;
 }
-
-// TODO generateToC, but instead of adding assignments as items
-// that can be navigated to, add subheadings of a single assignment's
-// instructions as navigatable items
-// - step through the lines of the instruction .md to
-// find the subheadings?
 
 /**
  * Generates the table of contents
