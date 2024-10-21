@@ -333,7 +333,10 @@ export async function exportProjectFS(
   coursedata: CourseData,
   savePath: string
 ): Promise<string> {
-  const splitLevels = true;
+  const splitLevels = false;
+  let htmlStarted = false;
+  let html = "";
+  let solutionHtml = "";
 
   async function _exportProjectLevelFS(levelID: string) {
     let moduleString = "";
@@ -341,23 +344,26 @@ export async function exportProjectFS(
 
     const mainHeader = formatMainHeaderProject(levelID);
 
-    // HTML Base
-    let html = `<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>${mainHeader}</title>
-    <style>${css}</style>
-  </head>
-  <body>`;
-    let solutionHtml = `<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>${mainHeader} ${parseUICodeMain("answers").toUpperCase()}</title>
-    <style>${css}</style>
-  </head>
-  <body>`;
+    if (!splitLevels && !htmlStarted) {
+      htmlStarted = true;
+      // HTML Base
+      html = `<!DOCTYPE html>
+ <html>
+   <head>
+     <meta charset="utf-8" />
+     <title>${mainHeader}</title>
+     <style>${css}</style>
+   </head>
+   <body>`;
+      solutionHtml = `<!DOCTYPE html>
+ <html>
+   <head>
+     <meta charset="utf-8" />
+     <title>${mainHeader} ${parseUICodeMain("answers").toUpperCase()}</title>
+     <style>${css}</style>
+   </head>
+   <body>`;
+    }
 
     // Main page header
     html += `<h1>${mainHeader}</h1>`;
@@ -398,18 +404,23 @@ export async function exportProjectFS(
 </html>`;
     log.info("HTML created.");
 
+    const fileNameLevel =
+      coursedata.levels[levelID]?.fullName ??
+      "_" + parseUICodeMain("ui_level") + "_" + levelID;
+    let fileName = parseUICodeMain("assignment_description") + fileNameLevel;
+
     await saveSetModuleFS(
       html,
       solutionHtml,
-      mainHeader,
+      fileName,
       "pdf",
       coursedata,
       savePath,
       moduleString
     );
-    const filename = mainHeader.replace(" ", "");
+    fileName = fileName.replace(" ", "");
 
-    const filesPath = path.join(savePath, filename);
+    const filesPath = path.join(savePath, fileName);
     copyExportProjectFilesFS(projectInput, filesPath, levelID);
 
     // TODO refactor setUsedIn for the case of a project

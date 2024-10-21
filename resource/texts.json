@@ -31,6 +31,10 @@
     "FI": "Harjoitustyön tavoitetason tehtävänanto",
     "ENG": "Target level final work description"
   },
+  "assignment_description": {
+    "FI": "Tehtävänanto",
+    "ENG": "Assignment"
+  },
   "ex_run": {
     "FI": "Esimerkkiajo",
     "ENG": "Example run"
