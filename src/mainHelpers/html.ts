@@ -32,7 +32,7 @@ import {
   setUsedIn,
 } from "./fileOperations";
 import { css as papercolorLight } from "../../resource/cssImports/papercolor-light";
-import { globalSettings } from "../globalsUI";
+import { globalSettings } from "../globalsMain";
 import { platform } from "node:process";
 import { genericModule } from "../defaultObjects";
 import { highlightCode } from "./highlighters";
@@ -505,6 +505,7 @@ function formatFiles(
           file.fileContent === "code"
             ? set.assignmentArray[meta.assignmentIndex].codeLanguage
             : "plaintext";
+        //log.debug(globalSettings);
         if (data.split("\n").length > globalSettings.fileMaxLinesDisplay) {
           const splitLines = data.split("\n");
           const half = globalSettings.fileMaxLinesDisplay / 2;

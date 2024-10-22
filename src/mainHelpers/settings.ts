@@ -23,6 +23,8 @@ export function saveSettings(settings: SettingsType) {
   try {
     const path = getSettingsFilepath();
     fs.writeFileSync(path, JSON.stringify(settings));
+    globalSettings.values = settings;
+    //log.debug(globalSettings);
     language.current = settings.language as SupportedLanguages;
     return "ui_settings_save_success";
   } catch (err) {

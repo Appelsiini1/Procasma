@@ -1,5 +1,4 @@
 import { ConverterOptions } from "showdown";
-import { LevelsType } from "./types";
 import { version as packageVersion } from "../package.json";
 import { devmode } from "./DEVMODE.json";
 
