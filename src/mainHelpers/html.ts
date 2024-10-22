@@ -21,7 +21,7 @@ import {
   fileFolderSeparator,
   ShowdownOptions,
 } from "../constants";
-import { coursePath } from "../globalsMain";
+import { coursePath, globalSettings } from "../globalsMain";
 import { getModulesDB } from "./databaseOperations";
 import { createMainFunctionHandler } from "./ipcHelpers";
 import {
@@ -32,7 +32,6 @@ import {
   setUsedIn,
 } from "./fileOperations";
 import { css as papercolorLight } from "../../resource/cssImports/papercolor-light";
-import { globalSettings } from "../globalsMain";
 import { platform } from "node:process";
 import { genericModule } from "../defaultObjects";
 import { highlightCode } from "./highlighters";
