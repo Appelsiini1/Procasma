@@ -18,6 +18,7 @@ import {
   titleCellWidth,
 } from "../constantsUI";
 import HelpText from "../components/HelpText";
+import log from "electron-log/renderer";
 
 export default function Settings() {
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
@@ -76,6 +77,7 @@ export default function Settings() {
       snackbarSeverity = "error";
     }
     handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
+    //log.debug(globalSettings);
   }
 
   useEffect(() => {
