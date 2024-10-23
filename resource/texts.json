@@ -1435,5 +1435,9 @@
   "ui_cg_settings": {
     "FI": "CodeGrade asetukset",
     "ENG": "CodeGrade Settings"
+  },
+  "error_get_tenants": {
+    "FI": "Organisaatioiden haku epäonnistui",
+    "ENG": "Fetching tenants failed"
   }
 }

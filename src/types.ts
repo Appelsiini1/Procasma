@@ -233,6 +233,28 @@ export interface ImportAssignment {
   assignmentData: CodeAssignmentData;
 }
 
+export interface CodeGradeLogin {
+  username: string;
+  password: string;
+  tenantId: string;
+  hostname: string;
+}
+
+export interface CodeGradeTenant {
+  id: string;
+  name: string;
+  sso_provider_id: string;
+  statistics: null;
+  abbreviated_name: string;
+  is_hidden: boolean;
+  order_category: number;
+  netloc: string;
+  logo_default_url: string;
+  logo_dark_url: string;
+  price: number | null;
+  contract_start: string;
+}
+
 export type ContextBridgeAPI = {
   // One-way, Renderer to Main
   setTitle: (title: string) => IpcResult;
@@ -300,4 +322,7 @@ export type ContextBridgeAPI = {
     coursedata: CourseData,
     savePath: string
   ) => IpcResult;
+
+  // CodeGrade
+  getTenants: () => IpcResult;
 };

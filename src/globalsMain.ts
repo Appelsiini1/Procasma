@@ -1,3 +1,4 @@
+import { Apiv2 } from "@codegrade/apiv2-client";
 import { CodeLanguage, SettingsType } from "./types";
 
 class CurrentPath {
@@ -81,5 +82,18 @@ class Settings implements SettingsType {
   }
 }
 
+class CodeGradeLoginState {
+  private _apiInstance: Apiv2;
+
+  set apiInstance(value: Apiv2) {
+    this._apiInstance = value;
+  }
+
+  get apiInstance() {
+    return this._apiInstance;
+  }
+}
+
 export const coursePath = new CurrentPath();
 export const globalSettings = new Settings();
+export const cgInstance = new CodeGradeLoginState();

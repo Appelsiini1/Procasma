@@ -98,4 +98,7 @@ contextBridge.exposeInMainWorld("api", {
     courseData: CourseData,
     savePath: string
   ) => ipcRenderer.invoke("exportManySetsFS", setInput, courseData, savePath),
+
+  // CodeGrade
+  getTenants: () => ipcRenderer.invoke("getTenants"),
 });
