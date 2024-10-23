@@ -1419,5 +1419,13 @@
   "ui_creating_modules": {
     "FI": "Luodaan moduuleja...",
     "ENG": "Creating modules..."
+  },
+  "error_chrome_modal_title": {
+    "FI": "Chrome asennusta ei löydetty",
+    "ENG": "Chrome installation not found"
+  },
+  "error_chrome_modal_desc": {
+    "FI": "Tehtäväsarjojen vienti PDF-tiedostoksi ei onnistu. Asenna Chrome ja käynnistä Procasma uudelleen.",
+    "ENG": "Assignment set export to PDF will not work. Install Chrome and restart Procasma."
   }
 }
