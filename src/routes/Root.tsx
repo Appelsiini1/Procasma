@@ -294,7 +294,7 @@ export default function Root() {
                         : navigate("/inputCodeProjectWork");
                     }}
                     ariaLabel={parseUICode("ui_aria_nav_add_project")}
-                    disabled={true}
+                    disabled={false}
                   >
                     {parseUICode("ui_project_work")}
                   </ButtonComp>
@@ -422,6 +422,15 @@ export default function Root() {
                 ariaLabel={parseUICode("ui_settings")}
               >
                 {parseUICode("ui_settings")}
+              </ButtonComp>
+            </Grid>
+            <Grid>
+              <ButtonComp
+                buttonType="settings"
+                onClick={() => navigate("/codegradeSettings")}
+                ariaLabel={parseUICode("ui_cg_settings")}
+              >
+                {parseUICode("ui_cg_settings")}
               </ButtonComp>
             </Grid>
             <Grid>
