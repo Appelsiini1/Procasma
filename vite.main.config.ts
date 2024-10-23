@@ -27,11 +27,11 @@ export default defineConfig((env) => {
     },
     plugins: [
       pluginHotRestart("restart"),
-      visualizer({
-        template: "treemap",
-        open: true,
-        filename: "mainStats.html",
-      }) as PluginOption,
+      // visualizer({
+      //   template: "treemap",
+      //   open: true,
+      //   filename: "mainStats.html",
+      // }) as PluginOption,
     ],
     define,
     resolve: {
