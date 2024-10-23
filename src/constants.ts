@@ -1,25 +1,14 @@
 import { ConverterOptions } from "showdown";
 import { version as packageVersion } from "../package.json";
 import { devmode } from "./DEVMODE.json";
+import { config } from "dotenv";
+
+// Dotenv config
+config();
 
 export const version = packageVersion;
 export const courseMetaDataFileName = "course_info.json";
 export const DEVMODE = devmode;
-export const textExtensions = ["txt", "md"];
-export const dataExtensions = ["csv", "yml", "yaml", "log"];
-export const imageExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "svg"];
-export const codeExtensions = [
-  "js",
-  "ts",
-  "py",
-  "cpp",
-  "c",
-  "cs",
-  "html",
-  "css",
-  "json",
-];
-export const COURSE_PERIODS = 4;
 export const PDFMargins = {
   bottom: "2.1cm",
   top: "2.1cm",
@@ -64,3 +53,5 @@ export const MathJaxHTMLOptions = {
   ex: 9,
   containerWidth: 90 * 20,
 };
+export const safeStorageKey = process.env.STORAGE_KEY;
+export const codegradeAPIEndpointV1 = "https://app.codegra.de/api/v1";

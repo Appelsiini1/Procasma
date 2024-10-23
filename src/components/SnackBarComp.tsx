@@ -106,6 +106,7 @@ export default function SnackbarComp({
       key={text}
       color={color as any}
       variant="soft"
+      size="lg"
     >
       {text}
     </Snackbar>
