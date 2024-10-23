@@ -92,64 +92,6 @@ export default function Settings() {
         sx={{ minWidth: pageTableMinWidth, maxWidth: pageTableMaxWidth }}
       >
         <tbody>
-          <tr key="sUsername">
-            <td style={{ width: titleCellWidth }}>
-              <Typography level="h4">
-                {`CodeGrade ${parseUICode("ui_username")}`}
-              </Typography>
-            </td>
-            <td>
-              <InputField
-                fieldKey="caSetName"
-                onChange={null}
-                disabled={true}
-              />
-            </td>
-          </tr>
-
-          <tr key="sPassword">
-            <td style={{ width: titleCellWidth }}>
-              <Typography level="h4">
-                {`CodeGrade ${parseUICode("ui_password")}`}
-              </Typography>
-            </td>
-            <td>
-              <InputField
-                fieldKey="caSetName"
-                onChange={null}
-                disabled={true}
-              />
-            </td>
-          </tr>
-
-          <tr key="sOrganisation">
-            <td style={{ width: titleCellWidth }}>
-              <Typography level="h4">
-                {`CodeGrade ${parseUICode("ui_organisation")}`}
-              </Typography>
-            </td>
-            <td>
-              <InputField
-                fieldKey="caSetName"
-                onChange={null}
-                disabled={true}
-              />
-            </td>
-          </tr>
-
-          <tr key="caSignIn">
-            <td style={{ width: titleCellWidth }}>
-              <ButtonComp
-                buttonType="normalAlt"
-                onClick={null}
-                ariaLabel={parseUICode("ui_aria_cg_sign_in")}
-                disabled={true}
-              >
-                {parseUICode("ui_sign_in")}
-              </ButtonComp>
-            </td>
-          </tr>
-
           <tr key="sLanguage">
             <td>
               <Typography level="h4">
