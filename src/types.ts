@@ -97,6 +97,7 @@ export interface SettingsType {
   language: string;
   shortenFiles: boolean;
   fileMaxLinesDisplay: number;
+  chromePath: string;
 }
 
 export interface SetVariation

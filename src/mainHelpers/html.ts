@@ -21,7 +21,7 @@ import {
   fileFolderSeparator,
   ShowdownOptions,
 } from "../constants";
-import { coursePath } from "../globalsMain";
+import { coursePath, globalSettings } from "../globalsMain";
 import { getModulesDB } from "./databaseOperations";
 import { createMainFunctionHandler } from "./ipcHelpers";
 import {
@@ -32,7 +32,6 @@ import {
   setUsedIn,
 } from "./fileOperations";
 import { css as papercolorLight } from "../../resource/cssImports/papercolor-light";
-import { globalSettings } from "../globalsUI";
 import { platform } from "node:process";
 import { genericModule } from "../defaultObjects";
 import { highlightCode } from "./highlighters";
@@ -505,6 +504,7 @@ function formatFiles(
           file.fileContent === "code"
             ? set.assignmentArray[meta.assignmentIndex].codeLanguage
             : "plaintext";
+        //log.debug(globalSettings);
         if (data.split("\n").length > globalSettings.fileMaxLinesDisplay) {
           const splitLines = data.split("\n");
           const half = globalSettings.fileMaxLinesDisplay / 2;

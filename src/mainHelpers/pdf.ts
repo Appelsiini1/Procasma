@@ -5,6 +5,7 @@ import log from "electron-log/node";
 import { CourseData, PDFHtmlInput } from "../types";
 import { PDFFormat, PDFMargins, version } from "../constants";
 import { parseUICodeMain } from "./language";
+import { globalSettings } from "../globalsMain";
 
 /**
  * Generates the header and footer (for PDF files only)
@@ -92,7 +93,10 @@ export function generateHeaderFooter(
 export async function createPDF(input: PDFHtmlInput, path: string) {
   try {
     log.info("Starting PDF creation...");
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({
+      headless: true,
+      executablePath: globalSettings.chromePath,
+    });
     log.info("Puppeteer launched.");
     const page = await browser.newPage();
     await page.setContent(input.html);
