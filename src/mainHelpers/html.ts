@@ -258,9 +258,8 @@ export async function exportSetFS(
         moduleAssignments.forEach((assignment, index) => {
           // Assignments
           const meta = { assignmentIndex: index, courseData: coursedata };
-          const normalblock = generateBlock(meta, assignment, convertedSet);
-          html += normalblock;
-          solutionHtml += normalblock;
+          html += generateBlock(meta, assignment, convertedSet, false);
+          solutionHtml += generateBlock(meta, assignment, convertedSet, true);
           solutionHtml += formatSolutions(meta, convertedSet);
         });
 
@@ -467,7 +466,8 @@ function formatSolutions(
 function formatFiles(
   meta: AssignmentInput,
   set: FullAssignmentSetData,
-  type: FileData["fileContent"]
+  type: FileData["fileContent"],
+  includeAnswer: boolean
 ): string {
   try {
     let block = ``;
@@ -475,7 +475,7 @@ function formatFiles(
     for (const file of files) {
       if (
         !file.solution &&
-        file.showStudent &&
+        (file.showStudent === true || includeAnswer === true) &&
         (file.fileType === "code" || file.fileType === "text") &&
         file.fileContent === type
       ) {
@@ -522,9 +522,10 @@ function formatFiles(
         } else {
           block += highlightCode(data, language);
         }
+        log.debug(block);
       } else if (
         !file.solution &&
-        file.showStudent &&
+        (file.showStudent === true || includeAnswer === true) &&
         file.fileType === "image" &&
         file.fileContent === type
       ) {
@@ -553,6 +554,7 @@ function formatFiles(
         block += `<img src="${data}" alt="${file.fileName}" />`;
       }
     }
+    log.debug(block);
     return block;
   } catch (err) {
     log.error("Error in file formatter: " + err.message);
@@ -666,12 +668,14 @@ function generateStart(subjects: string, instructions: string): string {
  * Generates an assignment block
  * @param meta Course data and assignment index
  * @param set Set data
+ * @param includeAnswer Boolean whether to include blocks not shown to students
  * @returns HTML string
  */
 function generateBlock(
   meta: AssignmentInput,
   assignment: CodeAssignmentSelectionData,
-  set: FullAssignmentSetData
+  set: FullAssignmentSetData,
+  includeAnswer: boolean
 ): string {
   let block = `<div>
     `;
@@ -698,7 +702,7 @@ function generateBlock(
   // block += `</p>`;
 
   // Datafiles
-  block += formatFiles(meta, set, "data");
+  block += formatFiles(meta, set, "data", includeAnswer);
 
   // Example runs
   const exampleRuns = assignment.variation.exampleRuns;
@@ -709,7 +713,7 @@ function generateBlock(
   }
 
   // Result files
-  block += formatFiles(meta, set, "result");
+  block += formatFiles(meta, set, "result", includeAnswer);
 
   block += `</div>`;
   return block;
