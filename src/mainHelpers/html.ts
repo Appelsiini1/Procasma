@@ -554,7 +554,7 @@ function formatFiles(
         block += `<img src="${data}" alt="${file.fileName}" />`;
       }
     }
-    log.debug(block);
+    //log.debug(block);
     return block;
   } catch (err) {
     log.error("Error in file formatter: " + err.message);
