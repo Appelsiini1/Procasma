@@ -1335,6 +1335,7 @@ function _copyExportFileFS(
   files: FileData[],
   selectedPosition: number
 ): number {
+  let numberOfFiles = 0;
   const copyFiles = (pathToCopy: string, oldPath: string) => {
     try {
       // try to access the file to check if absolute path is valid
@@ -1342,12 +1343,12 @@ function _copyExportFileFS(
 
       // then copy the file
       fs.copyFileSync(oldPath, pathToCopy);
-      return 1;
+      numberOfFiles++;
     } catch (err) {
       log.error("Error in copyExportFilesFS(): " + err.message);
     }
 
-    return 0;
+    return;
   };
   for (const file of files) {
     let filePath = path.join(variationPath, file.fileName);
@@ -1370,7 +1371,7 @@ function _copyExportFileFS(
     }
     copyFiles(path.join(newExportPath, file.fileName), filePath);
   }
-  return 0;
+  return numberOfFiles;
 }
 
 // TODO when passing in levels of a single project

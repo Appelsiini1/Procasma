@@ -770,9 +770,7 @@ function formatMainHeaderProject(level: string) {
       addToTitle("project_target_level_assignment_description");
       break;
     default:
-      // TODO remove this. If the correct level is not found,
-      // no title should be added.
-      addToTitle("project_basic_level_assignment_description");
+      addToTitle("project_assignment_description");
       break;
   }
   return title;
@@ -904,12 +902,9 @@ function generateBlock(
   block += formatMarkdown(
     formatMath(formatImage(variation.instructions, variation.files))
   );
-  console.log("block: ", block);
 
   if (isProject) {
     block = addAnchorTagsToHeadings(block);
-
-    console.log("block with anchors: ", block);
   }
 
   // block += `</p>`;
