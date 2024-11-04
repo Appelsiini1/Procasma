@@ -294,7 +294,7 @@ export default function Root() {
                         : navigate("/inputCodeProjectWork");
                     }}
                     ariaLabel={parseUICode("ui_aria_nav_add_project")}
-                    disabled={true}
+                    disabled={false}
                   >
                     {parseUICode("ui_project_work")}
                   </ButtonComp>

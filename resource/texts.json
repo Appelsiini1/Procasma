@@ -1435,5 +1435,12 @@
   "ui_cg_settings": {
     "FI": "CodeGrade asetukset",
     "ENG": "CodeGrade Settings"
+  "assignment": {
+    "FI": "Tehtävä",
+    "ENG": "Assignment"
+  },
+  "finalWork": {
+    "FI": "Harjoitustyö",
+    "ENG": "Final work"
   }
 }

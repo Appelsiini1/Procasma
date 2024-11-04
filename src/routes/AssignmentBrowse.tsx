@@ -67,12 +67,17 @@ export default function AssignmentBrowse() {
   const [numSelected, setNumSelected] = useState(0);
   const [uniqueTags, setUniqueTags] = useState<Array<filterState>>([]);
   const [uniqueModules, setUniqueModules] = useState<Array<filterState>>([]);
+  const [uniqueTypes, setUniqueTypes] = useState<Array<filterState>>([
+    { isChecked: false, value: "assignment" },
+    { isChecked: false, value: "finalWork" },
+  ]);
   const [search, setSearch] = useState<string>("");
 
   const navigate = useNavigate();
   let assignments: Array<React.JSX.Element> = null;
   let modules: Array<React.JSX.Element> = null;
   let tags: Array<React.JSX.Element> = null;
+  let types: Array<React.JSX.Element> = null;
 
   const refreshAssignments = async () => {
     try {
@@ -82,6 +87,8 @@ export default function AssignmentBrowse() {
 
       const checkedTags: string[] = [];
       const checkedModules: string[] = [];
+      const checkedTypes: string[] = [];
+
       uniqueTags.forEach((element) => {
         if (element.isChecked) {
           checkedTags.push(element.value);
@@ -92,11 +99,17 @@ export default function AssignmentBrowse() {
           checkedModules.push(element.value);
         }
       });
+      uniqueTypes.forEach((element) => {
+        if (element.isChecked) {
+          checkedTypes.push(element.value);
+        }
+      });
 
       const filters = {
         tags: checkedTags,
         module: checkedModules,
         title: search,
+        assignmentType: checkedTypes[0],
       };
 
       let assignmentsResult: CodeAssignmentDatabase[] = [];
@@ -179,7 +192,7 @@ export default function AssignmentBrowse() {
 
   useEffect(() => {
     refreshAssignments();
-  }, [uniqueTags, uniqueModules, search]);
+  }, [uniqueTags, uniqueModules, search, uniqueTypes]);
 
   assignments = generateChecklist(
     courseAssignments,
@@ -188,6 +201,7 @@ export default function AssignmentBrowse() {
   );
   modules = generateFilterList(uniqueModules, setUniqueModules);
   tags = generateFilterList(uniqueTags, setUniqueTags);
+  types = generateFilterList(uniqueTypes, setUniqueTypes, true);
 
   async function handleOpenAssignment() {
     try {
@@ -422,6 +436,10 @@ export default function AssignmentBrowse() {
               overflow={"auto"}
             >
               <List>
+                <ListItem nested>
+                  <ListSubheader>{parseUICode("ui_type")}</ListSubheader>
+                  <List>{types}</List>
+                </ListItem>
                 <ListItem nested>
                   <ListSubheader>{parseUICode("ui_tags")}</ListSubheader>
                   <List>{tags}</List>
