@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import { createHashRouter, RouterProvider } from "react-router-dom";
@@ -28,6 +28,8 @@ import SnackbarComp from "./components/SnackBarComp";
 import { Layout } from "./components/Layout";
 import LicensesPage from "./routes/LicensesPage";
 import { DEVMODE } from "./constantsUI";
+import { Modal, ModalClose, ModalDialog, Typography } from "@mui/joy";
+import { parseUICode } from "./rendererHelpers/translation";
 
 log.info("-- START OF PROCASMA RENDERER --");
 log.info(`DEVMODE: ${DEVMODE}`);
@@ -39,6 +41,7 @@ const App = () => {
     useContext(UIContext);
   const { activeAssignment, activeModule, activeSet } =
     useContext(ActiveObjectContext);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
   const router = createHashRouter([
     {
       path: "/",
@@ -163,6 +166,9 @@ const App = () => {
   // get the init settings and update the UI language
   useEffect(() => {
     updateLanguageInit();
+    if (globalSettings.chromePath === null) {
+      setModalOpen(true);
+    }
   }, []);
 
   return (
@@ -175,6 +181,23 @@ const App = () => {
           setShowSnackbar={setShowSnackbar}
         ></SnackbarComp>
       ) : null}
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+        <ModalDialog color="danger" layout="center" size="lg" variant="soft">
+          <ModalClose />
+          <Typography
+            component="h2"
+            id="modal-title"
+            level="h4"
+            textColor="inherit"
+            sx={{ fontWeight: "lg", mb: 1 }}
+          >
+            {parseUICode("error_chrome_modal_title")}
+          </Typography>
+          <Typography id="modal-desc" textColor="text.tertiary">
+            {parseUICode("error_chrome_modal_desc")}
+          </Typography>
+        </ModalDialog>
+      </Modal>
     </>
   );
 };

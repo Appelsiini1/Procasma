@@ -82,7 +82,7 @@ export async function createMainFunctionHandler(
 /**
  * Registers IPC handles
  */
-export function registerHandlers() {
+export function registerHandles() {
   // One-way, Renderer to Main
   ipcMain.on("set-title", (event, title) => {
     const webContents = event.sender;

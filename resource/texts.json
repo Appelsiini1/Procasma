@@ -649,7 +649,7 @@
     "ENG": "Click 'Import output files' to import the assignment example output files."
   },
   "help_used_in": {
-    "FI": "Syötä tähän setit joissa tehtävää on aiemmin käytetty. Oletusformaatti on '[vuosi]/[periodi]', esim. 2023/1",
+    "FI": "Syötä tähän periodit, joissa tehtävää on aiemmin käytetty. Oletusformaatti on '[vuosi]/[periodi]', esim. 2023/1",
     "ENG": "Input the sets where this assignment has been used before. Default format is '[year]/[period]', ex. 2023/1"
   },
   "ui_ok": {
@@ -933,8 +933,8 @@
     "ENG": "Course assignment levels"
   },
   "help_course_levels": {
-    "FI": "Syötä tähän kurssin tehtävien tasot. Erota tason numero, nimi ja lyhenne kaksoispisteellä, ja tasot toisistaan rivinvaihdolla. Lyhenne on valinnainen.\nEsimerkiksi: '1:Helppo:H'",
-    "ENG": "Input the levels of course assignments here. Separate level number, name and abbreviation with a colon and levels with new line. Abbreviation is optional.\nFor example: '1:Easy:E'"
+    "FI": "Syötä tähän kurssin tehtävien tasot. Erota tason nimi ja lyhenne kaksoispisteellä, ja tasot toisistaan rivinvaihdolla. Lyhenne on valinnainen.\nEsimerkiksi: 'Helppo:H'\nTasot ovat valinnaisia.",
+    "ENG": "Input the levels of course assignments here. Separate level name and abbreviation with a colon and levels with new line. Abbreviation is optional.\nFor example: 'Easy:E'\nAssignment levels are optional."
   },
   "ui_level_error": {
     "FI": "Virhe tasojen muotoilussa. Tarkista oikea muotoilu (?)-merkistä.",
@@ -1420,6 +1420,21 @@
     "FI": "Luodaan moduuleja...",
     "ENG": "Creating modules..."
   },
+  "error_chrome_modal_title": {
+    "FI": "Chrome asennusta ei löydetty",
+    "ENG": "Chrome installation not found"
+  },
+  "error_chrome_modal_desc": {
+    "FI": "Tehtäväsarjojen vienti PDF-tiedostoksi ei onnistu. Asenna Chrome ja käynnistä Procasma uudelleen.",
+    "ENG": "Assignment set export to PDF will not work. Install Chrome and restart Procasma."
+  },
+  "ui_loading": {
+    "FI": "Ladataan...",
+    "ENG": "Loading..."
+  },
+  "ui_cg_settings": {
+    "FI": "CodeGrade asetukset",
+    "ENG": "CodeGrade Settings"
   "assignment": {
     "FI": "Tehtävä",
     "ENG": "Assignment"
