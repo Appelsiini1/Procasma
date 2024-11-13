@@ -1,10 +1,11 @@
 import crypto from "crypto";
 import { StorageKey } from "../constants";
-import { CodeGradeLogin } from "../types";
+import { CGEncryptLogin, CodeGradeLogin } from "../types";
 import log from "electron-log/node";
 import fs from "fs";
 import { getCacheDir } from "./osOperations";
 import path from "path";
+import os, { hostname } from "os";
 
 // Original source: https://stackoverflow.com/questions/49021171/how-to-derive-iv-and-key-to-crypto-createcipheriv-for-decryption
 
@@ -107,16 +108,33 @@ function getKeyHash() {
 }
 
 export function saveCredentials(loginDetails: CodeGradeLogin) {
-  const encryptedUsername = encryptString(loginDetails.username);
-  const encryptedPassword = encryptString(loginDetails.password);
-
-  const stringToWrite = `${encryptedUsername}\n${encryptedPassword}\n${loginDetails.hostname}\n${loginDetails.tenantId}`;
-  //log.debug(stringToWrite);
+  const currentUser = os.userInfo().username;
 
   try {
     const cacheDir = getCacheDir();
     const filePath = path.join(cacheDir, "credentials");
-    fs.writeFileSync(filePath, stringToWrite, "binary");
+    if (!fs.existsSync(filePath)) {
+      const encryptedData = encryptString(
+        JSON.stringify([{ OSUser: currentUser, ...loginDetails }])
+      );
+      fs.writeFileSync(filePath, encryptedData, "binary");
+      return "ok";
+    } else {
+      const existingData = fs.readFileSync(filePath, "binary");
+      const decryptedData: CGEncryptLogin[] = JSON.parse(
+        decryptString(existingData)
+      );
+      const otherUsers = [];
+      for (const dataObject of decryptedData) {
+        if (currentUser !== dataObject.OSUser) {
+          otherUsers.push(dataObject);
+        }
+      }
+      otherUsers.push({ OSUser: currentUser, ...loginDetails });
+      const encryptedData = encryptString(JSON.stringify(otherUsers));
+      fs.writeFileSync(filePath, encryptedData, "binary");
+      return "ok";
+    }
   } catch (err) {
     log.error(err.message);
     throw err;
@@ -125,19 +143,25 @@ export function saveCredentials(loginDetails: CodeGradeLogin) {
 
 export function getCredentials() {
   let data: string;
+  const currentUser = os.userInfo().username;
   try {
     const filePath = path.join(getCacheDir(), "credentials");
     data = fs.readFileSync(filePath, "binary");
     //log.debug(data);
 
-    const splitCredentials = data.split("\n");
-    const loginDetails: CodeGradeLogin = {
-      username: decryptString(splitCredentials[0]),
-      password: decryptString(splitCredentials[1]),
-      hostname: splitCredentials[2],
-      tenantId: splitCredentials[3],
-    };
-    return loginDetails;
+    const decryptedData: CGEncryptLogin[] = JSON.parse(decryptString(data));
+    for (const dataObject of decryptedData) {
+      if (currentUser === dataObject.OSUser) {
+        const loginDetails: CodeGradeLogin = {
+          username: dataObject.username,
+          password: dataObject.password,
+          hostname: dataObject.hostname,
+          tenantId: dataObject.tenantId,
+        };
+        return loginDetails;
+      }
+    }
+    return null;
   } catch (err) {
     log.error(err.message);
     throw err;

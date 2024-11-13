@@ -255,6 +255,10 @@ export interface CodeGradeTenant {
   contract_start: string;
 }
 
+export interface CGEncryptLogin extends CodeGradeLogin {
+  OSUser: string;
+}
+
 export type ContextBridgeAPI = {
   // One-way, Renderer to Main
   setTitle: (title: string) => IpcResult;
@@ -325,4 +329,6 @@ export type ContextBridgeAPI = {
 
   // CodeGrade
   getTenants: () => IpcResult;
+  CGLogin: (loginDetails: CodeGradeLogin, fromSaved: boolean) => IpcResult;
+  saveCredentials: (loginDetails: CodeGradeLogin) => IpcResult;
 };
