@@ -56,7 +56,7 @@ export default function CodeGradeSettings() {
   }, [loginDetails]);
 
   useEffect(() => {
-    log.debug(selectedTenant);
+    //log.debug(selectedTenant);
     if (tenants) {
       const tenant = tenants.find((value) => {
         if (value.name === selectedTenant) {

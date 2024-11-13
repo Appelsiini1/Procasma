@@ -53,5 +53,5 @@ export const MathJaxHTMLOptions = {
   ex: 9,
   containerWidth: 90 * 20,
 };
-export const safeStorageKey = process.env.STORAGE_KEY;
+export const StorageKey = process.env.STORAGE_KEY;
 export const codegradeAPIEndpointV1 = "https://app.codegra.de/api/v1";
