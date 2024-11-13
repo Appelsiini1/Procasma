@@ -24,16 +24,25 @@ export async function getTenants() {
   });
 }
 
-export async function setInstance(loginDetails: CodeGradeLogin) {
+async function setInstance(token: string, hostname: string) {
   try {
-    const token = await login(loginDetails);
     const instance = getApiv2({
-      hostname: loginDetails.hostname,
+      hostname: hostname,
       token: token,
     });
     cgInstance.apiInstance = instance;
   } catch (err) {
-    log.error("Error in getAccessToken: ", err.message);
+    log.error("Error in setInstance: ", err.message);
+    throw err;
+  }
+}
+
+export async function logInToCG(loginDetails: CodeGradeLogin) {
+  try {
+    const token = await login(loginDetails);
+    setInstance(token, loginDetails.hostname);
+  } catch (err) {
+    log.error("Error in logInToCG: ", err.message);
     throw err;
   }
 }

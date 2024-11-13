@@ -17,7 +17,7 @@ export interface FileData {
 
 export interface CGData {
   id: string;
-  atv2: object;
+  atv2: any;
 }
 
 export interface ExampleRunType {
