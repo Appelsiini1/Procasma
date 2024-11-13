@@ -14,6 +14,7 @@ import {
 import { CodeGradeLogin, CodeGradeTenant } from "../types";
 import ButtonComp from "../components/ButtonComp";
 import { capitalizeFirstLetter } from "../generalHelpers/capitalize";
+import SwitchComp from "../components/SwitchComp";
 
 export default function CodeGradeSettings() {
   const { handleSnackbar } = useContext(UIContext);
@@ -27,6 +28,7 @@ export default function CodeGradeSettings() {
     hostname: "",
   });
   const [hasLoginDetails, setHasLoginDetails] = useState<boolean>(false);
+  const [checked, setChecked] = useState<boolean>(true);
 
   async function getTenants() {
     try {
@@ -34,6 +36,22 @@ export default function CodeGradeSettings() {
       setTenants(result);
     } catch (err) {
       handleSnackbar({ error: parseUICode(err.message) });
+    }
+  }
+  async function loginWrapper(
+    loginDetails: CodeGradeLogin,
+    saveDetails: boolean
+  ) {
+    try {
+      const result = await handleIPCResult(() =>
+        window.api.CGLogin(loginDetails, false)
+      );
+      if (saveDetails) {
+        await handleIPCResult(() => window.api.saveCredentials(loginDetails));
+      }
+      handleSnackbar({ success: parseUICode(result) });
+    } catch (err) {
+      handleSnackbar({ error: err.message });
     }
   }
 
@@ -115,7 +133,6 @@ export default function CodeGradeSettings() {
                 />
               </td>
             </tr>
-
             <tr key="cgPassword">
               <td style={{ width: titleCellWidth }}>
                 <Typography level="h4">
@@ -132,7 +149,6 @@ export default function CodeGradeSettings() {
                 />
               </td>
             </tr>
-
             <tr key="cgTenant">
               <td style={{ width: titleCellWidth }}>
                 <Typography level="h4">
@@ -149,13 +165,25 @@ export default function CodeGradeSettings() {
                 />
               </td>
             </tr>
+            <tr key="cgSaveCredentials">
+              <td style={{ width: titleCellWidth }}>
+                <Typography level="h4">
+                  {`${capitalizeFirstLetter(
+                    parseUICode("ui_save_credentials")
+                  )}`}
+                </Typography>
+              </td>
+              <td>
+                <SwitchComp checked={checked} setChecked={setChecked} />
+              </td>
+            </tr>
           </tbody>
         </Table>
       </div>
       <div style={{ marginTop: "2em" }}></div>
       <ButtonComp
         buttonType="normalAlt"
-        onClick={() => log.debug(loginDetails)}
+        onClick={() => loginWrapper(loginDetails, checked)}
         ariaLabel={parseUICode("ui_aria_cg_sign_in")}
         disabled={!hasLoginDetails}
       >

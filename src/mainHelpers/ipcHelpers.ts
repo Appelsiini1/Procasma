@@ -36,7 +36,8 @@ import { coursePath } from "../globalsMain";
 import { exportManySetsFS, exportSetFS } from "./html";
 import { getSettings, saveSettings } from "./settings";
 import { version, DEVMODE } from "../constants";
-import { getTenants } from "./codegrade";
+import { getTenants, logInToCG } from "./codegrade";
+import { saveCredentials } from "./encryption";
 
 type IpcHandler = (
   event: IpcMainInvokeEvent,
@@ -260,5 +261,15 @@ export function registerHandles() {
   ipcMain.handle(
     "getTenants",
     formatIPCResult(() => getTenants())
+  );
+  ipcMain.handle(
+    "CGLogin",
+    formatIPCResult((loginDetails, fromSaved) =>
+      logInToCG(loginDetails, fromSaved)
+    )
+  );
+  ipcMain.handle(
+    "saveCredentials",
+    formatIPCResult((loginDetails) => saveCredentials(loginDetails))
   );
 }

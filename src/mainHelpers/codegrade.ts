@@ -3,6 +3,7 @@ import { codegradeAPIEndpointV1 } from "../constants";
 import log from "electron-log";
 import { getApiv2, login } from "@codegrade/apiv2-client";
 import { cgInstance } from "../globalsMain";
+import { getCredentials } from "./encryption";
 
 export async function getTenants() {
   const url = codegradeAPIEndpointV1 + "/tenants/";
@@ -37,10 +38,23 @@ async function setInstance(token: string, hostname: string) {
   }
 }
 
-export async function logInToCG(loginDetails: CodeGradeLogin) {
+export async function logInToCG(
+  loginDetails: CodeGradeLogin | null,
+  fromSaved: boolean
+) {
+  let credentials: CodeGradeLogin;
   try {
-    const token = await login(loginDetails);
-    setInstance(token, loginDetails.hostname);
+    if (!fromSaved && loginDetails === null) {
+      throw new Error("No credentials given");
+    } else if (fromSaved) {
+      credentials = getCredentials();
+    } else {
+      credentials = loginDetails;
+    }
+    const token = await login(credentials);
+    setInstance(token, credentials.hostname);
+    log.debug("CG token: ", token);
+    return "ui_login_success";
   } catch (err) {
     log.error("Error in logInToCG: ", err.message);
     throw err;

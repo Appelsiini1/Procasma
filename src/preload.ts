@@ -4,6 +4,7 @@
 import { contextBridge, ipcRenderer } from "electron";
 import {
   CodeAssignmentData,
+  CodeGradeLogin,
   CourseData,
   ExportSetData,
   ModuleData,
@@ -101,4 +102,8 @@ contextBridge.exposeInMainWorld("api", {
 
   // CodeGrade
   getTenants: () => ipcRenderer.invoke("getTenants"),
+  CGLogin: (loginDetails: CodeGradeLogin, fromSaved: boolean) =>
+    ipcRenderer.invoke("CGLogin", loginDetails, fromSaved),
+  saveCredentials: (loginDetails: CodeGradeLogin) =>
+    ipcRenderer.invoke("saveCredentials", loginDetails),
 });
