@@ -23,7 +23,12 @@ import log from "electron-log/renderer";
 export default function Settings() {
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const navigate = useNavigate();
-  const [checked, setChecked] = useState<boolean>(globalSettings.shortenFiles);
+  const [checkedFiles, setCheckedFiles] = useState<boolean>(
+    globalSettings.shortenFiles
+  );
+  const [checkedCode, setCheckedCode] = useState<boolean>(
+    globalSettings.shortenCode
+  );
   const [settings, setSettings] = useState<SettingsType>(globalSettings.values);
   const [maxLines, setMaxLines] = useState<number>(
     globalSettings.fileMaxLinesDisplay
@@ -59,7 +64,7 @@ export default function Settings() {
   async function handleSaveSettings() {
     const newSettings: SettingsType = {
       ...settings,
-      shortenFiles: checked,
+      shortenFiles: checkedFiles,
       fileMaxLinesDisplay: maxLines,
     };
     setSettings(newSettings);
@@ -133,7 +138,7 @@ export default function Settings() {
               </Grid>
             </td>
             <td>
-              <SwitchComp checked={checked} setChecked={setChecked} />
+              <SwitchComp checked={checkedFiles} setChecked={setCheckedFiles} />
             </td>
           </tr>
 
@@ -158,6 +163,34 @@ export default function Settings() {
             </td>
             <td>
               <NumberInput min={1} value={maxLines} onChange={setMaxLines} />
+            </td>
+          </tr>
+
+          <tr key="sShortenCode">
+            <td style={{ width: titleCellWidth }}>
+              <Grid
+                container
+                direction="row"
+                justifyContent="flex-start"
+                alignItems="center"
+                spacing={1}
+              >
+                <Grid xs={10}>
+                  <Typography level="h4">
+                    {parseUICode("ui_shorten_code")}
+                  </Typography>
+                </Grid>
+                <Grid xs={2}>
+                  <HelpText text={parseUICode("help_shorten_code")} />
+                </Grid>
+              </Grid>
+            </td>
+            <td>
+              <SwitchComp
+                checked={checkedCode}
+                setChecked={setCheckedCode}
+                disabled={!checkedFiles}
+              />
             </td>
           </tr>
         </tbody>

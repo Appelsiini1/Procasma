@@ -3,7 +3,7 @@ export type SupportedLanguages = "FI" | "ENG";
 export type FormatType = "pdf" | "html";
 export const formatTypes: FormatType[] = ["pdf", "html"];
 export type FileTypes = "text" | "image" | "code";
-export type FileContents = "instruction" | "result" | "code" | "data";
+export type FileContents = "instruction" | "result" | "code" | "data" | "other";
 export type SupportedModuleType = "week" | "module" | "lecture" | null;
 
 export interface FileData {
@@ -98,6 +98,7 @@ export interface SettingsType {
   shortenFiles: boolean;
   fileMaxLinesDisplay: number;
   chromePath: string;
+  shortenCode: boolean;
 }
 
 export interface SetVariation

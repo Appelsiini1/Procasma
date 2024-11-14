@@ -54,6 +54,7 @@ const FileContentSelect = ({
       <Option value="result">{parseUICode("ui_result")}</Option>
       <Option value="code">{parseUICode("ui_code")}</Option>
       <Option value="data">{parseUICode("ui_data")}</Option>
+      <Option value="other">{parseUICode("ui_other")}</Option>
     </Select>
   );
 };

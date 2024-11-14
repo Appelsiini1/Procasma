@@ -458,6 +458,35 @@ function formatSolutions(
 }
 
 /**
+ * Shortens the filedata to the spesified length if the length is long enough.
+ * @param data File data as string
+ * @param language Highlight language
+ * @returns Formatted file contents
+ */
+function shortenFileData(data: string, language: string) {
+  let block = "";
+  if (
+    data.split("\n").length > globalSettings.fileMaxLinesDisplay &&
+    globalSettings.shortenFiles
+  ) {
+    const splitLines = data.split("\n");
+    const half = globalSettings.fileMaxLinesDisplay / 2;
+    const firstHalf = splitLines.slice(0, half);
+    const secondHalf = splitLines.slice(-(half + 1));
+
+    const newData = `${firstHalf.join("\n")}\n...\n${secondHalf.join("\n")}`;
+
+    block += `<p style="color: red; font-style: italic;">${parseUICodeMain(
+      "file_shortened"
+    )}</p>`;
+    block += highlightCode(newData, language);
+  } else {
+    block += highlightCode(data, language);
+  }
+  return block;
+}
+
+/**
  * Formats files that are not solution files. Will make titles based on file content type.
  * @param meta Course data and assignment index
  * @param set Set data
@@ -497,28 +526,24 @@ function formatFiles(
           newName
         );
         const data = readFileSync(filePath, "utf8");
-        block += `<h3>${parseUICodeMain(
-          type === "data" ? "input_datafile" : "ex_resultfile"
-        )}: '${file.fileName}'</h3>`;
+        let header;
+        if (type === "data") {
+          header = parseUICodeMain("input_datafile");
+        } else if (type === "result") {
+          header = parseUICodeMain("ex_resultfile");
+        } else if (type === "code") {
+          header = parseUICodeMain("ui_codefile");
+        } else {
+          header = parseUICodeMain("file");
+        }
+        block += `<h3>${header}: '${file.fileName}'</h3>`;
         const language =
           file.fileContent === "code"
             ? set.assignmentArray[meta.assignmentIndex].codeLanguage
             : "plaintext";
         //log.debug(globalSettings);
-        if (data.split("\n").length > globalSettings.fileMaxLinesDisplay) {
-          const splitLines = data.split("\n");
-          const half = globalSettings.fileMaxLinesDisplay / 2;
-          const firstHalf = splitLines.slice(0, half);
-          const secondHalf = splitLines.slice(-(half + 1));
-
-          const newData = `${firstHalf.join("\n")}\n...\n${secondHalf.join(
-            "\n"
-          )}`;
-
-          block += `<p style="color: red; font-style: italic;">${parseUICodeMain(
-            "file_shortened"
-          )}</p>`;
-          block += highlightCode(newData, language);
+        if (file.fileContent !== "code" || globalSettings.shortenCode) {
+          block += shortenFileData(data, language);
         } else {
           block += highlightCode(data, language);
         }
@@ -710,6 +735,8 @@ function generateBlock(
 
   // Result files
   block += formatFiles(meta, set, "result");
+  block += formatFiles(meta, set, "code");
+  block += formatFiles(meta, set, "other");
 
   block += `</div>`;
   return block;
