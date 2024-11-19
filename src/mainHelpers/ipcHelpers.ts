@@ -37,7 +37,7 @@ import { exportManySetsFS, exportSetFS } from "./html";
 import { getSettings, saveSettings } from "./settings";
 import { version, DEVMODE } from "../constants";
 import { getTenants, logInToCG } from "./codegrade";
-import { saveCredentials } from "./encryption";
+import { checkCredentialExistance, saveCredentials } from "./encryption";
 
 type IpcHandler = (
   event: IpcMainInvokeEvent,
@@ -268,8 +268,14 @@ export function registerHandles() {
       logInToCG(loginDetails, fromSaved)
     )
   );
+
+  // Credentials and encryption
   ipcMain.handle(
     "saveCredentials",
     formatIPCResult((loginDetails) => saveCredentials(loginDetails))
+  );
+  ipcMain.handle(
+    "checkCredentialExistance",
+    formatIPCResult(() => checkCredentialExistance())
   );
 }

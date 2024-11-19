@@ -106,4 +106,6 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("CGLogin", loginDetails, fromSaved),
   saveCredentials: (loginDetails: CodeGradeLogin) =>
     ipcRenderer.invoke("saveCredentials", loginDetails),
+  checkCredentialExistance: () =>
+    ipcRenderer.invoke("checkCredentialExistance"),
 });

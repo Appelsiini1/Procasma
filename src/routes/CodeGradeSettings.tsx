@@ -29,6 +29,8 @@ export default function CodeGradeSettings() {
   });
   const [hasLoginDetails, setHasLoginDetails] = useState<boolean>(false);
   const [checked, setChecked] = useState<boolean>(true);
+  const [hasSavedCredentials, setHasSavedCredentials] =
+    useState<boolean>(false);
 
   async function getTenants() {
     try {
@@ -55,8 +57,16 @@ export default function CodeGradeSettings() {
     }
   }
 
+  async function checkCredentials() {
+    const result = await handleIPCResult(() =>
+      window.api.checkCredentialExistance()
+    );
+    setHasSavedCredentials(result);
+  }
+
   useEffect(() => {
     getTenants();
+    checkCredentials();
   }, []);
 
   useEffect(() => {

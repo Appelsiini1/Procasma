@@ -146,6 +146,9 @@ export function getCredentials() {
   const currentUser = os.userInfo().username;
   try {
     const filePath = path.join(getCacheDir(), "credentials");
+    if (!fs.existsSync(filePath)) {
+      return null;
+    }
     data = fs.readFileSync(filePath, "binary");
     //log.debug(data);
 
@@ -166,4 +169,12 @@ export function getCredentials() {
     log.error(err.message);
     throw err;
   }
+}
+
+export function checkCredentialExistance() {
+  const credentialResult = getCredentials();
+  if (credentialResult) {
+    return true;
+  }
+  return false;
 }
