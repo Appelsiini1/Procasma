@@ -34,7 +34,7 @@ import {
 import { css as papercolorLight } from "../../resource/cssImports/papercolor-light";
 import { platform } from "node:process";
 import { genericModule } from "../defaultObjects";
-import { highlightCode } from "./highlighters";
+import { highlightCode, parseLanguage } from "./highlighters";
 
 const converter = new showdown.Converter(ShowdownOptions);
 
@@ -88,6 +88,7 @@ export function setToFullData(set: ExportSetData): FullAssignmentSetData {
         folder: fullData.folder,
         codeLanguage: fullData.codeLanguage,
         title: fullData.title,
+        extraCredit: fullData.extraCredit,
       };
       assignmentArray.push(newAssignment);
     }
@@ -124,6 +125,7 @@ export function assignmentToFullData(
       folder: fullData.folder,
       codeLanguage: fullData.codeLanguage,
       title: fullData.title,
+      extraCredit: fullData.extraCredit,
     };
   });
 }
@@ -537,10 +539,12 @@ function formatFiles(
           header = parseUICodeMain("file");
         }
         block += `<h3>${header}: '${file.fileName}'</h3>`;
+        const fileLanguage = parseLanguage(
+          filePath,
+          set.assignmentArray[meta.assignmentIndex].codeLanguage
+        );
         const language =
-          file.fileContent === "code"
-            ? set.assignmentArray[meta.assignmentIndex].codeLanguage
-            : "plaintext";
+          file.fileContent === "code" ? fileLanguage : "plaintext";
         //log.debug(globalSettings);
         if (file.fileContent !== "code" || globalSettings.shortenCode) {
           block += shortenFileData(data, language);
