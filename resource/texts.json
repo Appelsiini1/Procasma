@@ -1463,5 +1463,17 @@
   "help_shorten_code": {
     "FI": "Tämä asetus ylikirjoittaa asetuksen tiedostojen lyhentämisestä kooditiedostojen kohdalla. Asetus ei kuitenkaan vaikuta jos tiedostojen lyhennys ei ole päällä.",
     "ENG": "This setting overrides the setting on file shortening in regards to code files. However, this setting will not be taken into account if file shortening is not enabled."
+  },
+  "ui_extracredit": {
+    "FI": "Ylimääräinen tehtävä",
+    "ENG": "Extra credit assignment"
+  },
+  "extracredit_long": {
+    "FI": "Tämä tehtävä on lisätehtävä.",
+    "ENG": "This assignment is extra credit."
+  },
+  "extracredit_toc": {
+    "FI": "Tähdellä (*) merkityt ovat lisätehtäviä.",
+    "ENG": "Assignments marked with a star (*) are extra credit."
   }
 }

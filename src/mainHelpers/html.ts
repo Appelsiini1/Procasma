@@ -661,6 +661,10 @@ function formatTitle(
   if (toc && assignment.level != null) {
     title += ` (${meta.courseData.levels[assignment.level].abbreviation})`;
   }
+
+  if (assignment.extraCredit) {
+    title += " (*)";
+  }
   return title;
 }
 
@@ -715,6 +719,12 @@ function generateBlock(
     block += `<i>${parseUICodeMain("ui_assignment_level")}: ${
       meta.courseData.levels[assignment.level].fullName
     }</i>`;
+  }
+
+  if (assignment?.extraCredit) {
+    block += `<p style="color: red; font-style: italic;"><b>${parseUICodeMain(
+      "extracredit_long"
+    )}</b></p>`;
   }
 
   //Instructions
@@ -794,6 +804,7 @@ function generateToC(
   courseData: CourseData,
   assignments: CodeAssignmentSelectionData[]
 ): string {
+  let hasExtraCredit = false;
   try {
     let block = `<h2>${parseUICodeMain("toc")}</h2>\n`;
     assignments.forEach((assignment, index) => {
@@ -808,8 +819,12 @@ function generateToC(
         true
       )}`;
       block += `</a></h3>`;
+      if (assignment.extraCredit) hasExtraCredit = true;
     });
 
+    if (hasExtraCredit) {
+      block += `<h4><i>${parseUICodeMain("extracredit_toc")}</i></h4>`;
+    }
     return block;
   } catch (err) {
     log.error("Error in generateTOC: " + err.message);
