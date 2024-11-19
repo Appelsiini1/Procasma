@@ -43,6 +43,7 @@ export interface CommonAssignmentData {
   tags: Array<string>;
   module: number | null;
   folder: string; // used to indicate the folder that the assignment is located in under assignmentData
+  extraCredit: boolean;
 }
 
 export interface CodeAssignmentData extends CommonAssignmentData {
@@ -194,6 +195,7 @@ export type CodeAssignmentDatabase = {
   level: number | null;
   isExpanding: boolean;
   path: string;
+  extraCredit: number;
 };
 
 export type ModuleDatabase = {
@@ -332,4 +334,5 @@ export type ContextBridgeAPI = {
   getTenants: () => IpcResult;
   CGLogin: (loginDetails: CodeGradeLogin, fromSaved: boolean) => IpcResult;
   saveCredentials: (loginDetails: CodeGradeLogin) => IpcResult;
+  checkCredentialExistance: () => IpcResult;
 };

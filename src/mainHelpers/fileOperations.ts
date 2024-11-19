@@ -736,6 +736,7 @@ export async function _handleAddImportedAssignmentWithSameFolderFS(
     }
 
     assignment.folder = path.join(assignmentDataFolder, assignmentFolder);
+    assignment.extraCredit = false;
 
     // create variant folders and copy files
     const variations: { [key: string]: Variation } = assignment.variations;

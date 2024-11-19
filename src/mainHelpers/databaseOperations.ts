@@ -97,7 +97,8 @@ export async function initDB(coursePath: string): Promise<string> {
         position TEXT NOT NULL,
         level INTEGER,
         isExpanding INTEGER NOT NULL,
-        path TEXT NOT NULL);`,
+        path TEXT NOT NULL,
+        extra INTEGER NOT NULL);`,
       `CREATE TABLE IF NOT EXISTS modules (
         id INTEGER PRIMARY KEY,
         name TEXT NOT NULL,
@@ -432,8 +433,8 @@ export async function addAssignmentDB(
         db.serialize(() => {
           db.run(
             `INSERT INTO assignments(id, type, title, tags, module, position, 
-            level, isExpanding, path) 
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            level, isExpanding, path, extra) 
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
               assignment.assignmentID,
               assignment.assignmentType,
@@ -444,6 +445,7 @@ export async function addAssignmentDB(
               assignment.level,
               isExpanding(assignment) ? 1 : 0,
               assignment.folder,
+              assignment.extraCredit ? 1 : 0,
             ],
             (err) => {
               if (err) {
@@ -571,6 +573,10 @@ export async function updateAssignmentDB(
       if (oldAssignment.isExpanding !== isExpanding(assignment)) {
         sql += `isExpanding = ?,`;
         params.push(isExpanding(assignment) ? 1 : 0);
+      }
+      if (oldAssignment.extraCredit !== (assignment.extraCredit ? 1 : 0)) {
+        sql += `extra = ?,`;
+        params.push(assignment.extraCredit ? 1 : 0);
       }
 
       if (sql !== `UPDATE assignments SET `) {
