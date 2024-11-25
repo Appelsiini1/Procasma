@@ -63,6 +63,6 @@
     "react-router-dom": "^6.26.2",
     "showdown": "^2.1.0",
     "sqlite3": "^5.1.7",
-    "typescript-eslint": "^8.2.0"
+    "typescript-eslint": "^8.15.0"
   }
 }
