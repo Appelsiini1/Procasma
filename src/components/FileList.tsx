@@ -17,7 +17,7 @@ import {
   deepCopy,
   getFileNameFromPath,
   getFileTypeUsingExtension,
-} from "../rendererHelpers/utility";
+} from "../rendererHelpers/utilityRenderer";
 import { DropzoneComp } from "./DropzoneComp";
 import log from "electron-log/renderer";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";

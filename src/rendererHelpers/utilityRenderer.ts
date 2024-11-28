@@ -2,7 +2,7 @@ import {
   codeExtensions,
   imageExtensions,
   textExtensions,
-} from "../constantsUI";
+} from "../../resource/extensions.json";
 import { FileTypes } from "../types";
 
 /**

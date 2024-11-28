@@ -21,12 +21,12 @@ import {
   dataExtensions,
   imageExtensions,
   textExtensions,
-} from "../constantsUI";
+} from "../../resource/extensions.json";
 import log from "electron-log/node";
 import {
   deepCopy,
   getFileTypeUsingExtension,
-} from "../rendererHelpers/utility";
+} from "../mainHelpers/utilityMain";
 import { defaultExampleRun, defaultFile } from "../defaultObjects";
 import { globalSettings } from "../globalsMain";
 

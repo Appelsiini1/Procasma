@@ -21,7 +21,7 @@ import { parseUICode } from "../rendererHelpers/translation";
 import {
   arrayToString,
   splitStringToArray,
-} from "../generalHelpers/converters";
+} from "../rendererHelpers/converters";
 
 type ComponentProps = {
   varID: string;

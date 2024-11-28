@@ -17,7 +17,7 @@ import { ExampleRunType } from "../types";
 import {
   splitStringToArray,
   arrayToString,
-} from "../generalHelpers/converters";
+} from "../rendererHelpers/converters";
 import { parseUICode } from "../rendererHelpers/translation";
 
 interface ExampleRunProps {

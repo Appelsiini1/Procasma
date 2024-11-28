@@ -7,7 +7,7 @@ import ButtonComp from "../components/ButtonComp";
 import { ModuleData } from "../types";
 import { useModule } from "../rendererHelpers/assignmentHelpers";
 import { defaultModule } from "../defaultObjects";
-import { splitStringToArray } from "../generalHelpers/converters";
+import { splitStringToArray } from "../rendererHelpers/converters";
 import { parseUICode } from "../rendererHelpers/translation";
 import { useContext, useEffect } from "react";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";

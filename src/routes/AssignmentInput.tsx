@@ -26,10 +26,10 @@ import {
   ForceToString,
   splitStringToArray,
   splitStringToNumberArray,
-} from "../generalHelpers/converters";
+} from "../rendererHelpers/converters";
 import { useAssignment } from "../rendererHelpers/assignmentHelpers";
 import VariationsGroup from "../components/VariationsGroup";
-import { deepCopy } from "../rendererHelpers/utility";
+import { deepCopy } from "../rendererHelpers/utilityRenderer";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
