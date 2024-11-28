@@ -1,4 +1,11 @@
-import { CircularProgress, Modal, Stack, Table, Typography } from "@mui/joy";
+import {
+  Alert,
+  CircularProgress,
+  Modal,
+  Stack,
+  Table,
+  Typography,
+} from "@mui/joy";
 import { parseUICode } from "../rendererHelpers/translation";
 import { useContext, useEffect, useState } from "react";
 import Dropdown from "../components/Dropdown";
@@ -13,8 +20,9 @@ import {
 } from "../constantsUI";
 import { CodeGradeLogin, CodeGradeTenant } from "../types";
 import ButtonComp from "../components/ButtonComp";
-import { capitalizeFirstLetter } from "../generalHelpers/capitalize";
+import { capitalizeFirstLetter } from "../rendererHelpers/capitalize";
 import SwitchComp from "../components/SwitchComp";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 export default function CodeGradeSettings() {
   const { handleSnackbar } = useContext(UIContext);
@@ -123,6 +131,35 @@ export default function CodeGradeSettings() {
         {parseUICode("ui_cg_settings")}
       </Typography>
       <div style={{ maxWidth: "80%", minWidth: "50%" }}>
+        {hasSavedCredentials ? (
+          <Alert
+            key={"foundCredentialsAlert"}
+            sx={{ alignItems: "flex-start" }}
+            startDecorator={<CheckCircleIcon />}
+            variant="soft"
+            color={"success"}
+          >
+            <div>
+              <Typography level="body-sm" color={"success"}>
+                {parseUICode("credentials_found")}
+              </Typography>
+            </div>
+          </Alert>
+        ) : (
+          <Alert
+            key={"credentialsNotFoundAlert"}
+            sx={{ alignItems: "flex-start" }}
+            startDecorator={<CheckCircleIcon />}
+            variant="soft"
+            color={"warning"}
+          >
+            <div>
+              <Typography level="body-sm" color={"warning"}>
+                {parseUICode("credentials_not_found")}
+              </Typography>
+            </div>
+          </Alert>
+        )}
         <Table
           borderAxis="none"
           sx={{ minWidth: pageTableMinWidth, maxWidth: pageTableMaxWidth }}
