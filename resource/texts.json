@@ -1475,5 +1475,21 @@
   "extracredit_toc": {
     "FI": "Tähdellä (*) merkityt ovat lisätehtäviä.",
     "ENG": "Assignments marked with a star (*) are extra credit."
+  },
+  "no_CG_credentials": {
+    "FI": "Kirjautumistietoja CodeGradeen ei ole!",
+    "ENG": "No login credentials for CodeGrade!"
+  },
+  "login_failed": {
+    "FI": "Kirjautuminen epäonnistui.",
+    "ENG": "Login failed."
+  },
+  "credentials_found": {
+    "FI": "Tallennetut kirjautumistiedot löydetty. Voit korvata ne kirjautumalla uudelleen.",
+    "ENG": "Saved login credentials found. You can replace them by logging in again."
+  },
+  "credentials_not_found": {
+    "FI": "Tallennettuja kirjautumistietoja ei löydetty.",
+    "ENG": "No saved credentials found."
   }
 }
