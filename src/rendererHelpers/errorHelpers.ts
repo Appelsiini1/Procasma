@@ -1,5 +1,7 @@
+import { DEVMODE } from "../constantsUI";
 import { IpcResult } from "../types";
 import { parseUICode } from "./translation";
+import log from "electron-log/renderer";
 
 /**
  * Wrapper for calls to main from the render process. Throws
@@ -13,6 +15,7 @@ export async function handleIPCResult(IpcCall: () => IpcResult): Promise<any> {
   let result: IpcResult = {};
   try {
     result = await IpcCall();
+    if (DEVMODE) log.debug(IpcCall);
   } catch (err) {
     throw new Error(parseUICode(err.message));
   }
