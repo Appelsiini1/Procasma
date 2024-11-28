@@ -3,7 +3,6 @@ import { globalSettings, language } from "../globalsUI";
 import { useNavigate } from "react-router-dom";
 import { Grid, Stack, Table, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
-import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
 import { SettingsType, SupportedLanguages } from "../types";
 import { useContext, useEffect, useState } from "react";

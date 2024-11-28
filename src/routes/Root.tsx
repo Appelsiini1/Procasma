@@ -1,4 +1,4 @@
-import { dividerSX, smallDividerSX } from "../constantsUI";
+import { DEVMODE, dividerSX, smallDividerSX } from "../constantsUI";
 import LogoText from "../../resource/LogoTextSmall.png";
 import { Box, Divider, Grid, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
@@ -443,6 +443,28 @@ export default function Root() {
               </ButtonComp>
             </Grid>
           </Grid>
+          {DEVMODE ? (
+            <>
+              <Divider sx={dividerSX} role="presentation" />
+              <Grid
+                container
+                direction="row"
+                justifyContent="flex-start"
+                alignItems="center"
+                spacing={3}
+              >
+                <Grid>
+                  <ButtonComp
+                    buttonType="settings"
+                    onClick={() => navigate("/CGDEV")}
+                    ariaLabel={"CGDEV"}
+                  >
+                    {"CG DEV"}
+                  </ButtonComp>
+                </Grid>
+              </Grid>
+            </>
+          ) : null}
           <div className="emptySpace3" />
         </Box>
         <Typography>Procasma {version}</Typography>
