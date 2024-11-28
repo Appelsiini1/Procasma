@@ -89,7 +89,7 @@ class Settings implements SettingsType {
 }
 
 class CodeGradeLoginState {
-  private _apiInstance: Apiv2;
+  private _apiInstance: Apiv2 = null;
 
   set apiInstance(value: Apiv2) {
     this._apiInstance = value;

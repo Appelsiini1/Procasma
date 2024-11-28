@@ -108,4 +108,6 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("saveCredentials", loginDetails),
   checkCredentialExistance: () =>
     ipcRenderer.invoke("checkCredentialExistance"),
+  getATV2Config: (assigID: string) =>
+    ipcRenderer.invoke("getATV2Config", assigID),
 });

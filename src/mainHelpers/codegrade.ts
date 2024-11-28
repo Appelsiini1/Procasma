@@ -13,7 +13,7 @@ export async function getTenants() {
       .then((response) => {
         if (!response.ok) {
           log.error("Error fetching tenants: ", response.body);
-          throw new Error("error_get_tenants");
+          reject(new Error("error_get_tenants"));
         }
         return response.json();
       })
@@ -43,20 +43,45 @@ export async function logInToCG(
   fromSaved: boolean
 ) {
   let credentials: CodeGradeLogin;
-  try {
-    if (!fromSaved && loginDetails === null) {
-      throw new Error("No credentials given");
-    } else if (fromSaved) {
-      credentials = getCredentials();
-    } else {
-      credentials = loginDetails;
+
+  if (!fromSaved && loginDetails === null) {
+    throw new Error("No credentials given");
+  } else if (fromSaved) {
+    credentials = getCredentials();
+    if (!credentials) {
+      throw new Error("no_CG_credentials");
     }
+  } else {
+    credentials = loginDetails;
+  }
+  try {
     const token = await login(credentials);
     setInstance(token, credentials.hostname);
-    log.debug("CG token: ", token);
     return "ui_login_success";
   } catch (err) {
     log.error("Error in logInToCG: ", err.message);
+    throw new Error("login_failed");
+  }
+}
+
+export async function fetchAutoTestConfig(assignmentID: string) {
+  log.debug("Getting autotest config for assignemnt ", assignmentID);
+  if (!cgInstance.apiInstance) {
+    await logInToCG(null, true);
+  }
+  log.debug("Logging ok");
+  try {
+    const output = await cgInstance.apiInstance.getAutoTestConfiguration({
+      assignmentId: assignmentID,
+    });
+    if (output.$metadata.httpStatusCode === 200) {
+      log.debug("Autotest fetch OK");
+      const configString = JSON.stringify(output.configuration);
+      return configString;
+    }
+    return null;
+  } catch (err) {
+    log.error("Error fetching autotest configuration: ", err.message);
     throw err;
   }
 }

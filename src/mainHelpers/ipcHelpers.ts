@@ -1,6 +1,6 @@
 import { IpcMainInvokeEvent, ipcMain, app, BrowserWindow } from "electron";
 import { IpcResult } from "../types";
-import log from "electron-log";
+import log from "electron-log/node";
 
 import { handleDirectorySelect, handleFilesOpen } from "./fileDialog";
 import {
@@ -36,7 +36,7 @@ import { coursePath } from "../globalsMain";
 import { exportManySetsFS, exportSetFS } from "./html";
 import { getSettings, saveSettings } from "./settings";
 import { version, DEVMODE } from "../constants";
-import { getTenants, logInToCG } from "./codegrade";
+import { fetchAutoTestConfig, getTenants, logInToCG } from "./codegrade";
 import { checkCredentialExistance, saveCredentials } from "./encryption";
 
 type IpcHandler = (
@@ -59,6 +59,7 @@ export function formatIPCResult(
       return { content: result };
     } catch (err) {
       log.error("Error in formatIPCResult():", err.message);
+      log.error(mainFunction);
       return { errorMessage: err.message };
     }
   };
@@ -99,7 +100,6 @@ export function registerHandles() {
   ipcMain.on("close-app", (event) => app.quit());
 
   // Bidirectional, renderer to main to renderer
-
   // General
 
   ipcMain.handle(
@@ -277,5 +277,9 @@ export function registerHandles() {
   ipcMain.handle(
     "checkCredentialExistance",
     formatIPCResult(() => checkCredentialExistance())
+  );
+  ipcMain.handle(
+    "getATV2Config",
+    formatIPCResult((assigID) => fetchAutoTestConfig(assigID))
   );
 }

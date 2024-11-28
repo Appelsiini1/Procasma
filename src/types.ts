@@ -333,6 +333,9 @@ export type ContextBridgeAPI = {
   // CodeGrade
   getTenants: () => IpcResult;
   CGLogin: (loginDetails: CodeGradeLogin, fromSaved: boolean) => IpcResult;
+  getATV2Config: (assigID: string) => IpcResult;
+
+  // Credentials and encryption
   saveCredentials: (loginDetails: CodeGradeLogin) => IpcResult;
   checkCredentialExistance: () => IpcResult;
 };
