@@ -13,10 +13,12 @@ import InputField from "./InputField";
 import ButtonComp from "./ButtonComp";
 import { parseUICode } from "../rendererHelpers/translation";
 import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import CGAutoTestComponent from "./CGAutoTestComponent";
 import { Variation } from "../types";
+import { UIContext } from "./Context";
+import log from "electron-log/renderer";
 
 export default function CGConfigComponent({
   open,
@@ -31,11 +33,14 @@ export default function CGConfigComponent({
   pathInAssignment: string;
   variation: Variation;
 }) {
+  const { handleSnackbar } = useContext(UIContext);
   const [idField, setIdField] = useState<string | number>("");
   const [resultConfig, setResultConfig] = useState<any>(null);
   const [ATcomponent, setATcomponent] = useState<JSX.Element>(<></>);
   const [updatePage, setUpdatePage] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [tempSetup, setTempSetup] = useState<string>("");
+  const [tempTests, setTempTests] = useState<string>("");
 
   async function fetchAssignment() {
     setLoading(true);
@@ -44,28 +49,78 @@ export default function CGConfigComponent({
     );
     const resultJSON = JSON.parse(result);
     setResultConfig(resultJSON);
+    const setupPhase = JSON.stringify(resultJSON["setup"]["steps"], null, 2);
+    const testPhase = JSON.stringify(resultJSON["test"]["steps"], null, 2);
+    setTempSetup(setupPhase);
+    setTempTests(testPhase);
     setUpdatePage(!updatePage);
   }
 
   function saveConfig() {
-    handleAssignment(pathInAssignment + ".cgConfig.id", idField);
-    handleAssignment(pathInAssignment + ".cgConfig.atv2", resultConfig);
-    setOpen(false);
+    try {
+      let parsedSetup;
+      let parsedTests;
+
+      tempSetup.length === 0
+        ? (parsedSetup = [])
+        : (parsedSetup = JSON.parse(tempSetup));
+
+      tempTests.length === 0
+        ? (parsedTests = [])
+        : (parsedTests = JSON.parse(tempTests));
+      const finalConfig = {
+        ...resultConfig,
+        setup: parsedSetup,
+        test: parsedTests,
+      };
+      handleAssignment(pathInAssignment + ".cgConfig.id", idField);
+      handleAssignment(pathInAssignment + ".cgConfig.atv2", finalConfig);
+      setOpen(false);
+    } catch (Err) {
+      log.error(Err.message);
+      handleSnackbar({ error: parseUICode("error_cg_config_syntax") });
+    }
   }
 
   useEffect(() => {
     if (Object.keys(variation.cgConfig.atv2).length != 0) {
+      setResultConfig(variation.cgConfig.atv2);
+      const setupPhase = JSON.stringify(
+        variation.cgConfig.atv2["setup"]["steps"],
+        null,
+        2
+      );
+      const testPhase = JSON.stringify(
+        variation.cgConfig.atv2["test"]["steps"],
+        null,
+        2
+      );
+      setTempSetup(setupPhase);
+      setTempTests(testPhase);
       setATcomponent(
-        <CGAutoTestComponent atvConfig={variation.cgConfig.atv2} />
+        <CGAutoTestComponent
+          changeSetup={setTempSetup}
+          changeTests={setTempTests}
+          setupPhase={tempSetup}
+          testPhase={tempTests}
+        />
       );
       setIdField(variation.cgConfig.id);
     }
   }, []);
 
   useEffect(() => {
-    if (resultConfig != null)
-      setATcomponent(<CGAutoTestComponent atvConfig={resultConfig} />);
-    setLoading(false);
+    if (resultConfig != null) {
+      setATcomponent(
+        <CGAutoTestComponent
+          changeSetup={setTempSetup}
+          changeTests={setTempTests}
+          setupPhase={tempSetup}
+          testPhase={tempTests}
+        />
+      );
+      setLoading(false);
+    }
   }, [updatePage]);
 
   return (

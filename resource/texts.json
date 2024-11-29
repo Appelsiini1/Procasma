@@ -1503,5 +1503,9 @@
   "ui_assignment_id": {
     "FI": "Tehtävän tunniste",
     "ENG": "Assignment ID"
+  },
+  "error_cg_config_syntax": {
+    "FI": "Konfiguraatiossa on syntaksivirhe. Varmista, että konfiguraatio on kunnollista JSON'ia.",
+    "ENG": "Configuration has a syntax error. Ensure that the configuration is valid JSON."
   }
 }
