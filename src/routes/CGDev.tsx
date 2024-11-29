@@ -1,18 +1,31 @@
 import log from "electron-log/renderer";
 import InputField from "../components/InputField";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import CGAutoTestComponent from "../components/CGAutoTestComponent";
 
 export default function CGDev() {
   const [assigID, setAssigID] = useState<string>("");
+  const [resultConfig, setResultConfig] = useState<any>(null);
+  const [ATcomponent, setATcomponent] = useState<JSX.Element>(<>Palikka</>);
+  const [updatePage, setUpdatePage] = useState<boolean>(false);
+
   async function getConfig() {
     log.debug("Getting config");
     const result = await handleIPCResult(() =>
       window.api.getATV2Config(assigID)
     );
-    log.debug(JSON.parse(result));
+    const resultJSON = JSON.parse(result);
+    setResultConfig(resultJSON);
+    setUpdatePage(!updatePage);
   }
+
+  useEffect(() => {
+    log.debug("UseEffect resultConfig: ", resultConfig);
+    if (resultConfig != null)
+      setATcomponent(<CGAutoTestComponent atvConfig={resultConfig} />);
+  }, [updatePage]);
   return (
     <>
       Assignment ID:
@@ -29,6 +42,7 @@ export default function CGDev() {
       >
         Get config
       </ButtonComp>
+      {ATcomponent}
     </>
   );
 }
