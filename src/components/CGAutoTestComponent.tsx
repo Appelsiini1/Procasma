@@ -23,7 +23,7 @@ export default function CGAutoTestComponent(atvConfig: any) {
     );
 
     return (
-      <AccordionGroup size="sm" sx={{ width: "100%", marginRight: "2rem" }}>
+      <AccordionGroup size="sm" sx={{ width: "90%", marginRight: "2rem" }}>
         <Accordion sx={{ backgroundColor: "#FaFaFa" }}>
           <AccordionSummary sx={{ backgroundColor: "#D9D9D9" }}>
             <Typography level="h4">{parseUICode("cg_setup")}</Typography>
