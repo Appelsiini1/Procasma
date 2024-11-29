@@ -1,10 +1,6 @@
 import { ConverterOptions } from "showdown";
 import { version as packageVersion } from "../package.json";
 import { devmode } from "./DEVMODE.json";
-import { config } from "dotenv";
-
-// Dotenv config
-config();
 
 export const version = packageVersion;
 export const courseMetaDataFileName = "course_info.json";
