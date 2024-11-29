@@ -1499,5 +1499,9 @@
   "cg_tests": {
     "FI": "Testit",
     "ENG": "Tests"
+  },
+  "ui_assignment_id": {
+    "FI": "Tehtävän tunniste",
+    "ENG": "Assignment ID"
   }
 }
