@@ -5,7 +5,7 @@ import log from "electron-log/node";
 import fs from "fs";
 import { getCacheDir } from "./osOperations";
 import path from "path";
-import os, { hostname } from "os";
+import os from "os";
 
 // Original source: https://stackoverflow.com/questions/49021171/how-to-derive-iv-and-key-to-crypto-createcipheriv-for-decryption
 
@@ -41,29 +41,38 @@ export function encryptString(plaintext: string) {
   return ciphertextAndNonceAndSalt.toString("base64");
 }
 
-export function decryptString(base64CiphertextAndNonceAndSalt: string) {
-  // Decode the base64.
-  let ciphertextAndNonceAndSalt = Buffer.from(
-    base64CiphertextAndNonceAndSalt,
-    "base64"
-  );
+export function decryptString(
+  base64CiphertextAndNonceAndSalt: string
+): string | null {
+  try {
+    // Decode the base64.
+    let ciphertextAndNonceAndSalt = Buffer.from(
+      base64CiphertextAndNonceAndSalt,
+      "base64"
+    );
 
-  // Create buffers of salt and ciphertextAndNonce.
-  let salt = ciphertextAndNonceAndSalt.subarray(0, PBKDF2_SALT_SIZE);
-  let ciphertextAndNonce = ciphertextAndNonceAndSalt.subarray(PBKDF2_SALT_SIZE);
+    // Create buffers of salt and ciphertextAndNonce.
+    let salt = ciphertextAndNonceAndSalt.subarray(0, PBKDF2_SALT_SIZE);
+    let ciphertextAndNonce =
+      ciphertextAndNonceAndSalt.subarray(PBKDF2_SALT_SIZE);
 
-  const keyBytes = getKeyHash();
-  // Derive the key using PBKDF2.
-  let key = crypto.pbkdf2Sync(
-    keyBytes,
-    salt,
-    PBKDF2_ITERATIONS,
-    ALGORITHM_KEY_SIZE,
-    PBKDF2_NAME
-  );
+    const keyBytes = getKeyHash();
+    // Derive the key using PBKDF2.
+    let key = crypto.pbkdf2Sync(
+      keyBytes,
+      salt,
+      PBKDF2_ITERATIONS,
+      ALGORITHM_KEY_SIZE,
+      PBKDF2_NAME
+    );
 
-  // Decrypt and return result.
-  return decrypt(ciphertextAndNonce, key).toString("utf8");
+    // Decrypt and return result.
+    return decrypt(ciphertextAndNonce, key).toString("utf8");
+  } catch (err) {
+    log.error("Error in decryptString():");
+    log.error(err.message);
+    return null;
+  }
 }
 
 function encrypt(plaintext: string | Buffer, key: Buffer) {
@@ -117,10 +126,10 @@ export function saveCredentials(loginDetails: CodeGradeLogin) {
       const encryptedData = encryptString(
         JSON.stringify([{ OSUser: currentUser, ...loginDetails }])
       );
-      fs.writeFileSync(filePath, encryptedData, "binary");
+      fs.writeFileSync(filePath, encryptedData, "base64");
       return "ok";
     } else {
-      const existingData = fs.readFileSync(filePath, "binary");
+      const existingData = fs.readFileSync(filePath, "base64");
       const decryptedData: CGEncryptLogin[] = JSON.parse(
         decryptString(existingData)
       );
@@ -132,7 +141,7 @@ export function saveCredentials(loginDetails: CodeGradeLogin) {
       }
       otherUsers.push({ OSUser: currentUser, ...loginDetails });
       const encryptedData = encryptString(JSON.stringify(otherUsers));
-      fs.writeFileSync(filePath, encryptedData, "binary");
+      fs.writeFileSync(filePath, encryptedData, "base64");
       return "ok";
     }
   } catch (err) {
@@ -149,7 +158,7 @@ export function getCredentials() {
     if (!fs.existsSync(filePath)) {
       return null;
     }
-    data = fs.readFileSync(filePath, "binary");
+    data = fs.readFileSync(filePath, "base64");
     //log.debug(data);
 
     const decryptedData: CGEncryptLogin[] = JSON.parse(decryptString(data));
@@ -166,6 +175,7 @@ export function getCredentials() {
     }
     return null;
   } catch (err) {
+    log.error("Error in getCredentials(): ");
     log.error(err.message);
     throw err;
   }

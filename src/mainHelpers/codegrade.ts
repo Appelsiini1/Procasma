@@ -55,8 +55,12 @@ export async function logInToCG(
     credentials = loginDetails;
   }
   try {
+    log.info(
+      "Logging in with username " + credentials.username.slice(0, 5) + "***"
+    );
     const token = await login(credentials);
     setInstance(token, credentials.hostname);
+    log.info("CG Login ok");
     return "ui_login_success";
   } catch (err) {
     log.error("Error in logInToCG: ", err.message);
@@ -65,11 +69,10 @@ export async function logInToCG(
 }
 
 export async function fetchAutoTestConfig(assignmentID: string) {
-  log.debug("Getting autotest config for assignemnt ", assignmentID);
+  log.info("Getting autotest config for assignemnt ", assignmentID);
   if (!cgInstance.apiInstance) {
     await logInToCG(null, true);
   }
-  log.debug("Logging ok");
   try {
     const output = await cgInstance.apiInstance.getAutoTestConfiguration({
       assignmentId: assignmentID,
