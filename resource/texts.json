@@ -1491,5 +1491,13 @@
   "credentials_not_found": {
     "FI": "Tallennettuja kirjautumistietoja ei löydetty.",
     "ENG": "No saved credentials found."
+  },
+  "cg_setup": {
+    "FI": "Ajon asetukset",
+    "ENG": "Setup"
+  },
+  "cg_tests": {
+    "FI": "Testit",
+    "ENG": "Tests"
   }
 }
