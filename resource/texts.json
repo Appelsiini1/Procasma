@@ -1443,5 +1443,13 @@
   "finalWork": {
     "FI": "Harjoitustyö",
     "ENG": "Final work"
+  },
+  "error_special_in_title": {
+    "FI": "Tehtävän otsikko sisältää kiellettyjä erikoismerkkejä.",
+    "ENG": "Assignment title contains special characters that are not allowed."
+  },
+  "error_special_in_tags": {
+    "FI": "Tehtävän tunnisteet sisältävät kiellettyjä erikoismerkkejä.",
+    "ENG": "Assignment tags contain special characters that are not allowed."
   }
 }

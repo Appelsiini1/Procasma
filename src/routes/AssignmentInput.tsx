@@ -29,7 +29,7 @@ import {
 } from "../generalHelpers/converters";
 import { useAssignment } from "../rendererHelpers/assignmentHelpers";
 import VariationsGroup from "../components/VariationsGroup";
-import { deepCopy } from "../rendererHelpers/utility";
+import { checkSpecial, deepCopy } from "../rendererHelpers/utility";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
@@ -157,26 +157,35 @@ export default function AssignmentInput() {
   async function handleSaveAssignment() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_assignment_save_success";
-    try {
-      if (pageType === "manage") {
-        await handleIPCResult(() =>
-          window.api.handleUpdateAssignmentFS(assignment, activePath)
-        );
-      } else {
-        const addedAssignment: CodeAssignmentData = await handleIPCResult(() =>
-          window.api.handleAddAssignmentFS(assignment, activePath)
-        );
-        // use the generated id from main
-        handleAssignment("assignmentID", addedAssignment.assignmentID);
+
+    const specialInTitle = checkSpecial(assignment.title);
+    const specialInTags = checkSpecial(arrayToString(assignment.tags));
+    if (specialInTitle.special || specialInTitle.comma) {
+      handleSnackbar({ error: parseUICode("error_special_in_title") });
+    } else if (specialInTags.special) {
+      handleSnackbar({ error: parseUICode("error_special_in_tags") });
+    } else {
+      try {
+        if (pageType === "manage") {
+          await handleIPCResult(() =>
+            window.api.handleUpdateAssignmentFS(assignment, activePath)
+          );
+        } else {
+          const addedAssignment: CodeAssignmentData = await handleIPCResult(
+            () => window.api.handleAddAssignmentFS(assignment, activePath)
+          );
+          // use the generated id from main
+          handleAssignment("assignmentID", addedAssignment.assignmentID);
+        }
+        handleActiveAssignment(null);
+        handleTempAssignment(null);
+      } catch (err) {
+        snackbarText = err.message;
+        snackbarSeverity = "error";
       }
-      handleActiveAssignment(null);
-      handleTempAssignment(null);
-    } catch (err) {
-      snackbarText = err.message;
-      snackbarSeverity = "error";
+      handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
+      navigate(-1);
     }
-    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
-    navigate(-1);
   }
 
   // Update the selected assignments
