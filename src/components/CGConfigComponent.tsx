@@ -5,9 +5,13 @@ import {
   Modal,
   ModalClose,
   ModalDialog,
-  Sheet,
   Stack,
   Typography,
+  Accordion,
+  AccordionDetails,
+  AccordionGroup,
+  AccordionSummary,
+  Textarea,
 } from "@mui/joy";
 import InputField from "./InputField";
 import ButtonComp from "./ButtonComp";
@@ -15,7 +19,6 @@ import { parseUICode } from "../rendererHelpers/translation";
 import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
 import { useContext, useEffect, useState } from "react";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
-import CGAutoTestComponent from "./CGAutoTestComponent";
 import { Variation } from "../types";
 import { UIContext } from "./Context";
 import log from "electron-log/renderer";
@@ -36,7 +39,7 @@ export default function CGConfigComponent({
   const { handleSnackbar } = useContext(UIContext);
   const [idField, setIdField] = useState<string | number>("");
   const [resultConfig, setResultConfig] = useState<any>(null);
-  const [ATcomponent, setATcomponent] = useState<JSX.Element>(<></>);
+  const [showAT, setShowAT] = useState<boolean>(false);
   const [updatePage, setUpdatePage] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [tempSetup, setTempSetup] = useState<string>("");
@@ -77,7 +80,7 @@ export default function CGConfigComponent({
       handleAssignment(pathInAssignment + ".cgConfig.atv2", finalConfig);
       setOpen(false);
     } catch (Err) {
-      log.error(Err.message);
+      log.error("Error in CG saveconfig(): ", Err.message);
       handleSnackbar({ error: parseUICode("error_cg_config_syntax") });
     }
   }
@@ -97,28 +100,14 @@ export default function CGConfigComponent({
       );
       setTempSetup(setupPhase);
       setTempTests(testPhase);
-      setATcomponent(
-        <CGAutoTestComponent
-          changeSetup={setTempSetup}
-          changeTests={setTempTests}
-          setupPhase={tempSetup}
-          testPhase={tempTests}
-        />
-      );
+      setShowAT(true);
       setIdField(variation.cgConfig.id);
     }
   }, []);
 
   useEffect(() => {
     if (resultConfig != null) {
-      setATcomponent(
-        <CGAutoTestComponent
-          changeSetup={setTempSetup}
-          changeTests={setTempTests}
-          setupPhase={tempSetup}
-          testPhase={tempTests}
-        />
-      );
+      setShowAT(true);
       setLoading(false);
     }
   }, [updatePage]);
@@ -182,7 +171,53 @@ export default function CGConfigComponent({
             ""
           )}
           <div className="emptySpace1"></div>
-          {ATcomponent}
+          {showAT ? (
+            <AccordionGroup
+              size="sm"
+              sx={{ width: "90%", marginRight: "2rem" }}
+            >
+              <Accordion sx={{ backgroundColor: "#FaFaFa" }}>
+                <AccordionSummary sx={{ backgroundColor: "#D9D9D9" }}>
+                  <Typography level="h4">{parseUICode("cg_setup")}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Box sx={{ padding: "1em" }}>
+                    <Textarea
+                      sx={{ maxWidth: "100%", minWidth: "10em" }}
+                      key="cgConfigSetupInput"
+                      onChange={(event) =>
+                        setTempSetup(String(event.target.value))
+                      }
+                      defaultValue={tempSetup}
+                      minRows={5}
+                      maxRows={20}
+                    ></Textarea>
+                  </Box>
+                </AccordionDetails>
+              </Accordion>
+              <Accordion sx={{ backgroundColor: "#FaFaFa" }}>
+                <AccordionSummary sx={{ backgroundColor: "#D9D9D9" }}>
+                  <Typography level="h4">{parseUICode("cg_tests")}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Box sx={{ padding: "1em" }}>
+                    <Textarea
+                      sx={{ maxWidth: "100%", minWidth: "10em" }}
+                      key="cgConfigSetupInput"
+                      onChange={(event) =>
+                        setTempTests(String(event.target.value))
+                      }
+                      value={tempTests}
+                      minRows={5}
+                      maxRows={20}
+                    ></Textarea>
+                  </Box>
+                </AccordionDetails>
+              </Accordion>
+            </AccordionGroup>
+          ) : (
+            ""
+          )}
         </Box>
 
         <Stack

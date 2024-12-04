@@ -3,7 +3,6 @@ import InputField from "../components/InputField";
 import { useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
-import CGAutoTestComponent from "../components/CGAutoTestComponent";
 
 export default function CGDev() {
   const [assigID, setAssigID] = useState<string>("");
@@ -23,15 +22,7 @@ export default function CGDev() {
 
   useEffect(() => {
     log.debug("UseEffect resultConfig: ", resultConfig);
-    if (resultConfig != null)
-      setATcomponent(
-        <CGAutoTestComponent
-          setupPhase={JSON.stringify(resultConfig["setup"])}
-          testPhase={JSON.stringify(resultConfig["test"])}
-          changeSetup={null}
-          changeTests={null}
-        />
-      );
+    if (resultConfig != null) setATcomponent(<></>);
   }, [updatePage]);
   return (
     <>
