@@ -1436,9 +1436,9 @@
     "FI": "Ladataan...",
     "ENG": "Loading..."
   },
-  "ui_cg_settings": {
-    "FI": "CodeGrade asetukset",
-    "ENG": "CodeGrade Settings"
+  "ui_cg": {
+    "FI": "CodeGrade",
+    "ENG": "CodeGrade"
   },
   "error_get_tenants": {
     "FI": "Organisaatioiden haku epäonnistui",

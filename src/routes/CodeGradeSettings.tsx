@@ -128,13 +128,17 @@ export default function CodeGradeSettings() {
       </Modal>
 
       <Typography level="h1" sx={{ marginBottom: "1em" }}>
-        {parseUICode("ui_cg_settings")}
+        {parseUICode("ui_cg") + " " + parseUICode("ui_settings")}
       </Typography>
       <div style={{ maxWidth: "80%", minWidth: "50%" }}>
         {hasSavedCredentials ? (
           <Alert
             key={"foundCredentialsAlert"}
-            sx={{ alignItems: "flex-start" }}
+            sx={{
+              alignItems: "flex-start",
+              minWidth: pageTableMinWidth,
+              maxWidth: pageTableMaxWidth,
+            }}
             startDecorator={<CheckCircleIcon />}
             variant="soft"
             color={"success"}
@@ -148,7 +152,11 @@ export default function CodeGradeSettings() {
         ) : (
           <Alert
             key={"credentialsNotFoundAlert"}
-            sx={{ alignItems: "flex-start" }}
+            sx={{
+              alignItems: "flex-start",
+              minWidth: pageTableMinWidth,
+              maxWidth: pageTableMaxWidth,
+            }}
             startDecorator={<CheckCircleIcon />}
             variant="soft"
             color={"warning"}

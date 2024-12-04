@@ -428,9 +428,9 @@ export default function Root() {
               <ButtonComp
                 buttonType="settings"
                 onClick={() => navigate("/codegradeSettings")}
-                ariaLabel={parseUICode("ui_cg_settings")}
+                ariaLabel={parseUICode("ui_cg")}
               >
-                {parseUICode("ui_cg_settings")}
+                {parseUICode("ui_cg")}
               </ButtonComp>
             </Grid>
             <Grid>
