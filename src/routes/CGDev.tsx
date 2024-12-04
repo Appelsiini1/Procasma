@@ -24,7 +24,14 @@ export default function CGDev() {
   useEffect(() => {
     log.debug("UseEffect resultConfig: ", resultConfig);
     if (resultConfig != null)
-      setATcomponent(<CGAutoTestComponent atvConfig={resultConfig} />);
+      setATcomponent(
+        <CGAutoTestComponent
+          setupPhase={JSON.stringify(resultConfig["setup"])}
+          testPhase={JSON.stringify(resultConfig["test"])}
+          changeSetup={null}
+          changeTests={null}
+        />
+      );
   }, [updatePage]);
   return (
     <>
