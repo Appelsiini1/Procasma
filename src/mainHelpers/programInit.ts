@@ -10,7 +10,6 @@ import {
   getSettingsFilepath,
 } from "./osOperations";
 import { globalSettings } from "../globalsMain";
-import findChrome from "../chrome-finder/finder";
 
 export function initialize() {
   try {
@@ -25,13 +24,6 @@ export function initialize() {
       if (!fs.existsSync(getDarwinSettingsDir())) {
         createFolderFS(getDarwinSettingsDir());
       }
-    }
-    try {
-      const chromePath = findChrome();
-      globalSettings.chromePath = chromePath;
-      log.debug(chromePath);
-    } catch (err) {
-      log.error(err);
     }
     if (!fs.existsSync(getSettingsFilepath())) {
       saveSettings(globalSettings.toJSON());
