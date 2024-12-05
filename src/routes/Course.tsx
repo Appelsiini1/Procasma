@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router";
 import texts from "../../resource/texts.json";
 import {
   supportedModuleTypes,

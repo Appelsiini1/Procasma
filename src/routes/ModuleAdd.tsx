@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router";
 import { Grid, Stack, Table, Typography } from "@mui/joy";
 import InputField from "../components/InputField";
 import NumberInput from "../components/NumberInput";

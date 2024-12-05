@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import { createHashRouter, RouterProvider } from "react-router-dom";
+import { createHashRouter, RouterProvider } from "react-router";
 import ErrorPage from "./routes/ErrorPage";
 import Root from "./routes/Root";
 import Course from "./routes/Course";

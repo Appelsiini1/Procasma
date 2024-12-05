@@ -3,7 +3,7 @@ import {
   useLocation,
   useNavigate,
   useRouteError,
-} from "react-router-dom";
+} from "react-router";
 import {
   error_occured_header,
   error_occured,

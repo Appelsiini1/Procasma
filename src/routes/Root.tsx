@@ -2,7 +2,7 @@ import { DEVMODE, dividerSX, smallDividerSX } from "../constantsUI";
 import LogoText from "../../resource/LogoTextSmall.png";
 import { Box, Divider, Grid, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import FadeInImage from "../components/FadeInImage";
 import { CodeAssignmentData, CourseData, ModuleData, SetData } from "../types";
 import { useContext, useEffect, useState } from "react";

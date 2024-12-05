@@ -1,6 +1,6 @@
 import texts from "../../resource/texts.json";
 import { globalSettings, language } from "../globalsUI";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { Grid, Stack, Table, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
 import Dropdown from "../components/Dropdown";
