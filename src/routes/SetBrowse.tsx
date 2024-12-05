@@ -218,6 +218,7 @@ export default function SetBrowse() {
             border: "2px solid lightgrey",
             borderRadius: "0.5rem",
           }}
+          overflow={"auto"}
         >
           <List>{sets}</List>
         </Box>
