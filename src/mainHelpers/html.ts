@@ -551,7 +551,6 @@ function formatFiles(
         } else {
           block += highlightCode(data, language);
         }
-        log.debug(block);
       } else if (
         !file.solution &&
         (file.showStudent === true || includeAnswer === true) &&
