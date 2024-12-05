@@ -95,7 +95,6 @@ export async function createPDF(input: PDFHtmlInput, path: string) {
     log.info("Starting PDF creation...");
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: globalSettings.chromePath,
     });
     log.info("Puppeteer launched.");
     const page = await browser.newPage();

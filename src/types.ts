@@ -98,7 +98,6 @@ export interface SettingsType {
   language: string;
   shortenFiles: boolean;
   fileMaxLinesDisplay: number;
-  chromePath: string;
   shortenCode: boolean;
 }
 

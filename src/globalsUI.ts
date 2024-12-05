@@ -103,7 +103,6 @@ class Settings implements SettingsType {
   private _language: string;
   private _shortenFiles: boolean;
   private _fileMaxLinesDisplay: number;
-  private _chromePath: string;
   private _shortenCode: boolean;
 
   get codeLanguages() {
@@ -117,9 +116,6 @@ class Settings implements SettingsType {
   }
   get fileMaxLinesDisplay() {
     return this._fileMaxLinesDisplay;
-  }
-  get chromePath() {
-    return this._chromePath;
   }
   get shortenCode() {
     return this._shortenCode;
@@ -155,7 +151,6 @@ class Settings implements SettingsType {
       language: this._language,
       shortenFiles: this._shortenFiles,
       fileMaxLinesDisplay: this._fileMaxLinesDisplay,
-      chromePath: this._chromePath,
       shortenCode: this._shortenCode,
     };
   }
@@ -166,7 +161,6 @@ class Settings implements SettingsType {
       language: this._language,
       shortenFiles: this._shortenFiles,
       fileMaxLinesDisplay: this._fileMaxLinesDisplay,
-      chromePath: this._chromePath,
       shortenCode: this._shortenCode,
     };
   }
@@ -175,7 +169,6 @@ class Settings implements SettingsType {
     this._language = data.language;
     this._shortenFiles = data.shortenFiles;
     this._fileMaxLinesDisplay = data.fileMaxLinesDisplay;
-    this._chromePath = data.chromePath;
     this._shortenCode = data.shortenCode;
 
     const newCLS = [];
