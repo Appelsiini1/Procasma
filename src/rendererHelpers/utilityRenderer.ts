@@ -37,3 +37,12 @@ export function getFileTypeUsingExtension(str: string): FileTypes {
     return null;
   }
 }
+
+const specialRegex = /(?:[!@#$%^&*().?":{}|<>=])/gim;
+const commaRegex = /(?:[,])/gim;
+
+export function checkSpecial(str: string) {
+  const result = specialRegex.test(str);
+  const comma = commaRegex.test(str);
+  return { special: result, comma: comma };
+}

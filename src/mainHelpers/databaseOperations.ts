@@ -721,13 +721,23 @@ export async function getFilteredAssignmentsDB(
 
       // form the query extension for the modules
       if (filters?.module?.length > 0) {
-        if (uniqueIds.length > 0) {
+        if (queryExtension.length > 0) {
           queryExtension += " AND";
         }
 
         const filterPlaceholders = filters.module.map(() => "?").join(",");
         queryExtension += ` modules.name IN (${filterPlaceholders})`;
         ids = ids.concat(filters.module);
+      }
+
+      // form the query extension for the assignment type
+      if (filters?.assignmentType?.length > 0) {
+        if (queryExtension.length > 0) {
+          queryExtension += " AND";
+        }
+
+        queryExtension += ` assignments.type IN (?)`;
+        ids = ids.concat(filters.assignmentType);
       }
 
       if (queryExtension.length > 0) {

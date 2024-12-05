@@ -1507,5 +1507,21 @@
   "error_cg_config_syntax": {
     "FI": "Konfiguraatiossa on syntaksivirhe. Varmista, että konfiguraatio on kunnollista JSON'ia.",
     "ENG": "Configuration has a syntax error. Ensure that the configuration is valid JSON."
+  },
+  "assignment": {
+    "FI": "Tehtävä",
+    "ENG": "Assignment"
+  },
+  "finalWork": {
+    "FI": "Harjoitustyö",
+    "ENG": "Final work"
+  },
+  "error_special_in_title": {
+    "FI": "Tehtävän otsikko sisältää kiellettyjä erikoismerkkejä.",
+    "ENG": "Assignment title contains special characters that are not allowed."
+  },
+  "error_special_in_tags": {
+    "FI": "Tehtävän tunnisteet sisältävät kiellettyjä erikoismerkkejä.",
+    "ENG": "Assignment tags contain special characters that are not allowed."
   }
 }

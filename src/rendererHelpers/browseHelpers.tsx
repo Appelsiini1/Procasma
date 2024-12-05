@@ -544,7 +544,8 @@ export function setSelectedViaChecked(
  */
 export function generateFilterList(
   uniques: filterState[],
-  setUniques: React.Dispatch<React.SetStateAction<filterState[]>>
+  setUniques: React.Dispatch<React.SetStateAction<filterState[]>>,
+  useParseUICode?: boolean
 ): Array<React.JSX.Element> {
   const filters = uniques
     ? uniques.map((unique, index) => {
@@ -566,7 +567,9 @@ export function generateFilterList(
                 handleCheckArray(unique.value, !unique.isChecked, setUniques)
               }
             >
-              {String(unique.value)}
+              {String(
+                useParseUICode ? parseUICode(unique.value) : unique.value
+              )}
             </ListItemButton>
           </ListItem>
         );
