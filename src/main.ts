@@ -1,5 +1,8 @@
 import { app, BrowserWindow, Menu } from "electron";
 import path from "path";
+import { config } from "dotenv";
+// Dotenv config
+config();
 import { version, DEVMODE } from "./constants";
 import { initialize } from "./mainHelpers/programInit";
 import log from "electron-log";

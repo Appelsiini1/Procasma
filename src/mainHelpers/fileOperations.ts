@@ -13,7 +13,7 @@ import {
   SetVariation,
   Variation,
 } from "../types";
-import { spacesToUnderscores } from "../generalHelpers/converters";
+import { spacesToUnderscores } from "../mainHelpers/convertersMain";
 import {
   assignmentDataFolder,
   courseMetaDataFileName,
@@ -35,7 +35,7 @@ import log from "electron-log/node";
 import { createPDF, generateHeaderFooter } from "./pdf";
 import { parseUICodeMain } from "./language";
 import { platform } from "process";
-import { deepCopy } from "../rendererHelpers/utility";
+import { deepCopy } from "../mainHelpers/utilityMain";
 import {
   defaultAssignment,
   defaultModule,
@@ -736,6 +736,7 @@ export async function _handleAddImportedAssignmentWithSameFolderFS(
     }
 
     assignment.folder = path.join(assignmentDataFolder, assignmentFolder);
+    assignment.extraCredit = false;
 
     // create variant folders and copy files
     const variations: { [key: string]: Variation } = assignment.variations;

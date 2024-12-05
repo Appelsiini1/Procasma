@@ -1,7 +1,7 @@
 {
   "name": "procasma",
   "productName": "Procasma",
-  "version": "1.4.3",
+  "version": "1.4.6",
   "description": "Dynamic Assignment Manager",
   "main": ".vite/build/main.js",
   "scripts": {
@@ -35,7 +35,8 @@
     "rollup-plugin-visualizer": "^5.12.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2",
-    "vite": "^5.4.10"
+    "vite": "^5.4.10",
+    "typescript-eslint": "^8.2.0"
   },
   "keywords": [],
   "author": {
@@ -62,7 +63,6 @@
     "react-dropzone": "^14.2.3",
     "react-router-dom": "^6.26.2",
     "showdown": "^2.1.0",
-    "sqlite3": "^5.1.7",
-    "typescript-eslint": "^8.2.0"
+    "sqlite3": "^5.1.7"
   }
 }

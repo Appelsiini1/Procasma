@@ -34,7 +34,7 @@ import {
 import { css as papercolorLight } from "../../resource/cssImports/papercolor-light";
 import { platform } from "node:process";
 import { genericModule } from "../defaultObjects";
-import { highlightCode } from "./highlighters";
+import { highlightCode, parseLanguage } from "./highlighters";
 
 const converter = new showdown.Converter(ShowdownOptions);
 
@@ -88,6 +88,7 @@ export function setToFullData(set: ExportSetData): FullAssignmentSetData {
         folder: fullData.folder,
         codeLanguage: fullData.codeLanguage,
         title: fullData.title,
+        extraCredit: fullData.extraCredit,
       };
       assignmentArray.push(newAssignment);
     }
@@ -124,6 +125,7 @@ export function assignmentToFullData(
       folder: fullData.folder,
       codeLanguage: fullData.codeLanguage,
       title: fullData.title,
+      extraCredit: fullData.extraCredit,
     };
   });
 }
@@ -457,6 +459,35 @@ function formatSolutions(
 }
 
 /**
+ * Shortens the filedata to the spesified length if the length is long enough.
+ * @param data File data as string
+ * @param language Highlight language
+ * @returns Formatted file contents
+ */
+function shortenFileData(data: string, language: string) {
+  let block = "";
+  if (
+    data.split("\n").length > globalSettings.fileMaxLinesDisplay &&
+    globalSettings.shortenFiles
+  ) {
+    const splitLines = data.split("\n");
+    const half = globalSettings.fileMaxLinesDisplay / 2;
+    const firstHalf = splitLines.slice(0, half);
+    const secondHalf = splitLines.slice(-(half + 1));
+
+    const newData = `${firstHalf.join("\n")}\n...\n${secondHalf.join("\n")}`;
+
+    block += `<p style="color: red; font-style: italic;">${parseUICodeMain(
+      "file_shortened"
+    )}</p>`;
+    block += highlightCode(newData, language);
+  } else {
+    block += highlightCode(data, language);
+  }
+  return block;
+}
+
+/**
  * Formats files that are not solution files. Will make titles based on file content type.
  * @param meta Course data and assignment index
  * @param set Set data
@@ -497,28 +528,26 @@ function formatFiles(
           newName
         );
         const data = readFileSync(filePath, "utf8");
-        block += `<h3>${parseUICodeMain(
-          type === "data" ? "input_datafile" : "ex_resultfile"
-        )}: '${file.fileName}'</h3>`;
+        let header;
+        if (type === "data") {
+          header = parseUICodeMain("input_datafile");
+        } else if (type === "result") {
+          header = parseUICodeMain("ex_resultfile");
+        } else if (type === "code") {
+          header = parseUICodeMain("ui_codefile");
+        } else {
+          header = parseUICodeMain("file");
+        }
+        block += `<h3>${header}: '${file.fileName}'</h3>`;
+        const fileLanguage = parseLanguage(
+          filePath,
+          set.assignmentArray[meta.assignmentIndex].codeLanguage
+        );
         const language =
-          file.fileContent === "code"
-            ? set.assignmentArray[meta.assignmentIndex].codeLanguage
-            : "plaintext";
+          file.fileContent === "code" ? fileLanguage : "plaintext";
         //log.debug(globalSettings);
-        if (data.split("\n").length > globalSettings.fileMaxLinesDisplay) {
-          const splitLines = data.split("\n");
-          const half = globalSettings.fileMaxLinesDisplay / 2;
-          const firstHalf = splitLines.slice(0, half);
-          const secondHalf = splitLines.slice(-(half + 1));
-
-          const newData = `${firstHalf.join("\n")}\n...\n${secondHalf.join(
-            "\n"
-          )}`;
-
-          block += `<p style="color: red; font-style: italic;">${parseUICodeMain(
-            "file_shortened"
-          )}</p>`;
-          block += highlightCode(newData, language);
+        if (file.fileContent !== "code" || globalSettings.shortenCode) {
+          block += shortenFileData(data, language);
         } else {
           block += highlightCode(data, language);
         }
@@ -634,6 +663,10 @@ function formatTitle(
   if (toc && assignment.level != null) {
     title += ` (${meta.courseData.levels[assignment.level].abbreviation})`;
   }
+
+  if (assignment.extraCredit) {
+    title += " (*)";
+  }
   return title;
 }
 
@@ -692,6 +725,12 @@ function generateBlock(
     }</i>`;
   }
 
+  if (assignment?.extraCredit) {
+    block += `<p style="color: red; font-style: italic;"><b>${parseUICodeMain(
+      "extracredit_long"
+    )}</b></p>`;
+  }
+
   //Instructions
   // block += `<p>`;
   block += formatMarkdown(
@@ -714,6 +753,8 @@ function generateBlock(
 
   // Result files
   block += formatFiles(meta, set, "result", includeAnswer);
+  block += formatFiles(meta, set, "code", includeAnswer);
+  block += formatFiles(meta, set, "other", includeAnswer);
 
   block += `</div>`;
   return block;
@@ -767,6 +808,7 @@ function generateToC(
   courseData: CourseData,
   assignments: CodeAssignmentSelectionData[]
 ): string {
+  let hasExtraCredit = false;
   try {
     let block = `<h2>${parseUICodeMain("toc")}</h2>\n`;
     assignments.forEach((assignment, index) => {
@@ -781,8 +823,12 @@ function generateToC(
         true
       )}`;
       block += `</a></h3>`;
+      if (assignment.extraCredit) hasExtraCredit = true;
     });
 
+    if (hasExtraCredit) {
+      block += `<h4><i>${parseUICodeMain("extracredit_toc")}</i></h4>`;
+    }
     return block;
   } catch (err) {
     log.error("Error in generateTOC: " + err.message);

@@ -1,3 +1,4 @@
+import { Apiv2 } from "@codegrade/apiv2-client";
 import { CodeLanguage, SettingsType } from "./types";
 
 class CurrentPath {
@@ -17,6 +18,7 @@ class Settings implements SettingsType {
   private _shortenFiles: boolean;
   private _fileMaxLinesDisplay: number;
   private _chromePath: string;
+  private _shortenCode: boolean;
 
   get codeLanguages() {
     return this._codeLanguages;
@@ -35,6 +37,9 @@ class Settings implements SettingsType {
   }
   set chromePath(path: string) {
     this._chromePath = path;
+  }
+  get shortenCode() {
+    return this._shortenCode;
   }
 
   constructor() {
@@ -59,6 +64,7 @@ class Settings implements SettingsType {
     this._shortenFiles = data.shortenFiles;
     this._fileMaxLinesDisplay = data.fileMaxLinesDisplay;
     this._chromePath = data.chromePath;
+    this._shortenCode = data.shortenCode;
   }
 
   toJSON() {
@@ -68,6 +74,7 @@ class Settings implements SettingsType {
       shortenFiles: this._shortenFiles,
       fileMaxLinesDisplay: this._fileMaxLinesDisplay,
       chromePath: this._chromePath,
+      shortenCode: this._shortenCode,
     };
   }
 
@@ -81,5 +88,18 @@ class Settings implements SettingsType {
   }
 }
 
+class CodeGradeLoginState {
+  private _apiInstance: Apiv2 = null;
+
+  set apiInstance(value: Apiv2) {
+    this._apiInstance = value;
+  }
+
+  get apiInstance() {
+    return this._apiInstance;
+  }
+}
+
 export const coursePath = new CurrentPath();
 export const globalSettings = new Settings();
+export const cgInstance = new CodeGradeLoginState();

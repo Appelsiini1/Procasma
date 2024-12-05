@@ -104,6 +104,7 @@ class Settings implements SettingsType {
   private _shortenFiles: boolean;
   private _fileMaxLinesDisplay: number;
   private _chromePath: string;
+  private _shortenCode: boolean;
 
   get codeLanguages() {
     return this._codeLanguages;
@@ -120,6 +121,9 @@ class Settings implements SettingsType {
   get chromePath() {
     return this._chromePath;
   }
+  get shortenCode() {
+    return this._shortenCode;
+  }
 
   constructor() {
     this._codeLanguages = [
@@ -135,6 +139,7 @@ class Settings implements SettingsType {
     this._language = "ENG";
     this._shortenFiles = true;
     this._fileMaxLinesDisplay = 15;
+    this._shortenCode = false;
   }
 
   set values(data: SettingsType) {
@@ -142,6 +147,7 @@ class Settings implements SettingsType {
     this._language = data.language;
     this._shortenFiles = data.shortenFiles;
     this._fileMaxLinesDisplay = data.fileMaxLinesDisplay;
+    this._shortenCode = data.shortenCode;
   }
   get values() {
     return {
@@ -150,6 +156,7 @@ class Settings implements SettingsType {
       shortenFiles: this._shortenFiles,
       fileMaxLinesDisplay: this._fileMaxLinesDisplay,
       chromePath: this._chromePath,
+      shortenCode: this._shortenCode,
     };
   }
 
@@ -160,6 +167,7 @@ class Settings implements SettingsType {
       shortenFiles: this._shortenFiles,
       fileMaxLinesDisplay: this._fileMaxLinesDisplay,
       chromePath: this._chromePath,
+      shortenCode: this._shortenCode,
     };
   }
 
@@ -168,6 +176,7 @@ class Settings implements SettingsType {
     this._shortenFiles = data.shortenFiles;
     this._fileMaxLinesDisplay = data.fileMaxLinesDisplay;
     this._chromePath = data.chromePath;
+    this._shortenCode = data.shortenCode;
 
     const newCLS = [];
     for (const cl of data.codeLanguages) {

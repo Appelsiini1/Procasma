@@ -30,6 +30,8 @@ import LicensesPage from "./routes/LicensesPage";
 import { DEVMODE } from "./constantsUI";
 import { Modal, ModalClose, ModalDialog, Typography } from "@mui/joy";
 import { parseUICode } from "./rendererHelpers/translation";
+import CodeGradeSettings from "./routes/CodeGradeSettings";
+import CGDev from "./routes/CGDev";
 
 log.info("-- START OF PROCASMA RENDERER --");
 log.info(`DEVMODE: ${DEVMODE}`);
@@ -139,6 +141,11 @@ const App = () => {
           path: "/licenses",
           element: <LicensesPage />,
         },
+        {
+          path: "/codegradeSettings",
+          element: <CodeGradeSettings />,
+        },
+        { path: "/CGDev", element: <CGDev /> },
       ],
     },
   ]);

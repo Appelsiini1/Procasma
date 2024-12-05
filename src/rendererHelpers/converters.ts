@@ -57,10 +57,6 @@ export function courseLevelsToString(levels: LevelsType[]): string {
   return result;
 }
 
-export function spacesToUnderscores(input: string): string {
-  return input.replace(/ /g, "_");
-}
-
 /**
  * Try to convert anything to string. Return empty string on fail.
  */

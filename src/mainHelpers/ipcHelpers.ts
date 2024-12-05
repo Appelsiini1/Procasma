@@ -1,6 +1,6 @@
 import { IpcMainInvokeEvent, ipcMain, app, BrowserWindow } from "electron";
 import { IpcResult } from "../types";
-import log from "electron-log";
+import log from "electron-log/node";
 
 import { handleDirectorySelect, handleFilesOpen } from "./fileDialog";
 import {
@@ -36,6 +36,8 @@ import { coursePath } from "../globalsMain";
 import { exportManySetsFS, exportSetFS } from "./html";
 import { getSettings, saveSettings } from "./settings";
 import { version, DEVMODE } from "../constants";
+import { fetchAutoTestConfig, getTenants, logInToCG } from "./codegrade";
+import { checkCredentialExistance, saveCredentials } from "./encryption";
 
 type IpcHandler = (
   event: IpcMainInvokeEvent,
@@ -49,14 +51,15 @@ type IpcHandler = (
  * for the render process.
  */
 export function formatIPCResult(
-  databaseFunction: (...args: any[]) => Promise<any> | any
+  mainFunction: (...args: any[]) => Promise<any> | any
 ): IpcHandler {
   return async (event: IpcMainInvokeEvent, ...args: any[]) => {
     try {
-      const result = await databaseFunction(...args);
+      const result = await mainFunction(...args);
       return { content: result };
     } catch (err) {
       log.error("Error in formatIPCResult():", err.message);
+      log.error(mainFunction);
       return { errorMessage: err.message };
     }
   };
@@ -97,7 +100,6 @@ export function registerHandles() {
   ipcMain.on("close-app", (event) => app.quit());
 
   // Bidirectional, renderer to main to renderer
-
   // General
 
   ipcMain.handle(
@@ -253,5 +255,31 @@ export function registerHandles() {
     formatIPCResult((setInput, courseData, savePath) =>
       exportManySetsFS(setInput, courseData, savePath)
     )
+  );
+
+  // CodeGrade
+  ipcMain.handle(
+    "getTenants",
+    formatIPCResult(() => getTenants())
+  );
+  ipcMain.handle(
+    "CGLogin",
+    formatIPCResult((loginDetails, fromSaved) =>
+      logInToCG(loginDetails, fromSaved)
+    )
+  );
+
+  // Credentials and encryption
+  ipcMain.handle(
+    "saveCredentials",
+    formatIPCResult((loginDetails) => saveCredentials(loginDetails))
+  );
+  ipcMain.handle(
+    "checkCredentialExistance",
+    formatIPCResult(() => checkCredentialExistance())
+  );
+  ipcMain.handle(
+    "getATV2Config",
+    formatIPCResult((assigID) => fetchAutoTestConfig(assigID))
   );
 }

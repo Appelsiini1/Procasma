@@ -2,18 +2,8 @@ import {
   codeExtensions,
   imageExtensions,
   textExtensions,
-} from "../constantsUI";
+} from "../../resource/extensions.json";
 import { FileTypes } from "../types";
-
-/**
- * dev sleep
- */
-export const sleep = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
-
-export function getFileNameFromPath(str: string) {
-  return str.split("\\").pop().split("/").pop();
-}
 
 /**
  * Deep copy using the JSON stringify -> parse method
@@ -36,13 +26,4 @@ export function getFileTypeUsingExtension(str: string): FileTypes {
   } else {
     return null;
   }
-}
-
-const specialRegex = /(?:[!@#$%^&*().?":{}|<>=])/gim;
-const commaRegex = /(?:[,])/gim;
-
-export function checkSpecial(str: string) {
-  const result = specialRegex.test(str);
-  const comma = commaRegex.test(str);
-  return { special: result, comma: comma };
 }

@@ -22,7 +22,7 @@ import { defaultCourse } from "../defaultObjects";
 import {
   courseLevelsToString,
   splitCourseLevels,
-} from "../generalHelpers/converters";
+} from "../rendererHelpers/converters";
 import { CourseData } from "../types";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";

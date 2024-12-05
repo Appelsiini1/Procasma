@@ -17,7 +17,7 @@ import {
   deepCopy,
   getFileNameFromPath,
   getFileTypeUsingExtension,
-} from "../rendererHelpers/utility";
+} from "../rendererHelpers/utilityRenderer";
 import { DropzoneComp } from "./DropzoneComp";
 import log from "electron-log/renderer";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
@@ -54,6 +54,7 @@ const FileContentSelect = ({
       <Option value="result">{parseUICode("ui_result")}</Option>
       <Option value="code">{parseUICode("ui_code")}</Option>
       <Option value="data">{parseUICode("ui_data")}</Option>
+      <Option value="other">{parseUICode("ui_other")}</Option>
     </Select>
   );
 };

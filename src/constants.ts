@@ -1,10 +1,6 @@
 import { ConverterOptions } from "showdown";
 import { version as packageVersion } from "../package.json";
 import { devmode } from "./DEVMODE.json";
-import { config } from "dotenv";
-
-// Dotenv config
-config();
 
 export const version = packageVersion;
 export const courseMetaDataFileName = "course_info.json";
@@ -53,5 +49,5 @@ export const MathJaxHTMLOptions = {
   ex: 9,
   containerWidth: 90 * 20,
 };
-export const safeStorageKey = process.env.STORAGE_KEY;
+export const StorageKey = process.env.STORAGE_KEY;
 export const codegradeAPIEndpointV1 = "https://app.codegra.de/api/v1";
