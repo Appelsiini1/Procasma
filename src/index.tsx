@@ -173,9 +173,6 @@ const App = () => {
   // get the init settings and update the UI language
   useEffect(() => {
     updateLanguageInit();
-    if (globalSettings.chromePath === null) {
-      setModalOpen(true);
-    }
   }, []);
 
   return (
@@ -188,23 +185,6 @@ const App = () => {
           setShowSnackbar={setShowSnackbar}
         ></SnackbarComp>
       ) : null}
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <ModalDialog color="danger" layout="center" size="lg" variant="soft">
-          <ModalClose />
-          <Typography
-            component="h2"
-            id="modal-title"
-            level="h4"
-            textColor="inherit"
-            sx={{ fontWeight: "lg", mb: 1 }}
-          >
-            {parseUICode("error_chrome_modal_title")}
-          </Typography>
-          <Typography id="modal-desc" textColor="text.tertiary">
-            {parseUICode("error_chrome_modal_desc")}
-          </Typography>
-        </ModalDialog>
-      </Modal>
     </>
   );
 };
