@@ -15,6 +15,11 @@ export interface FileData {
   fileType: FileTypes;
 }
 
+export interface DropZoneFile {
+  fileContent: ArrayBuffer;
+  fileName: string;
+}
+
 export interface CGData {
   id: string;
   atv2: any;
@@ -337,4 +342,7 @@ export type ContextBridgeAPI = {
   // Credentials and encryption
   saveCredentials: (loginDetails: CodeGradeLogin) => IpcResult;
   checkCredentialExistance: () => IpcResult;
+
+  // Other file system related
+  saveCacheFiles: (fileList: DropZoneFile[]) => IpcResult;
 };

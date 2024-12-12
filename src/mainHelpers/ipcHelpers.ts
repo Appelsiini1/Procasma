@@ -1,5 +1,5 @@
-import { IpcMainInvokeEvent, ipcMain, app, BrowserWindow } from "electron";
-import { IpcResult } from "../types";
+import { IpcMainInvokeEvent, ipcMain, BrowserWindow } from "electron";
+import { DropZoneFile, IpcResult } from "../types";
 import log from "electron-log/node";
 
 import { handleDirectorySelect, handleFilesOpen } from "./fileDialog";
@@ -18,6 +18,7 @@ import {
   getTruncatedAssignmentsFS,
   importAssignmentsFS,
   autoGenerateModulesFS,
+  saveToCache,
 } from "./fileOperations";
 import {
   getAssignmentsDB,
@@ -38,6 +39,7 @@ import { getSettings, saveSettings } from "./settings";
 import { version, DEVMODE } from "../constants";
 import { fetchAutoTestConfig, getTenants, logInToCG } from "./codegrade";
 import { checkCredentialExistance, saveCredentials } from "./encryption";
+import { appQuitHelper } from "./utilityMain";
 
 type IpcHandler = (
   event: IpcMainInvokeEvent,
@@ -97,7 +99,7 @@ export function registerHandles() {
     coursePath.path = path;
   });
 
-  ipcMain.on("close-app", (event) => app.quit());
+  ipcMain.on("close-app", (event) => appQuitHelper());
 
   // Bidirectional, renderer to main to renderer
   // General
@@ -281,5 +283,11 @@ export function registerHandles() {
   ipcMain.handle(
     "getATV2Config",
     formatIPCResult((assigID) => fetchAutoTestConfig(assigID))
+  );
+
+  // Other file system related
+  ipcMain.handle(
+    "saveCacheFiles",
+    formatIPCResult((fileList: DropZoneFile[]) => saveToCache(fileList))
   );
 }

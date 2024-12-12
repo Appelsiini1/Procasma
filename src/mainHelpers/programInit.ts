@@ -7,6 +7,7 @@ import {
   getApplicationDir,
   getCacheDir,
   getDarwinSettingsDir,
+  getFileCacheDir,
   getSettingsFilepath,
 } from "./osOperations";
 import { globalSettings } from "../globalsMain";
@@ -19,6 +20,9 @@ export function initialize() {
     }
     if (!fs.existsSync(getCacheDir())) {
       createFolderFS(getCacheDir());
+    }
+    if (!fs.existsSync(getFileCacheDir())) {
+      createFolderFS(getFileCacheDir());
     }
     if (platform === "darwin") {
       if (!fs.existsSync(getDarwinSettingsDir())) {

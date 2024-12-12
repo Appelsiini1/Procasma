@@ -28,8 +28,6 @@ import SnackbarComp from "./components/SnackBarComp";
 import { Layout } from "./components/Layout";
 import LicensesPage from "./routes/LicensesPage";
 import { DEVMODE } from "./constantsUI";
-import { Modal, ModalClose, ModalDialog, Typography } from "@mui/joy";
-import { parseUICode } from "./rendererHelpers/translation";
 import CodeGradeSettings from "./routes/CodeGradeSettings";
 import CGDev from "./routes/CGDev";
 
@@ -43,7 +41,6 @@ const App = () => {
     useContext(UIContext);
   const { activeAssignment, activeModule, activeSet } =
     useContext(ActiveObjectContext);
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
   const router = createHashRouter([
     {
       path: "/",
