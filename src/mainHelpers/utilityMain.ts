@@ -1,9 +1,11 @@
+import { app, BrowserWindow } from "electron";
 import {
   codeExtensions,
   imageExtensions,
   textExtensions,
 } from "../../resource/extensions.json";
 import { FileTypes } from "../types";
+import { clearFileCache } from "./fileOperations";
 
 /**
  * Deep copy using the JSON stringify -> parse method
@@ -26,4 +28,21 @@ export function getFileTypeUsingExtension(str: string): FileTypes {
   } else {
     return null;
   }
+}
+
+/**
+ * Closes all open windows and clears the file cache.
+ * On MacOS, this will not quit the app entirely as per macOS procedure.
+ * Will quit the app on other platforms.
+ */
+export function appQuitHelper() {
+  const openWindows = BrowserWindow.getAllWindows();
+  openWindows.forEach((window) => {
+    window.close();
+  });
+  clearFileCache(() => {
+    if (process.platform !== "darwin") {
+      app.quit();
+    }
+  });
 }

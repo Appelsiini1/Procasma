@@ -1442,3 +1442,15 @@ export async function saveToCache(fileList: DropZoneFile[]) {
   log.info(`${fsPromises.length} files written to cache.`);
   return filePaths;
 }
+
+export function clearFileCache(callback: () => void) {
+  const cachePath = getFileCacheDir();
+
+  fs.readdir(cachePath, (err, files) => {
+    files.forEach((file) => {
+      const fullPath = path.join(cachePath, file);
+      fs.rmSync(fullPath);
+    });
+    callback();
+  });
+}
