@@ -6,6 +6,7 @@ import {
   CodeAssignmentData,
   CodeGradeLogin,
   CourseData,
+  DropZoneFile,
   ExportSetData,
   ModuleData,
   SetData,
@@ -110,4 +111,6 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("checkCredentialExistance"),
   getATV2Config: (assigID: string) =>
     ipcRenderer.invoke("getATV2Config", assigID),
+  saveCacheFiles: (fileList: DropZoneFile[]) =>
+    ipcRenderer.invoke("saveCacheFiles", fileList),
 });

@@ -22,6 +22,11 @@ export function getCacheDir() {
   }
 }
 
+export function getFileCacheDir() {
+  const basePath = getCacheDir();
+  return path.join(basePath, "FileCache");
+}
+
 export function getDarwinSettingsDir() {
   return path.join(getApplicationDir(), "Preferences", "Procasma");
 }

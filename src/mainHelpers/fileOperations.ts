@@ -4,6 +4,7 @@ import {
   CodeAssignmentData,
   CodeAssignmentSelectionData,
   CourseData,
+  DropZoneFile,
   ExportSetData,
   FileData,
   FormatType,
@@ -43,6 +44,7 @@ import {
 } from "../defaultObjects";
 import { addFileToVariation } from "./OPCourseParsers";
 import { coursePath } from "../globalsMain";
+import { getCacheDir, getFileCacheDir } from "./osOperations";
 
 // General
 
@@ -1411,4 +1413,32 @@ export function getBase64String(filepath: string): string {
     log.error("Error in getBase64String():", err.message);
     throw err;
   }
+}
+
+export async function saveToCache(fileList: DropZoneFile[]) {
+  const cachePath = getFileCacheDir();
+
+  const filePromise = (file: DropZoneFile) =>
+    new Promise<string>((resolve, reject) => {
+      const filePath = path.join(cachePath, file.fileName);
+      fs.writeFile(filePath, new DataView(file.fileContent), (err) => {
+        if (err) {
+          reject(err.message);
+        } else {
+          resolve(filePath);
+        }
+      });
+    });
+
+  const fsPromises = fileList.map(filePromise);
+  let filePaths: string[] = [];
+
+  try {
+    filePaths = await Promise.all(fsPromises);
+  } catch (err) {
+    log.error("Error in saveToCache: ", err.message);
+    throw err;
+  }
+  log.info(`${fsPromises.length} files written to cache.`);
+  return filePaths;
 }
