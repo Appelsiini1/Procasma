@@ -173,9 +173,24 @@ class Settings implements SettingsType {
 
     const newCLS = [];
     for (const cl of data.codeLanguages) {
+      let fileExtensions: string[] = [];
+      this._codeLanguages.forEach((oldCL) => {
+        if (cl.name == oldCL.name) {
+          fileExtensions = [...oldCL.fileExtensions];
+          const newExtensions: string[] = cl.fileExtensions.split(";");
+          newExtensions.forEach((value) => {
+            if (!fileExtensions.includes(value)) {
+              fileExtensions.push(value);
+            }
+          });
+        }
+      });
+      if (fileExtensions.length == 0) {
+        fileExtensions = cl.fileExtensions.split(";");
+      }
       newCLS.push({
         name: cl.name,
-        fileExtensions: cl.fileExtensions.split(";"),
+        fileExtensions: fileExtensions,
       });
     }
     this._codeLanguages = newCLS;
