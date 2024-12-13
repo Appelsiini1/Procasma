@@ -6,10 +6,10 @@ export const version = packageVersion;
 export const courseMetaDataFileName = "course_info.json";
 export const DEVMODE = devmode;
 export const PDFMargins = {
-  bottom: "2.1cm",
-  top: "2.1cm",
-  left: "1.5cm",
-  right: "1.5cm",
+  bottom: 0.8267716535, // 2.1 cm in inches
+  top: 0.8267716535,
+  left: 0.5905511811, // 1.5 cm in inches
+  right: 0.5905511811,
 };
 export const PDFFormat = "A4";
 export const ShowdownOptions: ConverterOptions = {
