@@ -712,10 +712,16 @@ export default function SetCreator() {
 
       setHasGenericModule(true);
       handleStepperState(1);
-    } else {
+    } else if (
+      stepperState === 0 &&
+      set.fullCourse &&
+      allModules.length === 0
+    ) {
       // log.debug(allModules);
       setHasGenericModule(false);
       handleStepperState(1);
+    } else {
+      handleSnackbar({ ["error"]: parseUICode("error_no_modules_in_set") });
     }
   }
 
