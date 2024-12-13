@@ -1,7 +1,7 @@
 {
   "name": "procasma",
   "productName": "Procasma",
-  "version": "1.4.10",
+  "version": "1.5.1",
   "description": "Dynamic Assignment Manager",
   "main": ".vite/build/main.js",
   "scripts": {
