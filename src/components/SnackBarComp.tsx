@@ -1,7 +1,11 @@
 import {
+  CircularProgress,
   Snackbar,
   SnackbarCloseReason as SnackbarCloseReasonType,
 } from "@mui/joy";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
+import CancelIcon from "@mui/icons-material/Cancel";
+import ErrorIcon from "@mui/icons-material/Error";
 import { useEffect, useState } from "react";
 import texts from "../../resource/texts.json";
 import { language } from "../globalsUI";
@@ -90,10 +94,31 @@ export default function SnackbarComp({
   const vertical = "bottom";
   const horizontal = "center";
 
+  let autoHideDuration = 3000;
+  let startDecorator: React.JSX.Element = null;
+  switch (color) {
+    case "primary":
+      autoHideDuration = null;
+      startDecorator = <CircularProgress size="sm" variant="plain" />;
+      break;
+    case "neutral":
+      startDecorator = <CancelIcon />;
+      break;
+    case "success":
+      startDecorator = <DoneAllIcon color="success" />;
+      break;
+    case "danger":
+      startDecorator = <CancelIcon />;
+      break;
+    default:
+      break;
+  }
+
   return (
     <Snackbar
-      autoHideDuration={color === "primary" ? null : 3000}
+      autoHideDuration={autoHideDuration}
       anchorOrigin={{ vertical, horizontal }}
+      startDecorator={startDecorator}
       open={open}
       onClose={(event, reason) => {
         if (color === "primary") return;
