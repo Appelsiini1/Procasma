@@ -99,7 +99,7 @@ export default function SetBrowse() {
     setNumSelected(numChecked);
   }, [allSets]);
 
-  sets = generateChecklist(allSets, setAllSets, false, true);
+  sets = generateChecklist(allSets, setAllSets, handleOpenSet, false, true);
 
   async function handleOpenSet() {
     try {

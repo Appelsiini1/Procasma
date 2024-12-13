@@ -197,6 +197,7 @@ export default function AssignmentBrowse() {
   assignments = generateChecklist(
     courseAssignments,
     setCourseAssignments,
+    handleOpenAssignment,
     true
   );
   modules = generateFilterList(uniqueModules, setUniqueModules);
