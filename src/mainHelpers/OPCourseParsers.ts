@@ -205,7 +205,7 @@ export function markdownExtractLevel(
       levels.forEach((level, index) => {
         const levelName = level.fullName;
         if (lineWithLevel.includes(levelName)) {
-          assignment.level = index;
+          assignment.level = index - 1;
         }
       });
     }
