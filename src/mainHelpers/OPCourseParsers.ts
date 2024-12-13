@@ -195,7 +195,7 @@ export function markdownExtractLevel(
   markdown: string,
   levels: LevelsType[]
 ) {
-  if (!assignment.level) {
+  if (assignment.level === null) {
     const lines = markdown.split(/\r?\n/);
     const lineWithLevel = lines.find((line) =>
       line.includes(markdownAssignmentLevel)
@@ -227,7 +227,6 @@ export function parseMarkDownVariationFS(
     const markdown = fs.readFileSync(markdownPath, { encoding: "utf8" });
 
     // assignment level
-    // TODO: get levels dictionary from course
 
     markdownExtractLevel(assignment, markdown, course.levels);
 
