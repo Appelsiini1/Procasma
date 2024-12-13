@@ -37,6 +37,12 @@ const config = {
         {
           name: "main_window",
           config: "vite.renderer.config.ts",
+          entry: "./index.html",
+        },
+        {
+          name: "worker_window",
+          config: "vite.renderer.config.ts",
+          entry: "./worker.html",
         },
       ],
     }),
