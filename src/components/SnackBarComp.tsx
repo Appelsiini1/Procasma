@@ -1,4 +1,5 @@
 import {
+  CircularProgress,
   Snackbar,
   SnackbarCloseReason as SnackbarCloseReasonType,
 } from "@mui/joy";
@@ -94,6 +95,11 @@ export default function SnackbarComp({
     <Snackbar
       autoHideDuration={color === "primary" ? null : 3000}
       anchorOrigin={{ vertical, horizontal }}
+      startDecorator={
+        color === "primary" ? (
+          <CircularProgress size="sm" variant="plain" />
+        ) : null
+      }
       open={open}
       onClose={(event, reason) => {
         if (color === "primary") return;
