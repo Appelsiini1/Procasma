@@ -203,6 +203,7 @@ export async function exportSetFS(
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'none'" />
     <title>${mainHeader}</title>
     <style>${css}</style>
   </head>
@@ -210,6 +211,7 @@ export async function exportSetFS(
         let solutionHtml = `<!DOCTYPE html>
 <html>
   <head>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'none'" />
     <meta charset="utf-8" />
     <title>${mainHeader} ${parseUICodeMain("answers").toUpperCase()}</title>
     <style>${css}</style>
