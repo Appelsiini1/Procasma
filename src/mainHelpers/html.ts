@@ -38,8 +38,8 @@ import { highlightCode, parseLanguage } from "./highlighters";
 
 const converter = new showdown.Converter(ShowdownOptions);
 
-const regexParentheses = /(?<=\\\().+?(?=\\\))/g;
-const regexBrackets = /(?<=\\\[).+?(?=\\\])/g;
+const regexParentheses = /(?<=\\\().+?(?=\\\))/gs;
+const regexBrackets = /(?<=\\\[).+?(?=\\\])/gs;
 const regexImage = /(?<![\\`])!\[.*?\]\((\S*?)(?:\s*".*?")?(?:\s*=.*?)?\)/gm;
 
 interface AssignmentInput {
