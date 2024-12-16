@@ -502,7 +502,6 @@ async function _handleAddOrUpdateAssignmentFS(
     if (!assignmentHash) {
       assignmentHash = _generateAssignmentHashFS(assignment);
     }
-    log.debug(assignmentHash);
 
     let hashFolderPath;
     let assignmentPath;
