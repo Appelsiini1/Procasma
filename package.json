@@ -45,7 +45,7 @@
   },
   "license": "UNLICENSED",
   "dependencies": {
-    "@codegrade/apiv2-client": "^1.1.0",
+    "@codegrade/apiv2-client": "^1.8.1",
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.13.0",
     "@fontsource/inter": "^5.0.19",
