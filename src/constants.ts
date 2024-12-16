@@ -1,6 +1,7 @@
 import { ConverterOptions } from "showdown";
 import { version as packageVersion } from "../package.json";
 import { devmode } from "./DEVMODE.json";
+import { join } from "node:path";
 
 export const version = packageVersion;
 export const courseMetaDataFileName = "course_info.json";
@@ -51,3 +52,11 @@ export const MathJaxHTMLOptions = {
 };
 export const StorageKey = process.env.STORAGE_KEY;
 export const codegradeAPIEndpointV1 = "https://app.codegra.de/api/v1";
+export const workerWindowPreferences = {
+  webPreferences: {
+    contextIsolation: true,
+    spellcheck: false,
+    preload: join(__dirname, "preload.js"),
+  },
+  show: false,
+};

@@ -20,7 +20,6 @@ import {
   courseMetaDataFileName,
   fileFolderSeparator,
 } from "../constants";
-import { createHash } from "crypto";
 import {
   addAssignmentDB,
   addModuleDB,
@@ -44,7 +43,8 @@ import {
 } from "../defaultObjects";
 import { addFileToVariation } from "./OPCourseParsers";
 import { coursePath } from "../globalsMain";
-import { getCacheDir, getFileCacheDir } from "./osOperations";
+import { getFileCacheDir } from "./osOperations";
+import { createSHAhash } from "../mainHelpers/utilityMain";
 
 // General
 
@@ -89,10 +89,6 @@ export function createFolderFS(
     log.error("Error in createFolderFS():", err.message);
     throw err;
   }
-}
-
-function _SHAhashFS(content: string) {
-  return createHash("sha256").update(content).digest("hex");
 }
 
 /**
@@ -232,7 +228,7 @@ function _generateAssignmentHashFS(assignment: CodeAssignmentData) {
   try {
     // generate hash from assignment metadata
     const metadata: string = JSON.stringify(assignment);
-    const hash: string = _SHAhashFS(metadata);
+    const hash: string = createSHAhash(metadata);
 
     // set assignmentID to hash
     assignment.assignmentID = hash;
@@ -1051,7 +1047,7 @@ export function _handleAddOrUpdateSetFS(
 
     // generate an id for the set if it is new
     if (!isOldSet) {
-      set.id = _SHAhashFS(JSON.stringify(set));
+      set.id = createSHAhash(JSON.stringify(set));
       newSets.push(set);
     } else {
       // update the given set

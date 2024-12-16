@@ -3,11 +3,17 @@ import fs from "fs";
 import path from "node:path";
 import log from "electron-log/node";
 import { CourseData, PDFHtmlInput } from "../types";
-import { PDFFormat, PDFMargins, version } from "../constants";
+import {
+  DEVMODE,
+  PDFFormat,
+  PDFMargins,
+  version,
+  workerWindowPreferences,
+} from "../constants";
 import { parseUICodeMain } from "./language";
-import { workerID } from "../globalsMain";
 import { BrowserWindow } from "electron";
 import { getFileCacheDir } from "./osOperations";
+import { createSHAhash } from "./utilityMain";
 
 /**
  * Generates the header and footer (for PDF files only)
@@ -93,15 +99,20 @@ export function generateHeaderFooter(
 }
 
 export async function createPDF(input: PDFHtmlInput, savePath: string) {
+  const win: BrowserWindow = null;
   try {
     log.info("Saving interrim HTML...");
-    const tempHTMLPath = path.join(getFileCacheDir(), "temp.html");
+    const tempHTMLPath = path.join(
+      getFileCacheDir(),
+      createSHAhash(input.html) + ".html"
+    );
     fs.writeFileSync(tempHTMLPath, input.html, { encoding: "utf-8" });
     log.info("Interrim HTML saved. Starting PDF creation...");
-    const win = BrowserWindow.fromId(workerID.id);
+    const win = new BrowserWindow(workerWindowPreferences);
     win.loadFile(tempHTMLPath);
 
     win.webContents.on("did-finish-load", () => {
+      log.info("Worker window loaded.");
       win.webContents
         .printToPDF({
           pageSize: PDFFormat,
@@ -124,6 +135,10 @@ export async function createPDF(input: PDFHtmlInput, savePath: string) {
           log.info("Saving PDF to file...");
           fs.writeFileSync(savePath, pdfBytes);
           log.info("PDF saved.");
+        })
+        .then(() => {
+          win.close();
+          log.info("Worker window closed.");
         });
     });
   } catch (err) {
