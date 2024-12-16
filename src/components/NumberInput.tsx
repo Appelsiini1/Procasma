@@ -29,10 +29,15 @@ export default function NumberInput({
     max = Number.MAX_SAFE_INTEGER;
   }
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const result = event.target.value.replace(/^(-)|[^0-9]+/g, "$1");
-    const resultInt = parseInt(result);
+    if (event.target.value === "") {
+      onChange ? onChange(0) : null;
+    } else {
+      const result = event.target.value.replace(/^(-)|[^0-9]+/g, "$1");
+      const resultInt = parseInt(result);
 
-    onChange ? onChange(resultInt) : null;
+      onChange ? onChange(resultInt) : null;
+    }
+
     //setValue ? setValue(resultInt) : null;
   }
   function handleIncrement() {
