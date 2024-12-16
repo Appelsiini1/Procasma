@@ -6,6 +6,7 @@ import {
 } from "../../resource/extensions.json";
 import { FileTypes } from "../types";
 import { clearFileCache } from "./fileOperations";
+import { createHash } from "node:crypto";
 
 /**
  * Deep copy using the JSON stringify -> parse method
@@ -45,4 +46,8 @@ export function appQuitHelper() {
       app.quit();
     }
   });
+}
+
+export function createSHAhash(content: string) {
+  return createHash("sha256").update(content).digest("hex");
 }
