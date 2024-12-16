@@ -713,9 +713,9 @@ export default function SetCreator() {
       setHasGenericModule(true);
       handleStepperState(1);
     } else if (
-      stepperState === 0 &&
-      set.fullCourse &&
-      allModules.length === 0
+      (stepperState === 0 && set.fullCourse) ||
+      (stepperState === 0 && !set.fullCourse && allModules.length > 0) ||
+      stepperState > 0
     ) {
       // log.debug(allModules);
       setHasGenericModule(false);
