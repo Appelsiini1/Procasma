@@ -23,6 +23,7 @@ import ButtonComp from "../components/ButtonComp";
 import { capitalizeFirstLetter } from "../rendererHelpers/capitalize";
 import SwitchComp from "../components/SwitchComp";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import InfoIcon from "@mui/icons-material/Info";
 
 export default function CodeGradeSettings() {
   const { handleSnackbar } = useContext(UIContext);
@@ -157,7 +158,7 @@ export default function CodeGradeSettings() {
               minWidth: pageTableMinWidth,
               maxWidth: pageTableMaxWidth,
             }}
-            startDecorator={<CheckCircleIcon />}
+            startDecorator={<InfoIcon />}
             variant="soft"
             color={"warning"}
           >
