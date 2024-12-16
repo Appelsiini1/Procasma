@@ -162,6 +162,11 @@ export default function AssignmentInput() {
   async function handleSaveAssignment() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_assignment_save_success";
+    const assignmentToSave = assignment;
+
+    if (assignment.level === null && activeCourse?.levels.length !== 0) {
+      assignmentToSave.level = 0;
+    }
 
     if (checkSpecial(assignment.title)) {
       handleSnackbar({ error: parseUICode("error_special_in_title") });
@@ -171,11 +176,11 @@ export default function AssignmentInput() {
       try {
         if (pageType === "manage") {
           await handleIPCResult(() =>
-            window.api.handleUpdateAssignmentFS(assignment, activePath)
+            window.api.handleUpdateAssignmentFS(assignmentToSave, activePath)
           );
         } else {
           const addedAssignment: CodeAssignmentData = await handleIPCResult(
-            () => window.api.handleAddAssignmentFS(assignment, activePath)
+            () => window.api.handleAddAssignmentFS(assignmentToSave, activePath)
           );
           // use the generated id from main
           handleAssignment("assignmentID", addedAssignment.assignmentID);
@@ -328,6 +333,7 @@ export default function AssignmentInput() {
                     let index = activeCourse.levels.findIndex(
                       (element) => value === element.fullName
                     );
+                    log.debug("Index value:", index);
                     if (index === -1) index = null;
                     handleAssignment("level", index);
                   }}
