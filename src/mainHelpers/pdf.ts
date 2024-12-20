@@ -1,10 +1,9 @@
 import { PDFDocument } from "pdf-lib";
-import fs from "fs";
+import fs from "node:fs";
 import path from "node:path";
 import log from "electron-log/node";
 import { CourseData, PDFHtmlInput } from "../types";
 import {
-  DEVMODE,
   PDFFormat,
   PDFMargins,
   version,

@@ -1,5 +1,5 @@
 import { createFolderFS } from "./fileOperations";
-import fs from "fs";
+import fs from "node:fs";
 import { platform } from "node:process";
 import { saveSettings } from "./settings";
 import log from "electron-log/node";
