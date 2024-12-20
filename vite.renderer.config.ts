@@ -1,7 +1,7 @@
 import type { ConfigEnv, UserConfig } from "vite";
 import { defineConfig } from "vite";
 import { pluginExposeRenderer } from "./vite.base.config";
-import { resolve } from "path";
+//import { resolve } from "path";
 
 // https://vitejs.dev/config
 export default defineConfig((env) => {
@@ -17,10 +17,10 @@ export default defineConfig((env) => {
       outDir: `.vite/renderer/${name}`,
       rollupOptions: {
         treeshake: true,
-        input: {
-          main_window: resolve(__dirname, "/index.html"),
-          worker_window: resolve(__dirname, "/worker.html"),
-        },
+        // input: {
+        //   main_window: resolve(__dirname, "/index.html"),
+        //   worker_window: resolve(__dirname, "/worker.html"),
+        // },
       },
     },
     plugins: [pluginExposeRenderer(name)],

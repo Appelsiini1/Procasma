@@ -1,4 +1,4 @@
-import type { ConfigEnv, UserConfig, PluginOption } from "vite";
+import type { ConfigEnv, UserConfig } from "vite";
 import { defineConfig, mergeConfig } from "vite";
 import {
   getBuildConfig,
@@ -6,7 +6,7 @@ import {
   external,
   pluginHotRestart,
 } from "./vite.base.config";
-import { visualizer } from "rollup-plugin-visualizer";
+//import { visualizer } from "rollup-plugin-visualizer";
 
 // https://vitejs.dev/config
 export default defineConfig((env) => {
@@ -22,7 +22,6 @@ export default defineConfig((env) => {
       },
       rollupOptions: {
         external,
-        treeshake: true,
       },
     },
     plugins: [
