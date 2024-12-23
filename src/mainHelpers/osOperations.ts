@@ -1,5 +1,5 @@
 import { env, platform } from "node:process";
-import path from "path";
+import path from "node:path";
 
 export function getApplicationDir() {
   const basePath = env.APPDATA || env.HOME;

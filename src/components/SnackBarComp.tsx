@@ -108,7 +108,7 @@ export default function SnackbarComp({
       startDecorator = <DoneAllIcon color="success" />;
       break;
     case "danger":
-      startDecorator = <CancelIcon />;
+      startDecorator = <ErrorIcon />;
       break;
     default:
       break;

@@ -1,17 +1,18 @@
-import { app, BrowserWindow, Menu } from "electron";
-import path from "path";
 import { config } from "dotenv";
 // Dotenv config
 config();
+import { app, BrowserWindow, Menu } from "electron";
+import path from "node:path";
 import { version, DEVMODE } from "./constants";
 import { initialize } from "./mainHelpers/programInit";
 import log from "electron-log";
 import { registerHandles } from "./mainHelpers/ipcHelpers";
 import { appQuitHelper } from "./mainHelpers/utilityMain";
 import { workerID } from "./globalsMain";
+import started from "electron-squirrel-startup";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require("electron-squirrel-startup")) {
+if (started) {
   app.quit();
 }
 

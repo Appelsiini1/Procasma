@@ -1,5 +1,5 @@
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import {
   CodeAssignmentData,
   CodeAssignmentSelectionData,
@@ -14,7 +14,7 @@ import {
   SetVariation,
   Variation,
 } from "../types";
-import { spacesToUnderscores } from "../mainHelpers/convertersMain";
+import { spacesToUnderscores } from "./convertersMain";
 import {
   assignmentDataFolder,
   courseMetaDataFileName,
@@ -34,8 +34,8 @@ import {
 import log from "electron-log/node";
 import { createPDF, generateHeaderFooter } from "./pdf";
 import { parseUICodeMain } from "./language";
-import { platform } from "process";
-import { deepCopy } from "../mainHelpers/utilityMain";
+import { platform } from "node:process";
+import { deepCopy, createSHAhash } from "./utilityMain";
 import {
   defaultAssignment,
   defaultModule,
@@ -44,7 +44,6 @@ import {
 import { addFileToVariation } from "./OPCourseParsers";
 import { coursePath } from "../globalsMain";
 import { getFileCacheDir } from "./osOperations";
-import { createSHAhash } from "../mainHelpers/utilityMain";
 
 // General
 
@@ -1182,8 +1181,10 @@ export async function saveSetModuleFS(
   format: FormatType,
   courseData: CourseData,
   savePath: string,
+  replaceExisting: boolean,
   moduleString?: string
 ) {
+  if (replaceExisting === undefined) replaceExisting = false;
   try {
     const filename = title.replace(" ", "");
     const solutionFilename =
@@ -1192,31 +1193,46 @@ export async function saveSetModuleFS(
     createFolderFS(path.join(savePath, filename));
     savePath = path.join(savePath, filename);
     if (format === "html") {
-      let newSavePathHTML = checkFileExistanceFS(
-        path.join(savePath, filename) + ".html"
-      );
-      fs.writeFileSync(newSavePathHTML, html, "utf-8");
+      let HTMLSavePath: string;
+      let solutionSavePath: string;
 
-      newSavePathHTML = checkFileExistanceFS(
-        path.join(savePath, solutionFilename + ".html")
-      );
-      fs.writeFileSync(newSavePathHTML, solutionHtml, "utf-8");
+      if (!replaceExisting) {
+        HTMLSavePath = checkFileExistanceFS(
+          path.join(savePath, filename) + ".html"
+        );
+        solutionSavePath = checkFileExistanceFS(
+          path.join(savePath, solutionFilename + ".html")
+        );
+      } else {
+        HTMLSavePath = path.join(savePath, filename) + ".html";
+        solutionSavePath = path.join(savePath, solutionFilename + ".html");
+      }
+      fs.writeFileSync(HTMLSavePath, html, "utf-8");
+      fs.writeFileSync(solutionSavePath, solutionHtml, "utf-8");
     } else if (format === "pdf") {
-      let newSavePathPDF = checkFileExistanceFS(
-        path.join(savePath, filename) + ".pdf"
-      );
+      let PDFSavePath: string;
+      let solutionSavePath: string;
+
+      if (!replaceExisting) {
+        PDFSavePath = checkFileExistanceFS(
+          path.join(savePath, filename) + ".pdf"
+        );
+        solutionSavePath = checkFileExistanceFS(
+          path.join(savePath, solutionFilename + ".pdf")
+        );
+      } else {
+        PDFSavePath = path.join(savePath, filename) + ".pdf";
+        solutionSavePath = path.join(savePath, solutionFilename + ".pdf");
+      }
       await createPDF(
         {
           html: html,
           title: title,
           ...generateHeaderFooter(courseData, moduleString),
         },
-        newSavePathPDF
+        PDFSavePath
       );
 
-      newSavePathPDF = checkFileExistanceFS(
-        path.join(savePath, solutionFilename) + ".pdf"
-      );
       const answerTitle =
         title + " " + parseUICodeMain("answers").toUpperCase();
       await createPDF(
@@ -1225,7 +1241,7 @@ export async function saveSetModuleFS(
           title: answerTitle,
           ...generateHeaderFooter(courseData, moduleString),
         },
-        newSavePathPDF
+        solutionSavePath
       );
     }
   } catch (err) {

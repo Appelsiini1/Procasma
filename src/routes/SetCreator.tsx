@@ -39,6 +39,7 @@ import {
   exportSetToDisk,
 } from "../rendererHelpers/setHelpers";
 import log from "electron-log/renderer";
+import HelpText from "../components/HelpText";
 
 interface LegalMove {
   module: number;
@@ -905,6 +906,39 @@ export default function SetCreator() {
                     checked={set?.exportCGConfigs}
                     setChecked={(value: boolean) =>
                       handleSet("exportCGConfigs", value)
+                    }
+                  />
+                </td>
+              </tr>
+
+              <tr key="asReplaceExisting">
+                <td style={{ width: "25%" }}>
+                  <Grid
+                    container
+                    direction="row"
+                    justifyContent="flex-start"
+                    alignItems="center"
+                    spacing={1}
+                  >
+                    <Grid xs={10}>
+                      <Typography level="h4">
+                        {parseUICode("ui_replace_existing")}
+                      </Typography>
+                    </Grid>
+                    <Grid xs={2}>
+                      <HelpText text={parseUICode("help_replace_existing")} />
+                    </Grid>
+                  </Grid>
+                </td>
+                <td>
+                  <SwitchComp
+                    checked={
+                      set?.replaceExisting === undefined
+                        ? false
+                        : set?.replaceExisting
+                    }
+                    setChecked={(value: boolean) =>
+                      handleSet("replaceExisting", value)
                     }
                   />
                 </td>

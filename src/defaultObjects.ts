@@ -108,6 +108,7 @@ export const defaultSet: SetData = {
   assignments: [],
   targetModule: null,
   targetPosition: null,
+  replaceExisting: false,
 };
 
 export const genericModule: ModuleData = {

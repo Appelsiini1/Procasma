@@ -10,8 +10,8 @@ import {
   FullAssignmentSetData,
   ModuleData,
 } from "../types";
-import { readFileSync } from "fs";
-import path from "path";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import log from "electron-log/node";
 import { parseUICodeMain } from "./language";
 import {
@@ -281,6 +281,7 @@ export async function exportSetFS(
           convertedSet.format,
           coursedata,
           savePath,
+          convertedSet.replaceExisting,
           moduleString
         );
         const filename = mainHeader.replace(" ", "");
