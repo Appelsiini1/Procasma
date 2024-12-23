@@ -1523,5 +1523,13 @@
   "error_special_in_tags": {
     "FI": "Tehtävän tunnisteet sisältävät kiellettyjä erikoismerkkejä.",
     "ENG": "Assignment tags contain special characters that are not allowed."
+  },
+  "ui_replace_existing": {
+    "FI": "Korvaa olemassaolevat tiedostot",
+    "ENG": "Replace existing files"
+  },
+  "help_replace_existing": {
+    "FI": "Määritä korvataanko mahdolliset olemassaolevat tehtäväpaperit uusilla määränpääkansiossa. HUOM. Tehtävien tiedostot korvataan aina.",
+    "ENG": "Set whether to replace existing assignment instructions with new ones in the output folder. NOTE: Files pertaining to assignments themselves will always be replaced."
   }
 }

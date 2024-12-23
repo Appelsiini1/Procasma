@@ -281,6 +281,7 @@ export async function exportSetFS(
           convertedSet.format,
           coursedata,
           savePath,
+          convertedSet.replaceExisting,
           moduleString
         );
         const filename = mainHeader.replace(" ", "");
