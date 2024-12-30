@@ -715,13 +715,24 @@ export async function getFilteredAssignmentsDB(
 
       // form the query extension for the modules
       if (filters?.module?.length > 0) {
-        if (uniqueIds.length > 0) {
+        if (ids.length > 0) {
           queryExtension += " AND";
         }
 
         const filterPlaceholders = filters.module.map(() => "?").join(",");
         queryExtension += ` modules.name IN (${filterPlaceholders})`;
         ids = ids.concat(filters.module);
+      }
+
+      // form the query extension for the assignment type
+      if (filters?.type?.length > 0) {
+        if (ids.length > 0) {
+          queryExtension += " AND";
+        }
+
+        const filterPlaceholders = filters.type.map(() => "?").join(",");
+        queryExtension += ` assignments.type IN (${filterPlaceholders})`;
+        ids = ids.concat(filters.type);
       }
 
       if (queryExtension.length > 0) {

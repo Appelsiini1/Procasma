@@ -5,6 +5,10 @@ export const formatTypes: FormatType[] = ["pdf", "html"];
 export type FileTypes = "text" | "image" | "code";
 export type FileContents = "instruction" | "result" | "code" | "data";
 export type SupportedModuleType = "week" | "module" | "lecture" | null;
+export enum AssignmentTypes {
+  assignment = "assignment",
+  finalWork = "finalWork",
+}
 
 export interface FileData {
   fileName: string;
@@ -232,6 +236,11 @@ export interface PDFHtmlInput {
 export interface ImportAssignment {
   originalFolder: string;
   assignmentData: CodeAssignmentData;
+}
+
+export interface pathStack {
+  previousPath: string;
+  currentPath: string;
 }
 
 export type ContextBridgeAPI = {

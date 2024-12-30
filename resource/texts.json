@@ -340,6 +340,10 @@
     "FI": "Tunnisteet",
     "ENG": "Tags"
   },
+  "ui_types": {
+    "FI": "Tyypit",
+    "ENG": "Types"
+  },
   "ui_variations": {
     "FI": "Variaatiot",
     "ENG": "Variations"
