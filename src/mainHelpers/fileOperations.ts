@@ -4,6 +4,7 @@ import {
   CodeAssignmentData,
   CodeAssignmentSelectionData,
   CourseData,
+  DropZoneFile,
   ExportSetData,
   FileData,
   FormatType,
@@ -13,7 +14,7 @@ import {
   SetVariation,
   Variation,
 } from "../types";
-import { spacesToUnderscores } from "../generalHelpers/converters";
+import { spacesToUnderscores } from "../mainHelpers/convertersMain";
 import {
   assignmentDataFolder,
   courseMetaDataFileName,
@@ -35,7 +36,7 @@ import log from "electron-log/node";
 import { createPDF, generateHeaderFooter } from "./pdf";
 import { parseUICodeMain } from "./language";
 import { platform } from "process";
-import { deepCopy } from "../rendererHelpers/utility";
+import { deepCopy } from "../mainHelpers/utilityMain";
 import {
   defaultAssignment,
   defaultModule,
@@ -43,6 +44,7 @@ import {
 } from "../defaultObjects";
 import { addFileToVariation } from "./OPCourseParsers";
 import { coursePath } from "../globalsMain";
+import { getCacheDir, getFileCacheDir } from "./osOperations";
 
 // General
 
@@ -736,6 +738,7 @@ export async function _handleAddImportedAssignmentWithSameFolderFS(
     }
 
     assignment.folder = path.join(assignmentDataFolder, assignmentFolder);
+    assignment.extraCredit = false;
 
     // create variant folders and copy files
     const variations: { [key: string]: Variation } = assignment.variations;
@@ -1452,4 +1455,44 @@ export function getBase64String(filepath: string): string {
     log.error("Error in getBase64String():", err.message);
     throw err;
   }
+}
+
+export async function saveToCache(fileList: DropZoneFile[]) {
+  const cachePath = getFileCacheDir();
+
+  const filePromise = (file: DropZoneFile) =>
+    new Promise<string>((resolve, reject) => {
+      const filePath = path.join(cachePath, file.fileName);
+      fs.writeFile(filePath, new DataView(file.fileContent), (err) => {
+        if (err) {
+          reject(err.message);
+        } else {
+          resolve(filePath);
+        }
+      });
+    });
+
+  const fsPromises = fileList.map(filePromise);
+  let filePaths: string[] = [];
+
+  try {
+    filePaths = await Promise.all(fsPromises);
+  } catch (err) {
+    log.error("Error in saveToCache: ", err.message);
+    throw err;
+  }
+  log.info(`${fsPromises.length} files written to cache.`);
+  return filePaths;
+}
+
+export function clearFileCache(callback: () => void) {
+  const cachePath = getFileCacheDir();
+
+  fs.readdir(cachePath, (err, files) => {
+    files.forEach((file) => {
+      const fullPath = path.join(cachePath, file);
+      fs.rmSync(fullPath);
+    });
+    callback();
+  });
 }

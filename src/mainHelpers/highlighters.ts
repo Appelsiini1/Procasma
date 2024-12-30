@@ -1,4 +1,5 @@
 import log from "electron-log/node";
+import { extname, basename } from "node:path";
 
 // Highlight JS
 import hljs from "highlight.js/lib/core";
@@ -71,4 +72,37 @@ export function highlightCode(code: string, language: string): string {
     log.error("Error in highlightCode(): " + err.message);
     throw err;
   }
+}
+
+export function parseLanguage(filePath: string, defaultLanguage: string) {
+  const extension = extname(filePath);
+  let language: string;
+
+  switch (extension.toLowerCase()) {
+    case ".json":
+      language = "json";
+      break;
+
+    case ".c":
+      language = "c";
+      break;
+
+    case ".py":
+      language = "python";
+      break;
+
+    case "":
+      const base = basename(filePath).toLowerCase();
+      if (base === "makefile" || base === "make") {
+        language = "makefile";
+      } else {
+        language = "plaintext";
+      }
+
+    default:
+      language = defaultLanguage;
+      break;
+  }
+
+  return language;
 }

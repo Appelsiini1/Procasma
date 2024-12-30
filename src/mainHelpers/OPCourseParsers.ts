@@ -15,16 +15,18 @@ import {
   markdownExampleRun,
   markdownInput,
   markdownOutput,
+} from "../constants";
+import {
   codeExtensions,
   dataExtensions,
   imageExtensions,
   textExtensions,
-} from "../constants";
+} from "../../resource/extensions.json";
 import log from "electron-log/node";
 import {
   deepCopy,
   getFileTypeUsingExtension,
-} from "../rendererHelpers/utility";
+} from "../mainHelpers/utilityMain";
 import { defaultExampleRun, defaultFile } from "../defaultObjects";
 import { globalSettings } from "../globalsMain";
 

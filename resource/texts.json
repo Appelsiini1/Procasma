@@ -91,7 +91,7 @@
     "FI": "Yleinen",
     "ENG": "General"
   },
-  "menu_file": {
+  "file": {
     "FI": "Tiedosto",
     "ENG": "File"
   },
@@ -677,7 +677,7 @@
     "ENG": "Click 'Import output files' to import the assignment example output files."
   },
   "help_used_in": {
-    "FI": "Syötä tähän setit joissa tehtävää on aiemmin käytetty. Oletusformaatti on '[vuosi]/[periodi]', esim. 2023/1",
+    "FI": "Syötä tähän periodit, joissa tehtävää on aiemmin käytetty. Oletusformaatti on '[vuosi]/[periodi]', esim. 2023/1",
     "ENG": "Input the sets where this assignment has been used before. Default format is '[year]/[period]', ex. 2023/1"
   },
   "ui_ok": {
@@ -711,6 +711,10 @@
   "ui_codefiles": {
     "FI": "Kooditiedostot",
     "ENG": "Code files"
+  },
+  "ui_codefile": {
+    "FI": "Kooditiedosto",
+    "ENG": "Code file"
   },
   "ui_datafiles": {
     "FI": "Datatiedostot",
@@ -965,8 +969,8 @@
     "ENG": "Course assignment levels"
   },
   "help_course_levels": {
-    "FI": "Syötä tähän kurssin tehtävien tasot. Erota tason nimi ja lyhenne kaksoispisteellä, ja tasot toisistaan rivinvaihdolla. Lyhenne on valinnainen.\nEsimerkiksi: 'Helppo:H'",
-    "ENG": "Input the levels of course assignments here. Separate level name and abbreviation with a colon and levels with new line. Abbreviation is optional.\nFor example: 'Easy:E'"
+    "FI": "Syötä tähän kurssin tehtävien tasot. Erota tason nimi ja lyhenne kaksoispisteellä, ja tasot toisistaan rivinvaihdolla. Lyhenne on valinnainen.\nEsimerkiksi: 'Helppo:H'\nTasot ovat valinnaisia.",
+    "ENG": "Input the levels of course assignments here. Separate level name and abbreviation with a colon and levels with new line. Abbreviation is optional.\nFor example: 'Easy:E'\nAssignment levels are optional."
   },
   "ui_level_error": {
     "FI": "Virhe tasojen muotoilussa. Tarkista oikea muotoilu (?)-merkistä.",
@@ -1451,5 +1455,105 @@
   "ui_creating_modules": {
     "FI": "Luodaan moduuleja...",
     "ENG": "Creating modules..."
+  },
+  "error_chrome_modal_title": {
+    "FI": "Chrome asennusta ei löydetty",
+    "ENG": "Chrome installation not found"
+  },
+  "error_chrome_modal_desc": {
+    "FI": "Tehtäväsarjojen vienti PDF-tiedostoksi ei onnistu. Asenna Chrome ja käynnistä Procasma uudelleen.",
+    "ENG": "Assignment set export to PDF will not work. Install Chrome and restart Procasma."
+  },
+  "ui_loading": {
+    "FI": "Ladataan...",
+    "ENG": "Loading..."
+  },
+  "ui_cg": {
+    "FI": "CodeGrade",
+    "ENG": "CodeGrade"
+  },
+  "error_get_tenants": {
+    "FI": "Organisaatioiden haku epäonnistui",
+    "ENG": "Fetching tenants failed"
+  },
+  "error_saving_credentials": {
+    "FI": "Kirjautumistietojen tallennus epäonnistui.",
+    "ENG": "Saving login credentials failed."
+  },
+  "ui_save_credentials": {
+    "FI": "Tallenna kirjautuminen",
+    "ENG": "Save login"
+  },
+  "ui_login_success": {
+    "FI": "Kirjautuminen onnistui!",
+    "ENG": "Login successfull!"
+  },
+  "ui_shorten_code": {
+    "FI": "Lyhennä kooditiedostoja",
+    "ENG": "Shorten code files"
+  },
+  "help_shorten_code": {
+    "FI": "Tämä asetus ylikirjoittaa asetuksen tiedostojen lyhentämisestä kooditiedostojen kohdalla. Asetus ei kuitenkaan vaikuta jos tiedostojen lyhennys ei ole päällä.",
+    "ENG": "This setting overrides the setting on file shortening in regards to code files. However, this setting will not be taken into account if file shortening is not enabled."
+  },
+  "ui_extracredit": {
+    "FI": "Ylimääräinen tehtävä",
+    "ENG": "Extra credit assignment"
+  },
+  "extracredit_long": {
+    "FI": "Tämä tehtävä on lisätehtävä.",
+    "ENG": "This assignment is extra credit."
+  },
+  "extracredit_toc": {
+    "FI": "Tähdellä (*) merkityt ovat lisätehtäviä.",
+    "ENG": "Assignments marked with a star (*) are extra credit."
+  },
+  "no_CG_credentials": {
+    "FI": "Kirjautumistietoja CodeGradeen ei ole!",
+    "ENG": "No login credentials for CodeGrade!"
+  },
+  "login_failed": {
+    "FI": "Kirjautuminen epäonnistui.",
+    "ENG": "Login failed."
+  },
+  "credentials_found": {
+    "FI": "Tallennetut kirjautumistiedot löydetty. Voit korvata ne kirjautumalla uudelleen.",
+    "ENG": "Saved login credentials found. You can replace them by logging in again."
+  },
+  "credentials_not_found": {
+    "FI": "Tallennettuja kirjautumistietoja ei löydetty.",
+    "ENG": "No saved credentials found."
+  },
+  "cg_setup": {
+    "FI": "Ajon asetukset",
+    "ENG": "Setup"
+  },
+  "cg_tests": {
+    "FI": "Testit",
+    "ENG": "Tests"
+  },
+  "ui_assignment_id": {
+    "FI": "Tehtävän tunniste",
+    "ENG": "Assignment ID"
+  },
+  "error_cg_config_syntax": {
+    "FI": "Konfiguraatiossa on syntaksivirhe. Varmista, että konfiguraatio on kunnollista JSON'ia.",
+    "ENG": "Configuration has a syntax error. Ensure that the configuration is valid JSON."
+  },
+  "assignment": {
+    "FI": "Tehtävä",
+    "ENG": "Assignment"
+  },
+  "finalWork": {
+    "FI": "Harjoitustyö",
+    "ENG": "Final work"
+  },
+  "error_special_in_title": {
+    "FI": "Tehtävän otsikko sisältää kiellettyjä erikoismerkkejä.",
+    "ENG": "Assignment title contains special characters that are not allowed."
+  },
+  "error_special_in_tags": {
+    "FI": "Tehtävän tunnisteet sisältävät kiellettyjä erikoismerkkejä.",
+    "ENG": "Assignment tags contain special characters that are not allowed."
   }
 }

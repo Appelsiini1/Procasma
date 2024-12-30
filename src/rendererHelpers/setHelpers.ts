@@ -1,4 +1,4 @@
-import { COURSE_PERIODS } from "../constants";
+import { COURSE_PERIODS } from "../constantsUI";
 import {
   CourseData,
   ExportSetAssignmentData,

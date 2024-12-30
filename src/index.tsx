@@ -1,7 +1,7 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import { createHashRouter, RouterProvider } from "react-router-dom";
+import { createHashRouter, RouterProvider } from "react-router";
 import ErrorPage from "./routes/ErrorPage";
 import Root from "./routes/Root";
 import Course from "./routes/Course";
@@ -28,6 +28,8 @@ import SnackbarComp from "./components/SnackBarComp";
 import { Layout } from "./components/Layout";
 import LicensesPage from "./routes/LicensesPage";
 import { DEVMODE } from "./constantsUI";
+import CodeGradeSettings from "./routes/CodeGradeSettings";
+import CGDev from "./routes/CGDev";
 
 log.info("-- START OF PROCASMA RENDERER --");
 log.info(`DEVMODE: ${DEVMODE}`);
@@ -137,6 +139,11 @@ const App = () => {
           path: "/licenses",
           element: <LicensesPage />,
         },
+        {
+          path: "/codegradeSettings",
+          element: <CodeGradeSettings />,
+        },
+        { path: "/CGDev", element: <CGDev /> },
       ],
     },
   ]);

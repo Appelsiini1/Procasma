@@ -1,9 +1,13 @@
 import { app, BrowserWindow, Menu } from "electron";
 import path from "path";
+import { config } from "dotenv";
+// Dotenv config
+config();
 import { version, DEVMODE } from "./constants";
 import { initialize } from "./mainHelpers/programInit";
 import log from "electron-log";
-import { registerHandlers } from "./mainHelpers/ipcHelpers";
+import { registerHandles } from "./mainHelpers/ipcHelpers";
+import { appQuitHelper } from "./mainHelpers/utilityMain";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -57,9 +61,7 @@ app.on("ready", () => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
+  appQuitHelper();
 });
 
 app.on("activate", () => {
@@ -75,4 +77,4 @@ app.on("activate", () => {
 
 initialize();
 
-registerHandlers();
+registerHandles();

@@ -1,6 +1,6 @@
 import { AccordionGroup, Box, Grid, Typography } from "@mui/joy";
 import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
-import { getNextID, getNextIDNumeric } from "../generalHelpers/getNextID";
+import { getNextID, getNextIDNumeric } from "../rendererHelpers/getNextID";
 import {
   addVariation,
   removeVariation,
@@ -10,7 +10,7 @@ import ButtonComp from "./ButtonComp";
 import VariationComponent from "./VariationComponent";
 import { parseUICode } from "../rendererHelpers/translation";
 import { defaultVariation } from "../defaultObjects";
-import { deepCopy } from "../rendererHelpers/utility";
+import { deepCopy } from "../rendererHelpers/utilityRenderer";
 
 type ComponentProps = {
   variations: {

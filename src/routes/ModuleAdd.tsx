@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router";
 import { Grid, Stack, Table, Typography } from "@mui/joy";
 import InputField from "../components/InputField";
 import NumberInput from "../components/NumberInput";
@@ -7,7 +7,7 @@ import ButtonComp from "../components/ButtonComp";
 import { ModuleData } from "../types";
 import { useModule } from "../rendererHelpers/assignmentHelpers";
 import { defaultModule } from "../defaultObjects";
-import { splitStringToArray } from "../generalHelpers/converters";
+import { splitStringToArray } from "../rendererHelpers/converters";
 import { parseUICode } from "../rendererHelpers/translation";
 import { useContext, useEffect } from "react";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";

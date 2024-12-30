@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router";
 import texts from "../../resource/texts.json";
 import {
   supportedModuleTypes,
@@ -22,7 +22,7 @@ import { defaultCourse } from "../defaultObjects";
 import {
   courseLevelsToString,
   splitCourseLevels,
-} from "../generalHelpers/converters";
+} from "../rendererHelpers/converters";
 import { CourseData } from "../types";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";

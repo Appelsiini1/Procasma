@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import {
   Box,
   Grid,
@@ -78,6 +78,7 @@ export default function AssignmentBrowse() {
   let modules: Array<React.JSX.Element> = null;
   let tags: Array<React.JSX.Element> = null;
   let types: Array<React.JSX.Element> = null;
+  let types: Array<React.JSX.Element> = null;
 
   const refreshAssignments = async () => {
     try {
@@ -87,6 +88,8 @@ export default function AssignmentBrowse() {
 
       const checkedTags: string[] = [];
       const checkedModules: string[] = [];
+      const checkedTypes: string[] = [];
+
       const checkedTypes: string[] = [];
 
       uniqueTags.forEach((element) => {
@@ -104,12 +107,18 @@ export default function AssignmentBrowse() {
           checkedTypes.push(element.value);
         }
       });
+      uniqueTypes.forEach((element) => {
+        if (element.isChecked) {
+          checkedTypes.push(element.value);
+        }
+      });
 
       const filters = {
         tags: checkedTags,
         module: checkedModules,
         type: checkedTypes,
         title: search,
+        assignmentType: checkedTypes[0],
       };
 
       let assignmentsResult: CodeAssignmentDatabase[] = [];
@@ -210,6 +219,7 @@ export default function AssignmentBrowse() {
   );
   modules = generateFilterList(uniqueModules, setUniqueModules);
   tags = generateFilterList(uniqueTags, setUniqueTags);
+  types = generateFilterList(uniqueTypes, setUniqueTypes, true);
   types = generateFilterList(uniqueTypes, setUniqueTypes, true);
 
   async function handleOpenAssignment() {

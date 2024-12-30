@@ -1,28 +1,56 @@
-import { useDropzone } from "react-dropzone";
+import { useDropzone, FileWithPath } from "react-dropzone";
 import { CSSProperties, useCallback, useMemo } from "react";
 import { Typography } from "@mui/material";
 import { parseUICode } from "../rendererHelpers/translation";
+import log from "electron-log/renderer";
+import { DropZoneFile } from "src/types";
 
 /**
  * Dropzone component for files
  */
 export const DropzoneComp = ({
-  handleSetFiles,
+  handleDropZoneFiles,
 }: {
-  handleSetFiles: (newPaths: Array<string>) => void;
+  handleDropZoneFiles: (newPaths: Array<DropZoneFile>) => void;
 }) => {
+  const reader = (file: File) =>
+    new Promise<DropZoneFile>((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () =>
+        resolve({ fileContent: fr.result as ArrayBuffer, fileName: file.name });
+      fr.onerror = (err) => reject(err);
+      fr.readAsArrayBuffer(file);
+    });
+
+  async function loadFiles(fileList: File[]) {
+    let fileResults: Array<DropZoneFile> = [];
+    const frPromises = fileList.map(reader);
+
+    try {
+      fileResults = await Promise.all(frPromises);
+    } catch (err) {
+      // In this specific case, Promise.all() might be preferred
+      // over Promise.allSettled(), since it isn't trivial to modify
+      // a FileList to a subset of files of what the user initially
+      // selected. Therefore, let's just stash the entire operation.
+      log.error(err);
+      throw err;
+    }
+    handleDropZoneFiles(fileResults);
+  }
+
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
+    async (acceptedFiles: FileWithPath[]) => {
       if (acceptedFiles?.length) {
         // add accepted files
-        const filePaths: Array<string> = acceptedFiles.map((file: File) => {
-          return file.path;
-        });
-
-        handleSetFiles(filePaths);
+        const fileList: File[] = [];
+        for (const file of acceptedFiles) {
+          fileList.push(await file.handle.getFile());
+        }
+        loadFiles(fileList);
       }
     },
-    [handleSetFiles]
+    [handleDropZoneFiles]
   );
 
   const {
@@ -33,6 +61,7 @@ export const DropzoneComp = ({
     isDragReject,
     isDragAccept,
   } = useDropzone({
+    /*@ts-ignore */
     onDrop,
     noClick: true,
   });

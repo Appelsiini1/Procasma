@@ -1,0 +1,6 @@
+{
+  "textExtensions": ["txt", "md"],
+  "dataExtensions": ["csv", "yml", "yaml", "log"],
+  "imageExtensions": ["jpg", "jpeg", "png", "gif", "bmp", "svg"],
+  "codeExtensions": ["js", "ts", "py", "cpp", "c", "cs", "html", "css", "json"]
+}

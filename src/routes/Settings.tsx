@@ -1,9 +1,8 @@
 import texts from "../../resource/texts.json";
 import { globalSettings, language } from "../globalsUI";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { Grid, Stack, Table, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
-import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
 import { SettingsType, SupportedLanguages } from "../types";
 import { useContext, useEffect, useState } from "react";
@@ -18,11 +17,17 @@ import {
   titleCellWidth,
 } from "../constantsUI";
 import HelpText from "../components/HelpText";
+import log from "electron-log/renderer";
 
 export default function Settings() {
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const navigate = useNavigate();
-  const [checked, setChecked] = useState<boolean>(globalSettings.shortenFiles);
+  const [checkedFiles, setCheckedFiles] = useState<boolean>(
+    globalSettings.shortenFiles
+  );
+  const [checkedCode, setCheckedCode] = useState<boolean>(
+    globalSettings.shortenCode
+  );
   const [settings, setSettings] = useState<SettingsType>(globalSettings.values);
   const [maxLines, setMaxLines] = useState<number>(
     globalSettings.fileMaxLinesDisplay
@@ -58,7 +63,7 @@ export default function Settings() {
   async function handleSaveSettings() {
     const newSettings: SettingsType = {
       ...settings,
-      shortenFiles: checked,
+      shortenFiles: checkedFiles,
       fileMaxLinesDisplay: maxLines,
     };
     setSettings(newSettings);
@@ -76,6 +81,7 @@ export default function Settings() {
       snackbarSeverity = "error";
     }
     handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
+    //log.debug(globalSettings);
   }
 
   useEffect(() => {
@@ -90,64 +96,6 @@ export default function Settings() {
         sx={{ minWidth: pageTableMinWidth, maxWidth: pageTableMaxWidth }}
       >
         <tbody>
-          <tr key="sUsername">
-            <td style={{ width: titleCellWidth }}>
-              <Typography level="h4">
-                {`CodeGrade ${parseUICode("ui_username")}`}
-              </Typography>
-            </td>
-            <td>
-              <InputField
-                fieldKey="caSetName"
-                onChange={null}
-                disabled={true}
-              />
-            </td>
-          </tr>
-
-          <tr key="sPassword">
-            <td style={{ width: titleCellWidth }}>
-              <Typography level="h4">
-                {`CodeGrade ${parseUICode("ui_password")}`}
-              </Typography>
-            </td>
-            <td>
-              <InputField
-                fieldKey="caSetName"
-                onChange={null}
-                disabled={true}
-              />
-            </td>
-          </tr>
-
-          <tr key="sOrganisation">
-            <td style={{ width: titleCellWidth }}>
-              <Typography level="h4">
-                {`CodeGrade ${parseUICode("ui_organisation")}`}
-              </Typography>
-            </td>
-            <td>
-              <InputField
-                fieldKey="caSetName"
-                onChange={null}
-                disabled={true}
-              />
-            </td>
-          </tr>
-
-          <tr key="caSignIn">
-            <td style={{ width: titleCellWidth }}>
-              <ButtonComp
-                buttonType="normalAlt"
-                onClick={null}
-                ariaLabel={parseUICode("ui_aria_cg_sign_in")}
-                disabled={true}
-              >
-                {parseUICode("ui_sign_in")}
-              </ButtonComp>
-            </td>
-          </tr>
-
           <tr key="sLanguage">
             <td>
               <Typography level="h4">
@@ -189,7 +137,7 @@ export default function Settings() {
               </Grid>
             </td>
             <td>
-              <SwitchComp checked={checked} setChecked={setChecked} />
+              <SwitchComp checked={checkedFiles} setChecked={setCheckedFiles} />
             </td>
           </tr>
 
@@ -214,6 +162,34 @@ export default function Settings() {
             </td>
             <td>
               <NumberInput min={1} value={maxLines} onChange={setMaxLines} />
+            </td>
+          </tr>
+
+          <tr key="sShortenCode">
+            <td style={{ width: titleCellWidth }}>
+              <Grid
+                container
+                direction="row"
+                justifyContent="flex-start"
+                alignItems="center"
+                spacing={1}
+              >
+                <Grid xs={10}>
+                  <Typography level="h4">
+                    {parseUICode("ui_shorten_code")}
+                  </Typography>
+                </Grid>
+                <Grid xs={2}>
+                  <HelpText text={parseUICode("help_shorten_code")} />
+                </Grid>
+              </Grid>
+            </td>
+            <td>
+              <SwitchComp
+                checked={checkedCode}
+                setChecked={setCheckedCode}
+                disabled={!checkedFiles}
+              />
             </td>
           </tr>
         </tbody>

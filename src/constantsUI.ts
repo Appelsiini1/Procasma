@@ -41,3 +41,4 @@ export const smallDividerSX = {
   marginRight: "7rem",
 };
 export const DEVMODE = devmode;
+export const COURSE_PERIODS = 4;

@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router";
 import {
   DEVMODE,
   dividerColor,
@@ -18,10 +18,10 @@ import { CodeAssignmentData, CourseData, Variation } from "../types";
 import {
   ForceToString,
   splitStringToArray,
-} from "../generalHelpers/converters";
+} from "../rendererHelpers/converters";
 import VariationsGroup from "../components/VariationsGroup";
 import { useContext, useEffect } from "react";
-import { deepCopy } from "../rendererHelpers/utility";
+import { deepCopy } from "../rendererHelpers/utilityRenderer";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";

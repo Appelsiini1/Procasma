@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router";
 import { dividerSX, DEVMODE } from "../constantsUI";
 import { Box, Divider, Grid, List, Stack, Table, Typography } from "@mui/joy";
 import InputField from "../components/InputField";
@@ -22,9 +22,9 @@ import {
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { useSet } from "../rendererHelpers/assignmentHelpers";
-import { deepCopy } from "../rendererHelpers/utility";
+import { deepCopy } from "../rendererHelpers/utilityRenderer";
 import { defaultSet, genericModule } from "../defaultObjects";
-import { ForceToString } from "../generalHelpers/converters";
+import { ForceToString } from "../rendererHelpers/converters";
 import {
   generateChecklistExpandingAssignment,
   generateChecklistSetAssignment,

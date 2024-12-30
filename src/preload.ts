@@ -4,7 +4,9 @@
 import { contextBridge, ipcRenderer } from "electron";
 import {
   CodeAssignmentData,
+  CodeGradeLogin,
   CourseData,
+  DropZoneFile,
   ExportSetData,
   ModuleData,
   SetData,
@@ -103,4 +105,17 @@ contextBridge.exposeInMainWorld("api", {
     courseData: CourseData,
     savePath: string
   ) => ipcRenderer.invoke("exportManySetsFS", setInput, courseData, savePath),
+
+  // CodeGrade
+  getTenants: () => ipcRenderer.invoke("getTenants"),
+  CGLogin: (loginDetails: CodeGradeLogin, fromSaved: boolean) =>
+    ipcRenderer.invoke("CGLogin", loginDetails, fromSaved),
+  saveCredentials: (loginDetails: CodeGradeLogin) =>
+    ipcRenderer.invoke("saveCredentials", loginDetails),
+  checkCredentialExistance: () =>
+    ipcRenderer.invoke("checkCredentialExistance"),
+  getATV2Config: (assigID: string) =>
+    ipcRenderer.invoke("getATV2Config", assigID),
+  saveCacheFiles: (fileList: DropZoneFile[]) =>
+    ipcRenderer.invoke("saveCacheFiles", fileList),
 });

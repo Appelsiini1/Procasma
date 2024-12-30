@@ -23,7 +23,7 @@ import {
   fileFolderSeparator,
   ShowdownOptions,
 } from "../constants";
-import { coursePath } from "../globalsMain";
+import { coursePath, globalSettings } from "../globalsMain";
 import { getModulesDB } from "./databaseOperations";
 import { createMainFunctionHandler } from "./ipcHelpers";
 import {
@@ -35,11 +35,10 @@ import {
   setUsedIn,
 } from "./fileOperations";
 import { css as papercolorLight } from "../../resource/cssImports/papercolor-light";
-import { globalSettings } from "../globalsUI";
 import { platform } from "node:process";
 import { genericModule } from "../defaultObjects";
-import { highlightCode } from "./highlighters";
-import { spacesToUnderscores } from "../generalHelpers/converters";
+import { highlightCode, parseLanguage } from "./highlighters";
+import { spacesToUnderscores } from "../mainHelpers/convertersMain";
 
 const converter = new showdown.Converter(ShowdownOptions);
 
@@ -93,6 +92,7 @@ export function setToFullData(set: ExportSetData): FullAssignmentSetData {
         folder: fullData.folder,
         codeLanguage: fullData.codeLanguage,
         title: fullData.title,
+        extraCredit: fullData.extraCredit,
       };
       assignmentArray.push(newAssignment);
     }
@@ -129,6 +129,7 @@ export function assignmentToFullData(
       folder: fullData.folder,
       codeLanguage: fullData.codeLanguage,
       title: fullData.title,
+      extraCredit: fullData.extraCredit,
     };
   });
 }
@@ -263,14 +264,22 @@ export async function exportSetFS(
         moduleAssignments.forEach((assignment, index) => {
           // Assignments
           const meta = { assignmentIndex: index, courseData: coursedata };
-          const normalblock = generateBlock(
+          html += generateBlock(
             meta,
             assignment,
             assignment.variation,
-            assignment.variatioId
+            assignment.variatioId,
+            false,
+            false
           );
-          html += normalblock;
-          solutionHtml += normalblock;
+          solutionHtml += generateBlock(
+            meta,
+            assignment,
+            assignment.variation,
+            assignment.variatioId,
+            false,
+            true
+          );
           const assignmentToFormat =
             convertedSet.assignmentArray[meta.assignmentIndex];
           solutionHtml += formatSolutions(
@@ -378,6 +387,15 @@ export async function exportProjectFS(
       projectInput as unknown as CodeAssignmentSelectionData,
       projectInput.variations[levelID],
       levelID,
+      true,
+      false
+    );
+    const solutionblock = generateBlock(
+      meta,
+      projectInput as unknown as CodeAssignmentSelectionData,
+      projectInput.variations[levelID],
+      levelID,
+      true,
       true
     );
 
@@ -385,10 +403,11 @@ export async function exportProjectFS(
     // Adds anchor tags to the ToC based on the generated block
     const toc = generateToCProject(normalblock);
     html += toc;
-    solutionHtml += toc;
+    const solutionToc = generateToCProject(solutionblock);
+    solutionHtml += solutionToc;
 
     html += normalblock;
-    solutionHtml += normalblock;
+    solutionHtml += solutionblock;
     solutionHtml += formatSolutions(
       projectInput as unknown as CodeAssignmentSelectionData,
       projectInput.variations[levelID].files,
@@ -614,6 +633,35 @@ function formatSolutions(
 }
 
 /**
+ * Shortens the filedata to the spesified length if the length is long enough.
+ * @param data File data as string
+ * @param language Highlight language
+ * @returns Formatted file contents
+ */
+function shortenFileData(data: string, language: string) {
+  let block = "";
+  if (
+    data.split("\n").length > globalSettings.fileMaxLinesDisplay &&
+    globalSettings.shortenFiles
+  ) {
+    const splitLines = data.split("\n");
+    const half = globalSettings.fileMaxLinesDisplay / 2;
+    const firstHalf = splitLines.slice(0, half);
+    const secondHalf = splitLines.slice(-(half + 1));
+
+    const newData = `${firstHalf.join("\n")}\n...\n${secondHalf.join("\n")}`;
+
+    block += `<p style="color: red; font-style: italic;">${parseUICodeMain(
+      "file_shortened"
+    )}</p>`;
+    block += highlightCode(newData, language);
+  } else {
+    block += highlightCode(data, language);
+  }
+  return block;
+}
+
+/**
  * Formats files that are not solution files. Will make titles based on file content type.
  * @param assignment
  * @param type Type of file to make title for
@@ -624,6 +672,7 @@ function formatFiles(
   type: FileData["fileContent"],
   variationID: string,
   files: FileData[],
+  includeAnswer: boolean,
   addAnchor?: boolean
 ): string {
   try {
@@ -631,7 +680,7 @@ function formatFiles(
     for (const file of files) {
       if (
         !file.solution &&
-        file.showStudent &&
+        (file.showStudent === true || includeAnswer === true) &&
         (file.fileType === "code" || file.fileType === "text") &&
         file.fileContent === type
       ) {
@@ -651,39 +700,33 @@ function formatFiles(
           newName
         );
         const data = readFileSync(filePath, "utf8");
-
-        const titleText = `${parseUICodeMain(
-          type === "data" ? "input_datafile" : "ex_resultfile"
-        )}: '${file.fileName}'`;
-
-        if (addAnchor) {
-          block += `<h3><a id="${file.fileName}">${titleText}</a></h3>`;
+        let header;
+        if (type === "data") {
+          header = parseUICodeMain("input_datafile");
+        } else if (type === "result") {
+          header = parseUICodeMain("ex_resultfile");
+        } else if (type === "code") {
+          header = parseUICodeMain("ui_codefile");
         } else {
-          block += `<h3>${titleText}</h3>`;
+          header = parseUICodeMain("file");
         }
-
+        if (addAnchor) {
+          block += `<h3><a id="${file.fileName}">${header}: '${file.fileName}'</a></h3>`;
+        } else {
+          block += `<h3>${header}: '${file.fileName}'</h3>`;
+        }
+        const fileLanguage = parseLanguage(filePath, assignment.codeLanguage);
         const language =
-          file.fileContent === "code" ? assignment.codeLanguage : "plaintext";
-        if (data.split("\n").length > globalSettings.fileMaxLinesDisplay) {
-          const splitLines = data.split("\n");
-          const half = globalSettings.fileMaxLinesDisplay / 2;
-          const firstHalf = splitLines.slice(0, half);
-          const secondHalf = splitLines.slice(-(half + 1));
-
-          const newData = `${firstHalf.join("\n")}\n...\n${secondHalf.join(
-            "\n"
-          )}`;
-
-          block += `<p style="color: red; font-style: italic;">${parseUICodeMain(
-            "file_shortened"
-          )}</p>`;
-          block += highlightCode(newData, language);
+          file.fileContent === "code" ? fileLanguage : "plaintext";
+        //log.debug(globalSettings);
+        if (file.fileContent !== "code" || globalSettings.shortenCode) {
+          block += shortenFileData(data, language);
         } else {
           block += highlightCode(data, language);
         }
       } else if (
         !file.solution &&
-        file.showStudent &&
+        (file.showStudent === true || includeAnswer === true) &&
         file.fileType === "image" &&
         file.fileContent === type
       ) {
@@ -710,6 +753,7 @@ function formatFiles(
         block += `<img src="${data}" alt="${file.fileName}" />`;
       }
     }
+    //log.debug(block);
     return block;
   } catch (err) {
     log.error("Error in file formatter: " + err.message);
@@ -816,6 +860,10 @@ function formatTitle(
   if (toc && assignment.level != null) {
     title += ` (${meta.courseData.levels[assignment.level].abbreviation})`;
   }
+
+  if (assignment.extraCredit) {
+    title += " (*)";
+  }
   return title;
 }
 
@@ -870,6 +918,7 @@ function addAnchorTagsToHeadings(html: string): string {
  * Generates an assignment block
  * @param meta Course data and assignment index
  * @param assignment The assignment
+ * @param includeAnswer Boolean whether to include blocks not shown to students
  * @returns HTML string
  */
 function generateBlock(
@@ -877,7 +926,8 @@ function generateBlock(
   assignment: CodeAssignmentSelectionData,
   variation: Variation,
   variationID: string,
-  isProject: boolean = false
+  isProject: boolean = false,
+  includeAnswer: boolean
 ): string {
   let block = `<div>
     `;
@@ -895,6 +945,12 @@ function generateBlock(
         meta.courseData.levels[assignment.level].fullName
       }</i>`;
     }
+  }
+
+  if (assignment?.extraCredit) {
+    block += `<p style="color: red; font-style: italic;"><b>${parseUICodeMain(
+      "extracredit_long"
+    )}</b></p>`;
   }
 
   //Instructions
@@ -915,7 +971,8 @@ function generateBlock(
     "data",
     variationID,
     variation.files,
-    isProject
+    isProject,
+    includeAnswer
   );
 
   // Example runs
@@ -932,9 +989,25 @@ function generateBlock(
     "result",
     variationID,
     variation.files,
+    includeAnswer,
     isProject
   );
-
+  block += formatFiles(
+    assignment,
+    "code",
+    variationID,
+    variation.files,
+    includeAnswer,
+    isProject
+  );
+  block += formatFiles(
+    assignment,
+    "other",
+    variationID,
+    variation.files,
+    includeAnswer,
+    isProject
+  );
   block += `</div>`;
 
   return block;
@@ -997,6 +1070,7 @@ function generateToC(
   courseData: CourseData,
   assignments: CodeAssignmentSelectionData[]
 ): string {
+  let hasExtraCredit = false;
   try {
     let block = `<h2>${parseUICodeMain("toc")}</h2>\n`;
     assignments.forEach((assignment, index) => {
@@ -1011,8 +1085,12 @@ function generateToC(
         true
       )}`;
       block += `</a></h3>`;
+      if (assignment.extraCredit) hasExtraCredit = true;
     });
 
+    if (hasExtraCredit) {
+      block += `<h4><i>${parseUICodeMain("extracredit_toc")}</i></h4>`;
+    }
     return block;
   } catch (err) {
     log.error("Error in generateTOC: " + err.message);
@@ -1055,7 +1133,7 @@ function generateToCProject(html: string): string {
 
     return block;
   } catch (err) {
-    log.error("Error in generateTOC: " + err.message);
+    log.error("Error in generateToCProject: " + err.message);
     throw err;
   }
 }

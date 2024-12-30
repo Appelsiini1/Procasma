@@ -103,6 +103,7 @@ class Settings implements SettingsType {
   private _language: string;
   private _shortenFiles: boolean;
   private _fileMaxLinesDisplay: number;
+  private _shortenCode: boolean;
 
   get codeLanguages() {
     return this._codeLanguages;
@@ -115,6 +116,9 @@ class Settings implements SettingsType {
   }
   get fileMaxLinesDisplay() {
     return this._fileMaxLinesDisplay;
+  }
+  get shortenCode() {
+    return this._shortenCode;
   }
 
   constructor() {
@@ -131,6 +135,7 @@ class Settings implements SettingsType {
     this._language = "ENG";
     this._shortenFiles = true;
     this._fileMaxLinesDisplay = 15;
+    this._shortenCode = false;
   }
 
   set values(data: SettingsType) {
@@ -138,6 +143,7 @@ class Settings implements SettingsType {
     this._language = data.language;
     this._shortenFiles = data.shortenFiles;
     this._fileMaxLinesDisplay = data.fileMaxLinesDisplay;
+    this._shortenCode = data.shortenCode;
   }
   get values() {
     return {
@@ -145,6 +151,7 @@ class Settings implements SettingsType {
       language: this._language,
       shortenFiles: this._shortenFiles,
       fileMaxLinesDisplay: this._fileMaxLinesDisplay,
+      shortenCode: this._shortenCode,
     };
   }
 
@@ -154,6 +161,7 @@ class Settings implements SettingsType {
       language: this._language,
       shortenFiles: this._shortenFiles,
       fileMaxLinesDisplay: this._fileMaxLinesDisplay,
+      shortenCode: this._shortenCode,
     };
   }
 
@@ -161,13 +169,29 @@ class Settings implements SettingsType {
     this._language = data.language;
     this._shortenFiles = data.shortenFiles;
     this._fileMaxLinesDisplay = data.fileMaxLinesDisplay;
+    this._shortenCode = data.shortenCode;
 
     // TODO this empties the code languages in the constructor
     /*const newCLS = [];
     for (const cl of data.codeLanguages) {
+      let fileExtensions: string[] = [];
+      this._codeLanguages.forEach((oldCL) => {
+        if (cl.name == oldCL.name) {
+          fileExtensions = [...oldCL.fileExtensions];
+          const newExtensions: string[] = cl.fileExtensions.split(";");
+          newExtensions.forEach((value) => {
+            if (!fileExtensions.includes(value)) {
+              fileExtensions.push(value);
+            }
+          });
+        }
+      });
+      if (fileExtensions.length == 0) {
+        fileExtensions = cl.fileExtensions.split(";");
+      }
       newCLS.push({
         name: cl.name,
-        fileExtensions: cl.fileExtensions.split(";"),
+        fileExtensions: fileExtensions,
       });
     }
     this._codeLanguages = newCLS;*/

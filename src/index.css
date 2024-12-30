@@ -63,3 +63,11 @@ body {
   transition: opacity 0.3s cubic-bezier(0.62, -0.01, 0.09, 0.94),
     filter 0.2s cubic-bezier(0.93, 0.01, 0.83, 0.19);
 }
+
+.loading {
+  align-items: center !important;
+  justify-content: center !important;
+  display: flex !important;
+  margin: auto;
+  height: 10rem;
+}

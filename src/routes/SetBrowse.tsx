@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { Box, List, Stack, Typography } from "@mui/joy";
 import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
@@ -218,6 +218,7 @@ export default function SetBrowse() {
             border: "2px solid lightgrey",
             borderRadius: "0.5rem",
           }}
+          overflow={"auto"}
         >
           <List>{sets}</List>
         </Box>
