@@ -27,7 +27,7 @@ import { CourseData } from "../types";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
-import { deepCopy } from "../rendererHelpers/utility";
+import { deepCopy } from "../rendererHelpers/utilityRenderer";
 
 export default function Course() {
   const {
