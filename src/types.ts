@@ -5,6 +5,10 @@ export const formatTypes: FormatType[] = ["pdf", "html"];
 export type FileTypes = "text" | "image" | "code";
 export type FileContents = "instruction" | "result" | "code" | "data" | "other";
 export type SupportedModuleType = "week" | "module" | "lecture" | null;
+export enum AssignmentTypes {
+  assignment = "assignment",
+  finalWork = "finalWork",
+}
 
 export interface FileData {
   fileName: string;
@@ -93,7 +97,9 @@ export interface CourseData {
   CodeGradeID?: number;
   minLevel?: number;
   maxLevel?: number;
-  levels?: LevelsType[] | null;
+  levels?: {
+    [key: string]: LevelsType | null;
+  };
 }
 
 export type CourseLoaderData = "create" | "manage";
@@ -240,6 +246,11 @@ export interface ImportAssignment {
   assignmentData: CodeAssignmentData;
 }
 
+export interface pathStack {
+  previousPath: string;
+  currentPath: string;
+}
+
 export interface CodeGradeLogin {
   username: string;
   password: string;
@@ -302,6 +313,11 @@ export type ContextBridgeAPI = {
   getAssignmentCountDB: (coursePath: string) => IpcResult;
   getFilteredAssignmentsDB: (coursePath: string, filters: any) => IpcResult;
   importAssignmentsFS: (coursePath: string, importPath: string) => IpcResult;
+  exportProjectFS: (
+    assignment: CodeAssignmentData,
+    coursedata: CourseData,
+    savePath: string
+  ) => IpcResult;
 
   // CRUD Module
   addModuleDB: (coursePath: string, module: ModuleData) => IpcResult;

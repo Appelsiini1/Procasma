@@ -171,7 +171,8 @@ class Settings implements SettingsType {
     this._fileMaxLinesDisplay = data.fileMaxLinesDisplay;
     this._shortenCode = data.shortenCode;
 
-    const newCLS = [];
+    // TODO this empties the code languages in the constructor
+    /*const newCLS = [];
     for (const cl of data.codeLanguages) {
       let fileExtensions: string[] = [];
       this._codeLanguages.forEach((oldCL) => {
@@ -193,7 +194,7 @@ class Settings implements SettingsType {
         fileExtensions: fileExtensions,
       });
     }
-    this._codeLanguages = newCLS;
+    this._codeLanguages = newCLS;*/
   }
 }
 

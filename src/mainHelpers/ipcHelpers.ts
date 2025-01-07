@@ -34,7 +34,7 @@ import {
   deleteModulesDB,
 } from "./databaseOperations";
 import { coursePath } from "../globalsMain";
-import { exportManySetsFS, exportSetFS } from "./html";
+import { exportManySetsFS, exportProjectFS, exportSetFS } from "./html";
 import { getSettings, saveSettings } from "./settings";
 import { version, DEVMODE } from "../constants";
 import { fetchAutoTestConfig, getTenants, logInToCG } from "./codegrade";
@@ -184,6 +184,12 @@ export function registerHandles() {
   ipcMain.handle(
     "importAssignmentsFS",
     formatIPCResult((path, importPath) => importAssignmentsFS(path, importPath))
+  );
+  ipcMain.handle(
+    "exportProjectFS",
+    formatIPCResult((assignment, courseData, savePath) =>
+      exportProjectFS(assignment, courseData, savePath)
+    )
   );
 
   // CRUD Module

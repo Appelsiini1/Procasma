@@ -85,7 +85,7 @@ export default function AssignmentInput() {
   let pageTitle: string = null;
   const moduleDisable = activeCourse?.moduleType !== null ? false : true;
   const levelsDisable = activeCourse?.levels !== null ? false : true;
-  const codeLanguageOptions = globalSettings.codeLanguages;
+  const codeLanguageOptions = deepCopy(globalSettings.codeLanguages);
   let prevAssignmentsChecklist: Array<React.JSX.Element> = null;
 
   if (pageType === "new") {

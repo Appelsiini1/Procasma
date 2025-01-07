@@ -1332,6 +1332,53 @@ export async function autoGenerateModulesFS(coursePath: string) {
   }
 }
 
+function _copyExportFileFS(
+  exportPath: string,
+  variationPath: string,
+  files: FileData[],
+  selectedPosition: number
+): number {
+  let numberOfFiles = 0;
+  const copyFiles = (pathToCopy: string, oldPath: string) => {
+    try {
+      // try to access the file to check if absolute path is valid
+      fs.accessSync(oldPath, fs.constants.R_OK | fs.constants.W_OK);
+
+      // then copy the file
+      fs.copyFileSync(oldPath, pathToCopy);
+      numberOfFiles++;
+    } catch (err) {
+      log.error("Error in copyExportFilesFS(): " + err.message);
+    }
+
+    return;
+  };
+  for (const file of files) {
+    let filePath = path.join(variationPath, file.fileName);
+    const newExportPath = path.join(
+      exportPath,
+      `${parseUICodeMain("assignment_letter")}${selectedPosition}`
+    );
+    createFolderFS(newExportPath);
+
+    // check if the file is in a subdirectory
+    const baseName = path.basename(file.fileName);
+    const dirName = path.basename(path.dirname(file.fileName));
+
+    // check if file.fileName has a directory before the file.
+    if (baseName !== file.fileName) {
+      createFolderFS(path.join(newExportPath, dirName));
+
+      const oldNameWithFolder = `${dirName}${fileFolderSeparator}${baseName}`;
+      filePath = path.join(variationPath, oldNameWithFolder);
+    }
+    copyFiles(path.join(newExportPath, file.fileName), filePath);
+  }
+  return numberOfFiles;
+}
+
+// TODO when passing in levels of a single project
+// - copy the "files" of a single variation (which is actually a level)
 export function copyExportFilesFS(
   assignments: CodeAssignmentSelectionData[],
   exportPath: string
@@ -1344,41 +1391,36 @@ export function copyExportFilesFS(
       assignment.folder,
       assignment.variatioId
     );
-    const copyFiles = (pathToCopy: string, oldPath: string) => {
-      try {
-        // try to access the file to check if absolute path is valid
-        fs.accessSync(oldPath, fs.constants.R_OK | fs.constants.W_OK);
 
-        // then copy the file
-        fs.copyFileSync(oldPath, pathToCopy);
-        amount += 1;
-        return;
-      } catch (err) {
-        log.error("Error in copyExportFilesFS(): " + err.message);
-      }
-    };
-    for (const file of assignment.variation.files) {
-      let filePath = path.join(variationPath, file.fileName);
-      const newExportPath = path.join(
-        exportPath,
-        `${parseUICodeMain("assignment_letter")}${assignment.selectedPosition}`
-      );
-      createFolderFS(newExportPath);
-
-      // check if the file is in a subdirectory
-      const baseName = path.basename(file.fileName);
-      const dirName = path.basename(path.dirname(file.fileName));
-
-      // check if file.fileName has a directory before the file.
-      if (baseName !== file.fileName) {
-        createFolderFS(path.join(newExportPath, dirName));
-
-        const oldNameWithFolder = `${dirName}${fileFolderSeparator}${baseName}`;
-        filePath = path.join(variationPath, oldNameWithFolder);
-      }
-      copyFiles(path.join(newExportPath, file.fileName), filePath);
-    }
+    amount += _copyExportFileFS(
+      exportPath,
+      variationPath,
+      assignment.variation.files,
+      assignment.selectedPosition
+    );
   });
+
+  log.info(`${amount} files copied to '${exportPath}'`);
+}
+
+// TODO when passing in levels of a single project
+// - copy the "files" of a single variation (which is actually a level)
+export function copyExportProjectFilesFS(
+  project: CodeAssignmentData,
+  exportPath: string,
+  level: string
+) {
+  log.info("Copying project files...");
+  let amount = 0;
+
+  const variationPath = path.join(coursePath.path, project.folder, level);
+
+  amount += _copyExportFileFS(
+    exportPath,
+    variationPath,
+    project.variations[level].files,
+    1 //assignment.selectedPosition
+  );
 
   log.info(`${amount} files copied to '${exportPath}'`);
 }

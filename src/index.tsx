@@ -39,8 +39,9 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 const App = () => {
   const { snackBarAttributes, showSnackbar, setShowSnackbar } =
     useContext(UIContext);
-  const { activeAssignment, activeModule, activeSet } =
+  const { activeAssignment, activeModule, activeSet, handlePathStackNewPath } =
     useContext(ActiveObjectContext);
+
   const router = createHashRouter([
     {
       path: "/",
@@ -171,6 +172,11 @@ const App = () => {
   useEffect(() => {
     updateLanguageInit();
   }, []);
+
+  // update the path stack for retrieving the previous pathname
+  useEffect(() => {
+    handlePathStackNewPath(router.state.location.pathname);
+  }, [router.state.location.pathname]);
 
   return (
     <>

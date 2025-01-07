@@ -12,7 +12,8 @@ import hljs from "highlight.js/lib/core";
 function _registerLanguage(language: string) {
   //register the languages you need
   //   if (hljs.getLanguage(language) !== null) return;
-  switch (language.toLowerCase()) {
+  const languageLowercase = language ? language.toLowerCase() : "";
+  switch (languageLowercase) {
     case "python":
       const python = require("highlight.js/lib/languages/python");
       hljs.registerLanguage("python", python);

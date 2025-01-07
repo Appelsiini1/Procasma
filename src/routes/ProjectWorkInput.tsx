@@ -1,5 +1,6 @@
 import { useLoaderData, useNavigate } from "react-router";
 import {
+  DEVMODE,
   dividerColor,
   pageTableMaxWidth,
   pageTableMinWidth,
@@ -46,7 +47,7 @@ export default function ProjectWorkInput() {
   const navigate = useNavigate();
   let pageTitle: string = null;
   const moduleDisable = activeCourse?.moduleType !== null ? false : true;
-  const codeLanguageOptions = globalSettings.codeLanguages;
+  const codeLanguageOptions = deepCopy(globalSettings.codeLanguages);
 
   if (pageType === "new") {
     pageTitle = parseUICode("ui_new_project_work");
@@ -207,6 +208,26 @@ export default function ProjectWorkInput() {
           >
             {parseUICode("ui_cancel")}
           </ButtonComp>
+          {DEVMODE ? (
+            <>
+              <ButtonComp
+                buttonType="debug"
+                onClick={() => console.log(assignment)}
+                ariaLabel={"debug"}
+              >
+                log assignment state
+              </ButtonComp>
+              <ButtonComp
+                buttonType="debug"
+                onClick={() => console.log(activeAssignment)}
+                ariaLabel={"debug"}
+              >
+                log active assignment
+              </ButtonComp>
+            </>
+          ) : (
+            ""
+          )}
         </Stack>
       </div>
     </>

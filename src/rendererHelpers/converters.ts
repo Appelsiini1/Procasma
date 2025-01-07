@@ -43,13 +43,15 @@ export function splitCourseLevels(input: string, check = false): LevelsType[] {
   return result.length > 0 ? result : null;
 }
 
-export function courseLevelsToString(levels: LevelsType[]): string {
-  if (!levels || levels.length === 0) {
+export function courseLevelsToString(levels: {
+  [key: string]: LevelsType | null;
+}): string {
+  if (!levels || Object.keys(levels).length === 0) {
     return "";
   }
-  const result: string = levels
-    .map((value) => {
-      const { fullName, abbreviation } = value;
+  const result: string = Object.keys(levels)
+    .map((levelKey) => {
+      const { fullName, abbreviation } = levels[levelKey];
       return `${fullName}:${abbreviation}`;
     })
     .join("\n");

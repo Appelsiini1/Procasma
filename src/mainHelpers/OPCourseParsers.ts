@@ -193,7 +193,9 @@ export function splitMarkdown(
 export function markdownExtractLevel(
   assignment: CodeAssignmentData,
   markdown: string,
-  levels: LevelsType[]
+  levels: {
+    [key: string]: LevelsType | null;
+  }
 ) {
   if (!assignment.level) {
     const lines = markdown.split(/\r?\n/);
@@ -202,8 +204,8 @@ export function markdownExtractLevel(
     );
 
     if (lineWithLevel) {
-      levels.forEach((level, index) => {
-        const levelName = level.fullName;
+      Object.keys(levels).forEach((levelId, index) => {
+        const levelName = levels[levelId].fullName;
         if (lineWithLevel.includes(levelName)) {
           assignment.level = index;
         }

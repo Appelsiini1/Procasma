@@ -19,6 +19,30 @@
     "FI": "Tehtävät",
     "ENG": "Assignments"
   },
+  "project_assignment_description": {
+    "FI": "Harjoitustyön tehtävänanto",
+    "ENG": "Final work description"
+  },
+  "project_minimum_level_assignment_description": {
+    "FI": "Harjoitustyön minimitason tehtävänanto",
+    "ENG": "Basic level final work description"
+  },
+  "project_basic_level_assignment_description": {
+    "FI": "Harjoitustyön perustason tehtävänanto",
+    "ENG": "Basic level final work description"
+  },
+  "project_target_level_assignment_description": {
+    "FI": "Harjoitustyön tavoitetason tehtävänanto",
+    "ENG": "Target level final work description"
+  },
+  "assignment_description": {
+    "FI": "Tehtävänanto",
+    "ENG": "Assignment"
+  },
+  "all": {
+    "FI": "Kaikki",
+    "ENG": "All"
+  },
   "ex_run": {
     "FI": "Esimerkkiajo",
     "ENG": "Example run"
@@ -315,6 +339,10 @@
   "ui_tags": {
     "FI": "Tunnisteet",
     "ENG": "Tags"
+  },
+  "ui_types": {
+    "FI": "Tyypit",
+    "ENG": "Types"
   },
   "ui_variations": {
     "FI": "Variaatiot",
@@ -895,6 +923,10 @@
   "ui_del_error_disk": {
     "FI": "Virhe tehtävän poistamisessa levyltä!",
     "ENG": "Error deleting assignment files from disk!"
+  },
+  "ui_export_project_success": {
+    "FI": "Harjoitustyö viety onnistuneesti.",
+    "ENG": "Project work succesfully exported."
   },
   "ui_del_error_index": {
     "FI": "Virhe poistettaessa tehtävää indeksistä.",
