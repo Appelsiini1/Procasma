@@ -1,12 +1,18 @@
+import { config } from "dotenv";
+// Dotenv config
+config();
 import { app, BrowserWindow, Menu } from "electron";
-import path from "path";
+import path from "node:path";
 import { version, DEVMODE } from "./constants";
 import { initialize } from "./mainHelpers/programInit";
 import log from "electron-log";
 import { registerHandles } from "./mainHelpers/ipcHelpers";
+import { appQuitHelper } from "./mainHelpers/utilityMain";
+import { workerID } from "./globalsMain";
+import started from "electron-squirrel-startup";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require("electron-squirrel-startup")) {
+if (started) {
   app.quit();
 }
 
@@ -14,8 +20,8 @@ log.initialize();
 log.info("-- STARTING PROCASMA MAIN --");
 log.info(`Procasma v${version}`);
 
-const createWindow = () => {
-  // Create the browser window.
+const createWindows = () => {
+  // Create the browser windows.
 
   const mainWindow = new BrowserWindow({
     width: 1600,
@@ -26,6 +32,7 @@ const createWindow = () => {
       spellcheck: false,
     },
     icon: "../resource/icons/icon",
+    show: false,
   });
 
   // and load the index.html of the app.
@@ -37,9 +44,33 @@ const createWindow = () => {
     );
   }
 
+  // Worker window
+  const workerWindow = new BrowserWindow({
+    webPreferences: {
+      contextIsolation: true,
+      spellcheck: false,
+      preload: path.join(__dirname, "preload.js"),
+    },
+    show: false,
+  });
+
+  if (WORKER_WINDOW_VITE_DEV_SERVER_URL) {
+    workerWindow.loadURL(WORKER_WINDOW_VITE_DEV_SERVER_URL + "/worker.html");
+  } else {
+    workerWindow.loadFile(
+      path.join(__dirname, `../renderer/${WORKER_WINDOW_VITE_NAME}/worker.html`)
+    );
+  }
+  workerID.id = workerWindow.id;
+
+  mainWindow.once("ready-to-show", () => {
+    mainWindow.show();
+  });
+
   // Open the DevTools.
   if (DEVMODE) {
     mainWindow.webContents.openDevTools();
+    workerWindow.webContents.openDevTools();
   }
 };
 
@@ -50,23 +81,21 @@ Menu.setApplicationMenu(null);
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
-  createWindow();
+  createWindows();
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
+  appQuitHelper();
 });
 
 app.on("activate", () => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+    createWindows();
   }
 });
 

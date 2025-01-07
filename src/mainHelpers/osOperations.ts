@@ -1,5 +1,5 @@
 import { env, platform } from "node:process";
-import path from "path";
+import path from "node:path";
 
 export function getApplicationDir() {
   const basePath = env.APPDATA || env.HOME;
@@ -20,6 +20,11 @@ export function getCacheDir() {
   } else {
     return getApplicationDir();
   }
+}
+
+export function getFileCacheDir() {
+  const basePath = getCacheDir();
+  return path.join(basePath, "FileCache");
 }
 
 export function getDarwinSettingsDir() {

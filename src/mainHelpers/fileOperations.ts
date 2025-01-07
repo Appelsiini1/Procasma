@@ -1,9 +1,10 @@
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import {
   CodeAssignmentData,
   CodeAssignmentSelectionData,
   CourseData,
+  DropZoneFile,
   ExportSetData,
   FileData,
   FormatType,
@@ -13,13 +14,12 @@ import {
   SetVariation,
   Variation,
 } from "../types";
-import { spacesToUnderscores } from "../generalHelpers/converters";
+import { spacesToUnderscores } from "./convertersMain";
 import {
   assignmentDataFolder,
   courseMetaDataFileName,
   fileFolderSeparator,
 } from "../constants";
-import { createHash } from "crypto";
 import {
   addAssignmentDB,
   addModuleDB,
@@ -34,8 +34,8 @@ import {
 import log from "electron-log/node";
 import { createPDF, generateHeaderFooter } from "./pdf";
 import { parseUICodeMain } from "./language";
-import { platform } from "process";
-import { deepCopy } from "../rendererHelpers/utility";
+import { platform } from "node:process";
+import { deepCopy, createSHAhash } from "./utilityMain";
 import {
   defaultAssignment,
   defaultModule,
@@ -43,6 +43,7 @@ import {
 } from "../defaultObjects";
 import { addFileToVariation } from "./OPCourseParsers";
 import { coursePath } from "../globalsMain";
+import { getFileCacheDir } from "./osOperations";
 
 // General
 
@@ -87,10 +88,6 @@ export function createFolderFS(
     log.error("Error in createFolderFS():", err.message);
     throw err;
   }
-}
-
-function _SHAhashFS(content: string) {
-  return createHash("sha256").update(content).digest("hex");
 }
 
 /**
@@ -230,7 +227,7 @@ function _generateAssignmentHashFS(assignment: CodeAssignmentData) {
   try {
     // generate hash from assignment metadata
     const metadata: string = JSON.stringify(assignment);
-    const hash: string = _SHAhashFS(metadata);
+    const hash: string = createSHAhash(metadata);
 
     // set assignmentID to hash
     assignment.assignmentID = hash;
@@ -736,6 +733,7 @@ export async function _handleAddImportedAssignmentWithSameFolderFS(
     }
 
     assignment.folder = path.join(assignmentDataFolder, assignmentFolder);
+    assignment.extraCredit = false;
 
     // create variant folders and copy files
     const variations: { [key: string]: Variation } = assignment.variations;
@@ -1048,7 +1046,7 @@ export function _handleAddOrUpdateSetFS(
 
     // generate an id for the set if it is new
     if (!isOldSet) {
-      set.id = _SHAhashFS(JSON.stringify(set));
+      set.id = createSHAhash(JSON.stringify(set));
       newSets.push(set);
     } else {
       // update the given set
@@ -1183,8 +1181,10 @@ export async function saveSetModuleFS(
   format: FormatType,
   courseData: CourseData,
   savePath: string,
+  replaceExisting: boolean,
   moduleString?: string
 ) {
+  if (replaceExisting === undefined) replaceExisting = false;
   try {
     const filename = title.replace(" ", "");
     const solutionFilename =
@@ -1193,31 +1193,46 @@ export async function saveSetModuleFS(
     createFolderFS(path.join(savePath, filename));
     savePath = path.join(savePath, filename);
     if (format === "html") {
-      let newSavePathHTML = checkFileExistanceFS(
-        path.join(savePath, filename) + ".html"
-      );
-      fs.writeFileSync(newSavePathHTML, html, "utf-8");
+      let HTMLSavePath: string;
+      let solutionSavePath: string;
 
-      newSavePathHTML = checkFileExistanceFS(
-        path.join(savePath, solutionFilename + ".html")
-      );
-      fs.writeFileSync(newSavePathHTML, solutionHtml, "utf-8");
+      if (!replaceExisting) {
+        HTMLSavePath = checkFileExistanceFS(
+          path.join(savePath, filename) + ".html"
+        );
+        solutionSavePath = checkFileExistanceFS(
+          path.join(savePath, solutionFilename + ".html")
+        );
+      } else {
+        HTMLSavePath = path.join(savePath, filename) + ".html";
+        solutionSavePath = path.join(savePath, solutionFilename + ".html");
+      }
+      fs.writeFileSync(HTMLSavePath, html, "utf-8");
+      fs.writeFileSync(solutionSavePath, solutionHtml, "utf-8");
     } else if (format === "pdf") {
-      let newSavePathPDF = checkFileExistanceFS(
-        path.join(savePath, filename) + ".pdf"
-      );
+      let PDFSavePath: string;
+      let solutionSavePath: string;
+
+      if (!replaceExisting) {
+        PDFSavePath = checkFileExistanceFS(
+          path.join(savePath, filename) + ".pdf"
+        );
+        solutionSavePath = checkFileExistanceFS(
+          path.join(savePath, solutionFilename + ".pdf")
+        );
+      } else {
+        PDFSavePath = path.join(savePath, filename) + ".pdf";
+        solutionSavePath = path.join(savePath, solutionFilename + ".pdf");
+      }
       await createPDF(
         {
           html: html,
           title: title,
           ...generateHeaderFooter(courseData, moduleString),
         },
-        newSavePathPDF
+        PDFSavePath
       );
 
-      newSavePathPDF = checkFileExistanceFS(
-        path.join(savePath, solutionFilename) + ".pdf"
-      );
       const answerTitle =
         title + " " + parseUICodeMain("answers").toUpperCase();
       await createPDF(
@@ -1226,7 +1241,7 @@ export async function saveSetModuleFS(
           title: answerTitle,
           ...generateHeaderFooter(courseData, moduleString),
         },
-        newSavePathPDF
+        solutionSavePath
       );
     }
   } catch (err) {
@@ -1329,6 +1344,53 @@ export async function autoGenerateModulesFS(coursePath: string) {
   }
 }
 
+function _copyExportFileFS(
+  exportPath: string,
+  variationPath: string,
+  files: FileData[],
+  selectedPosition: number
+): number {
+  let numberOfFiles = 0;
+  const copyFiles = (pathToCopy: string, oldPath: string) => {
+    try {
+      // try to access the file to check if absolute path is valid
+      fs.accessSync(oldPath, fs.constants.R_OK | fs.constants.W_OK);
+
+      // then copy the file
+      fs.copyFileSync(oldPath, pathToCopy);
+      numberOfFiles++;
+    } catch (err) {
+      log.error("Error in copyExportFilesFS(): " + err.message);
+    }
+
+    return;
+  };
+  for (const file of files) {
+    let filePath = path.join(variationPath, file.fileName);
+    const newExportPath = path.join(
+      exportPath,
+      `${parseUICodeMain("assignment_letter")}${selectedPosition}`
+    );
+    createFolderFS(newExportPath);
+
+    // check if the file is in a subdirectory
+    const baseName = path.basename(file.fileName);
+    const dirName = path.basename(path.dirname(file.fileName));
+
+    // check if file.fileName has a directory before the file.
+    if (baseName !== file.fileName) {
+      createFolderFS(path.join(newExportPath, dirName));
+
+      const oldNameWithFolder = `${dirName}${fileFolderSeparator}${baseName}`;
+      filePath = path.join(variationPath, oldNameWithFolder);
+    }
+    copyFiles(path.join(newExportPath, file.fileName), filePath);
+  }
+  return numberOfFiles;
+}
+
+// TODO when passing in levels of a single project
+// - copy the "files" of a single variation (which is actually a level)
 export function copyExportFilesFS(
   assignments: CodeAssignmentSelectionData[],
   exportPath: string
@@ -1341,41 +1403,36 @@ export function copyExportFilesFS(
       assignment.folder,
       assignment.variatioId
     );
-    const copyFiles = (pathToCopy: string, oldPath: string) => {
-      try {
-        // try to access the file to check if absolute path is valid
-        fs.accessSync(oldPath, fs.constants.R_OK | fs.constants.W_OK);
 
-        // then copy the file
-        fs.copyFileSync(oldPath, pathToCopy);
-        amount += 1;
-        return;
-      } catch (err) {
-        log.error("Error in copyExportFilesFS(): " + err.message);
-      }
-    };
-    for (const file of assignment.variation.files) {
-      let filePath = path.join(variationPath, file.fileName);
-      const newExportPath = path.join(
-        exportPath,
-        `${parseUICodeMain("assignment_letter")}${assignment.selectedPosition}`
-      );
-      createFolderFS(newExportPath);
-
-      // check if the file is in a subdirectory
-      const baseName = path.basename(file.fileName);
-      const dirName = path.basename(path.dirname(file.fileName));
-
-      // check if file.fileName has a directory before the file.
-      if (baseName !== file.fileName) {
-        createFolderFS(path.join(newExportPath, dirName));
-
-        const oldNameWithFolder = `${dirName}${fileFolderSeparator}${baseName}`;
-        filePath = path.join(variationPath, oldNameWithFolder);
-      }
-      copyFiles(path.join(newExportPath, file.fileName), filePath);
-    }
+    amount += _copyExportFileFS(
+      exportPath,
+      variationPath,
+      assignment.variation.files,
+      assignment.selectedPosition
+    );
   });
+
+  log.info(`${amount} files copied to '${exportPath}'`);
+}
+
+// TODO when passing in levels of a single project
+// - copy the "files" of a single variation (which is actually a level)
+export function copyExportProjectFilesFS(
+  project: CodeAssignmentData,
+  exportPath: string,
+  level: string
+) {
+  log.info("Copying project files...");
+  let amount = 0;
+
+  const variationPath = path.join(coursePath.path, project.folder, level);
+
+  amount += _copyExportFileFS(
+    exportPath,
+    variationPath,
+    project.variations[level].files,
+    1 //assignment.selectedPosition
+  );
 
   log.info(`${amount} files copied to '${exportPath}'`);
 }
@@ -1410,4 +1467,44 @@ export function getBase64String(filepath: string): string {
     log.error("Error in getBase64String():", err.message);
     throw err;
   }
+}
+
+export async function saveToCache(fileList: DropZoneFile[]) {
+  const cachePath = getFileCacheDir();
+
+  const filePromise = (file: DropZoneFile) =>
+    new Promise<string>((resolve, reject) => {
+      const filePath = path.join(cachePath, file.fileName);
+      fs.writeFile(filePath, new DataView(file.fileContent), (err) => {
+        if (err) {
+          reject(err.message);
+        } else {
+          resolve(filePath);
+        }
+      });
+    });
+
+  const fsPromises = fileList.map(filePromise);
+  let filePaths: string[] = [];
+
+  try {
+    filePaths = await Promise.all(fsPromises);
+  } catch (err) {
+    log.error("Error in saveToCache: ", err.message);
+    throw err;
+  }
+  log.info(`${fsPromises.length} files written to cache.`);
+  return filePaths;
+}
+
+export function clearFileCache(callback: () => void) {
+  const cachePath = getFileCacheDir();
+
+  fs.readdir(cachePath, (err, files) => {
+    files.forEach((file) => {
+      const fullPath = path.join(cachePath, file);
+      fs.rmSync(fullPath);
+    });
+    callback();
+  });
 }

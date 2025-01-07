@@ -3,8 +3,12 @@ export type SupportedLanguages = "FI" | "ENG";
 export type FormatType = "pdf" | "html";
 export const formatTypes: FormatType[] = ["pdf", "html"];
 export type FileTypes = "text" | "image" | "code";
-export type FileContents = "instruction" | "result" | "code" | "data";
+export type FileContents = "instruction" | "result" | "code" | "data" | "other";
 export type SupportedModuleType = "week" | "module" | "lecture" | null;
+export enum AssignmentTypes {
+  assignment = "assignment",
+  finalWork = "finalWork",
+}
 
 export interface FileData {
   fileName: string;
@@ -15,9 +19,14 @@ export interface FileData {
   fileType: FileTypes;
 }
 
+export interface DropZoneFile {
+  fileContent: ArrayBuffer;
+  fileName: string;
+}
+
 export interface CGData {
   id: string;
-  atv2: object;
+  atv2: any;
 }
 
 export interface ExampleRunType {
@@ -43,6 +52,7 @@ export interface CommonAssignmentData {
   tags: Array<string>;
   module: number | null;
   folder: string; // used to indicate the folder that the assignment is located in under assignmentData
+  extraCredit: boolean;
 }
 
 export interface CodeAssignmentData extends CommonAssignmentData {
@@ -87,7 +97,9 @@ export interface CourseData {
   CodeGradeID?: number;
   minLevel?: number;
   maxLevel?: number;
-  levels?: LevelsType[] | null;
+  levels?: {
+    [key: string]: LevelsType | null;
+  };
 }
 
 export type CourseLoaderData = "create" | "manage";
@@ -97,7 +109,7 @@ export interface SettingsType {
   language: string;
   shortenFiles: boolean;
   fileMaxLinesDisplay: number;
-  chromePath: string;
+  shortenCode: boolean;
 }
 
 export interface SetVariation
@@ -151,6 +163,7 @@ export interface SetData {
   assignments: SetAssignmentWithCheck[];
   targetModule: number;
   targetPosition: number;
+  replaceExisting: boolean;
 }
 
 export interface ExportSetAssignmentData {
@@ -193,6 +206,7 @@ export type CodeAssignmentDatabase = {
   level: number | null;
   isExpanding: boolean;
   path: string;
+  extraCredit: number;
 };
 
 export type ModuleDatabase = {
@@ -233,6 +247,37 @@ export interface ImportAssignment {
   assignmentData: CodeAssignmentData;
 }
 
+export interface pathStack {
+  previousPath: string;
+  currentPath: string;
+}
+
+export interface CodeGradeLogin {
+  username: string;
+  password: string;
+  tenantId: string;
+  hostname: string;
+}
+
+export interface CodeGradeTenant {
+  id: string;
+  name: string;
+  sso_provider_id: string;
+  statistics: null;
+  abbreviated_name: string;
+  is_hidden: boolean;
+  order_category: number;
+  netloc: string;
+  logo_default_url: string;
+  logo_dark_url: string;
+  price: number | null;
+  contract_start: string;
+}
+
+export interface CGEncryptLogin extends CodeGradeLogin {
+  OSUser: string;
+}
+
 export type ContextBridgeAPI = {
   // One-way, Renderer to Main
   setTitle: (title: string) => IpcResult;
@@ -269,6 +314,11 @@ export type ContextBridgeAPI = {
   getAssignmentCountDB: (coursePath: string) => IpcResult;
   getFilteredAssignmentsDB: (coursePath: string, filters: any) => IpcResult;
   importAssignmentsFS: (coursePath: string, importPath: string) => IpcResult;
+  exportProjectFS: (
+    assignment: CodeAssignmentData,
+    coursedata: CourseData,
+    savePath: string
+  ) => IpcResult;
 
   // CRUD Module
   addModuleDB: (coursePath: string, module: ModuleData) => IpcResult;
@@ -300,4 +350,16 @@ export type ContextBridgeAPI = {
     coursedata: CourseData,
     savePath: string
   ) => IpcResult;
+
+  // CodeGrade
+  getTenants: () => IpcResult;
+  CGLogin: (loginDetails: CodeGradeLogin, fromSaved: boolean) => IpcResult;
+  getATV2Config: (assigID: string) => IpcResult;
+
+  // Credentials and encryption
+  saveCredentials: (loginDetails: CodeGradeLogin) => IpcResult;
+  checkCredentialExistance: () => IpcResult;
+
+  // Other file system related
+  saveCacheFiles: (fileList: DropZoneFile[]) => IpcResult;
 };

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import {
   Box,
   Grid,
@@ -143,7 +143,12 @@ export default function ModuleBrowse() {
     refreshModules();
   }, [uniqueTags]);
 
-  modules = generateChecklist(courseModules, setCourseModules, false);
+  modules = generateChecklist(
+    courseModules,
+    setCourseModules,
+    handleOpenModule,
+    false
+  );
   tags = generateFilterList(uniqueTags, setUniqueTags);
 
   async function handleOpenModule() {

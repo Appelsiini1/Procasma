@@ -1,5 +1,8 @@
-import { Input, Textarea } from "@mui/joy";
-import React from "react";
+import { IconButton, Input, Textarea } from "@mui/joy";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import React, { useEffect, useState } from "react";
+import log from "electron-log/renderer";
 
 type ButtonProps = {
   isLarge?: boolean;
@@ -7,6 +10,7 @@ type ButtonProps = {
   defaultValue?: string;
   disabled?: boolean;
   fieldKey: string;
+  type?: "password" | "text";
   onChange: (value: string | number) => void;
 };
 
@@ -16,6 +20,7 @@ export default function InputField({
   defaultValue = null,
   disabled = false,
   fieldKey,
+  type = "text",
   onChange,
 }: ButtonProps) {
   let component: React.JSX.Element = null;
@@ -27,6 +32,29 @@ export default function InputField({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
   };
+  const [fieldType, setFieldType] = useState<ButtonProps["type"]>(type);
+  const [decorator, setDecorator] = useState<React.JSX.Element>(null);
+  const [decoratorState, setDecoratorState] = useState<"visible" | "hidden">(
+    "hidden"
+  );
+
+  function handlePasswordVisibilityChange() {
+    if (decoratorState === "hidden") {
+      setDecorator(<VisibilityOffIcon />);
+      setFieldType("text");
+      setDecoratorState("visible");
+    } else {
+      setDecorator(<VisibilityIcon />);
+      setFieldType("password");
+      setDecoratorState("hidden");
+    }
+  }
+
+  useEffect(() => {
+    if (type === "password") {
+      setDecorator(<VisibilityIcon />);
+    }
+  }, []);
 
   if (isLarge) {
     component = (
@@ -45,10 +73,21 @@ export default function InputField({
     component = (
       <Input
         sx={{ maxWidth: "100%", minWidth: "10em" }}
+        type={fieldType}
         placeholder={placeholder}
         defaultValue={defaultValue}
         key={fieldKey}
         disabled={disabled}
+        startDecorator={
+          type === "password" ? (
+            <IconButton
+              onClick={() => handlePasswordVisibilityChange()}
+              variant="plain"
+            >
+              {decorator}
+            </IconButton>
+          ) : null
+        }
         onChange={handleChange}
       />
     );

@@ -1,7 +1,6 @@
-import { IpcMainInvokeEvent, ipcMain, app, BrowserWindow } from "electron";
-import { IpcResult } from "../types";
-import log from "electron-log";
-
+import { IpcMainInvokeEvent, ipcMain, BrowserWindow } from "electron";
+import { DropZoneFile, IpcResult } from "../types";
+import log from "electron-log/node";
 import { handleDirectorySelect, handleFilesOpen } from "./fileDialog";
 import {
   handleGetAssignmentsFS,
@@ -18,6 +17,7 @@ import {
   getTruncatedAssignmentsFS,
   importAssignmentsFS,
   autoGenerateModulesFS,
+  saveToCache,
 } from "./fileOperations";
 import {
   getAssignmentsDB,
@@ -33,9 +33,12 @@ import {
   deleteModulesDB,
 } from "./databaseOperations";
 import { coursePath } from "../globalsMain";
-import { exportManySetsFS, exportSetFS } from "./html";
+import { exportManySetsFS, exportProjectFS, exportSetFS } from "./html";
 import { getSettings, saveSettings } from "./settings";
 import { version, DEVMODE } from "../constants";
+import { fetchAutoTestConfig, getTenants, logInToCG } from "./codegrade";
+import { checkCredentialExistance, saveCredentials } from "./encryption";
+import { appQuitHelper } from "./utilityMain";
 
 type IpcHandler = (
   event: IpcMainInvokeEvent,
@@ -49,14 +52,15 @@ type IpcHandler = (
  * for the render process.
  */
 export function formatIPCResult(
-  databaseFunction: (...args: any[]) => Promise<any> | any
+  mainFunction: (...args: any[]) => Promise<any> | any
 ): IpcHandler {
   return async (event: IpcMainInvokeEvent, ...args: any[]) => {
     try {
-      const result = await databaseFunction(...args);
+      const result = await mainFunction(...args);
       return { content: result };
     } catch (err) {
       log.error("Error in formatIPCResult():", err.message);
+      log.error(mainFunction);
       return { errorMessage: err.message };
     }
   };
@@ -94,10 +98,9 @@ export function registerHandles() {
     coursePath.path = path;
   });
 
-  ipcMain.on("close-app", (event) => app.quit());
+  ipcMain.on("close-app", (event) => appQuitHelper());
 
   // Bidirectional, renderer to main to renderer
-
   // General
 
   ipcMain.handle(
@@ -181,6 +184,12 @@ export function registerHandles() {
     "importAssignmentsFS",
     formatIPCResult((path, importPath) => importAssignmentsFS(path, importPath))
   );
+  ipcMain.handle(
+    "exportProjectFS",
+    formatIPCResult((assignment, courseData, savePath) =>
+      exportProjectFS(assignment, courseData, savePath)
+    )
+  );
 
   // CRUD Module
 
@@ -253,5 +262,37 @@ export function registerHandles() {
     formatIPCResult((setInput, courseData, savePath) =>
       exportManySetsFS(setInput, courseData, savePath)
     )
+  );
+
+  // CodeGrade
+  ipcMain.handle(
+    "getTenants",
+    formatIPCResult(() => getTenants())
+  );
+  ipcMain.handle(
+    "CGLogin",
+    formatIPCResult((loginDetails, fromSaved) =>
+      logInToCG(loginDetails, fromSaved)
+    )
+  );
+
+  // Credentials and encryption
+  ipcMain.handle(
+    "saveCredentials",
+    formatIPCResult((loginDetails) => saveCredentials(loginDetails))
+  );
+  ipcMain.handle(
+    "checkCredentialExistance",
+    formatIPCResult(() => checkCredentialExistance())
+  );
+  ipcMain.handle(
+    "getATV2Config",
+    formatIPCResult((assigID) => fetchAutoTestConfig(assigID))
+  );
+
+  // Other file system related
+  ipcMain.handle(
+    "saveCacheFiles",
+    formatIPCResult((fileList: DropZoneFile[]) => saveToCache(fileList))
   );
 }

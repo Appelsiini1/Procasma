@@ -66,16 +66,22 @@ export function handleUpdateUniqueTags(
   setUniqueTags(tagsFilter);
 }
 
+/**
+ * Update the unique filter options to be displayed and set checked to false.
+ * @param elements Any array of filter string values
+ * @param setter The setter for the unique filter
+ */
 export function handleUpdateFilter(
-  values: ModuleDatabase[],
-  setter: React.Dispatch<React.SetStateAction<filterState[]>>
+  elements: string[],
+  setter: React.Dispatch<React.SetStateAction<filterState[]>>,
+  defaultChecked?: boolean
 ) {
   const filters: filterState[] = [];
 
-  values.forEach((value) => {
+  elements.forEach((element) => {
     const uniqueFilter: filterState = {
-      isChecked: false,
-      value: value.name,
+      isChecked: defaultChecked ?? false,
+      value: element,
     };
     filters.push(uniqueFilter);
   });
@@ -168,6 +174,7 @@ function sortAssignments(a: CodeAssignmentData, b: CodeAssignmentData) {
 export function generateChecklist(
   items: WithCheckWrapper[],
   setItems: React.Dispatch<React.SetStateAction<WithCheckWrapper[]>>,
+  handleOpen: () => void,
   isAssignment?: boolean,
   isSet?: boolean,
   disabled?: boolean
@@ -223,10 +230,12 @@ export function generateChecklist(
           >
             <ListItemButton
               selected={item.isChecked}
+              sx={{ userSelect: "none" }}
               disabled={disabled}
               onClick={() =>
                 handleCheckArray(item.value, !item.isChecked, setItems)
               }
+              onDoubleClick={() => handleOpen()}
             >
               {titleOrName}
               {item.value.isExpanding === "1" ? (
@@ -545,7 +554,7 @@ export function setSelectedViaChecked(
 export function generateFilterList(
   uniques: filterState[],
   setUniques: React.Dispatch<React.SetStateAction<filterState[]>>,
-  useParseUICode?: boolean
+  parseUICodes?: boolean
 ): Array<React.JSX.Element> {
   const filters = uniques
     ? uniques.map((unique, index) => {
@@ -567,9 +576,9 @@ export function generateFilterList(
                 handleCheckArray(unique.value, !unique.isChecked, setUniques)
               }
             >
-              {String(
-                useParseUICode ? parseUICode(unique.value) : unique.value
-              )}
+              {parseUICodes
+                ? parseUICode(`ui_${String(unique.value)}`)
+                : String(unique.value)}
             </ListItemButton>
           </ListItem>
         );

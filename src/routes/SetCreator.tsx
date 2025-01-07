@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router";
 import { dividerSX, DEVMODE } from "../constantsUI";
 import { Box, Divider, Grid, List, Stack, Table, Typography } from "@mui/joy";
 import InputField from "../components/InputField";
@@ -22,9 +22,9 @@ import {
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { useSet } from "../rendererHelpers/assignmentHelpers";
-import { deepCopy } from "../rendererHelpers/utility";
+import { deepCopy } from "../rendererHelpers/utilityRenderer";
 import { defaultSet, genericModule } from "../defaultObjects";
-import { ForceToString } from "../generalHelpers/converters";
+import { ForceToString } from "../rendererHelpers/converters";
 import {
   generateChecklistExpandingAssignment,
   generateChecklistSetAssignment,
@@ -39,6 +39,7 @@ import {
   exportSetToDisk,
 } from "../rendererHelpers/setHelpers";
 import log from "electron-log/renderer";
+import HelpText from "../components/HelpText";
 
 interface LegalMove {
   module: number;
@@ -712,10 +713,16 @@ export default function SetCreator() {
 
       setHasGenericModule(true);
       handleStepperState(1);
-    } else {
+    } else if (
+      (stepperState === 0 && set.fullCourse) ||
+      (stepperState === 0 && !set.fullCourse && allModules.length > 0) ||
+      stepperState > 0
+    ) {
       // log.debug(allModules);
       setHasGenericModule(false);
       handleStepperState(1);
+    } else {
+      handleSnackbar({ ["error"]: parseUICode("error_no_modules_in_set") });
     }
   }
 
@@ -899,6 +906,39 @@ export default function SetCreator() {
                     checked={set?.exportCGConfigs}
                     setChecked={(value: boolean) =>
                       handleSet("exportCGConfigs", value)
+                    }
+                  />
+                </td>
+              </tr>
+
+              <tr key="asReplaceExisting">
+                <td style={{ width: "25%" }}>
+                  <Grid
+                    container
+                    direction="row"
+                    justifyContent="flex-start"
+                    alignItems="center"
+                    spacing={1}
+                  >
+                    <Grid xs={10}>
+                      <Typography level="h4">
+                        {parseUICode("ui_replace_existing")}
+                      </Typography>
+                    </Grid>
+                    <Grid xs={2}>
+                      <HelpText text={parseUICode("help_replace_existing")} />
+                    </Grid>
+                  </Grid>
+                </td>
+                <td>
+                  <SwitchComp
+                    checked={
+                      set?.replaceExisting === undefined
+                        ? false
+                        : set?.replaceExisting
+                    }
+                    setChecked={(value: boolean) =>
+                      handleSet("replaceExisting", value)
                     }
                   />
                 </td>

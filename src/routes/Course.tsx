@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router";
 import texts from "../../resource/texts.json";
 import {
   supportedModuleTypes,
@@ -22,11 +22,12 @@ import { defaultCourse } from "../defaultObjects";
 import {
   courseLevelsToString,
   splitCourseLevels,
-} from "../generalHelpers/converters";
+} from "../rendererHelpers/converters";
 import { CourseData } from "../types";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
+import { deepCopy } from "../rendererHelpers/utilityRenderer";
 
 export default function Course() {
   const {
@@ -68,7 +69,7 @@ export default function Course() {
       abbreviation: value["abbreviation"],
     };
   });
-  const codeLanguageOptions = globalSettings.codeLanguages;
+  const codeLanguageOptions = deepCopy(globalSettings.codeLanguages);
   //get these from settings file later
 
   if (pageType == "create") {

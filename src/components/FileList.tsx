@@ -8,7 +8,7 @@ import {
   Typography,
   Grid,
 } from "@mui/joy";
-import { FileData, FileTypes } from "../types";
+import { DropZoneFile, FileData, FileTypes } from "../types";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
 import ButtonComp from "./ButtonComp";
@@ -17,7 +17,7 @@ import {
   deepCopy,
   getFileNameFromPath,
   getFileTypeUsingExtension,
-} from "../rendererHelpers/utility";
+} from "../rendererHelpers/utilityRenderer";
 import { DropzoneComp } from "./DropzoneComp";
 import log from "electron-log/renderer";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
@@ -54,6 +54,7 @@ const FileContentSelect = ({
       <Option value="result">{parseUICode("ui_result")}</Option>
       <Option value="code">{parseUICode("ui_code")}</Option>
       <Option value="data">{parseUICode("ui_data")}</Option>
+      <Option value="other">{parseUICode("ui_other")}</Option>
     </Select>
   );
 };
@@ -114,6 +115,13 @@ export default function FileList({
     const oldAndNewFiles = [...files, ...newFiles];
 
     handleAssignment(`${pathInAssignment}`, oldAndNewFiles);
+  }
+
+  async function handleDropZoneFiles(fileList: DropZoneFile[]) {
+    const filePaths: string[] = await handleIPCResult(() =>
+      window.api.saveCacheFiles(fileList)
+    );
+    handleSetFiles(filePaths);
   }
 
   const handleRemoveFile = (fileIndex: number) => {
@@ -217,7 +225,7 @@ export default function FileList({
         </Table>
 
         <div className="emptySpace1" />
-        <DropzoneComp handleSetFiles={handleSetFiles}></DropzoneComp>
+        <DropzoneComp handleDropZoneFiles={handleDropZoneFiles}></DropzoneComp>
       </Sheet>
     </>
   );

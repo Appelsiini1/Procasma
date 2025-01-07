@@ -1,5 +1,5 @@
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import {
   CodeAssignmentData,
   CourseData,
@@ -21,12 +21,9 @@ import {
   dataExtensions,
   imageExtensions,
   textExtensions,
-} from "../constantsUI";
+} from "../../resource/extensions.json";
 import log from "electron-log/node";
-import {
-  deepCopy,
-  getFileTypeUsingExtension,
-} from "../rendererHelpers/utility";
+import { deepCopy, getFileTypeUsingExtension } from "./utilityMain";
 import { defaultExampleRun, defaultFile } from "../defaultObjects";
 import { globalSettings } from "../globalsMain";
 
@@ -193,17 +190,19 @@ export function splitMarkdown(
 export function markdownExtractLevel(
   assignment: CodeAssignmentData,
   markdown: string,
-  levels: LevelsType[]
+  levels: {
+    [key: string]: LevelsType | null;
+  }
 ) {
-  if (!assignment.level) {
+  if (assignment.level === null) {
     const lines = markdown.split(/\r?\n/);
     const lineWithLevel = lines.find((line) =>
       line.includes(markdownAssignmentLevel)
     );
 
     if (lineWithLevel) {
-      levels.forEach((level, index) => {
-        const levelName = level.fullName;
+      Object.keys(levels).forEach((levelId, index) => {
+        const levelName = levels[levelId].fullName;
         if (lineWithLevel.includes(levelName)) {
           assignment.level = index;
         }
@@ -227,7 +226,6 @@ export function parseMarkDownVariationFS(
     const markdown = fs.readFileSync(markdownPath, { encoding: "utf8" });
 
     // assignment level
-    // TODO: get levels dictionary from course
 
     markdownExtractLevel(assignment, markdown, course.levels);
 

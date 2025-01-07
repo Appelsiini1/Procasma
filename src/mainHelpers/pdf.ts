@@ -1,11 +1,18 @@
-import puppeteer from "puppeteer";
 import { PDFDocument } from "pdf-lib";
-import fs from "fs";
+import fs from "node:fs";
+import path from "node:path";
 import log from "electron-log/node";
 import { CourseData, PDFHtmlInput } from "../types";
-import { PDFFormat, PDFMargins, version } from "../constants";
+import {
+  PDFFormat,
+  PDFMargins,
+  version,
+  workerWindowPreferences,
+} from "../constants";
 import { parseUICodeMain } from "./language";
-import { globalSettings } from "../globalsMain";
+import { BrowserWindow } from "electron";
+import { getFileCacheDir } from "./osOperations";
+import { createSHAhash } from "./utilityMain";
 
 /**
  * Generates the header and footer (for PDF files only)
@@ -90,40 +97,52 @@ export function generateHeaderFooter(
   return { header: headerString, footer: footerString };
 }
 
-export async function createPDF(input: PDFHtmlInput, path: string) {
+export async function createPDF(input: PDFHtmlInput, savePath: string) {
+  const win: BrowserWindow = null;
   try {
-    log.info("Starting PDF creation...");
-    const browser = await puppeteer.launch({
-      headless: true,
-      executablePath: globalSettings.chromePath,
-    });
-    log.info("Puppeteer launched.");
-    const page = await browser.newPage();
-    await page.setContent(input.html);
-    // page.pdf() is currently supported only in headless mode.
-    // @see https://bugs.chromium.org/p/chromium/issues/detail?id=753118
-    const pdfResult = await page.pdf({
-      format: PDFFormat,
-      printBackground: true,
-      headerTemplate: input.header,
-      footerTemplate: input.footer,
-      displayHeaderFooter: true,
-      margin: PDFMargins,
-    });
-    await browser.close();
-    log.info("Puppeteer closed.");
+    log.info("Saving interrim HTML...");
+    const tempHTMLPath = path.join(
+      getFileCacheDir(),
+      createSHAhash(input.html) + ".html"
+    );
+    fs.writeFileSync(tempHTMLPath, input.html, { encoding: "utf-8" });
+    log.info("Interrim HTML saved. Starting PDF creation...");
+    const win = new BrowserWindow(workerWindowPreferences);
+    win.loadFile(tempHTMLPath);
 
-    const pdfDoc = await PDFDocument.load(pdfResult);
-    pdfDoc.setTitle(input.title);
-    pdfDoc.setCreator(`Procasma v${version}`);
-    const pdfBytes = await pdfDoc.save();
-    log.info("PDF created.");
-
-    fs.writeFileSync(path, pdfBytes);
-    log.info("PDF saved.");
-    return;
+    win.webContents.on("did-finish-load", () => {
+      log.info("Worker window loaded.");
+      win.webContents
+        .printToPDF({
+          pageSize: PDFFormat,
+          printBackground: true,
+          headerTemplate: input.header,
+          footerTemplate: input.footer,
+          displayHeaderFooter: true,
+          margins: PDFMargins,
+        })
+        .then((data) => {
+          log.info("PDF created, adding metadata...");
+          return PDFDocument.load(data);
+        })
+        .then((pdfDoc) => {
+          pdfDoc.setTitle(input.title);
+          pdfDoc.setCreator(`Procasma v${version}`);
+          return pdfDoc.save();
+        })
+        .then((pdfBytes) => {
+          log.info("Saving PDF to file...");
+          fs.writeFileSync(savePath, pdfBytes);
+          log.info("PDF saved.");
+        })
+        .then(() => {
+          win.close();
+          log.info("Worker window closed.");
+        });
+    });
   } catch (err) {
     log.error("Error in PDF creation:", err.message);
     throw err;
   }
+  return;
 }

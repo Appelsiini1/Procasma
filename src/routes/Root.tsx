@@ -1,8 +1,8 @@
-import { dividerSX, smallDividerSX } from "../constantsUI";
+import { DEVMODE, dividerSX, smallDividerSX } from "../constantsUI";
 import LogoText from "../../resource/LogoTextSmall.png";
 import { Box, Divider, Grid, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import FadeInImage from "../components/FadeInImage";
 import { CodeAssignmentData, CourseData, ModuleData, SetData } from "../types";
 import { useContext, useEffect, useState } from "react";
@@ -396,10 +396,7 @@ export default function Root() {
                 buttonType="export"
                 onClick={() => navigate("/exportProject")}
                 ariaLabel={parseUICode("ui_aria_nav_export_project")}
-                disabled={
-                  //activeCourse ? false : true
-                  true
-                }
+                disabled={activeCourse ? false : true}
               >
                 {parseUICode("ui_export_project")}
               </ButtonComp>
@@ -426,6 +423,15 @@ export default function Root() {
             </Grid>
             <Grid>
               <ButtonComp
+                buttonType="settings"
+                onClick={() => navigate("/codegradeSettings")}
+                ariaLabel={parseUICode("ui_cg")}
+              >
+                {parseUICode("ui_cg")}
+              </ButtonComp>
+            </Grid>
+            <Grid>
+              <ButtonComp
                 buttonType="close"
                 onClick={() => window.api.closeApp()}
                 ariaLabel={parseUICode("ui_close")}
@@ -434,6 +440,28 @@ export default function Root() {
               </ButtonComp>
             </Grid>
           </Grid>
+          {DEVMODE ? (
+            <>
+              <Divider sx={dividerSX} role="presentation" />
+              <Grid
+                container
+                direction="row"
+                justifyContent="flex-start"
+                alignItems="center"
+                spacing={3}
+              >
+                <Grid>
+                  <ButtonComp
+                    buttonType="settings"
+                    onClick={() => navigate("/CGDEV")}
+                    ariaLabel={"CGDEV"}
+                  >
+                    {"CG DEV"}
+                  </ButtonComp>
+                </Grid>
+              </Grid>
+            </>
+          ) : null}
           <div className="emptySpace3" />
         </Box>
         <Typography>Procasma {version}</Typography>

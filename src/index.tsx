@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import { createHashRouter, RouterProvider } from "react-router-dom";
+import { createHashRouter, RouterProvider } from "react-router";
 import ErrorPage from "./routes/ErrorPage";
 import Root from "./routes/Root";
 import Course from "./routes/Course";
@@ -28,8 +28,8 @@ import SnackbarComp from "./components/SnackBarComp";
 import { Layout } from "./components/Layout";
 import LicensesPage from "./routes/LicensesPage";
 import { DEVMODE } from "./constantsUI";
-import { Modal, ModalClose, ModalDialog, Typography } from "@mui/joy";
-import { parseUICode } from "./rendererHelpers/translation";
+import CodeGradeSettings from "./routes/CodeGradeSettings";
+import CGDev from "./routes/CGDev";
 
 log.info("-- START OF PROCASMA RENDERER --");
 log.info(`DEVMODE: ${DEVMODE}`);
@@ -39,9 +39,9 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 const App = () => {
   const { snackBarAttributes, showSnackbar, setShowSnackbar } =
     useContext(UIContext);
-  const { activeAssignment, activeModule, activeSet } =
+  const { activeAssignment, activeModule, activeSet, handlePathStackNewPath } =
     useContext(ActiveObjectContext);
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
+
   const router = createHashRouter([
     {
       path: "/",
@@ -139,6 +139,11 @@ const App = () => {
           path: "/licenses",
           element: <LicensesPage />,
         },
+        {
+          path: "/codegradeSettings",
+          element: <CodeGradeSettings />,
+        },
+        { path: "/CGDev", element: <CGDev /> },
       ],
     },
   ]);
@@ -166,10 +171,12 @@ const App = () => {
   // get the init settings and update the UI language
   useEffect(() => {
     updateLanguageInit();
-    if (globalSettings.chromePath === null) {
-      setModalOpen(true);
-    }
   }, []);
+
+  // update the path stack for retrieving the previous pathname
+  useEffect(() => {
+    handlePathStackNewPath(router.state.location.pathname);
+  }, [router.state.location.pathname]);
 
   return (
     <>
@@ -181,23 +188,6 @@ const App = () => {
           setShowSnackbar={setShowSnackbar}
         ></SnackbarComp>
       ) : null}
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <ModalDialog color="danger" layout="center" size="lg" variant="soft">
-          <ModalClose />
-          <Typography
-            component="h2"
-            id="modal-title"
-            level="h4"
-            textColor="inherit"
-            sx={{ fontWeight: "lg", mb: 1 }}
-          >
-            {parseUICode("error_chrome_modal_title")}
-          </Typography>
-          <Typography id="modal-desc" textColor="text.tertiary">
-            {parseUICode("error_chrome_modal_desc")}
-          </Typography>
-        </ModalDialog>
-      </Modal>
     </>
   );
 };

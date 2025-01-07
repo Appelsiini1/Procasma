@@ -3,7 +3,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import HomeIcon from "@mui/icons-material/Home";
 import Logo from "../../resource/Logo.png";
 import Grid from "@mui/joy/Grid";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { useContext, useEffect, useState } from "react";
 import { parseUICode } from "../rendererHelpers/translation";
 import { UIContext } from "./Context";

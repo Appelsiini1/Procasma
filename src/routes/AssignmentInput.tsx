@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router";
 import {
   dividerColor,
   pageTableMaxWidth,
@@ -26,10 +26,10 @@ import {
   ForceToString,
   splitStringToArray,
   splitStringToNumberArray,
-} from "../generalHelpers/converters";
+} from "../rendererHelpers/converters";
 import { useAssignment } from "../rendererHelpers/assignmentHelpers";
 import VariationsGroup from "../components/VariationsGroup";
-import { deepCopy } from "../rendererHelpers/utility";
+import { checkSpecial, deepCopy } from "../rendererHelpers/utilityRenderer";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
@@ -39,6 +39,8 @@ import {
   wrapWithCheck,
 } from "../rendererHelpers/browseHelpers";
 import { globalSettings } from "../globalsUI";
+import SwitchComp from "../components/SwitchComp";
+import log from "electron-log/renderer";
 
 export default function AssignmentInput() {
   const {
@@ -73,14 +75,17 @@ export default function AssignmentInput() {
   const [numSelected, setNumSelected] = useState(0);
   const [formKey, setFormKey] = useState(0);
   const [navigateToBrowse, setNavigateToBrowse] = useState(false);
-  const variations: { [key: string]: Variation } = assignment?.variations;
+  const [extraCredit, setExtraCredit] = useState(
+    assignment?.extraCredit ? assignment.extraCredit : false
+  );
 
-  const pageType = useLoaderData();
+  const variations: { [key: string]: Variation } = assignment?.variations;
+  let pageType = useLoaderData();
   const navigate = useNavigate();
   let pageTitle: string = null;
   const moduleDisable = activeCourse?.moduleType !== null ? false : true;
   const levelsDisable = activeCourse?.levels !== null ? false : true;
-  const codeLanguageOptions = globalSettings.codeLanguages;
+  const codeLanguageOptions = deepCopy(globalSettings.codeLanguages);
   let prevAssignmentsChecklist: Array<React.JSX.Element> = null;
 
   if (pageType === "new") {
@@ -157,26 +162,39 @@ export default function AssignmentInput() {
   async function handleSaveAssignment() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_assignment_save_success";
-    try {
-      if (pageType === "manage") {
-        await handleIPCResult(() =>
-          window.api.handleUpdateAssignmentFS(assignment, activePath)
-        );
-      } else {
-        const addedAssignment: CodeAssignmentData = await handleIPCResult(() =>
-          window.api.handleAddAssignmentFS(assignment, activePath)
-        );
-        // use the generated id from main
-        handleAssignment("assignmentID", addedAssignment.assignmentID);
-      }
-      handleActiveAssignment(null);
-      handleTempAssignment(null);
-    } catch (err) {
-      snackbarText = err.message;
-      snackbarSeverity = "error";
+    const assignmentToSave = assignment;
+
+    if (assignment.level === null && activeCourse?.levels.length !== 0) {
+      assignmentToSave.level = 0;
     }
-    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
-    navigate(-1);
+
+    if (checkSpecial(assignment.title)) {
+      handleSnackbar({ error: parseUICode("error_special_in_title") });
+    } else if (checkSpecial(arrayToString(assignment.tags))) {
+      handleSnackbar({ error: parseUICode("error_special_in_tags") });
+    } else {
+      try {
+        if (pageType === "manage") {
+          await handleIPCResult(() =>
+            window.api.handleUpdateAssignmentFS(assignmentToSave, activePath)
+          );
+        } else {
+          const addedAssignment: CodeAssignmentData = await handleIPCResult(
+            () => window.api.handleAddAssignmentFS(assignmentToSave, activePath)
+          );
+          // use the generated id from main
+          handleAssignment("assignmentID", addedAssignment.assignmentID);
+        }
+        handleActiveAssignment(null);
+        handleTempAssignment(null);
+        pageType = "manage";
+      } catch (err) {
+        snackbarText = err.message;
+        snackbarSeverity = "error";
+      }
+      handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
+      navigate(-1);
+    }
   }
 
   // Update the selected assignments
@@ -264,9 +282,14 @@ export default function AssignmentInput() {
     }
   }
 
+  useEffect(() => {
+    handleAssignment("extraCredit", extraCredit);
+  }, [extraCredit]);
+
   prevAssignmentsChecklist = generateChecklist(
     prevAssignments,
     setPrevAssignments,
+    handleOpenPrevAssignment,
     true
   );
 
@@ -310,12 +333,13 @@ export default function AssignmentInput() {
                     let index = activeCourse.levels.findIndex(
                       (element) => value === element.fullName
                     );
+                    log.debug("Index value:", index);
                     if (index === -1) index = null;
                     handleAssignment("level", index);
                   }}
                   defaultValue={handleLevelValue()}
                   name="caLevel"
-                  disabled={!activeCourse?.levels ? true : false}
+                  disabled={levelsDisable}
                 ></Dropdown>
               </td>
             </tr>
@@ -415,6 +439,20 @@ export default function AssignmentInput() {
                     handleAssignment("codeLanguage", value)
                   }
                 ></Dropdown>
+              </td>
+            </tr>
+
+            <tr key="caExtraCredit">
+              <td>
+                <Typography level="h4">
+                  {parseUICode("ui_extracredit")}
+                </Typography>
+              </td>
+              <td>
+                <SwitchComp
+                  checked={extraCredit}
+                  setChecked={setExtraCredit}
+                ></SwitchComp>
               </td>
             </tr>
 
@@ -542,14 +580,14 @@ export default function AssignmentInput() {
           <>
             <ButtonComp
               buttonType="debug"
-              onClick={() => console.log(assignment)}
+              onClick={() => log.debug(assignment)}
               ariaLabel={"debug"}
             >
               log assignment state
             </ButtonComp>
             <ButtonComp
               buttonType="debug"
-              onClick={() => console.log(activeAssignment)}
+              onClick={() => log.debug(activeAssignment)}
               ariaLabel={"debug"}
             >
               log active assignment

@@ -40,6 +40,7 @@ a {
 
 code {
   background-color: rgb(235, 235, 235);
+  font-family: "Consolas";
 }
 table {
   border-spacing: 10px 2px;

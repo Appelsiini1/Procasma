@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import {
   Box,
   Grid,
@@ -12,6 +12,7 @@ import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
 import {
+  AssignmentTypes,
   AssignmentWithCheck,
   CodeAssignmentData,
   CodeAssignmentDatabase,
@@ -43,6 +44,7 @@ export default function AssignmentBrowse() {
     handleActiveAssignments,
     selectAssignment,
     handleSelectAssignment,
+    previousPath,
   }: {
     activePath: string;
     activeAssignment: CodeAssignmentData;
@@ -52,6 +54,7 @@ export default function AssignmentBrowse() {
     handleActiveSet: (value: SetData) => void;
     selectAssignment: boolean;
     handleSelectAssignment: (value: boolean) => void;
+    previousPath: string;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [courseAssignments, setCourseAssignments] = useState<
@@ -67,10 +70,7 @@ export default function AssignmentBrowse() {
   const [numSelected, setNumSelected] = useState(0);
   const [uniqueTags, setUniqueTags] = useState<Array<filterState>>([]);
   const [uniqueModules, setUniqueModules] = useState<Array<filterState>>([]);
-  const [uniqueTypes, setUniqueTypes] = useState<Array<filterState>>([
-    { isChecked: false, value: "assignment" },
-    { isChecked: false, value: "finalWork" },
-  ]);
+  const [uniqueTypes, setUniqueTypes] = useState<Array<filterState>>([]);
   const [search, setSearch] = useState<string>("");
 
   const navigate = useNavigate();
@@ -104,12 +104,17 @@ export default function AssignmentBrowse() {
           checkedTypes.push(element.value);
         }
       });
+      uniqueTypes.forEach((element) => {
+        if (element.isChecked) {
+          checkedTypes.push(element.value);
+        }
+      });
 
       const filters = {
         tags: checkedTags,
         module: checkedModules,
+        type: checkedTypes,
         title: search,
-        assignmentType: checkedTypes[0],
       };
 
       let assignmentsResult: CodeAssignmentDatabase[] = [];
@@ -144,7 +149,16 @@ export default function AssignmentBrowse() {
       window.api.getModulesDB(activePath)
     );
 
-    handleUpdateFilter(modulesResult, setUniqueModules);
+    handleUpdateFilter(
+      modulesResult.map((m) => m.name),
+      setUniqueModules
+    );
+
+    if (previousPath === "/exportProject") {
+      handleUpdateFilter(["finalWork"], setUniqueTypes, true);
+    } else {
+      handleUpdateFilter(Object.values(AssignmentTypes), setUniqueTypes);
+    }
   }
 
   // Get the filters
@@ -158,7 +172,7 @@ export default function AssignmentBrowse() {
 
   useEffect(() => {
     onPageLoad();
-  }, []);
+  }, [previousPath]);
 
   async function handleDeleteSelected() {
     let snackbarSeverity = "success";
@@ -192,11 +206,12 @@ export default function AssignmentBrowse() {
 
   useEffect(() => {
     refreshAssignments();
-  }, [uniqueTags, uniqueModules, search, uniqueTypes]);
+  }, [uniqueTags, uniqueModules, uniqueTypes, search]);
 
   assignments = generateChecklist(
     courseAssignments,
     setCourseAssignments,
+    handleOpenAssignment,
     true
   );
   modules = generateFilterList(uniqueModules, setUniqueModules);
@@ -437,7 +452,7 @@ export default function AssignmentBrowse() {
             >
               <List>
                 <ListItem nested>
-                  <ListSubheader>{parseUICode("ui_type")}</ListSubheader>
+                  <ListSubheader>{parseUICode("ui_types")}</ListSubheader>
                   <List>{types}</List>
                 </ListItem>
                 <ListItem nested>

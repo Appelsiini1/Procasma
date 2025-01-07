@@ -1,19 +1,16 @@
 import { ConverterOptions } from "showdown";
 import { version as packageVersion } from "../package.json";
 import { devmode } from "./DEVMODE.json";
-import { config } from "dotenv";
-
-// Dotenv config
-config();
+import { join } from "node:path";
 
 export const version = packageVersion;
 export const courseMetaDataFileName = "course_info.json";
 export const DEVMODE = devmode;
 export const PDFMargins = {
-  bottom: "2.1cm",
-  top: "2.1cm",
-  left: "1.5cm",
-  right: "1.5cm",
+  bottom: 0.8267716535, // 2.1 cm in inches
+  top: 0.8267716535,
+  left: 0.5905511811, // 1.5 cm in inches
+  right: 0.5905511811,
 };
 export const PDFFormat = "A4";
 export const ShowdownOptions: ConverterOptions = {
@@ -53,5 +50,13 @@ export const MathJaxHTMLOptions = {
   ex: 9,
   containerWidth: 90 * 20,
 };
-export const safeStorageKey = process.env.STORAGE_KEY;
+export const StorageKey = process.env.STORAGE_KEY;
 export const codegradeAPIEndpointV1 = "https://app.codegra.de/api/v1";
+export const workerWindowPreferences = {
+  webPreferences: {
+    contextIsolation: true,
+    spellcheck: false,
+    preload: join(__dirname, "preload.js"),
+  },
+  show: false,
+};

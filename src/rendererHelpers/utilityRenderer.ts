@@ -2,7 +2,7 @@ import {
   codeExtensions,
   imageExtensions,
   textExtensions,
-} from "../constantsUI";
+} from "../../resource/extensions.json";
 import { FileTypes } from "../types";
 
 /**
@@ -36,4 +36,11 @@ export function getFileTypeUsingExtension(str: string): FileTypes {
   } else {
     return null;
   }
+}
+
+const specialRegex = /(?:[!@#$%^&*().?":{}|<>=])/gim;
+
+export function checkSpecial(str: string) {
+  const result = specialRegex.test(str);
+  return result;
 }
