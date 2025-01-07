@@ -164,7 +164,7 @@ export default function AssignmentInput() {
     let snackbarText = "ui_assignment_save_success";
     const assignmentToSave = assignment;
 
-    if (assignment.level === null && activeCourse?.levels.length !== 0) {
+    if (assignment.level === null && activeCourse?.levels !== null) {
       assignmentToSave.level = 0;
     }
 
@@ -269,7 +269,7 @@ export default function AssignmentInput() {
 
   function handleLevelValue() {
     try {
-      if (assignment && activeCourse?.levels.length !== 0) {
+      if (assignment && activeCourse?.levels !== null) {
         if (assignment?.level === null) {
           return activeCourse?.levels[0].fullName;
         }
