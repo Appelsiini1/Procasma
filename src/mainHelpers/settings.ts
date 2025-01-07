@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 import log from "electron-log/node";
 import { handleReadFileFS } from "./fileOperations";
 import { SettingsType, SupportedLanguages } from "../types";

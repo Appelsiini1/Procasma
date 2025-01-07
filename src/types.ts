@@ -163,6 +163,7 @@ export interface SetData {
   assignments: SetAssignmentWithCheck[];
   targetModule: number;
   targetPosition: number;
+  replaceExisting: boolean;
 }
 
 export interface ExportSetAssignmentData {

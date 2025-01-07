@@ -1,5 +1,5 @@
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import {
   CodeAssignmentData,
   CourseData,
@@ -23,10 +23,7 @@ import {
   textExtensions,
 } from "../../resource/extensions.json";
 import log from "electron-log/node";
-import {
-  deepCopy,
-  getFileTypeUsingExtension,
-} from "../mainHelpers/utilityMain";
+import { deepCopy, getFileTypeUsingExtension } from "./utilityMain";
 import { defaultExampleRun, defaultFile } from "../defaultObjects";
 import { globalSettings } from "../globalsMain";
 

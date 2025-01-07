@@ -1,11 +1,11 @@
-import crypto from "crypto";
+import crypto from "node:crypto";
 import { StorageKey } from "../constants";
 import { CGEncryptLogin, CodeGradeLogin } from "../types";
 import log from "electron-log/node";
-import fs from "fs";
+import fs from "node:fs";
 import { getCacheDir } from "./osOperations";
-import path from "path";
-import os from "os";
+import path from "node:path";
+import os from "node:os";
 
 // Original source: https://stackoverflow.com/questions/49021171/how-to-derive-iv-and-key-to-crypto-createcipheriv-for-decryption
 

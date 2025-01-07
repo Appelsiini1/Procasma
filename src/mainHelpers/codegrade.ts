@@ -1,6 +1,6 @@
 import { CodeGradeLogin } from "../types";
 import { codegradeAPIEndpointV1 } from "../constants";
-import log from "electron-log";
+import log from "electron-log/node";
 import { getApiv2, login } from "@codegrade/apiv2-client";
 import { cgInstance } from "../globalsMain";
 import { getCredentials } from "./encryption";

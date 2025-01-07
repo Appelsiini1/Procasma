@@ -90,6 +90,18 @@ class CodeGradeLoginState {
   }
 }
 
+class WorkerWindowGlobal {
+  private _id: number;
+
+  get id() {
+    return this._id;
+  }
+  set id(value: number) {
+    this._id = value;
+  }
+}
+
 export const coursePath = new CurrentPath();
 export const globalSettings = new Settings();
 export const cgInstance = new CodeGradeLoginState();
+export const workerID = new WorkerWindowGlobal();

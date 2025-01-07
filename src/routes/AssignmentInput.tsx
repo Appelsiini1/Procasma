@@ -80,7 +80,7 @@ export default function AssignmentInput() {
   );
 
   const variations: { [key: string]: Variation } = assignment?.variations;
-  const pageType = useLoaderData();
+  let pageType = useLoaderData();
   const navigate = useNavigate();
   let pageTitle: string = null;
   const moduleDisable = activeCourse?.moduleType !== null ? false : true;
@@ -162,45 +162,32 @@ export default function AssignmentInput() {
   async function handleSaveAssignment() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_assignment_save_success";
-    try {
-      //log.debug(assignment);
-      if (pageType === "manage") {
-        await handleIPCResult(() =>
-          window.api.handleUpdateAssignmentFS(assignment, activePath)
-        );
-      } else {
-        const addedAssignment: CodeAssignmentData = await handleIPCResult(() =>
-          window.api.handleAddAssignmentFS(assignment, activePath)
-        );
-        // use the generated id from main
-        handleAssignment("assignmentID", addedAssignment.assignmentID);
-      }
-    } catch (err) {
-      handleSnackbar({ error: parseUICode(err.message) });
-      navigate(-1);
+    const assignmentToSave = assignment;
+
+    if (assignment.level === null && activeCourse?.levels.length !== 0) {
+      assignmentToSave.level = 0;
     }
 
-    const specialInTitle = checkSpecial(assignment.title);
-    const specialInTags = checkSpecial(arrayToString(assignment.tags));
-    if (specialInTitle.special || specialInTitle.comma) {
+    if (checkSpecial(assignment.title)) {
       handleSnackbar({ error: parseUICode("error_special_in_title") });
-    } else if (specialInTags.special) {
+    } else if (checkSpecial(arrayToString(assignment.tags))) {
       handleSnackbar({ error: parseUICode("error_special_in_tags") });
     } else {
       try {
         if (pageType === "manage") {
           await handleIPCResult(() =>
-            window.api.handleUpdateAssignmentFS(assignment, activePath)
+            window.api.handleUpdateAssignmentFS(assignmentToSave, activePath)
           );
         } else {
           const addedAssignment: CodeAssignmentData = await handleIPCResult(
-            () => window.api.handleAddAssignmentFS(assignment, activePath)
+            () => window.api.handleAddAssignmentFS(assignmentToSave, activePath)
           );
           // use the generated id from main
           handleAssignment("assignmentID", addedAssignment.assignmentID);
         }
         handleActiveAssignment(null);
         handleTempAssignment(null);
+        pageType = "manage";
       } catch (err) {
         snackbarText = err.message;
         snackbarSeverity = "error";
@@ -302,6 +289,7 @@ export default function AssignmentInput() {
   prevAssignmentsChecklist = generateChecklist(
     prevAssignments,
     setPrevAssignments,
+    handleOpenPrevAssignment,
     true
   );
 
@@ -345,6 +333,7 @@ export default function AssignmentInput() {
                     let index = activeCourse.levels.findIndex(
                       (element) => value === element.fullName
                     );
+                    log.debug("Index value:", index);
                     if (index === -1) index = null;
                     handleAssignment("level", index);
                   }}

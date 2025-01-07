@@ -12,8 +12,8 @@ import {
   SupportedModuleType,
   Variation,
 } from "../types";
-import { readFileSync } from "fs";
-import path from "path";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import log from "electron-log/node";
 import { parseUICodeMain } from "./language";
 import {
@@ -207,6 +207,7 @@ export async function exportSetFS(
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'none'" />
     <title>${mainHeader}</title>
     <style>${css}</style>
   </head>
@@ -214,6 +215,7 @@ export async function exportSetFS(
         let solutionHtml = `<!DOCTYPE html>
 <html>
   <head>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'none'" />
     <meta charset="utf-8" />
     <title>${mainHeader} ${parseUICodeMain("answers").toUpperCase()}</title>
     <style>${css}</style>
@@ -303,6 +305,7 @@ export async function exportSetFS(
           convertedSet.format,
           coursedata,
           savePath,
+          convertedSet.replaceExisting,
           moduleString
         );
         const filename = mainHeader.replace(" ", "");

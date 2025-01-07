@@ -1,7 +1,6 @@
 import { IpcMainInvokeEvent, ipcMain, BrowserWindow } from "electron";
 import { DropZoneFile, IpcResult } from "../types";
 import log from "electron-log/node";
-
 import { handleDirectorySelect, handleFilesOpen } from "./fileDialog";
 import {
   handleGetAssignmentsFS,

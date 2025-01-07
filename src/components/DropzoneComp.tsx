@@ -3,7 +3,7 @@ import { CSSProperties, useCallback, useMemo } from "react";
 import { Typography } from "@mui/material";
 import { parseUICode } from "../rendererHelpers/translation";
 import log from "electron-log/renderer";
-import { DropZoneFile } from "src/types";
+import { DropZoneFile } from "../types";
 
 /**
  * Dropzone component for files
