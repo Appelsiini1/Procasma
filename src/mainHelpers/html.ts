@@ -39,7 +39,7 @@ import { css as papercolorLight } from "../../resource/cssImports/papercolor-lig
 import { platform } from "node:process";
 import { genericModule } from "../defaultObjects";
 import { highlightCode, parseLanguage } from "./highlighters";
-import { spacesToUnderscores } from "../mainHelpers/convertersMain";
+import juice from "juice";
 
 const converter = new showdown.Converter(ShowdownOptions);
 
@@ -299,9 +299,12 @@ export async function exportSetFS(
 </html>`;
         log.info("HTML created.");
 
+        const inlineHTML = juice(html);
+        const inlineSolutionHTML = juice(solutionHtml);
+
         await saveSetModuleFS(
-          html,
-          solutionHtml,
+          inlineHTML,
+          inlineSolutionHTML,
           mainHeader,
           convertedSet.format,
           coursedata,
@@ -428,22 +431,6 @@ export async function exportProjectFS(
     }
 
     let fileName = parseUICodeMain("assignment_description") + fileNameLevel;
-
-    await saveSetModuleFS(
-      html,
-      solutionHtml,
-      fileName,
-      "pdf",
-      coursedata,
-      savePath,
-      replaceExisting,
-      moduleString
-    );
-    fileName = fileName.replace(" ", "");
-
-    const filesPath = path.join(savePath, fileName);
-    copyExportProjectFilesFS(projectInput, filesPath, levelID);
-
     if (splitLevels || isLastLevel) {
       // End body
       html += `</body>
@@ -451,6 +438,23 @@ export async function exportProjectFS(
       solutionHtml += `</body>
     </html>`;
       log.info("HTML created.");
+      const inlineHTML = juice(html);
+      const inlineSolutionHTML = juice(solutionHtml);
+
+      await saveSetModuleFS(
+        inlineHTML,
+        inlineSolutionHTML,
+        fileName,
+        "pdf",
+        coursedata,
+        savePath,
+        replaceExisting,
+        moduleString
+      );
+      fileName = fileName.replace(" ", "");
+
+      const filesPath = path.join(savePath, fileName);
+      copyExportProjectFilesFS(projectInput, filesPath, levelID);
 
       // TODO refactor setUsedIn for the case of a project
       /*for (const setAssignment of convertedSet.assignmentArray) {
