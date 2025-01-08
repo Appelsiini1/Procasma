@@ -9,6 +9,7 @@ import {
   FileData,
   FullAssignmentSetData,
   ModuleData,
+  ProjectInput,
   SupportedModuleType,
   Variation,
 } from "../types";
@@ -341,9 +342,10 @@ export async function exportSetFS(
  * @param savePath Path where to save the created file(s).
  */
 export async function exportProjectFS(
-  projectInput: CodeAssignmentData,
+  projectInput: ProjectInput,
   coursedata: CourseData,
-  savePath: string
+  savePath: string,
+  replaceExisting: boolean
 ): Promise<string> {
   const splitLevels = true;
   let html = "";
@@ -418,7 +420,7 @@ export async function exportProjectFS(
     );
 
     let fileNameLevel =
-      coursedata.levels[levelID]?.fullName ??
+      projectInput.variations[levelID].levelName ??
       "_" + parseUICodeMain("ui_level") + "_" + levelID;
 
     if (!splitLevels) {
@@ -434,6 +436,7 @@ export async function exportProjectFS(
       "pdf",
       coursedata,
       savePath,
+      replaceExisting,
       moduleString
     );
     fileName = fileName.replace(" ", "");
@@ -1033,7 +1036,7 @@ function generateExampleRun(
   if (addAnchor) {
     block += `<h2><a id="${titleText}">${titleText}</a></h2>`;
   } else {
-    block += `<h2h2>${spacesToUnderscores(titleText)}</h2>`;
+    block += `<h2>${titleText}</h2>`;
   }
 
   if (runInput.cmdInputs.length != 0 && runInput.cmdInputs[0] != "") {

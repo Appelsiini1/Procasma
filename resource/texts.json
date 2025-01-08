@@ -1563,5 +1563,9 @@
   "help_replace_existing": {
     "FI": "Määritä korvataanko mahdolliset olemassaolevat tehtäväpaperit uusilla määränpääkansiossa. HUOM. Tehtävien tiedostot korvataan aina.",
     "ENG": "Set whether to replace existing assignment instructions with new ones in the output folder. NOTE: Files pertaining to assignments themselves will always be replaced."
+  },
+  "error_no_project_work_selected": {
+    "FI": "Ei projektityötä valittuna",
+    "ENG": "No project work selected"
   }
 }

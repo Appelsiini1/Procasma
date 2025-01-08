@@ -23,7 +23,7 @@ import {
   courseLevelsToString,
   splitCourseLevels,
 } from "../rendererHelpers/converters";
-import { CourseData } from "../types";
+import { CodeLanguage, CourseData } from "../types";
 import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
@@ -69,7 +69,9 @@ export default function Course() {
       abbreviation: value["abbreviation"],
     };
   });
-  const codeLanguageOptions = deepCopy(globalSettings.codeLanguages);
+  const codeLanguageOptions: CodeLanguage[] = deepCopy(
+    globalSettings.codeLanguages
+  );
   //get these from settings file later
 
   if (pageType == "create") {
