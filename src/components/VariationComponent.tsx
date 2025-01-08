@@ -14,7 +14,7 @@ import HelpText from "./HelpText";
 import InputField from "./InputField";
 import ButtonComp from "./ButtonComp";
 import FileList from "./FileList";
-import { CourseData, ExampleRunType, Variation } from "../types";
+import { CourseData, ExampleRunType, ProjectLevel, Variation } from "../types";
 import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
 import ExampleRunsGroup from "./ExampleRunsGroup";
 import { parseUICode } from "../rendererHelpers/translation";
@@ -28,7 +28,7 @@ import { ActiveObjectContext } from "./Context";
 
 type ComponentProps = {
   varID: string;
-  variation: Variation;
+  variation: Variation | ProjectLevel;
   handleAssignment: HandleAssignmentFn;
   pathInAssignment: string;
   useLevelsInstead?: boolean;
@@ -64,14 +64,35 @@ export default function VariationComponent({
           <ListItemContent>
             <Typography level="title-md">
               {useLevelsInstead
-                ? activeCourse?.levels[varID]?.fullName ??
-                  parseUICode("ui_level")
+                ? /* Normal variation does not have a levelName but project work level does*/
+                  /* @ts-ignore */
+                  variation?.levelName ?? parseUICode("ui_level")
                 : parseUICode("ui_variation") + " " + varID}
             </Typography>
           </ListItemContent>
         </AccordionSummary>
         <AccordionDetails>
           <Box sx={{ marginLeft: "4rem", marginTop: "1rem" }}>
+            {useLevelsInstead ? (
+              <>
+                <Typography level="h4">{parseUICode("ui_inst")}</Typography>
+                <InputField
+                  fieldKey={varID + "levelNameInput"}
+                  /* Normal variation does not have a levelName but project work level does*/
+                  /* @ts-ignore */
+                  defaultValue={variation.levelName}
+                  onChange={(value: string) =>
+                    handleAssignment(
+                      `${pathInAssignment}.levelName`,
+                      value,
+                      true
+                    )
+                  }
+                />
+              </>
+            ) : (
+              ""
+            )}
             <Stack
               direction="row"
               justifyContent="flex-start"

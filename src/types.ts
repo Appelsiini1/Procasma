@@ -46,6 +46,10 @@ export interface Variation {
   cgConfig: CGData;
 }
 
+export interface ProjectLevel extends Variation {
+  levelName: string;
+}
+
 export interface CommonAssignmentData {
   assignmentID: string;
   title: string;
@@ -64,6 +68,12 @@ export interface CodeAssignmentData extends CommonAssignmentData {
   codeLanguage: string;
   variations: {
     [key: string]: Variation;
+  };
+}
+
+export interface ProjectInput extends Omit<CodeAssignmentData, "variations"> {
+  variations: {
+    [key: string]: ProjectLevel;
   };
 }
 
@@ -315,7 +325,8 @@ export type ContextBridgeAPI = {
   exportProjectFS: (
     assignment: CodeAssignmentData,
     coursedata: CourseData,
-    savePath: string
+    savePath: string,
+    replaceExisting: boolean
   ) => IpcResult;
 
   // CRUD Module

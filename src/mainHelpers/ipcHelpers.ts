@@ -186,8 +186,8 @@ export function registerHandles() {
   );
   ipcMain.handle(
     "exportProjectFS",
-    formatIPCResult((assignment, courseData, savePath) =>
-      exportProjectFS(assignment, courseData, savePath)
+    formatIPCResult((assignment, courseData, savePath, replaceExisting) =>
+      exportProjectFS(assignment, courseData, savePath, replaceExisting)
     )
   );
 

@@ -5,6 +5,7 @@ import {
   CardContent,
   Checkbox,
   Divider,
+  Grid,
   Stack,
   Table,
   Typography,
@@ -24,6 +25,8 @@ import {
 } from "../types";
 import { ForceToString } from "../rendererHelpers/converters";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import HelpText from "../components/HelpText";
+import SwitchComp from "../components/SwitchComp";
 
 // Get list of assignments via IPC later
 const testAssignments = [
@@ -46,10 +49,9 @@ export default function ExportProject() {
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [assignment, handleAssignment] = useState<CodeAssignmentDatabase>(null);
   const [navigateToBrowse, setNavigateToBrowse] = useState(false);
-  const pageType = useLoaderData();
   const navigate = useNavigate();
-  const pageTitle: string = null;
   const [stepperState, setStepperState] = useState<number>(0);
+  const [replaceExisting, setReplaceExisting] = useState<boolean>(false);
   const stepHeadings: string[] = [
     parseUICode("ui_choose_project"),
     parseUICode("ui_cg_config"),
@@ -117,7 +119,8 @@ export default function ExportProject() {
           window.api.exportProjectFS(
             assignmentsResult[0],
             activeCourse,
-            savePath
+            savePath,
+            replaceExisting
           )
         );
       } else {
@@ -212,6 +215,32 @@ export default function ExportProject() {
                   ></Checkbox>
                 </td>
               </tr>
+              <tr key="asReplaceExisting">
+                <td style={{ width: "25%" }}>
+                  <Grid
+                    container
+                    direction="row"
+                    justifyContent="flex-start"
+                    alignItems="center"
+                    spacing={1}
+                  >
+                    <Grid xs={10}>
+                      <Typography level="h4">
+                        {parseUICode("ui_replace_existing")}
+                      </Typography>
+                    </Grid>
+                    <Grid xs={2}>
+                      <HelpText text={parseUICode("help_replace_existing")} />
+                    </Grid>
+                  </Grid>
+                </td>
+                <td>
+                  <SwitchComp
+                    checked={replaceExisting}
+                    setChecked={(value: boolean) => setReplaceExisting(value)}
+                  />
+                </td>
+              </tr>
             </tbody>
           </Table>
         </>
@@ -273,7 +302,13 @@ export default function ExportProject() {
         {stepperState < 1 ? (
           <ButtonComp
             buttonType="normal"
-            onClick={() => handleStepperState(1)}
+            onClick={() => {
+              assignment
+                ? handleStepperState(1)
+                : handleSnackbar({
+                    error: parseUICode("error_no_project_work_selected"),
+                  });
+            }}
             ariaLabel={parseUICode("ui_aria_nav_next")}
           >
             {parseUICode("ui_next")}
