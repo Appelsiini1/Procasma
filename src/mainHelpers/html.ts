@@ -358,7 +358,9 @@ export async function exportProjectFS(
     let moduleString = "";
     const css = papercolorLight;
 
-    const mainHeader = formatMainHeaderProject(levelID);
+    const mainHeader = formatMainHeaderProject(
+      projectInput.variations[levelID].levelName
+    );
 
     if (splitLevels || html.length === 0) {
       // HTML Base
@@ -440,6 +442,7 @@ export async function exportProjectFS(
       log.info("HTML created.");
       const inlineHTML = juice(html);
       const inlineSolutionHTML = juice(solutionHtml);
+      log.debug(projectInput.format);
 
       await saveSetModuleFS(
         inlineHTML,
@@ -810,22 +813,10 @@ function formatMainHeader(module: number, moduleType: SupportedModuleType) {
  */
 function formatMainHeaderProject(level: string) {
   let title = ``;
-  const addToTitle = (ui_code: string) => {
-    title += parseUICodeMain(ui_code);
-  };
-  switch (level) {
-    case "1":
-      addToTitle("project_minimum_level_assignment_description");
-      break;
-    case "2":
-      addToTitle("project_basic_level_assignment_description");
-      break;
-    case "3":
-      addToTitle("project_target_level_assignment_description");
-      break;
-    default:
-      addToTitle("project_assignment_description");
-      break;
+  title += parseUICodeMain("project_assignment_description");
+  if (level !== "") {
+    title += " - ";
+    title += level;
   }
   return title;
 }
@@ -1140,6 +1131,7 @@ function generateToCProject(html: string): string {
       block += `<h3><a class="toc" href="#${anchorIdAndText.id}">${anchorIdAndText.text}`;
       block += `</a></h3>`;
     });
+    block += `<div style="margin-bottom: 1cm;"></div>`;
 
     return block;
   } catch (err) {
