@@ -75,6 +75,7 @@ export interface ProjectInput extends Omit<CodeAssignmentData, "variations"> {
   variations: {
     [key: string]: ProjectLevel;
   };
+  format: "html" | "pdf";
 }
 
 export interface ModuleData {

@@ -28,12 +28,6 @@ import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import HelpText from "../components/HelpText";
 import SwitchComp from "../components/SwitchComp";
 
-// Get list of assignments via IPC later
-const testAssignments = [
-  { id: "1", name: "T1 - Otsikko" },
-  { id: "2", name: "T2 - Otsikko" },
-];
-
 export default function ExportProject() {
   const {
     activeAssignments,
@@ -109,15 +103,18 @@ export default function ExportProject() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_export_project_success";
     try {
+      handleSnackbar({ ["action"]: parseUICode("ui_export_status") });
       const savePath = await handleIPCResult(() => window.api.selectDir());
       if (savePath !== "") {
         // Get the full selected assignment
         const assignmentsResult = await handleIPCResult(() =>
           window.api.handleGetAssignmentsFS(activePath, assignment.id)
         );
+        const projectInput = assignmentsResult[0];
+        projectInput.format = format;
         await handleIPCResult(() =>
           window.api.exportProjectFS(
-            assignmentsResult[0],
+            projectInput,
             activeCourse,
             savePath,
             replaceExisting
@@ -255,15 +252,13 @@ export default function ExportProject() {
           </Typography>{" "}
           <div className="emptySpace1" />
           <Typography level="h4">
-            {`${parseUICode(
-              "ui_project_work"
-            )} selected here - CodeGrade ${parseUICode(
+            {`${parseUICode("ui_project_work")} - CodeGrade ${parseUICode(
               "ui_assignment"
             )} ${parseUICode("ui_ids")}`}
           </Typography>
           <Table borderAxis="none">
             <tbody>
-              {testAssignments.map((assignment) => (
+              {/*testAssignments.map((assignment) => (
                 <tr key={assignment.id}>
                   <td style={{ width: "25%" }}>
                     <Typography level="h4">{assignment.name}</Typography>
@@ -272,7 +267,7 @@ export default function ExportProject() {
                     <InputField fieldKey="caSetName" onChange={null} />
                   </td>
                 </tr>
-              ))}
+              ))*/}
             </tbody>
           </Table>
           <Divider sx={dividerSX} role="presentation" />

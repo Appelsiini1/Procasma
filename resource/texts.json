@@ -23,18 +23,6 @@
     "FI": "Harjoitustyön tehtävänanto",
     "ENG": "Final work description"
   },
-  "project_minimum_level_assignment_description": {
-    "FI": "Harjoitustyön minimitason tehtävänanto",
-    "ENG": "Basic level final work description"
-  },
-  "project_basic_level_assignment_description": {
-    "FI": "Harjoitustyön perustason tehtävänanto",
-    "ENG": "Basic level final work description"
-  },
-  "project_target_level_assignment_description": {
-    "FI": "Harjoitustyön tavoitetason tehtävänanto",
-    "ENG": "Target level final work description"
-  },
   "assignment_description": {
     "FI": "Tehtävänanto",
     "ENG": "Assignment"
