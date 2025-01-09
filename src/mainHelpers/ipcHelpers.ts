@@ -10,8 +10,7 @@ import {
   handleUpdateAssignmentFS,
   handleUpdateCourseFS,
   handleDeleteAssignmentsFS,
-  addSetFS,
-  updateSetFS,
+  handleAddOrUpdateSetFS,
   getSetsFS,
   deleteSetsFS,
   getTruncatedAssignmentsFS,
@@ -38,7 +37,7 @@ import { getSettings, saveSettings } from "./settings";
 import { version, DEVMODE } from "../constants";
 import { fetchAutoTestConfig, getTenants, logInToCG } from "./codegrade";
 import { checkCredentialExistance, saveCredentials } from "./encryption";
-import { appQuitHelper } from "./utilityMain";
+import { appQuitHelper, createSHAhash } from "./utilityMain";
 
 type IpcHandler = (
   event: IpcMainInvokeEvent,
@@ -123,6 +122,10 @@ export function registerHandles() {
   ipcMain.handle(
     "getSettings",
     formatIPCResult(() => getSettings())
+  );
+  ipcMain.handle(
+    "getHash",
+    formatIPCResult((content) => createSHAhash(content))
   );
 
   // CRUD Course
@@ -234,16 +237,12 @@ export function registerHandles() {
 
   // CRUD Set
   ipcMain.handle(
-    "addSetFS",
-    formatIPCResult((path, set) => addSetFS(path, set))
+    "addOrUpdateSetFS",
+    formatIPCResult((path, set) => handleAddOrUpdateSetFS(path, set))
   );
   ipcMain.handle(
     "getSetsFS",
     formatIPCResult((path, id) => getSetsFS(path, id))
-  );
-  ipcMain.handle(
-    "updateSetFS",
-    formatIPCResult((path, set) => updateSetFS(path, set))
   );
   ipcMain.handle(
     "deleteSetsFS",
