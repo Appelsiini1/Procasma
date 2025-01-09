@@ -200,7 +200,11 @@ export async function exportSetFS(
 
         const mainHeader =
           convertedSet?.visibleHeader === "" || !convertedSet?.visibleHeader
-            ? formatMainHeader(module.id, coursedata.moduleType)
+            ? formatMainHeader(
+                module.id,
+                coursedata.moduleType,
+                coursedata.modules
+              )
             : convertedSet.visibleHeader;
 
         // HTML Base
@@ -238,18 +242,19 @@ export async function exportSetFS(
         solutionHtml += startingInstructions;
 
         // Module string for PDF footer
+        let modulePadding =
+          coursedata.modules > 9
+            ? module.id.toString().padStart(2, "0")
+            : module.id.toString();
         switch (coursedata.moduleType) {
           case "lecture":
-            moduleString +=
-              parseUICodeMain("ui_lecture") + ` ${module.id.toString()}`;
+            moduleString += parseUICodeMain("ui_lecture") + ` ${modulePadding}`;
             break;
           case "module":
-            moduleString +=
-              parseUICodeMain("ui_module") + ` ${module.id.toString()}`;
+            moduleString += parseUICodeMain("ui_module") + ` ${modulePadding}`;
             break;
           case "week":
-            moduleString +=
-              parseUICodeMain("ui_week") + ` ${module.id.toString()}`;
+            moduleString += parseUICodeMain("ui_week") + ` ${modulePadding}`;
             break;
           default:
             break;
@@ -272,6 +277,7 @@ export async function exportSetFS(
             assignment,
             assignment.variation,
             assignment.variatioId,
+            coursedata.modules,
             false,
             false
           );
@@ -280,6 +286,7 @@ export async function exportSetFS(
             assignment,
             assignment.variation,
             assignment.variatioId,
+            coursedata.modules,
             false,
             true
           );
@@ -397,6 +404,7 @@ export async function exportProjectFS(
       projectInput as unknown as CodeAssignmentSelectionData,
       projectInput.variations[levelID],
       levelID,
+      null,
       true,
       false
     );
@@ -405,6 +413,7 @@ export async function exportProjectFS(
       projectInput as unknown as CodeAssignmentSelectionData,
       projectInput.variations[levelID],
       levelID,
+      null,
       true,
       true
     );
@@ -780,12 +789,18 @@ function formatFiles(
  * @param moduleType The type of module
  * @returns The title string.
  */
-function formatMainHeader(module: number, moduleType: SupportedModuleType) {
+function formatMainHeader(
+  module: number,
+  moduleType: SupportedModuleType,
+  numberOfModules: number
+) {
   let title = ``;
   if (module != null) {
+    let moduleString = module.toString();
+    if (numberOfModules > 9) moduleString = moduleString.padStart(2, "0");
     const addToTitle = (ui_code: string) => {
       title += parseUICodeMain(ui_code);
-      title += module.toString();
+      title += moduleString;
     };
     switch (moduleType) {
       case "lecture":
@@ -831,12 +846,15 @@ function formatMainHeaderProject(level: string) {
 function formatTitle(
   meta: AssignmentInput,
   assignment: CodeAssignmentSelectionData,
+  numberOfModules: number,
   toc = false
 ) {
   let title = ``;
+  let moduleString = assignment.selectedModule.toString();
+  if (numberOfModules > 9) moduleString = moduleString.padStart(2, "0");
   const addToTitle = (ui_code: string) => {
     title += parseUICodeMain(ui_code);
-    title += assignment.selectedModule.toString();
+    title += moduleString;
   };
   switch (meta.courseData.moduleType) {
     case "lecture":
@@ -927,6 +945,7 @@ function generateBlock(
   assignment: CodeAssignmentSelectionData,
   variation: Variation,
   variationID: string,
+  numberOfModules: number,
   isProject: boolean = false,
   includeAnswer: boolean
 ): string {
@@ -937,7 +956,7 @@ function generateBlock(
     // Title
     const title = `<h2 class="assig-title"><a id="${
       assignment.assignmentID
-    }">${formatTitle(meta, assignment)}</a></h2>\n`;
+    }">${formatTitle(meta, assignment, numberOfModules)}</a></h2>\n`;
     block += `${title}`;
 
     // Assignment level
@@ -1083,6 +1102,7 @@ function generateToC(
           courseData: courseData,
         },
         assignment,
+        courseData.modules,
         true
       )}`;
       block += `</a></h3>`;
