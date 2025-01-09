@@ -115,9 +115,11 @@ export default function ExportProject() {
         const assignmentsResult = await handleIPCResult(() =>
           window.api.handleGetAssignmentsFS(activePath, assignment.id)
         );
+        const projectInput = assignmentsResult[0];
+        projectInput.format = format;
         await handleIPCResult(() =>
           window.api.exportProjectFS(
-            assignmentsResult[0],
+            projectInput,
             activeCourse,
             savePath,
             replaceExisting
