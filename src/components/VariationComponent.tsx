@@ -75,7 +75,9 @@ export default function VariationComponent({
           <Box sx={{ marginLeft: "4rem", marginTop: "1rem" }}>
             {useLevelsInstead ? (
               <>
-                <Typography level="h4">{parseUICode("ui_inst")}</Typography>
+                <Typography level="h4">
+                  {parseUICode("ui_level_title")}
+                </Typography>
                 <InputField
                   fieldKey={varID + "levelNameInput"}
                   /* Normal variation does not have a levelName but project work level does*/

@@ -28,12 +28,6 @@ import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import HelpText from "../components/HelpText";
 import SwitchComp from "../components/SwitchComp";
 
-// Get list of assignments via IPC later
-const testAssignments = [
-  { id: "1", name: "T1 - Otsikko" },
-  { id: "2", name: "T2 - Otsikko" },
-];
-
 export default function ExportProject() {
   const {
     activeAssignments,
@@ -257,15 +251,13 @@ export default function ExportProject() {
           </Typography>{" "}
           <div className="emptySpace1" />
           <Typography level="h4">
-            {`${parseUICode(
-              "ui_project_work"
-            )} selected here - CodeGrade ${parseUICode(
+            {`${parseUICode("ui_project_work")} - CodeGrade ${parseUICode(
               "ui_assignment"
             )} ${parseUICode("ui_ids")}`}
           </Typography>
           <Table borderAxis="none">
             <tbody>
-              {testAssignments.map((assignment) => (
+              {/*testAssignments.map((assignment) => (
                 <tr key={assignment.id}>
                   <td style={{ width: "25%" }}>
                     <Typography level="h4">{assignment.name}</Typography>
@@ -274,7 +266,7 @@ export default function ExportProject() {
                     <InputField fieldKey="caSetName" onChange={null} />
                   </td>
                 </tr>
-              ))}
+              ))*/}
             </tbody>
           </Table>
           <Divider sx={dividerSX} role="presentation" />
