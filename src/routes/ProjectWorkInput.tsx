@@ -81,6 +81,7 @@ export default function ProjectWorkInput() {
       snackbarSeverity = "error";
     }
     handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
+    if (snackbarSeverity !== "error") navigate("/");
   }
 
   return (
