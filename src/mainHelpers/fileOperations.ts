@@ -1016,10 +1016,9 @@ export async function importAssignmentsFS(
 
 // CRUD Assignment set
 
-export function _handleAddOrUpdateSetFS(
+export function handleAddOrUpdateSetFS(
   coursePath: string,
-  set: ExportSetData,
-  isOldSet: boolean
+  set: ExportSetData
 ): string {
   try {
     let newSets: ExportSetData[] = [];
@@ -1027,6 +1026,7 @@ export function _handleAddOrUpdateSetFS(
     if (!name || name.length < 1) {
       throw new Error("ui_add_set_name");
     }
+    log.debug(set);
 
     const setsPath = path.join(coursePath, "sets.json");
     let oldSets: ExportSetData[] = handleReadFileFS(setsPath, true);
@@ -1046,7 +1046,6 @@ export function _handleAddOrUpdateSetFS(
 
     // generate an id for the set if it is new
     if (!isOldSet) {
-      set.id = createSHAhash(JSON.stringify(set));
       newSets.push(set);
     } else {
       // update the given set
@@ -1065,13 +1064,6 @@ export function _handleAddOrUpdateSetFS(
     log.error("Error in _handleAddOrUpdateSetFS():", err.message);
     throw err;
   }
-}
-
-export async function addSetFS(
-  coursePath: string,
-  set: ExportSetData
-): Promise<string> {
-  return _handleAddOrUpdateSetFS(coursePath, set, false);
 }
 
 export async function getSetsFS(
@@ -1093,13 +1085,6 @@ export async function getSetsFS(
     log.error("Error in _handleAddOrUpdateSetFS():", err.message);
     throw err;
   }
-}
-
-export async function updateSetFS(
-  coursePath: string,
-  set: ExportSetData
-): Promise<string> {
-  return _handleAddOrUpdateSetFS(coursePath, set, true);
 }
 
 export async function deleteSetsFS(

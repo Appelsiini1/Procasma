@@ -159,7 +159,7 @@ export interface SetAssignmentWithCheck extends WithCheckWrapper {
 }
 
 export interface SetData {
-  id: string;
+  id: string | null;
   fullCourse: boolean;
   module: number;
   name: string;
@@ -344,9 +344,8 @@ export type ContextBridgeAPI = {
   getModuleTagsDB: (coursePath: string) => IpcResult;
 
   // CRUD Set
-  addSetFS: (coursePath: string, set: ExportSetData) => IpcResult;
+  addOrUpdateSetFS: (coursePath: string, set: ExportSetData) => IpcResult;
   getSetsFS: (coursePath: string, id?: string) => IpcResult;
-  updateSetFS: (coursePath: string, set: ExportSetData) => IpcResult;
   deleteSetsFS: (coursePath: string, ids: string[]) => IpcResult;
 
   //Export set
