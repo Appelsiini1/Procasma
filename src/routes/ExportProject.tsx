@@ -103,6 +103,7 @@ export default function ExportProject() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_export_project_success";
     try {
+      handleSnackbar({ ["action"]: parseUICode("ui_export_status") });
       const savePath = await handleIPCResult(() => window.api.selectDir());
       if (savePath !== "") {
         // Get the full selected assignment
