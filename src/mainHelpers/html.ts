@@ -445,7 +445,7 @@ export async function exportProjectFS(
         inlineHTML,
         inlineSolutionHTML,
         fileName,
-        "pdf",
+        projectInput.format,
         coursedata,
         savePath,
         replaceExisting,
