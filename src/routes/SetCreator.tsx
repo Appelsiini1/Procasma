@@ -124,6 +124,11 @@ export default function SetCreator() {
     pageTitle = parseUICode("ui_edit_set");
   }
 
+  useEffect(() => {
+    const yearNow = new Date().getFullYear();
+    if (pageType === "new") handleSet("year", yearNow);
+  }, []);
+
   async function getModules() {
     try {
       if (!activePath) {
