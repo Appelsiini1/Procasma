@@ -301,6 +301,7 @@ export type ContextBridgeAPI = {
   selectFiles: () => IpcResult;
   saveSettings: (settings: SettingsType) => IpcResult;
   getSettings: () => IpcResult;
+  getHash: (content: string) => IpcResult;
 
   // CRUD Course
   handleAddCourseFS: (course: CourseData, coursePath: string) => IpcResult;

@@ -89,6 +89,7 @@ export default function SetCreator() {
       name: format,
     };
   });
+  let ongoingSave = false;
 
   const [selectedAssignments, setSelectedAssignments] = useState<
     Array<SetAlgoAssignmentData>
@@ -188,34 +189,35 @@ export default function SetCreator() {
   async function saveSet() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_set_save_success";
-    try {
-      handleSnackbar({ ["action"]: parseUICode("ui_export_status") });
-      const exportedSet = exportSetData(set);
+    if (!ongoingSave) {
+      ongoingSave = true;
+      try {
+        handleSnackbar({ ["action"]: parseUICode("ui_export_status") });
+        const exportedSet = exportSetData(set);
+        log.debug(pageType);
+        if (pageType !== "manage" || exportedSet.id === null) {
+          const newID = await handleIPCResult(() =>
+            window.api.getHash(JSON.stringify(exportedSet))
+          );
+          log.debug(newID);
+          exportedSet.id = newID;
+          log.debug(exportedSet);
+        }
 
-      if (pageType === "manage") {
         await handleIPCResult(() =>
-          window.api.updateSetFS(activePath, exportedSet)
+          window.api.addOrUpdateSetFS(activePath, exportedSet)
         );
         if (exportedSet.export) {
           const result = await exportSetToDisk(exportedSet, activeCourse);
           snackbarText = result.snackbarText;
           snackbarSeverity = result.snackbarSeverity;
         }
-      } else {
-        await handleIPCResult(() =>
-          window.api.addSetFS(activePath, exportedSet)
-        );
-        if (exportedSet.export) {
-          const result = await exportSetToDisk(exportedSet, activeCourse);
-          snackbarText = result.snackbarText;
-          snackbarSeverity = result.snackbarSeverity;
-        }
+      } catch (err) {
+        snackbarText = err.message;
+        snackbarSeverity = "error";
       }
-    } catch (err) {
-      snackbarText = err.message;
-      snackbarSeverity = "error";
+      handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
     }
-    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
   }
 
   function handleUpdateCGid(assignmentId: string, CGid: string) {
@@ -1056,18 +1058,22 @@ export default function SetCreator() {
           <>
             <ButtonComp
               buttonType="normal"
-              onClick={() => saveSet()}
+              onClick={() => {
+                saveSet();
+                navigate("/");
+              }}
               ariaLabel={parseUICode("ui_save")}
             >
               {parseUICode("ui_save")}
             </ButtonComp>
-            <ButtonComp
+            {/*<ButtonComp
               buttonType="normal"
               onClick={() => console.log("export CG configs")}
               ariaLabel={parseUICode("ui_aria_export_cg_configs")}
+              disabled={true}
             >
               {parseUICode("ui_export")}
-            </ButtonComp>
+            </ButtonComp>*/}
           </>
         ) : (
           ""
