@@ -1555,5 +1555,9 @@
   "error_no_project_work_selected": {
     "FI": "Ei projektityötä valittuna",
     "ENG": "No project work selected"
+  },
+  "error_resource_busy": {
+    "FI": "Ei voitu tallentaa, tiedosto on lukittu tai käytössä.",
+    "ENG": "Could not save file, file is busy or locked."
   }
 }

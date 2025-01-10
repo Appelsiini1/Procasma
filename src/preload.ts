@@ -28,6 +28,7 @@ contextBridge.exposeInMainWorld("api", {
   saveSettings: (settings: SettingsType) =>
     ipcRenderer.invoke("saveSettings", settings),
   getSettings: () => ipcRenderer.invoke("getSettings"),
+  getHash: (content: string) => ipcRenderer.invoke("getHash", content),
 
   // CRUD Course
   handleAddCourseFS: (course: CourseData, coursePath: string) =>
@@ -93,12 +94,10 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("getModuleTagsDB", coursePath),
 
   // CRUD Set
-  addSetFS: (coursePath: string, set: SetData) =>
-    ipcRenderer.invoke("addSetFS", coursePath, set),
+  addOrUpdateSetFS: (coursePath: string, set: SetData) =>
+    ipcRenderer.invoke("addOrUpdateSetFS", coursePath, set),
   getSetsFS: (coursePath: string, id: string) =>
     ipcRenderer.invoke("getSetsFS", coursePath, id),
-  updateSetFS: (coursePath: string, set: SetData) =>
-    ipcRenderer.invoke("updateSetFS", coursePath, set),
   deleteSetsFS: (coursePath: string, ids: string[]) =>
     ipcRenderer.invoke("deleteSetsFS", coursePath, ids),
 

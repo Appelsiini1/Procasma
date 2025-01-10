@@ -18,6 +18,7 @@ import {
   AssignmentWithCheck,
   CodeAssignmentData,
   CodeAssignmentDatabase,
+  CodeLanguage,
   CourseData,
   Variation,
 } from "../types";
@@ -78,14 +79,17 @@ export default function AssignmentInput() {
   const [extraCredit, setExtraCredit] = useState(
     assignment?.extraCredit ? assignment.extraCredit : false
   );
-
+  const defaultCodeLanguage =
+    assignment?.codeLanguage ?? activeCourse.codeLanguage.name;
   const variations: { [key: string]: Variation } = assignment?.variations;
   let pageType = useLoaderData();
   const navigate = useNavigate();
   let pageTitle: string = null;
   const moduleDisable = activeCourse?.moduleType !== null ? false : true;
   const levelsDisable = activeCourse?.levels !== null ? false : true;
-  const codeLanguageOptions = deepCopy(globalSettings.codeLanguages);
+  const codeLanguageOptions: CodeLanguage[] = deepCopy(
+    globalSettings.codeLanguages
+  );
   let prevAssignmentsChecklist: Array<React.JSX.Element> = null;
 
   if (pageType === "new") {
@@ -143,6 +147,7 @@ export default function AssignmentInput() {
     // change the assignment type to assignment
     if (pageType === "new") {
       handleAssignment("assignmentType", "assignment");
+      handleAssignment("codeLanguage", activeCourse.codeLanguage.name, true);
     }
     handleHeaderPageName("ui_add_assignment");
 
@@ -166,6 +171,13 @@ export default function AssignmentInput() {
 
     if (assignment.level === null && activeCourse?.levels !== null) {
       assignmentToSave.level = 0;
+    }
+    if (assignment.codeLanguage === null) {
+      assignmentToSave.codeLanguage = activeCourse.codeLanguage.name;
+    }
+    if (!assignment.title) {
+      handleSnackbar({ error: parseUICode("ui_add_assignment_title") });
+      return;
     }
 
     if (checkSpecial(assignment.title)) {
@@ -193,7 +205,7 @@ export default function AssignmentInput() {
         snackbarSeverity = "error";
       }
       handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
-      navigate(-1);
+      if (snackbarSeverity !== "error") navigate(-1);
     }
   }
 
@@ -333,7 +345,7 @@ export default function AssignmentInput() {
                     let index = activeCourse.levels.findIndex(
                       (element) => value === element.fullName
                     );
-                    log.debug("Index value:", index);
+                    // log.debug("Index value:", index);
                     if (index === -1) index = null;
                     handleAssignment("level", index);
                   }}
@@ -355,6 +367,7 @@ export default function AssignmentInput() {
                   onChange={(value: number) =>
                     handleAssignment("module", value)
                   }
+                  min={0}
                 ></NumberInput>
               </td>
             </tr>
@@ -434,7 +447,7 @@ export default function AssignmentInput() {
                   name="caCodeLanguageInput"
                   options={codeLanguageOptions}
                   labelKey="name"
-                  defaultValue={ForceToString(assignment?.codeLanguage)}
+                  defaultValue={ForceToString(defaultCodeLanguage)}
                   onChange={(value: string) =>
                     handleAssignment("codeLanguage", value)
                   }

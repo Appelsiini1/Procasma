@@ -29,7 +29,7 @@ export default function PageHeaderBar() {
   const [courseName, setCourseName] = useState(null);
 
   const handleCourseName = (ID: string, title: string) => {
-    if (ID && title) {
+    if (ID || title) {
       setCourseName(`${ID} ${title}`);
     } else {
       setCourseName(parseUICode("ui_no_course"));

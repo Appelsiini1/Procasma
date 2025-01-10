@@ -44,7 +44,7 @@ export const defaultAssignment: CodeAssignmentData = {
   level: null,
   next: null,
   previous: null,
-  codeLanguage: "",
+  codeLanguage: null,
   variations: {},
   folder: "",
   extraCredit: false,
@@ -95,7 +95,7 @@ export const defaultModule: ModuleData = {
 };
 
 export const defaultSet: SetData = {
-  id: "",
+  id: null,
   fullCourse: true,
   module: null,
   name: "",
