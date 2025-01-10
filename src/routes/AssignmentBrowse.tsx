@@ -156,6 +156,8 @@ export default function AssignmentBrowse() {
 
     if (previousPath === "/exportProject") {
       handleUpdateFilter(["finalWork"], setUniqueTypes, true);
+    } else if (previousPath === "/setCreator") {
+      handleUpdateFilter(["assignment"], setUniqueTypes, true);
     } else {
       handleUpdateFilter(Object.values(AssignmentTypes), setUniqueTypes);
     }
