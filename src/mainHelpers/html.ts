@@ -340,7 +340,13 @@ export async function exportSetFS(
     );
   } catch (err) {
     log.error("Error in exportSetFS():", err.message);
-    throw new Error("ui_export_error");
+    let newErr = "";
+    if (String(err.message).includes("resource_busy")) {
+      newErr = "error_resource_busy";
+    } else {
+      newErr = "ui_export_error";
+    }
+    throw new Error(newErr);
   }
   return "ui_export_success";
 }
