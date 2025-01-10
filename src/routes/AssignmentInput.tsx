@@ -167,6 +167,10 @@ export default function AssignmentInput() {
     if (assignment.level === null && activeCourse?.levels !== null) {
       assignmentToSave.level = 0;
     }
+    if (!assignment.title) {
+      handleSnackbar({ error: parseUICode("ui_add_assignment_title") });
+      return;
+    }
 
     if (checkSpecial(assignment.title)) {
       handleSnackbar({ error: parseUICode("error_special_in_title") });
@@ -193,7 +197,7 @@ export default function AssignmentInput() {
         snackbarSeverity = "error";
       }
       handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
-      navigate(-1);
+      if (snackbarSeverity !== "error") navigate(-1);
     }
   }
 
