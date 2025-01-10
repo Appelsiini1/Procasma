@@ -44,7 +44,7 @@ export const defaultAssignment: CodeAssignmentData = {
   level: null,
   next: null,
   previous: null,
-  codeLanguage: "",
+  codeLanguage: null,
   variations: {},
   folder: "",
   extraCredit: false,
