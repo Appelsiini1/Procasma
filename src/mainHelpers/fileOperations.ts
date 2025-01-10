@@ -503,9 +503,9 @@ async function _handleAddOrUpdateAssignmentFS(
     if (!oldAssignment) {
       // if saving new assignment, throw error if
       // identically named one exists
-      if (await assignmentExistsDB(assignment?.title, coursePath)) {
-        throw new Error("ui_assignment_error_duplicate_title");
-      }
+      // if (await assignmentExistsDB(assignment?.title, coursePath)) {
+      //   throw new Error("ui_assignment_error_duplicate_title");
+      // }
 
       _createAssignmentFolderFS(assignment, assignmentDataPath, assignmentHash);
       hashFolderPath = path.join(assignmentDataPath, assignmentHash);
