@@ -345,7 +345,7 @@ export default function AssignmentInput() {
                     let index = activeCourse.levels.findIndex(
                       (element) => value === element.fullName
                     );
-                    log.debug("Index value:", index);
+                    // log.debug("Index value:", index);
                     if (index === -1) index = null;
                     handleAssignment("level", index);
                   }}
@@ -367,6 +367,7 @@ export default function AssignmentInput() {
                   onChange={(value: number) =>
                     handleAssignment("module", value)
                   }
+                  min={0}
                 ></NumberInput>
               </td>
             </tr>
