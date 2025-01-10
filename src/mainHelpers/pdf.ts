@@ -98,17 +98,33 @@ export function generateHeaderFooter(
 }
 
 export async function createPDF(input: PDFHtmlInput, savePath: string) {
-  const win: BrowserWindow = null;
-  try {
-    log.info("Saving interrim HTML...");
-    const tempHTMLPath = path.join(
-      getFileCacheDir(),
-      createSHAhash(input.html) + ".html"
-    );
-    fs.writeFileSync(tempHTMLPath, input.html, { encoding: "utf-8" });
-    log.info("Interrim HTML saved. Starting PDF creation...");
-    const win = new BrowserWindow(workerWindowPreferences);
-    win.loadFile(tempHTMLPath);
+  return new Promise((resolve, reject) => {
+    const PDFError = (reason: Error) => {
+      let error;
+      if (reason.message.includes("resource busy or locked")) {
+        log.error("Error in PDF saving: ", reason);
+        error = "error_resource_busy";
+      } else {
+        error = reason.message;
+      }
+      reject(new Error(error));
+    };
+
+    let win;
+    try {
+      log.info("Saving interrim HTML...");
+      const tempHTMLPath = path.join(
+        getFileCacheDir(),
+        createSHAhash(input.html) + ".html"
+      );
+      fs.writeFileSync(tempHTMLPath, input.html, { encoding: "utf-8" });
+      log.info("Interrim HTML saved. Starting PDF creation...");
+      win = new BrowserWindow(workerWindowPreferences);
+      win.loadFile(tempHTMLPath);
+    } catch (err) {
+      log.error("Error in PDF creation:", err.message);
+      throw err;
+    }
 
     win.webContents.on("did-finish-load", () => {
       log.info("Worker window loaded.");
@@ -124,25 +140,22 @@ export async function createPDF(input: PDFHtmlInput, savePath: string) {
         .then((data) => {
           log.info("PDF created, adding metadata...");
           return PDFDocument.load(data);
-        })
-        .then((pdfDoc) => {
+        }, PDFError)
+        .then((pdfDoc: PDFDocument) => {
           pdfDoc.setTitle(input.title);
           pdfDoc.setCreator(`Procasma v${version}`);
           return pdfDoc.save();
-        })
-        .then((pdfBytes) => {
+        }, PDFError)
+        .then((pdfBytes: Uint8Array<ArrayBufferLike>) => {
           log.info("Saving PDF to file...");
           fs.writeFileSync(savePath, pdfBytes);
           log.info("PDF saved.");
-        })
+        }, PDFError)
         .then(() => {
           win.close();
           log.info("Worker window closed.");
-        });
+          resolve("ok");
+        }, PDFError);
     });
-  } catch (err) {
-    log.error("Error in PDF creation:", err.message);
-    throw err;
-  }
-  return;
+  });
 }
