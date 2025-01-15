@@ -900,20 +900,22 @@ function formatTitle(
  * @returns HTML string
  */
 function generateStart(subjects: string, instructions: string): string {
-  if (!subjects || !instructions) return "";
+  if (!subjects && !instructions) return "";
 
   let block = `<div>`;
-  const splitSubjects = subjects.split("\n").map((value, index) => {
-    return `<li id="${index}">${formatMarkdown(value)
-      .replaceAll("<p>", "")
-      .replaceAll("</p>", "")}</li>`;
-  });
-  block += '<ul class="start">';
-  for (const item of splitSubjects) {
-    block += item;
+  if (subjects) {
+    const splitSubjects = subjects.split("\n").map((value, index) => {
+      return `<li id="${index}">${formatMarkdown(value)
+        .replaceAll("<p>", "")
+        .replaceAll("</p>", "")}</li>`;
+    });
+    block += '<ul class="start">';
+    for (const item of splitSubjects) {
+      block += item;
+    }
+    block += "</ul>";
   }
-  block += "</ul>";
-  block += formatMarkdown(instructions);
+  if (instructions) block += formatMarkdown(instructions);
   block += `<div style="height: ${emptySpaceHeight};"></div>`;
   block += "</div>";
   return block;
