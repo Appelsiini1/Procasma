@@ -160,7 +160,12 @@ export default function Course() {
     let snackbarText = "ui_course_folder_opened";
     try {
       if (!path || path.length < 1) {
-        handleSnackbar({ info: parseUICode("ui_choose_folder_path") });
+        handleSnackbar({ error: parseUICode("ui_choose_folder_path") });
+        return;
+      }
+
+      if (!course.title) {
+        handleSnackbar({ error: parseUICode("ui_add_course_title") });
         return;
       }
 
@@ -226,6 +231,14 @@ export default function Course() {
     <>
       <div style={{ maxWidth: pageTableMaxWidth, minWidth: pageTableMinWidth }}>
         <Typography level="h1">{pageTitle}</Typography>
+        <Typography
+          level="body-lg"
+          fontStyle={"italic"}
+          textColor={"red"}
+          sx={{ marginTop: "1em" }}
+        >
+          {"* " + parseUICode("ui_required_field")}
+        </Typography>
         <Table borderAxis="none">
           <tbody>
             <tr key="cID">
@@ -247,7 +260,7 @@ export default function Course() {
             <tr key="cName">
               <td>
                 <Typography level="h4">
-                  {parseUICode("ui_course_name")}
+                  {parseUICode("ui_course_name") + " *"}
                 </Typography>
               </td>
               <td>
@@ -264,7 +277,7 @@ export default function Course() {
             <tr key="cFolder">
               <td>
                 <Typography level="h4">
-                  {parseUICode("ui_course_folder")}
+                  {parseUICode("ui_course_folder") + " *"}
                 </Typography>
               </td>
               <td>

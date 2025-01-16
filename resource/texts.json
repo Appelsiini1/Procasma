@@ -1559,5 +1559,9 @@
   "error_resource_busy": {
     "FI": "Ei voitu tallentaa, tiedosto on lukittu tai käytössä.",
     "ENG": "Could not save file, file is busy or locked."
+  },
+  "ui_required_field": {
+    "FI": "Pakollinen kenttä",
+    "ENG": "Required field"
   }
 }
