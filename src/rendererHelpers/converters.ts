@@ -1,8 +1,11 @@
 import { LevelsType } from "../types";
 
-export function splitStringToArray(input: string): string[] {
+export function splitStringToArray(
+  input: string,
+  splitCharacter = ","
+): string[] {
   const trimmedInput = input.trim();
-  const array = trimmedInput.split(",").map((item) => item.trim());
+  const array = trimmedInput.split(splitCharacter).map((item) => item.trim());
 
   return array;
 }
