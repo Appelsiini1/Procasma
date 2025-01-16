@@ -199,14 +199,11 @@ export default function SetCreator() {
       try {
         handleSnackbar({ ["action"]: parseUICode("ui_export_status") });
         const exportedSet = exportSetData(set);
-        log.debug(pageType);
         if (pageType !== "manage" || exportedSet.id === null) {
           const newID = await handleIPCResult(() =>
             window.api.getHash(JSON.stringify(exportedSet))
           );
-          log.debug(newID);
           exportedSet.id = newID;
-          log.debug(exportedSet);
         }
 
         await handleIPCResult(() =>
@@ -1094,28 +1091,28 @@ export default function SetCreator() {
         >
           <ButtonComp
             buttonType="debug"
-            onClick={() => console.log(allAssignments)}
+            onClick={() => log.debug(allAssignments)}
             ariaLabel={" debug "}
           >
             log allAssignments
           </ButtonComp>
           <ButtonComp
             buttonType="debug"
-            onClick={() => console.log(set)}
+            onClick={() => log.debug(set)}
             ariaLabel={" debug "}
           >
             log set
           </ButtonComp>
           <ButtonComp
             buttonType="debug"
-            onClick={() => console.log(activeSet)}
+            onClick={() => log.debug(activeSet)}
             ariaLabel={" debug "}
           >
             log activeSet
           </ButtonComp>
           <ButtonComp
             buttonType="debug"
-            onClick={() => console.log(allModules)}
+            onClick={() => log.debug(allModules)}
             ariaLabel={" debug "}
           >
             log allModules

@@ -16,16 +16,15 @@ export const css = `html {
 h1 {
   font-size: 1.5em !important;
 }
-
 h2 {
-  font-size: 1.17em !important;
+  font-size: 1.2em !important;
 }
 h2.assig-title {
   font-size: 1.3em !important;
   margin-top: 1.2cm;
 }
 h3 {
-  font-size: 1em !important;
+  font-size: 1.1em !important;
 }
 h4 {
   font-size: 1em !important;
