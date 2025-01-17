@@ -62,7 +62,7 @@ export default function ExampleRun({
             onChange={(value: string) =>
               handleAssignment(
                 `${pathInAssignment}.inputs`,
-                splitStringToArray(value),
+                splitStringToArray(value, "\n"),
                 true
               )
             }

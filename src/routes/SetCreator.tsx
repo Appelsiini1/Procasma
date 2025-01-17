@@ -82,7 +82,13 @@ export default function SetCreator() {
   const pageType = useLoaderData();
   const navigate = useNavigate();
   let pageTitle: string = null;
-  const [stepperState, setStepperState] = useState<number>(activeSet ? 2 : 0);
+  const [stepperState, setStepperState] = useState<number>(
+    activeSet
+      ? pageType === "manage" && !activeAssignment && !activeAssignments
+        ? 1
+        : 2
+      : 0
+  );
   const [allModules, setAllModules] = useState<Array<ModuleData>>([]);
   const formats: object[] = formatTypes.map((format) => {
     return {
@@ -196,17 +202,15 @@ export default function SetCreator() {
     let snackbarText = "ui_set_save_success";
     if (!ongoingSave) {
       ongoingSave = true;
+
       try {
         handleSnackbar({ ["action"]: parseUICode("ui_export_status") });
         const exportedSet = exportSetData(set);
-        log.debug(pageType);
         if (pageType !== "manage" || exportedSet.id === null) {
           const newID = await handleIPCResult(() =>
             window.api.getHash(JSON.stringify(exportedSet))
           );
-          log.debug(newID);
           exportedSet.id = newID;
-          log.debug(exportedSet);
         }
 
         await handleIPCResult(() =>
@@ -704,8 +708,14 @@ export default function SetCreator() {
 
   function handleNext() {
     // log.debug(stepperState, set.fullCourse, allModules);
-    if (stepperState === 0 && !set.fullCourse && allModules.length === 1) {
+    if (stepperState === 0 && !set.fullCourse && set.module == null) {
       handleSnackbar({ ["error"]: parseUICode("error_no_modules_in_set") });
+    } else if (stepperState === 1 && (!set.name || !set.format)) {
+      if (!set.name) {
+        handleSnackbar({ error: parseUICode("error_add_set_name") });
+      } else {
+        handleSnackbar({ error: parseUICode("error_no_format") });
+      }
     } else if (
       stepperState === 1 &&
       set.fullCourse &&
@@ -762,7 +772,7 @@ export default function SetCreator() {
           </Typography>
           <Table borderAxis="none">
             <tbody>
-              <tr key="caTitle">
+              <tr key="caFullCourse">
                 <td style={{ width: "25%" }}>
                   <Typography level="h4">
                     {parseUICode("ui_full_course")}
@@ -792,7 +802,6 @@ export default function SetCreator() {
                       set.fullCourse || (allModules.length === 1 ? true : false)
                     }
                     onChange={(value: string) => {
-                      handleSet("module", value);
                       handleSet(
                         "module",
                         allModules.find((m) => m.name === value)?.id
@@ -811,12 +820,20 @@ export default function SetCreator() {
       {stepperState === 1 ? (
         <>
           <Typography level="h1">{parseUICode("ui_set_details")}</Typography>
+          <Typography
+            level="body-lg"
+            fontStyle={"italic"}
+            textColor={"red"}
+            sx={{ marginTop: "1em" }}
+          >
+            {"* " + parseUICode("ui_required_field")}
+          </Typography>
           <Table borderAxis="none">
             <tbody>
               <tr key="asSetName">
                 <td style={{ width: "25%" }}>
                   <Typography level="h4">
-                    {parseUICode("ui_set_name")}
+                    {parseUICode("ui_set_name") + " *"}
                   </Typography>
                 </td>
                 <td>
@@ -889,7 +906,9 @@ export default function SetCreator() {
 
               <tr key="asFormat">
                 <td>
-                  <Typography level="h4">{parseUICode("ui_format")}</Typography>
+                  <Typography level="h4">
+                    {parseUICode("ui_format") + " *"}
+                  </Typography>
                 </td>
                 <td>
                   <Dropdown
@@ -1094,28 +1113,28 @@ export default function SetCreator() {
         >
           <ButtonComp
             buttonType="debug"
-            onClick={() => console.log(allAssignments)}
+            onClick={() => log.debug(allAssignments)}
             ariaLabel={" debug "}
           >
             log allAssignments
           </ButtonComp>
           <ButtonComp
             buttonType="debug"
-            onClick={() => console.log(set)}
+            onClick={() => log.debug(set)}
             ariaLabel={" debug "}
           >
             log set
           </ButtonComp>
           <ButtonComp
             buttonType="debug"
-            onClick={() => console.log(activeSet)}
+            onClick={() => log.debug(activeSet)}
             ariaLabel={" debug "}
           >
             log activeSet
           </ButtonComp>
           <ButtonComp
             buttonType="debug"
-            onClick={() => console.log(allModules)}
+            onClick={() => log.debug(allModules)}
             ariaLabel={" debug "}
           >
             log allModules

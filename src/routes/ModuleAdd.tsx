@@ -47,6 +47,14 @@ export default function ModuleAdd() {
   async function handleSaveModule() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_module_save_success";
+    if (!module.name || module.assignments == 0) {
+      handleSnackbar({
+        error: module.name
+          ? parseUICode("error_assignment_count_required")
+          : parseUICode("ui_add_module_name"),
+      });
+      return;
+    }
     try {
       if (pageType === "manage") {
         await handleIPCResult(() =>
@@ -60,7 +68,7 @@ export default function ModuleAdd() {
       snackbarSeverity = "error";
     }
     handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
-    navigate(-1);
+    if (snackbarSeverity !== "error") navigate(-1);
   }
 
   useEffect(() => {
@@ -71,12 +79,20 @@ export default function ModuleAdd() {
     <>
       <div style={{ maxWidth: pageTableMaxWidth, minWidth: pageTableMinWidth }}>
         <Typography level="h1">{pageTitle}</Typography>
+        <Typography
+          level="body-lg"
+          fontStyle={"italic"}
+          textColor={"red"}
+          sx={{ marginTop: "1em" }}
+        >
+          {"* " + parseUICode("ui_required_field")}
+        </Typography>
         <Table borderAxis="none">
           <tbody>
             <tr key="mTitle">
               <td style={{ width: titleCellWidth }}>
                 <Typography level="h4">
-                  {parseUICode("ui_module_title")}
+                  {parseUICode("ui_module_title") + " *"}
                 </Typography>
               </td>
               <td>
@@ -93,7 +109,7 @@ export default function ModuleAdd() {
             <tr key="mAssignmentCount">
               <td>
                 <Typography level="h4">
-                  {parseUICode("ui_assignment_count")}
+                  {parseUICode("ui_assignment_count") + " *"}
                 </Typography>
               </td>
               <td>

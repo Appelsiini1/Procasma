@@ -312,12 +312,20 @@ export default function AssignmentInput() {
         style={{ maxWidth: pageTableMaxWidth, minWidth: pageTableMinWidth }}
       >
         <Typography level="h1">{pageTitle}</Typography>
+        <Typography
+          level="body-lg"
+          fontStyle={"italic"}
+          textColor={"red"}
+          sx={{ marginTop: "1em" }}
+        >
+          {"* " + parseUICode("ui_required_field")}
+        </Typography>
         <Table borderAxis="none">
           <tbody>
             <tr key="caTitle">
               <td style={{ width: titleCellWidth }}>
                 <Typography level="h4">
-                  {parseUICode("ui_assignment_title")}
+                  {parseUICode("ui_assignment_title") + " *"}
                 </Typography>
               </td>
               <td>
