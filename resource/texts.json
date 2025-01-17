@@ -1567,5 +1567,13 @@
   "error_assignment_count_required": {
     "FI": "Syötä tehtävien määrä",
     "ENG": "Please input the amount of assignments"
+  },
+  "error_add_set_name": {
+    "FI": "Syötä sarjalle nimi",
+    "ENG": "Please input name for the set"
+  },
+  "error_no_format": {
+    "FI": "Valitse sarjan formaatti",
+    "ENG": "Please select set format"
   }
 }
