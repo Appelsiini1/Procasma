@@ -4,12 +4,19 @@ import { Box, Divider, Grid, Typography } from "@mui/joy";
 import ButtonComp from "../components/ButtonComp";
 import { useNavigate } from "react-router";
 import FadeInImage from "../components/FadeInImage";
-import { CodeAssignmentData, CourseData, ModuleData, SetData } from "../types";
+import {
+  CodeAssignmentData,
+  CourseData,
+  ModuleData,
+  RecentCourse,
+  SetData,
+} from "../types";
 import { useContext, useEffect, useState } from "react";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
 import { ActiveObjectContext, UIContext } from "../components/Context";
 import { currentCourse } from "../globalsUI";
+import HoverListSelect from "../components/HoverListSelect";
 
 export default function Root() {
   const {
@@ -51,6 +58,7 @@ export default function Root() {
   const [assignmentsInIndex, setAssignmentsInIndex] = useState(null);
   const navigate = useNavigate();
   const [version, setVersion] = useState("");
+  const [recentCourses, setRecentCourses] = useState<RecentCourse[]>([]);
 
   const refreshAssignmentsInIndex = async () => {
     try {
@@ -59,6 +67,17 @@ export default function Root() {
       );
 
       setAssignmentsInIndex(count);
+    } catch (err) {
+      handleSnackbar({ error: parseUICode(err.message) });
+    }
+  };
+
+  const getRecentCourses = async () => {
+    try {
+      const recentCourses = await handleIPCResult(() =>
+        window.api.getRecentCoursesFS()
+      );
+      setRecentCourses(recentCourses);
     } catch (err) {
       handleSnackbar({ error: parseUICode(err.message) });
     }
@@ -79,6 +98,7 @@ export default function Root() {
       setVersion(versionTemp);
     }
     getVersion();
+    getRecentCourses();
   }, []);
   // update the assignments in index count
   useEffect(() => {
@@ -119,6 +139,38 @@ export default function Root() {
     }
   }, [activeSet, navigateToSet]);
 
+  // TODO add select course function that takes the path
+  async function handleSelectCourse(coursePath: string) {
+    let snackbarSeverity = "success";
+    let snackbarText = "ui_course_folder_opened";
+    try {
+      const course: CourseData = await handleIPCResult(() =>
+        window.api.handleGetCourseFS(coursePath)
+      );
+
+      if (course) {
+        handleActiveCourse(course);
+        handleActivePath(coursePath);
+        handleHeaderCourseID(course.id);
+        handleHeaderCourseTitle(course.title);
+        window.api.setCoursePath(coursePath);
+        currentCourse.values = course;
+      } else {
+        snackbarSeverity = "error";
+        snackbarText = "ui_course_folder_invalid";
+      }
+    } catch (err) {
+      snackbarSeverity = "error";
+      snackbarText = err.message;
+    }
+    handleSnackbar({ [snackbarSeverity]: parseUICode(snackbarText) });
+    getRecentCourses();
+  }
+
+  async function handleSelectRecentCourse(course: RecentCourse) {
+    handleSelectCourse(course.path);
+  }
+
   async function handleSelectCourseFolder() {
     let snackbarSeverity = "success";
     let snackbarText = "ui_course_folder_opened";
@@ -126,26 +178,11 @@ export default function Root() {
       const coursePath: string = await handleIPCResult(() =>
         window.api.selectDir()
       );
-
       if (coursePath.length === 0) {
         snackbarSeverity = "info";
         snackbarText = "ui_action_canceled";
       } else {
-        const course: CourseData = await handleIPCResult(() =>
-          window.api.handleGetCourseFS(coursePath)
-        );
-
-        if (course) {
-          handleActiveCourse(course);
-          handleActivePath(coursePath);
-          handleHeaderCourseID(course.id);
-          handleHeaderCourseTitle(course.title);
-          window.api.setCoursePath(coursePath);
-          currentCourse.values = course;
-        } else {
-          snackbarSeverity = "error";
-          snackbarText = "ui_course_folder_invalid";
-        }
+        handleSelectCourse(coursePath);
       }
     } catch (err) {
       snackbarSeverity = "error";
@@ -198,13 +235,19 @@ export default function Root() {
               </ButtonComp>
             </Grid>
             <Grid>
-              <ButtonComp
-                buttonType="openCourse"
-                onClick={() => handleSelectCourseFolder()}
-                ariaLabel={parseUICode("ui_aria_nav_open_course")}
+              <HoverListSelect<RecentCourse>
+                items={recentCourses}
+                itemKey={"title" as keyof RecentCourse}
+                handleSelect={handleSelectRecentCourse}
               >
-                {parseUICode("course_open")}
-              </ButtonComp>
+                <ButtonComp
+                  buttonType="openCourse"
+                  onClick={() => handleSelectCourseFolder()}
+                  ariaLabel={parseUICode("ui_aria_nav_open_course")}
+                >
+                  {parseUICode("course_open")}
+                </ButtonComp>
+              </HoverListSelect>
             </Grid>
             <Grid>
               <ButtonComp

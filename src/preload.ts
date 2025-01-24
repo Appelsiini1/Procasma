@@ -33,6 +33,7 @@ contextBridge.exposeInMainWorld("api", {
   // CRUD Course
   handleAddCourseFS: (course: CourseData, coursePath: string) =>
     ipcRenderer.invoke("handleAddCourseFS", course, coursePath),
+  getRecentCoursesFS: () => ipcRenderer.invoke("getRecentCoursesFS"),
   handleGetCourseFS: (coursePath: string) =>
     ipcRenderer.invoke("handleGetCourseFS", coursePath),
   handleUpdateCourseFS: (course: CourseData, coursePath: string) =>

@@ -111,6 +111,12 @@ export interface CourseData {
   levels?: LevelsType[] | null;
 }
 
+export interface RecentCourse {
+  id: string;
+  title: string;
+  path: string;
+}
+
 export type CourseLoaderData = "create" | "manage";
 
 export interface SettingsType {
@@ -305,6 +311,7 @@ export type ContextBridgeAPI = {
 
   // CRUD Course
   handleAddCourseFS: (course: CourseData, coursePath: string) => IpcResult;
+  getRecentCoursesFS: () => IpcResult;
   handleGetCourseFS: (coursePath: string) => IpcResult;
   handleUpdateCourseFS: (course: CourseData, coursePath: string) => IpcResult;
 

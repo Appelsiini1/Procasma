@@ -984,6 +984,10 @@
     "FI": "Virhe kurssin tietojen tallennuksessa.",
     "ENG": "Error saving course information."
   },
+  "ui_error_course_not_found": {
+    "FI": "Kurssin tietoja ei löydetty.",
+    "ENG": "Course information not found."
+  },
   "ui_project_work": {
     "FI": "Harjoitustyö",
     "ENG": "Project work"
