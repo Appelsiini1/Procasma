@@ -38,3 +38,11 @@ export function getSettingsFilepath() {
     return path.join(getApplicationDir(), "settings.json");
   }
 }
+
+export function getRecentCoursesFilepath() {
+  if (platform === "darwin") {
+    return path.join(getDarwinSettingsDir(), "recentCourses.json");
+  } else {
+    return path.join(getApplicationDir(), "recentCourses.json");
+  }
+}

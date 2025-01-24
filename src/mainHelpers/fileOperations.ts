@@ -10,6 +10,7 @@ import {
   FormatType,
   ImportAssignment,
   ModuleData,
+  RecentCourse,
   SetAlgoAssignmentData,
   SetVariation,
   Variation,
@@ -43,7 +44,7 @@ import {
 } from "../defaultObjects";
 import { addFileToVariation } from "./OPCourseParsers";
 import { coursePath } from "../globalsMain";
-import { getFileCacheDir } from "./osOperations";
+import { getFileCacheDir, getRecentCoursesFilepath } from "./osOperations";
 
 // General
 
@@ -164,6 +165,69 @@ export async function handleAddCourseFS(
   }
 }
 
+export function saveRecentCoursesFS(recentCourses: RecentCourse[]) {
+  try {
+    const path = getRecentCoursesFilepath();
+    fs.writeFileSync(path, JSON.stringify(recentCourses));
+  } catch (err) {
+    log.error("Error in saveRecentCoursesFS():", err.message);
+    throw err;
+  }
+}
+
+export function getRecentCoursesFS() {
+  try {
+    const path = getRecentCoursesFilepath();
+    return handleReadFileFS(path);
+  } catch (err) {
+    log.error("Error in getRecentCoursesFS():", err.message);
+    throw err;
+  }
+}
+
+/**
+ * Remove a recent course from the recent courses list based on file path.
+ */
+export function removeRecentCourseFS(filePath: string) {
+  try {
+    const recentCourses: RecentCourse[] = getRecentCoursesFS();
+
+    const filtered = recentCourses.filter((c) => c.path !== filePath);
+
+    saveRecentCoursesFS(filtered);
+  } catch (err) {
+    log.error("Error in removeRecentCourseFS():", err.message);
+    throw err;
+  }
+}
+
+/**
+ * Add a recent course, maintain max 5 recent courses.
+ * 1) If the course exists, move it to the start of the array.
+ * 2) If it does not exist, add it to the start of the array.
+ * 3) If the array is full, remove the last elements.
+ * 4) If the array is empty, add the course to the array.
+ */
+function _addRecentCourseFS(course: RecentCourse) {
+  const maxRecentCourses = 5;
+  try {
+    const recentCourses: RecentCourse[] = getRecentCoursesFS();
+
+    const filtered = recentCourses.filter((c) => c.id !== course.id);
+    filtered.unshift(course);
+
+    const difference = filtered.length - maxRecentCourses;
+    if (difference > 0) {
+      filtered.splice(5, difference);
+    }
+
+    saveRecentCoursesFS(filtered);
+  } catch (err) {
+    log.error("Error in _addRecentCourseFS():", err.message);
+    throw err;
+  }
+}
+
 export function handleGetCourseFS(filePath: string): CourseData {
   try {
     if (!filePath || filePath.length < 1) {
@@ -171,7 +235,23 @@ export function handleGetCourseFS(filePath: string): CourseData {
     }
 
     const filePathJoined = path.join(filePath, "course_info.json");
-    return handleReadFileFS(filePathJoined);
+    const course: CourseData = handleReadFileFS(filePathJoined, true);
+
+    // remove from the list of recent courses if not found
+    if (!course) {
+      removeRecentCourseFS(filePath);
+      throw new Error("ui_error_course_not_found");
+    }
+
+    // save to recently accessed
+    const recentCourse: RecentCourse = {
+      id: course.id,
+      title: course.title,
+      path: filePath,
+    };
+    _addRecentCourseFS(recentCourse);
+
+    return course;
   } catch (err) {
     log.error("Error in handleGetCourseFS():", err.message);
     throw err;

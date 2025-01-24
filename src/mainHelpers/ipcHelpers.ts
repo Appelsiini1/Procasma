@@ -17,6 +17,7 @@ import {
   importAssignmentsFS,
   autoGenerateModulesFS,
   saveToCache,
+  getRecentCoursesFS,
 } from "./fileOperations";
 import {
   getAssignmentsDB,
@@ -133,6 +134,10 @@ export function registerHandles() {
   ipcMain.handle(
     "handleAddCourseFS",
     formatIPCResult((course, path) => handleAddCourseFS(course, path))
+  );
+  ipcMain.handle(
+    "getRecentCoursesFS",
+    formatIPCResult(() => getRecentCoursesFS())
   );
   ipcMain.handle(
     "handleGetCourseFS",

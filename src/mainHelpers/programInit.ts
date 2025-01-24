@@ -1,4 +1,4 @@
-import { createFolderFS } from "./fileOperations";
+import { createFolderFS, saveRecentCoursesFS } from "./fileOperations";
 import fs from "node:fs";
 import { platform } from "node:process";
 import { saveSettings } from "./settings";
@@ -8,6 +8,7 @@ import {
   getCacheDir,
   getDarwinSettingsDir,
   getFileCacheDir,
+  getRecentCoursesFilepath,
   getSettingsFilepath,
 } from "./osOperations";
 import { globalSettings } from "../globalsMain";
@@ -31,6 +32,9 @@ export function initialize() {
     }
     if (!fs.existsSync(getSettingsFilepath())) {
       saveSettings(globalSettings.toJSON());
+    }
+    if (!fs.existsSync(getRecentCoursesFilepath())) {
+      saveRecentCoursesFS([]);
     }
     /* else {
     }*/
