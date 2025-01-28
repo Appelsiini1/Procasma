@@ -13,6 +13,10 @@ import {
   SettingsType,
 } from "./types";
 
+// devmode is passed into preload because preload is sandboxed
+const arg = process.argv.filter((p) => p.indexOf("--devmode=") >= 0)[0];
+const argValue = arg.slice(arg.indexOf("=") + 1);
+
 contextBridge.exposeInMainWorld("api", {
   // One-way, Renderer to Main
   setTitle: (title: string) => ipcRenderer.send("set-title", title),
@@ -126,4 +130,8 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("getATV2Config", assigID),
   saveCacheFiles: (fileList: DropZoneFile[]) =>
     ipcRenderer.invoke("saveCacheFiles", fileList),
+});
+
+contextBridge.exposeInMainWorld("envVars", {
+  DEVMODE: argValue === "true" ? true : false,
 });

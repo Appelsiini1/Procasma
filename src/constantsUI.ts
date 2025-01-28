@@ -5,7 +5,6 @@ import {
   ui_lecture,
 } from "../resource/texts.json";
 import { language } from "./globalsUI";
-import { devmode } from "./DEVMODE.json";
 
 // UI constants
 export const buttonMinWidth = "7rem";
@@ -40,5 +39,5 @@ export const smallDividerSX = {
   marginLeft: "7rem",
   marginRight: "7rem",
 };
-export const DEVMODE = devmode;
+export const DEVMODE = window.envVars.DEVMODE;
 export const COURSE_PERIODS = 4;
