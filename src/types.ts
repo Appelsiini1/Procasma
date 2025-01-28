@@ -380,3 +380,7 @@ export type ContextBridgeAPI = {
   // Other file system related
   saveCacheFiles: (fileList: DropZoneFile[]) => IpcResult;
 };
+
+export type ContextBridgeEnvVars = {
+  DEVMODE: boolean;
+};

@@ -1,6 +1,15 @@
 import { useLoaderData, useNavigate } from "react-router";
 import { dividerSX, DEVMODE } from "../constantsUI";
-import { Box, Divider, Grid, List, Stack, Table, Typography } from "@mui/joy";
+import {
+  Box,
+  Divider,
+  Grid,
+  List,
+  Stack,
+  Table,
+  Tooltip,
+  Typography,
+} from "@mui/joy";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
 import { useContext, useEffect, useState } from "react";
@@ -294,14 +303,7 @@ export default function SetCreator() {
       alignItems="flex-start"
       spacing={2}
     >
-      <Box
-        minHeight="4rem"
-        width="100%"
-        sx={{
-          border: "2px solid lightgrey",
-          borderRadius: "0.5rem",
-        }}
-      >
+      <Box minHeight="4rem" width="100%">
         <List>
           {assignmentVariations
             ? generateChecklistVariation(
@@ -363,6 +365,57 @@ export default function SetCreator() {
     );
   }
 
+  /**
+   * Use the target module and position in the set state to
+   * define where to put new assignments from the browser.
+   *
+   * If there are multiple active assignments, try to put them in the
+   * desired modules/positions. In occupied cases put in the pending module.
+   */
+  function handleInsertActiveAssignments() {
+    setAllAssignments((prevAssignments) => {
+      let newAssignments: SetAssignmentWithCheck[] = deepCopy(prevAssignments);
+
+      if (activeAssignments.length === 1) {
+        const assignmentToUpdate = newAssignments.find(
+          (newAssignment) =>
+            newAssignment.value.assignmentID === activeAssignments[0].id
+        );
+
+        assignmentToUpdate.selectedModule = set.targetModule;
+        assignmentToUpdate.selectedPosition = set.targetPosition;
+      } else {
+        let nextPosition = 1;
+        activeAssignments.map((active) => {
+          // Check for a conflicting assignment
+          const activePosition = parseInt(
+            active.position.length > 0 ? active.position[0] : "1"
+          );
+          const conflictingAssignment = allAssignments.findIndex(
+            (newAssignment) =>
+              newAssignment.selectedModule === active.module &&
+              newAssignment.selectedPosition === activePosition
+          );
+
+          // Update the assignment to be inserted
+          const assignmentToUpdate = newAssignments.find(
+            (newAssignment) => newAssignment.value.assignmentID === active.id
+          );
+          if (conflictingAssignment > -1) {
+            assignmentToUpdate.selectedModule = -2;
+            assignmentToUpdate.selectedPosition = nextPosition;
+            nextPosition++;
+          } else {
+            assignmentToUpdate.selectedModule = active.module;
+            assignmentToUpdate.selectedPosition = activePosition;
+          }
+        });
+      }
+
+      return newAssignments;
+    });
+  }
+
   // fetch modules on page load
   useEffect(() => {
     if (!activeSet) {
@@ -372,18 +425,10 @@ export default function SetCreator() {
     getModules();
     handleHeaderPageName("ui_create_new_set");
 
-    // use the target module and position in the set state to
-    // define the use of the new assignment from the browser
     if (activeAssignments) {
-      allAssignments.map((a) => {
-        if (a.value.assignmentID === activeAssignments[0]?.id) {
-          a.selectedModule = set.targetModule;
-          a.selectedPosition = set.targetPosition;
-          handleSet("targetModule", null);
-          handleSet("targetPosition", null);
-        }
-        return a;
-      });
+      handleInsertActiveAssignments();
+      handleSet("targetModule", null);
+      handleSet("targetPosition", null);
       handleActiveAssignments(undefined);
     }
     // else if (activeAssignments && setFromBrowse) {
@@ -566,42 +611,20 @@ export default function SetCreator() {
 
     return (
       <div key={moduleId}>
-        <Grid
-          container
-          direction="row"
-          justifyContent="flex-start"
-          alignItems="flex-start"
-          spacing={1}
-        >
-          <Grid xs={7}>
-            <Typography level="h4">{moduleName}</Typography>
-            <Stack
-              direction="column"
-              justifyContent="center"
-              alignItems="flex-start"
-              spacing={2}
-            >
+        <Typography level="h4">{moduleName}</Typography>
+        <Tooltip
+          variant="outlined"
+          open={showVarations}
+          placement="bottom"
+          title={
+            <>
               <Box
-                minHeight="4rem"
-                width="100%"
                 sx={{
-                  border: "2px solid lightgrey",
-                  borderRadius: "0.5rem",
+                  paddingLeft: "4px",
+                  paddingRight: "8px",
+                  minWidth: "300px",
                 }}
               >
-                <List
-                  sx={{
-                    "--ListItem-minHeight": "3rem",
-                  }}
-                >
-                  {assignments}
-                </List>
-              </Box>
-            </Stack>
-          </Grid>
-          <Grid xs={5}>
-            {showVarations ? (
-              <>
                 {selectedAssignments[0]?.previous?.length > 0 ? (
                   <>
                     <Typography level="h4">
@@ -624,10 +647,29 @@ export default function SetCreator() {
                     {prevOrNextAssignmentsWindow(false)}
                   </>
                 ) : null}
-              </>
-            ) : null}
-          </Grid>
-        </Grid>
+              </Box>
+            </>
+          }
+        >
+          <Box
+            minHeight="4rem"
+            width="100%"
+            sx={{
+              border: "2px solid lightgrey",
+              borderRadius: "0.5rem",
+              backgroundColor: "var(--background)",
+            }}
+          >
+            <List
+              sx={{
+                "--ListItem-minHeight": "3rem",
+                overflow: "auto",
+              }}
+            >
+              {assignments}
+            </List>
+          </Box>
+        </Tooltip>
 
         <div className="emptySpace1" />
       </div>
@@ -643,15 +685,46 @@ export default function SetCreator() {
         (m) => m.id === set.module || m.id === -2
       );
     } else {
-      modulesToDisplay = allModules;
+      modulesToDisplay = allModules.filter((m) => m.id);
     }
-    return modulesToDisplay.map((module) =>
+    const allToDisplay = modulesToDisplay.map((module) =>
       moduleWindow(
         module.name,
         module.id,
         module.assignments,
         selectedModule === module.id ? true : false
       )
+    );
+    const anyPending = allAssignments.some((a) => a.selectedModule === -2);
+    return (
+      <>
+        <Grid xs={anyPending ? 6 : 10}>
+          <Box
+            width="100%"
+            sx={{
+              maxHeight: "60vh",
+              overflowX: "hidden",
+              backgroundColor: "var(--content-background)",
+              padding: "8px",
+              border: "2px solid var(--border-color)",
+            }}
+          >
+            <List>{allToDisplay.slice(1)}</List>
+          </Box>
+        </Grid>
+        <Grid xs={anyPending ? 6 : 2}>
+          <Box
+            sx={{
+              marginLeft: "12px",
+              maxHeight: "60vh",
+              overflowX: "hidden",
+              padding: "8px",
+            }}
+          >
+            {allToDisplay.slice(0, 1)}
+          </Box>
+        </Grid>
+      </>
     );
   }
 
@@ -987,9 +1060,17 @@ export default function SetCreator() {
             <Typography level="h1">{parseUICode("ui_choose_tasks")}</Typography>
           </Stack>
 
-          <Box width="100%">
-            <List>{moduleWindows()}</List>
-          </Box>
+          <Grid
+            container
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="flex-start"
+            spacing={1}
+            sx={{ paddingRight: "16px" }}
+          >
+            {moduleWindows()}
+          </Grid>
+
           {hasGenericModule ? (
             <ButtonComp
               buttonType="normal"
@@ -1001,8 +1082,6 @@ export default function SetCreator() {
           ) : (
             ""
           )}
-
-          <Divider sx={dividerSX} role="presentation" />
         </>
       ) : (
         ""

@@ -1,6 +1,6 @@
 import { ConverterOptions } from "showdown";
 import { version as packageVersion } from "../package.json";
-import { devmode } from "./DEVMODE.json";
+import { devmode } from "./DEVMODE";
 import { join } from "node:path";
 
 export const version = packageVersion;

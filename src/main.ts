@@ -10,6 +10,7 @@ import { registerHandles } from "./mainHelpers/ipcHelpers";
 import { appQuitHelper } from "./mainHelpers/utilityMain";
 import { workerID } from "./globalsMain";
 import started from "electron-squirrel-startup";
+import { devmodeString } from "./DEVMODE";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -27,6 +28,7 @@ const createWindows = () => {
     width: 1600,
     height: 1000,
     webPreferences: {
+      additionalArguments: [`--devmode=${devmodeString}`],
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       spellcheck: false,
