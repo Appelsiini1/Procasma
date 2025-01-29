@@ -6,6 +6,7 @@ import {
   ExampleRunType,
   ExportSetAssignmentData,
   ExportSetData,
+  FileContents,
   FileData,
   FullAssignmentSetData,
   ModuleData,
@@ -74,7 +75,7 @@ function sortAssignments(
 // Set converter
 export function setToFullData(set: ExportSetData): FullAssignmentSetData {
   try {
-    let assignmentArray: CodeAssignmentSelectionData[] = [];
+    const assignmentArray: CodeAssignmentSelectionData[] = [];
     for (const setAssignment of set.assignments) {
       const assigPath = path.join(
         coursePath.path,
@@ -82,7 +83,7 @@ export function setToFullData(set: ExportSetData): FullAssignmentSetData {
         setAssignment.id + ".json"
       );
       const fullData = handleReadFileFS(assigPath) as CodeAssignmentData;
-      let newAssignment: CodeAssignmentSelectionData = {
+      const newAssignment: CodeAssignmentSelectionData = {
         variation: fullData.variations[setAssignment.variationId],
         variatioId: setAssignment.variationId,
         CGid: setAssignment.CGid,
@@ -164,7 +165,7 @@ export async function exportSetFS(
   setInput: ExportSetData,
   coursedata: CourseData,
   savePath: string
-): Promise<String> {
+): Promise<string> {
   try {
     const convertedSet = setToFullData(setInput);
 
@@ -242,7 +243,7 @@ export async function exportSetFS(
         solutionHtml += startingInstructions;
 
         // Module string for PDF footer
-        let modulePadding =
+        const modulePadding =
           coursedata.modules > 9
             ? module.id.toString().padStart(2, "0")
             : module.id.toString();
@@ -278,7 +279,6 @@ export async function exportSetFS(
             assignment.variation,
             assignment.variatioId,
             coursedata.modules,
-            false,
             false
           );
           solutionHtml += generateBlock(
@@ -287,15 +287,7 @@ export async function exportSetFS(
             assignment.variation,
             assignment.variatioId,
             coursedata.modules,
-            false,
             true
-          );
-          const assignmentToFormat =
-            convertedSet.assignmentArray[meta.assignmentIndex];
-          solutionHtml += formatSolutions(
-            assignmentToFormat,
-            assignment.variation.files,
-            assignment.variatioId
           );
         });
 
@@ -324,7 +316,7 @@ export async function exportSetFS(
         const filesPath = path.join(savePath, filename);
         copyExportFilesFS(moduleAssignments, filesPath);
 
-        for (const setAssignment of convertedSet.assignmentArray) {
+        convertedSet.assignmentArray.forEach((setAssignment) => {
           const filePath = path.join(
             coursePath.path,
             setAssignment.folder,
@@ -335,7 +327,7 @@ export async function exportSetFS(
             setAssignment.variatioId,
             `${convertedSet.year}/${convertedSet.period}`
           );
-        }
+        });
       })
     );
   } catch (err) {
@@ -405,16 +397,16 @@ export async function exportProjectFS(
 
     // Assignments
     const meta = { assignmentIndex: 0, courseData: coursedata };
-    const normalblock = generateBlock(
+    const normalBlock = generateBlock(
       meta,
       projectInput as unknown as CodeAssignmentSelectionData,
       projectInput.variations[levelID],
       levelID,
       null,
-      true,
-      false
+      false,
+      true
     );
-    const solutionblock = generateBlock(
+    const solutionBlock = generateBlock(
       meta,
       projectInput as unknown as CodeAssignmentSelectionData,
       projectInput.variations[levelID],
@@ -426,18 +418,13 @@ export async function exportProjectFS(
 
     // Table of contents
     // Adds anchor tags to the ToC based on the generated block
-    const toc = generateToCProject(normalblock);
+    const toc = generateToCProject(normalBlock);
     html += toc;
-    const solutionToc = generateToCProject(solutionblock);
+    const solutionToc = generateToCProject(solutionBlock);
     solutionHtml += solutionToc;
 
-    html += normalblock;
-    solutionHtml += solutionblock;
-    solutionHtml += formatSolutions(
-      projectInput as unknown as CodeAssignmentSelectionData,
-      projectInput.variations[levelID].files,
-      levelID
-    );
+    html += normalBlock;
+    solutionHtml += solutionBlock;
 
     let fileNameLevel =
       projectInput.variations[levelID].levelName ??
@@ -626,41 +613,6 @@ function formatMath(text: string): string {
 }
 
 /**
- * Formats solution files
- * @param assignment
- * @returns HTML string
- */
-function formatSolutions(
-  assignment: CodeAssignmentSelectionData,
-  files: FileData[],
-  variationId: string
-): string {
-  try {
-    let block = ``;
-    for (const file of files) {
-      if (file.solution && file.fileContent === "code") {
-        const filePath = path.join(
-          coursePath.path,
-          assignment.folder,
-          variationId,
-          file.fileName
-        );
-        const data = readFileSync(filePath, "utf8");
-        block += `<div style="margin-top: 1cm;"></div>`;
-        block += `<h2>${parseUICodeMain("ex_solution")}: '${
-          file.fileName
-        }'</h2>`;
-        block += highlightCode(data, assignment.codeLanguage);
-      }
-    }
-    return block;
-  } catch (err) {
-    log.error("Error in solution formatter: " + err.message);
-    throw err;
-  }
-}
-
-/**
  * Shortens the filedata to the spesified length if the length is long enough.
  * @param data File data as string
  * @param language Highlight language
@@ -689,102 +641,118 @@ function shortenFileData(data: string, language: string) {
   return block;
 }
 
+function formFilePath(
+  fileName: string,
+  variationID: string,
+  assignmentFolder: string
+) {
+  // check if the file is in a subdirectory
+  const baseName = path.basename(fileName);
+  const dirName = path.basename(path.dirname(fileName));
+
+  let newName = fileName;
+  // check if file.fileName has a directory before the file.
+  if (baseName !== fileName) {
+    newName = `${dirName}${fileFolderSeparator}${baseName}`;
+  }
+  return path.join(coursePath.path, assignmentFolder, variationID, newName);
+}
+
+/**
+ * Create a header based on a file and the chosen fileContent type.
+ */
+function formFileHeader(fileContent: FileContents) {
+  let header = "";
+  if (fileContent === "data") {
+    header = parseUICodeMain("input_datafile");
+  } else if (fileContent === "result") {
+    header = parseUICodeMain("ex_resultfile");
+  } else if (fileContent === "code") {
+    header = parseUICodeMain("ui_codefile");
+  } else {
+    header = parseUICodeMain("file");
+  }
+  return header;
+}
+
+function formHeader(fileName: string, header: string, addAnchor: boolean) {
+  if (addAnchor) {
+    return `<h3><a id="${fileName}">${header}: '${fileName}'</a></h3>`;
+  }
+  return `<h3>${header}: '${fileName}'</h3>`;
+}
+
 /**
  * Formats files that are not solution files. Will make titles based on file content type.
  * @param assignment
- * @param type Type of file to make title for
+ * @param fileContent File content to make title for
  * @returns
  */
 function formatFiles(
   assignment: CodeAssignmentSelectionData,
-  type: FileData["fileContent"],
+  fileContent: FileContents,
   variationID: string,
   files: FileData[],
   includeAnswer: boolean,
-  addAnchor?: boolean
+  addAnchor: boolean
 ): string {
   try {
     let block = ``;
-    for (const file of files) {
-      if (
-        !file.solution &&
-        (file.showStudent === true || includeAnswer === true) &&
-        (file.fileType === "code" || file.fileType === "text") &&
-        file.fileContent === type
-      ) {
-        // check if the file is in a subdirectory
-        const baseName = path.basename(file.fileName);
-        const dirName = path.basename(path.dirname(file.fileName));
 
-        let newName = file.fileName;
-        // check if file.fileName has a directory before the file.
-        if (baseName !== file.fileName) {
-          newName = `${dirName}${fileFolderSeparator}${baseName}`;
-        }
-        const filePath = path.join(
-          coursePath.path,
-          assignment.folder,
-          variationID,
-          newName
-        );
-        const data = readFileSync(filePath, "utf8");
-        let header;
-        if (type === "data") {
-          header = parseUICodeMain("input_datafile");
-        } else if (type === "result") {
-          header = parseUICodeMain("ex_resultfile");
-        } else if (type === "code") {
-          header = parseUICodeMain("ui_codefile");
-        } else {
-          header = parseUICodeMain("file");
-        }
-        if (addAnchor) {
-          block += `<h3><a id="${file.fileName}">${header}: '${file.fileName}'</a></h3>`;
-        } else {
-          block += `<h3>${header}: '${file.fileName}'</h3>`;
-        }
-        const fileLanguage = parseLanguage(filePath, assignment.codeLanguage);
-        const language =
-          file.fileContent === "code" ? fileLanguage : "plaintext";
-        //log.debug(globalSettings);
-        if (file.fileContent !== "code" || globalSettings.shortenCode) {
-          block += shortenFileData(data, language);
-        } else {
-          block += highlightCode(data, language);
-        }
-      } else if (
-        !file.solution &&
-        (file.showStudent === true || includeAnswer === true) &&
-        file.fileType === "image" &&
-        file.fileContent === type
-      ) {
-        // check if the file is in a subdirectory
-        const baseName = path.basename(file.fileName);
-        const dirName = path.basename(path.dirname(file.fileName));
+    // - Show file to student only if show student is true
+    // - Show file in answers as long as show student or
+    //   solution are true
+    const validFiles = files.filter(
+      (file) =>
+        (file.showStudent || (file.solution && includeAnswer)) &&
+        file.fileContent === fileContent
+    );
 
-        let newName = file.fileName;
-        // check if file.fileName has a directory before the file.
-        if (baseName !== file.fileName) {
-          newName = `${dirName}${fileFolderSeparator}${baseName}`;
-        }
-        const filePath = path.join(
-          coursePath.path,
-          assignment.folder,
-          variationID,
-          newName
-        );
-        const data = getBase64String(filePath);
-        block += `<h3>${parseUICodeMain(
-          type === "data" ? "input_datafile" : "ex_resultfile"
-        )}: '${file.fileName}'</h3>`;
+    const filesAndMetadata = validFiles.map((file) => {
+      const filePath = formFilePath(
+        file.fileName,
+        variationID,
+        assignment.folder
+      );
+      const header = file.solution
+        ? parseUICodeMain("ex_solution")
+        : formFileHeader(fileContent);
+      return { file, filePath, header };
+    });
 
-        block += `<img src="${data}" alt="${file.fileName}" />`;
+    const codeAndTextFiles = filesAndMetadata.filter(
+      (obj) => obj.file.fileType === "code" || obj.file.fileType === "text"
+    );
+
+    const imageFiles = filesAndMetadata.filter(
+      (obj) => obj.file.fileType === "image"
+    );
+
+    codeAndTextFiles.forEach((fileAndMetadata) => {
+      const { file, filePath, header } = fileAndMetadata;
+      const fileLanguage = parseLanguage(filePath, assignment.codeLanguage);
+      const language = file.fileContent === "code" ? fileLanguage : "plaintext";
+      const data = readFileSync(filePath, "utf8");
+
+      block += formHeader(file.fileName, header, addAnchor);
+      if (file.fileContent !== "code" || globalSettings.shortenCode) {
+        block += shortenFileData(data, language);
+      } else {
+        block += highlightCode(data, language);
       }
-    }
-    //log.debug(block);
+    });
+
+    imageFiles.forEach((fileAndMetadata) => {
+      const { file, filePath, header } = fileAndMetadata;
+      const data = getBase64String(filePath);
+
+      block += formHeader(file.fileName, header, addAnchor);
+      block += `<img src="${data}" alt="${file.fileName}" />`;
+    });
+
     return block;
   } catch (err) {
-    log.error("Error in file formatter: " + err.message);
+    log.error("Error in formatFiles(): " + err.message);
     throw err;
   }
 }
@@ -954,8 +922,8 @@ function generateBlock(
   variation: Variation,
   variationID: string,
   numberOfModules: number,
-  isProject: boolean = false,
-  includeAnswer: boolean
+  includeAnswer: boolean,
+  isProject: boolean = false
 ): string {
   let block = `<div>
     `;
@@ -999,8 +967,8 @@ function generateBlock(
     "data",
     variationID,
     variation.files,
-    isProject,
-    includeAnswer
+    includeAnswer,
+    isProject
   );
 
   // Example runs
@@ -1012,30 +980,16 @@ function generateBlock(
   }
 
   // Result files
-  block += formatFiles(
-    assignment,
-    "result",
-    variationID,
-    variation.files,
-    includeAnswer,
-    isProject
-  );
-  block += formatFiles(
-    assignment,
-    "code",
-    variationID,
-    variation.files,
-    includeAnswer,
-    isProject
-  );
-  block += formatFiles(
-    assignment,
-    "other",
-    variationID,
-    variation.files,
-    includeAnswer,
-    isProject
-  );
+  ["result", "code", "other"].forEach((content: FileContents) => {
+    block += formatFiles(
+      assignment,
+      content,
+      variationID,
+      variation.files,
+      includeAnswer,
+      isProject
+    );
+  });
   block += `</div>`;
 
   return block;
