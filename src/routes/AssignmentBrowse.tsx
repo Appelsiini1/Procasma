@@ -7,6 +7,7 @@ import {
   ListItem,
   Stack,
   Typography,
+  CircularProgress,
 } from "@mui/joy";
 import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
@@ -66,6 +67,7 @@ export default function AssignmentBrowse() {
   const [allSelected, setAllSelected] = useState(false);
   const [navigateToAssignment, setNavigateToAssignment] = useState(false);
   const [navigateBack, setNavigateBack] = useState(false);
+  const [waitingForAssignments, setWaitingForAssignments] = useState(false);
 
   const [numSelected, setNumSelected] = useState(0);
   const [uniqueTags, setUniqueTags] = useState<Array<filterState>>([]);
@@ -119,6 +121,7 @@ export default function AssignmentBrowse() {
 
       let assignmentsResult: CodeAssignmentDatabase[] = [];
 
+      setWaitingForAssignments(true);
       assignmentsResult = await handleIPCResult(() =>
         window.api.getFilteredAssignmentsDB(activePath, filters)
       );
@@ -204,6 +207,8 @@ export default function AssignmentBrowse() {
     );
 
     setNumSelected(numChecked);
+
+    setWaitingForAssignments(false);
   }, [courseAssignments]);
 
   useEffect(() => {
@@ -220,10 +225,13 @@ export default function AssignmentBrowse() {
   tags = generateFilterList(uniqueTags, setUniqueTags);
   types = generateFilterList(uniqueTypes, setUniqueTypes, true);
 
-  async function handleOpenAssignment() {
+  async function handleOpenAssignment(id?: string) {
     try {
       const assignmentsResult = await handleIPCResult(() =>
-        window.api.handleGetAssignmentsFS(activePath, selectedAssignments[0].id)
+        window.api.handleGetAssignmentsFS(
+          activePath,
+          id ?? selectedAssignments[0].id
+        )
       );
 
       handleActiveAssignment(assignmentsResult[0]);
@@ -419,7 +427,7 @@ export default function AssignmentBrowse() {
           >
             <Typography level="h3">{parseUICode("assignments")}</Typography>
 
-            <Box
+            <Stack
               height="40rem"
               maxHeight="50vh"
               width="100%"
@@ -428,9 +436,20 @@ export default function AssignmentBrowse() {
                 borderRadius: "0.2rem",
               }}
               overflow={"auto"}
+              direction="column"
+              justifyContent="start"
+              alignItems="center"
             >
-              <List>{assignments}</List>
-            </Box>
+              {waitingForAssignments ? (
+                <CircularProgress
+                  color="neutral"
+                  variant="solid"
+                  sx={{ marginTop: "2rem" }}
+                />
+              ) : (
+                <List>{assignments}</List>
+              )}
+            </Stack>
           </Stack>
         </Grid>
         <Grid xs={4}>

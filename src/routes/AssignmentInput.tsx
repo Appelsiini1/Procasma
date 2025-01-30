@@ -80,7 +80,7 @@ export default function AssignmentInput() {
     assignment?.extraCredit ? assignment.extraCredit : false
   );
   const defaultCodeLanguage =
-    assignment?.codeLanguage ?? activeCourse.codeLanguage.name;
+    assignment?.codeLanguage ?? activeCourse?.codeLanguage?.name;
   const variations: { [key: string]: Variation } = assignment?.variations;
   let pageType = useLoaderData();
   const navigate = useNavigate();
@@ -304,6 +304,55 @@ export default function AssignmentInput() {
     handleOpenPrevAssignment,
     true
   );
+
+  const buttons = () => {
+    return (
+      <>
+        <div className="emptySpace1" />
+        <Stack
+          direction="row"
+          justifyContent="flex-start"
+          alignItems="center"
+          spacing={2}
+        >
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => handleSaveAssignment()}
+            ariaLabel={parseUICode("ui_aria_save")}
+          >
+            {parseUICode("ui_save")}
+          </ButtonComp>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => navigate(-1)}
+            ariaLabel={parseUICode("ui_aria_cancel")}
+          >
+            {parseUICode("ui_cancel")}
+          </ButtonComp>
+          {DEVMODE ? (
+            <>
+              <ButtonComp
+                buttonType="debug"
+                onClick={() => log.debug(assignment)}
+                ariaLabel={"debug"}
+              >
+                log assignment state
+              </ButtonComp>
+              <ButtonComp
+                buttonType="debug"
+                onClick={() => log.debug(activeAssignment)}
+                ariaLabel={"debug"}
+              >
+                log active assignment
+              </ButtonComp>
+            </>
+          ) : (
+            ""
+          )}
+        </Stack>
+      </>
+    );
+  };
 
   return (
     <>
@@ -531,7 +580,7 @@ export default function AssignmentInput() {
                     ariaLabel={parseUICode("ui_add")}
                   >
                     {parseUICode("ui_add")}
-                  </ButtonComp>{" "}
+                  </ButtonComp>
                   <ButtonComp
                     buttonType="normal"
                     onClick={() => handleRemoveSelected()}
@@ -556,68 +605,15 @@ export default function AssignmentInput() {
           </tbody>
         </Table>
 
-        <div className="emptySpace1" />
-        <Divider
-          sx={{
-            padding: ".1rem",
-            marginLeft: "2rem",
-            bgcolor: dividerColor,
-            marginRight: "40%",
-          }}
-          role="presentation"
-        />
-
-        <div className="emptySpace2" />
         <div style={{ marginLeft: "0.9rem", width: "100%" }}>
           <VariationsGroup
             variations={variations}
             handleAssignment={handleAssignment}
           ></VariationsGroup>
         </div>
+        <div className="emptySpace2" />
+        {buttons()}
       </div>
-
-      <div className="emptySpace1" />
-      <Stack
-        direction="row"
-        justifyContent="flex-start"
-        alignItems="center"
-        spacing={2}
-      >
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => handleSaveAssignment()}
-          ariaLabel={parseUICode("ui_aria_save")}
-        >
-          {parseUICode("ui_save")}
-        </ButtonComp>
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => navigate(-1)}
-          ariaLabel={parseUICode("ui_aria_cancel")}
-        >
-          {parseUICode("ui_cancel")}
-        </ButtonComp>
-        {DEVMODE ? (
-          <>
-            <ButtonComp
-              buttonType="debug"
-              onClick={() => log.debug(assignment)}
-              ariaLabel={"debug"}
-            >
-              log assignment state
-            </ButtonComp>
-            <ButtonComp
-              buttonType="debug"
-              onClick={() => log.debug(activeAssignment)}
-              ariaLabel={"debug"}
-            >
-              log active assignment
-            </ButtonComp>
-          </>
-        ) : (
-          ""
-        )}
-      </Stack>
     </>
   );
 }

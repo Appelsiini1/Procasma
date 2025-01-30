@@ -20,6 +20,7 @@ import {
   buttonMaxWidth,
 } from "../constantsUI";
 import ModalConfirmation from "./ModalConfirmation";
+import { IconButton } from "@mui/joy";
 
 const largeNormal = {
   color: "#00000",
@@ -42,12 +43,12 @@ const largeAlt = {
 } as const;
 
 const smallWarning = {
-  color: "#00000",
+  color: "#ffffff",
   backgroundColor: "#F97583",
-  "&:hover": { backgroundColor: "#f7283d" },
+  "&:hover": { backgroundColor: "#f7283d", color: "#ffffff" },
   padding: "0.1em 1.2em",
   fontSize: "1em",
-  minWidth: buttonMinWidth,
+  minWidth: "0px",
   boxShadow: buttonShadow,
   //height: "100%",
 } as const;
@@ -87,7 +88,7 @@ const grey = {
 const decorStyle = { fontSize: "1.4em" };
 
 type ButtonProps = {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   buttonType:
     | "largeAdd"
     | "settings"
@@ -113,6 +114,7 @@ type ButtonProps = {
   modalText?: string;
   ariaLabel: string;
   disabled?: boolean;
+  sx?: object;
 };
 
 export default function ButtonComp({
@@ -124,6 +126,7 @@ export default function ButtonComp({
   modalText = "",
   ariaLabel,
   disabled = false,
+  sx = {},
 }: ButtonProps) {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   let style: object = null;
@@ -213,29 +216,40 @@ export default function ButtonComp({
     };
   }
 
-  return (
-    <>
-      {!confirmationModal ? (
-        <Button
-          sx={style}
-          startDecorator={decor}
-          onClick={onClick}
-          aria-label={ariaLabel}
-          disabled={disabled}
-        >
-          {children}
-        </Button>
-      ) : (
-        <>
+  const buttonOption = () => {
+    return (
+      <>
+        {children ? (
           <Button
-            sx={style}
+            sx={{ ...style, ...sx, overflow: "hidden" }}
             startDecorator={decor}
-            onClick={() => setModalOpen(true)}
+            onClick={onClick}
             aria-label={ariaLabel}
             disabled={disabled}
           >
             {children}
           </Button>
+        ) : (
+          <IconButton
+            sx={{ ...style, ...sx }}
+            onClick={onClick}
+            aria-label={ariaLabel}
+            disabled={disabled}
+          >
+            {decor}
+          </IconButton>
+        )}
+      </>
+    );
+  };
+
+  return (
+    <>
+      {!confirmationModal ? (
+        <>{buttonOption()}</>
+      ) : (
+        <>
+          {buttonOption()}
           <ModalConfirmation
             open={modalOpen}
             close={() => setModalOpen(false)}
@@ -243,7 +257,7 @@ export default function ButtonComp({
             text={modalText}
           ></ModalConfirmation>
         </>
-      )}
+      )}{" "}
     </>
   );
 }

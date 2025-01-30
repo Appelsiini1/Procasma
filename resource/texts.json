@@ -187,6 +187,18 @@
     "FI": "Muokkaa tehtäväsarjaa",
     "ENG": "Edit assignment set"
   },
+  "ui_edit_example_run": {
+    "FI": "Muokkaa esimerkkiajoa",
+    "ENG": "Edit example run"
+  },
+  "ui_edit_level": {
+    "FI": "Muokkaa tasoa",
+    "ENG": "Edit level"
+  },
+  "ui_edit_variation": {
+    "FI": "Muokkaa variaatiota",
+    "ENG": "Edit variation"
+  },
   "ui_create_new_set": {
     "FI": "Luo uusi tehtäväsarja",
     "ENG": "Create new assigment set"
@@ -641,7 +653,7 @@
     "ENG": "Input all tags here, separated by a comma."
   },
   "help_inst": {
-    "FI": "Täytä tähän tehtävän variaation tehtävänanto. Kenttä tukee Markdown'n perussyntaksia. Katso lisää rajoitteista ja tuetuista ominaisuuksista Showdown kirjaston ohjeista: https://showdownjs.com/docs/markdown-syntax/\nKuvia lisätessä on suositeltaa kirjoittaa vain tiedoston nimi. Kuvan koon voi määrittää Showdown'in syntaksilla.",
+    "FI": "Täytä tähän tehtävän variaation tehtävänanto. Kenttä tukee Markdown'n perussyntaksia. Katso lisää rajoitteista ja tuetuista ominaisuuksista Showdown kirjaston ohjeista: https://showdownjs.com/docs/markdown-syntax/\nKuvia lisätessä on suositeltavaa kirjoittaa vain tiedoston nimi. Kuvan koon voi määrittää Showdown'in syntaksilla.",
     "ENG": "Fill here the assignment variation instructions. This field supports basic Markdown syntax. See more on the limitations and supported features from Showdown library's documentation: https://showdownjs.com/docs/markdown-syntax/\nWhen adding images it is recommended to only write the file name. The size of an image can be defined with Showdown's syntax."
   },
   "help_inputs": {
