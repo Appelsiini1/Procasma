@@ -84,6 +84,56 @@ export default function ProjectWorkInput() {
     if (snackbarSeverity !== "error") navigate("/");
   }
 
+  const buttons = () => {
+    return (
+      <>
+        <div className="emptySpace1" />
+
+        <Stack
+          direction="row"
+          justifyContent="flex-start"
+          alignItems="center"
+          spacing={2}
+        >
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => handleSaveAssignment()}
+            ariaLabel={parseUICode("ui_aria_save")}
+          >
+            {parseUICode("ui_save")}
+          </ButtonComp>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => navigate(-1)}
+            ariaLabel={parseUICode("ui_aria_cancel")}
+          >
+            {parseUICode("ui_cancel")}
+          </ButtonComp>
+          {DEVMODE ? (
+            <>
+              <ButtonComp
+                buttonType="debug"
+                onClick={() => console.log(assignment)}
+                ariaLabel={"debug"}
+              >
+                log assignment state
+              </ButtonComp>
+              <ButtonComp
+                buttonType="debug"
+                onClick={() => console.log(activeAssignment)}
+                ariaLabel={"debug"}
+              >
+                log active assignment
+              </ButtonComp>
+            </>
+          ) : (
+            ""
+          )}
+        </Stack>
+      </>
+    );
+  };
+
   return (
     <>
       <div style={{ maxWidth: pageTableMaxWidth, minWidth: pageTableMinWidth }}>
@@ -169,17 +219,6 @@ export default function ProjectWorkInput() {
           </tbody>
         </Table>
 
-        <div className="emptySpace1" />
-        <Divider
-          sx={{
-            padding: ".1rem",
-            marginLeft: "2rem",
-            bgcolor: dividerColor,
-            marginRight: "40%",
-          }}
-          role="presentation"
-        />
-        <div className="emptySpace2" />
         <div style={{ marginLeft: "0.9rem", width: "100%" }}>
           <VariationsGroup
             variations={variations}
@@ -187,49 +226,9 @@ export default function ProjectWorkInput() {
             useLevelsInstead={true}
           ></VariationsGroup>
         </div>
+        <div className="emptySpace2" />
 
-        <div className="emptySpace1" />
-        <Stack
-          direction="row"
-          justifyContent="flex-start"
-          alignItems="center"
-          spacing={2}
-        >
-          <ButtonComp
-            buttonType="normal"
-            onClick={() => handleSaveAssignment()}
-            ariaLabel={parseUICode("ui_aria_save")}
-          >
-            {parseUICode("ui_save")}
-          </ButtonComp>
-          <ButtonComp
-            buttonType="normal"
-            onClick={() => navigate(-1)}
-            ariaLabel={parseUICode("ui_aria_cancel")}
-          >
-            {parseUICode("ui_cancel")}
-          </ButtonComp>
-          {DEVMODE ? (
-            <>
-              <ButtonComp
-                buttonType="debug"
-                onClick={() => console.log(assignment)}
-                ariaLabel={"debug"}
-              >
-                log assignment state
-              </ButtonComp>
-              <ButtonComp
-                buttonType="debug"
-                onClick={() => console.log(activeAssignment)}
-                ariaLabel={"debug"}
-              >
-                log active assignment
-              </ButtonComp>
-            </>
-          ) : (
-            ""
-          )}
-        </Stack>
+        {buttons()}
       </div>
     </>
   );

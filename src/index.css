@@ -1,8 +1,10 @@
 :root {
   --background: #ffffff;
   --content-background: #f4f4f4;
+  --content-background-inner: #f3ecde;
   --border-color: #c0c0c0;
   --shadow-color: #c0c0c0;
+  --accordion-summary: #D9D9D9;
 }
 
 body {

@@ -6,11 +6,13 @@ import {
   removeVariation,
 } from "../rendererHelpers/variationHelpers";
 import { HandleAssignmentFn } from "../rendererHelpers/assignmentHelpers";
-import { AccordionGroup, Box, Grid, Stack, Typography } from "@mui/joy";
+import { Box, Stack, Typography } from "@mui/joy";
 import ExampleRun from "./ExampleRun";
 import { parseUICode } from "../rendererHelpers/translation";
 import { defaultExampleRun } from "../defaultObjects";
 import { deepCopy } from "../rendererHelpers/utilityRenderer";
+import { useState } from "react";
+import AddIcon from "@mui/icons-material/Add";
 
 type ComponentProps = {
   exampleRuns: {
@@ -25,70 +27,56 @@ export default function ExampleRunsGroup({
   pathInAssignment,
   handleAssignment,
 }: ComponentProps) {
+  const [openRun, setOpenRun] = useState<string>("");
   return (
     <>
-      <Grid
-        container
-        direction="row"
-        justifyContent="flex-start"
-        alignItems="center"
-        spacing={1}
-      >
-        <Grid>
-          <Typography level="h4">{parseUICode("ui_ex_runs")}</Typography>
-        </Grid>
-        <Grid>
-          <ButtonComp
-            buttonType="normal"
-            onClick={() =>
-              addVariation(
-                deepCopy(defaultExampleRun),
-                exampleRuns,
-                getNextIDNumeric,
-                `${pathInAssignment}.exampleRuns`,
-                handleAssignment
-              )
-            }
-            ariaLabel={parseUICode("ui_aria_add_ex_run")}
-          >
-            {parseUICode("ui_add_ex_run")}
-          </ButtonComp>
-        </Grid>
-      </Grid>
-
-      <div className="emptySpace1" />
-      <Box
-        sx={{
-          maxHeight: "40rem",
-          overflowY: "auto",
-          width: "100%",
-          overflowX: "hidden",
-        }}
-      >
-        <AccordionGroup
-          size="lg"
+      <Typography level="h4" sx={{ marginBottom: "0.5rem" }}>
+        {parseUICode("ui_ex_runs")}
+      </Typography>
+      <Stack direction="row" spacing={1}>
+        <Box
           sx={{
-            width: "100%",
-            marginRight: "2rem",
+            backgroundColor: "var(--content-background-inner)",
+            padding: "0.5rem",
+            border: "2px solid lightgrey",
+            borderRadius: "0.2rem",
+            height: "fit-content",
           }}
         >
+          <Stack
+            direction="row"
+            justifyContent={"end"}
+            sx={{ paddingY: "0.2rem" }}
+          >
+            <ButtonComp
+              sx={{ maxWidth: "3rem", minWidth: "4rem" }}
+              buttonType="normal"
+              onClick={() =>
+                addVariation(
+                  deepCopy(defaultExampleRun),
+                  exampleRuns,
+                  getNextIDNumeric,
+                  `${pathInAssignment}.exampleRuns`,
+                  handleAssignment
+                )
+              }
+              ariaLabel={parseUICode("ui_aria_add_ex_run")}
+            >
+              <AddIcon />
+            </ButtonComp>
+          </Stack>
+
           {exampleRuns
             ? Object.keys(exampleRuns).map((exRunID) => (
                 <Stack
                   key={exRunID}
-                  direction="column"
-                  justifyContent="flex-start"
-                  alignItems="start"
-                  spacing={0.5}
+                  direction="row"
+                  spacing={1}
+                  justifyContent={"space-between"}
+                  sx={{ paddingY: "0.2rem" }}
                 >
-                  <ExampleRun
-                    exRunID={exRunID}
-                    exampleRun={exampleRuns[exRunID]}
-                    handleAssignment={handleAssignment}
-                    pathInAssignment={`${pathInAssignment}.exampleRuns.${exRunID}`}
-                  ></ExampleRun>
-
                   <ButtonComp
+                    sx={{ width: "3rem" }}
                     confirmationModal={true}
                     modalText={`${parseUICode("ui_delete")} 
                       ${parseUICode("ex_run")} 
@@ -103,15 +91,45 @@ export default function ExampleRunsGroup({
                       )
                     }
                     ariaLabel={parseUICode("ui_aria_delete_ex_run")}
+                  />
+                  <ButtonComp
+                    sx={{ maxWidth: "3rem", minWidth: "4rem" }}
+                    buttonType="normal"
+                    onClick={() => setOpenRun(exRunID)}
+                    ariaLabel={parseUICode("ui_edit_example_run")}
                   >
                     {exRunID}
                   </ButtonComp>
-                  <div className="emptySpace1" />
                 </Stack>
               ))
             : ""}
-        </AccordionGroup>
-      </Box>
+        </Box>
+
+        <Box
+          sx={{
+            backgroundColor: "var(--content-background-inner)",
+            padding: "0.5rem",
+            border: "2px solid lightgrey",
+            borderRadius: "0.2rem",
+            height: "fit-content",
+            minHeight: "10rem",
+            width: "100%",
+          }}
+        >
+          {exampleRuns[openRun] ? (
+            <>
+              <ExampleRun
+                exRunID={openRun}
+                exampleRun={exampleRuns[openRun]}
+                handleAssignment={handleAssignment}
+                pathInAssignment={`${pathInAssignment}.exampleRuns.${openRun}`}
+              ></ExampleRun>
+            </>
+          ) : (
+            ""
+          )}
+        </Box>
+      </Stack>
     </>
   );
 }

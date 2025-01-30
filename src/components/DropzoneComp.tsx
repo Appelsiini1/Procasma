@@ -69,12 +69,12 @@ export const DropzoneComp = ({
   const baseStyle: CSSProperties = {
     flex: 1,
     display: "flex",
-    width: "calc(100% - 15px)",
     height: "138px",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     padding: "5px",
+    margin: "5px",
     borderWidth: 3,
     borderRadius: 8,
     borderColor: "#F8A866",

@@ -174,7 +174,7 @@ function sortAssignments(a: CodeAssignmentData, b: CodeAssignmentData) {
 export function generateChecklist(
   items: WithCheckWrapper[],
   setItems: React.Dispatch<React.SetStateAction<WithCheckWrapper[]>>,
-  handleOpen: () => void,
+  handleOpen: (id: string) => void,
   isAssignment?: boolean,
   isSet?: boolean,
   disabled?: boolean
@@ -235,7 +235,7 @@ export function generateChecklist(
               onClick={() =>
                 handleCheckArray(item.value, !item.isChecked, setItems)
               }
-              onDoubleClick={() => handleOpen()}
+              onDoubleClick={() => handleOpen(item?.value?.id)}
             >
               {titleOrName}
               {item.value.isExpanding === "1" ? (

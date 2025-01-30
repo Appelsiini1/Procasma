@@ -6,7 +6,7 @@ import {
   Select,
   Option,
   Typography,
-  Grid,
+  Stack,
 } from "@mui/joy";
 import { DropZoneFile, FileData, FileTypes } from "../types";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -32,6 +32,12 @@ interface FileContentSelectProps {
   ) => void;
   defaultValue: string;
 }
+
+const tableHeadStyle: React.CSSProperties = {
+  whiteSpace: "pre-wrap",
+  wordBreak: "break-word",
+  borderBottom: "none",
+};
 
 /**
  * A drop-down selection window for the 'fileContent' attribute
@@ -143,17 +149,17 @@ export default function FileList({
 
   return (
     <>
-      <Grid
-        container
-        direction="row"
-        justifyContent="flex-start"
-        alignItems="center"
-        spacing={1}
-      >
-        <Grid>
+      <Sheet sx={{ border: "2px solid lightgrey", borderRadius: "8px" }}>
+        <Stack
+          direction="row"
+          justifyContent="flex-start"
+          alignItems="center"
+          spacing={1}
+          sx={{
+            padding: "0.5rem",
+          }}
+        >
           <Typography level="h4">{parseUICode("ui_files")}</Typography>
-        </Grid>
-        <Grid>
           <ButtonComp
             buttonType="normal"
             onClick={() => handleAddFiles()}
@@ -161,28 +167,68 @@ export default function FileList({
           >
             {parseUICode("ui_import_files")}
           </ButtonComp>
-        </Grid>
-      </Grid>
-
-      <div className="emptySpace1" />
-      <Sheet>
+        </Stack>
         <Table borderAxis="xBetween" hoverRow>
           <thead>
             <tr>
-              <th>{parseUICode("ui_name")}</th>
-              <th>{parseUICode("ui_type")}</th>
-              <th>{parseUICode("ui_fileContent")}</th>
-              <th>{parseUICode("ex_solution")}</th>
-              <th>{parseUICode("ui_show_to_student")}</th>
-              <th>{parseUICode("ui_actions")}</th>
+              <th
+                style={{
+                  width: "20%",
+                  ...tableHeadStyle,
+                }}
+              >
+                {parseUICode("ui_name")}
+              </th>
+              <th style={{ ...tableHeadStyle }}>{parseUICode("ui_type")}</th>
+              <th style={{ ...tableHeadStyle }}>
+                {parseUICode("ui_fileContent")}
+              </th>
+              <th
+                style={{
+                  ...tableHeadStyle,
+                }}
+              >
+                {parseUICode("ex_solution")}
+              </th>
+              <th
+                style={{
+                  ...tableHeadStyle,
+                }}
+              >
+                {parseUICode("ui_show_to_student")}
+              </th>
+              <th
+                style={{
+                  ...tableHeadStyle,
+                }}
+              >
+                {parseUICode("ui_actions")}
+              </th>
             </tr>
           </thead>
           <tbody>
             {files.map((file, fileIndex) => (
               <tr key={file.path}>
                 {/*<th scope="file">{file.fileName}</th>*/}
-                <td>{file.fileName}</td>
-                <td>{file.fileType}</td>
+                <td
+                  style={{
+                    width: "30%",
+                    overflow: "hidden",
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {file.fileName}
+                </td>
+                <td
+                  style={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {file.fileType}
+                </td>
                 <td>
                   <FileContentSelect
                     fileIndex={fileIndex}
@@ -224,7 +270,6 @@ export default function FileList({
           </tbody>
         </Table>
 
-        <div className="emptySpace1" />
         <DropzoneComp handleDropZoneFiles={handleDropZoneFiles}></DropzoneComp>
       </Sheet>
     </>
