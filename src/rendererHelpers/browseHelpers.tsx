@@ -8,6 +8,7 @@ import {
   CodeAssignmentDatabase,
   ModuleData,
   ModuleDatabase,
+  SelectedPositions,
   SetAlgoAssignmentData,
   SetAssignmentWithCheck,
   SetVariation,
@@ -16,7 +17,7 @@ import {
   WithCheckWrapper,
 } from "../types";
 import { parseUICode } from "./translation";
-import ButtonComp from "../components/ButtonComp";
+import ButtonComp, { ButtonCompProps } from "../components/ButtonComp";
 import HelpText from "../components/HelpText";
 import { currentCourse } from "../globalsUI";
 
@@ -251,7 +252,8 @@ export function generateChecklist(
 }
 
 export function generateChecklistSetAssignment(
-  items: SetAssignmentWithCheck[],
+  module: number,
+  positions: SelectedPositions,
   setItems: React.Dispatch<React.SetStateAction<WithCheckWrapper[]>>,
   assignmentsCount: number,
   legalMovePositions: number[],
@@ -261,18 +263,16 @@ export function generateChecklistSetAssignment(
   handleTargetPosition: (position: number) => void,
   isPendingModule?: boolean
 ) {
-  return items
+  return positions
     ? Array(assignmentsCount ?? 1)
         .fill(1)
         .map((a, listIndex) => {
           // use the index to get the item at a specific assignment "position"
           listIndex += 1;
-          const index = items.findIndex(
-            (i) => i.selectedPosition === listIndex
-          );
-          if (index === -1) {
+          const item = positions[listIndex];
+          if (item === undefined) {
             // display an empty slot if none in the position
-            let buttonType: any = "starAlt";
+            let buttonType: ButtonCompProps["buttonType"] = "starAlt";
             if (!legalMovePositions?.find((pos) => pos === listIndex)) {
               buttonType = "grey";
             }
@@ -314,12 +314,10 @@ export function generateChecklistSetAssignment(
               </ListItem>
             );
           }
-          const item = items[index];
 
           let title = "";
-          const position = item?.selectedPosition;
-          const variation = item?.selectedVariation;
-          const module = item?.selectedModule;
+          const position = listIndex;
+          const variation = item.selectedVariation;
 
           const assignment: SetAlgoAssignmentData = item.value;
           if (!isPendingModule) {
@@ -342,8 +340,7 @@ export function generateChecklistSetAssignment(
             ? ` - ${parseUICode("ui_variation")} ${variation}`
             : "";
 
-          const badness =
-            items[index]?.value?.variations?.[variation]?.usedInBadness;
+          const badness = item?.value?.variations?.[variation]?.usedInBadness;
 
           const isExpanding =
             assignment?.previous?.length > 0 || assignment?.next?.length > 0;

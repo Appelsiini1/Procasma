@@ -368,94 +368,67 @@ export default function SetCreator() {
     );
   }
 
-  /**
-   * Use the target module and position in the set state to
-   * define where to put new assignments from the browser.
-   *
-   * If there are multiple active assignments, try to put them in the
-   * desired modules/positions. In occupied cases put in the pending module.
-   */
-  function handleInsertActiveAssignments() {
-    setAllAssignments((prevAssignments) => {
-      let newAssignments: SetAssignmentWithCheck[] = deepCopy(prevAssignments);
-
-      if (activeAssignments.length === 1) {
-        const assignmentToUpdate = newAssignments.find(
-          (newAssignment) =>
-            newAssignment.value.assignmentID === activeAssignments[0].id
-        );
-
-        assignmentToUpdate.selectedModule = set.targetModule;
-        assignmentToUpdate.selectedPosition = set.targetPosition;
-      } else {
-        let nextPosition = 1;
-        activeAssignments.map((active) => {
-          // If using generic module, use the target module
-          // for all active assignments
-          const targetModule = hasGenericModule
-            ? set.targetModule
-            : active.module;
-
-          // Check for a conflicting assignment
-          const activePosition = parseInt(
-            active.position.length > 0 ? active.position[0] : "1"
-          );
-          const conflictingAssignment = allAssignments.findIndex(
-            (newAssignment) =>
-              newAssignment.selectedModule === targetModule &&
-              newAssignment.selectedPosition === activePosition
-          );
-
-          // Update the assignment to be inserted
-          const assignmentToUpdate = newAssignments.find(
-            (newAssignment) => newAssignment.value.assignmentID === active.id
-          );
-          if (conflictingAssignment > -1) {
-            assignmentToUpdate.selectedModule = -2;
-            assignmentToUpdate.selectedPosition = nextPosition;
-            nextPosition++;
-          } else {
-            assignmentToUpdate.selectedModule = targetModule;
-            assignmentToUpdate.selectedPosition = activePosition;
-          }
-        });
-      }
-
-      return newAssignments;
-    });
+  function insertToAssignmentDict(
+    dict: SetAssignmentWithCheckDictionary,
+    module: number,
+    position: number,
+    assignment: SelectedPositions
+  ) {
+    if (!dict[module]) {
+      dict[module] = {};
+    }
+    dict[module][position] = {
+      isChecked: false,
+      value: assignment.value,
+      selectedVariation: assignment.selectedVariation,
+    };
   }
 
   function handleInsertActiveAssignmentsDict() {
     setAllAssignmentsDict((prevAssignments) => {
-      let newAssignments: SetAssignmentWithCheckDictionary =
+      const newAssignments: SetAssignmentWithCheckDictionary =
         deepCopy(prevAssignments);
 
       if (activeAssignments.length === 1) {
-        const a = activeAssignments[0];
         const fullAssignment = allAssignments.find(
-          (aa) => aa.value.assignmentID === a.id
+          (a) => a.value.assignmentID === activeAssignments[0].id
         );
-
-        if (!newAssignments[set.targetModule]) {
-          newAssignments[set.targetModule] = {};
-        }
-        newAssignments[set.targetModule][set.targetPosition] = {
-          value: fullAssignment.value,
-          selectedVariation: fullAssignment.selectedVariation,
-        };
+        insertToAssignmentDict(
+          newAssignments,
+          set.targetModule,
+          set.targetPosition,
+          fullAssignment
+        );
       } else {
         activeAssignments.map((active) => {
           const fullAssignment = allAssignments.find(
             (aa) => aa.value.assignmentID === active.id
           );
 
-          if (!newAssignments[active.module]) {
-            newAssignments[active.module] = {};
+          const targetModule = hasGenericModule
+            ? set.targetModule
+            : active.module;
+          const activePosition = parseInt(
+            active.position.length > 0 ? active.position[0] : "1"
+          );
+
+          if (newAssignments[targetModule]?.[activePosition]) {
+            const keys = Object.keys(newAssignments[targetModule]).map(Number);
+            const nextKey = Math.max(...keys) + 1;
+            insertToAssignmentDict(
+              newAssignments,
+              targetModule,
+              nextKey,
+              fullAssignment
+            );
+          } else {
+            insertToAssignmentDict(
+              newAssignments,
+              targetModule,
+              activePosition,
+              fullAssignment
+            );
           }
-          newAssignments[set.targetModule][set.targetPosition] = {
-            value: fullAssignment.value,
-            selectedVariation: fullAssignment.selectedVariation,
-          };
         });
       }
 
@@ -473,7 +446,7 @@ export default function SetCreator() {
     handleHeaderPageName("ui_create_new_set");
 
     if (activeAssignments) {
-      handleInsertActiveAssignments();
+      handleInsertActiveAssignmentsDict();
       handleSet("targetModule", null);
       handleSet("targetPosition", null);
       handleActiveAssignments(undefined);
@@ -544,13 +517,13 @@ export default function SetCreator() {
     const assignmentsDictTemp: SetAssignmentWithCheckDictionary = {};
 
     allAssignments.forEach((a) => {
-      if (!assignmentsDictTemp[a.selectedModule]) {
-        assignmentsDictTemp[a.selectedModule] = {};
-      }
-      assignmentsDictTemp[a.selectedModule][a.selectedPosition] = {
-        value: a.value,
-        selectedVariation: a.selectedVariation,
-      };
+      insertToAssignmentDict(
+        assignmentsDictTemp,
+        a.selectedModule,
+        a.selectedPosition,
+        a.value,
+        a.selectedVariation
+      );
     });
 
     setAllAssignmentsDict(assignmentsDictTemp);
@@ -659,8 +632,9 @@ export default function SetCreator() {
     }
 
     assignments = generateChecklistSetAssignment(
-      allAssignments.filter((a) => a.selectedModule === moduleId),
-      setAllAssignments,
+      moduleId,
+      allAssignmentsDict[moduleId],
+      setAllAssignmentsDict,
       assignmentsCount,
       legalMovePositions,
       moveToPosition,
@@ -756,7 +730,7 @@ export default function SetCreator() {
         selectedModule === module.id ? true : false
       )
     );
-    const anyPending = allAssignments.some((a) => a.selectedModule === -2);
+    const anyPending = Object.keys(allAssignmentsDict[-2]).length > 0;
     return (
       <>
         <Grid xs={anyPending ? 6 : 10}>

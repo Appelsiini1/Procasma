@@ -164,13 +164,17 @@ export interface SetAssignmentWithCheck extends WithCheckWrapper {
   selectedModule: number;
 }
 
+export interface CheckableAssignment extends WithCheckWrapper {
+  value: SetAlgoAssignmentData;
+  selectedVariation: string;
+}
+
+export interface SelectedPositions {
+  [selectedPosition: number]: CheckableAssignment;
+}
+
 export interface SetAssignmentWithCheckDictionary {
-  [selectedModule: number]: {
-    [selectedPosition: number]: {
-      value: SetAlgoAssignmentData;
-      selectedVariation: string;
-    };
-  };
+  [selectedModule: number]: SelectedPositions;
 }
 
 export interface SetData {

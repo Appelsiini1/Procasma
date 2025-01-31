@@ -87,7 +87,7 @@ const grey = {
 
 const decorStyle = { fontSize: "1.4em" };
 
-type ButtonProps = {
+export type ButtonCompProps = {
   children?: React.ReactNode;
   buttonType:
     | "largeAdd"
@@ -127,7 +127,7 @@ export default function ButtonComp({
   ariaLabel,
   disabled = false,
   sx = {},
-}: ButtonProps) {
+}: ButtonCompProps) {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   let style: object = null;
   let decor: React.JSX.Element = null;
