@@ -25,6 +25,7 @@ import {
   ModuleData,
   SetAlgoAssignmentData,
   SetAssignmentWithCheck,
+  SetAssignmentWithCheckDictionary,
   SetData,
   SetVariation,
 } from "../types";
@@ -87,6 +88,8 @@ export default function SetCreator() {
   const [allAssignments, setAllAssignments] = useState<
     Array<SetAssignmentWithCheck>
   >(set.assignments);
+  const [allAssignmentsDict, setAllAssignmentsDict] =
+    useState<SetAssignmentWithCheckDictionary>({});
 
   const pageType = useLoaderData();
   const navigate = useNavigate();
@@ -387,13 +390,19 @@ export default function SetCreator() {
       } else {
         let nextPosition = 1;
         activeAssignments.map((active) => {
+          // If using generic module, use the target module
+          // for all active assignments
+          const targetModule = hasGenericModule
+            ? set.targetModule
+            : active.module;
+
           // Check for a conflicting assignment
           const activePosition = parseInt(
             active.position.length > 0 ? active.position[0] : "1"
           );
           const conflictingAssignment = allAssignments.findIndex(
             (newAssignment) =>
-              newAssignment.selectedModule === active.module &&
+              newAssignment.selectedModule === targetModule &&
               newAssignment.selectedPosition === activePosition
           );
 
@@ -406,9 +415,47 @@ export default function SetCreator() {
             assignmentToUpdate.selectedPosition = nextPosition;
             nextPosition++;
           } else {
-            assignmentToUpdate.selectedModule = active.module;
+            assignmentToUpdate.selectedModule = targetModule;
             assignmentToUpdate.selectedPosition = activePosition;
           }
+        });
+      }
+
+      return newAssignments;
+    });
+  }
+
+  function handleInsertActiveAssignmentsDict() {
+    setAllAssignmentsDict((prevAssignments) => {
+      let newAssignments: SetAssignmentWithCheckDictionary =
+        deepCopy(prevAssignments);
+
+      if (activeAssignments.length === 1) {
+        const a = activeAssignments[0];
+        const fullAssignment = allAssignments.find(
+          (aa) => aa.value.assignmentID === a.id
+        );
+
+        if (!newAssignments[set.targetModule]) {
+          newAssignments[set.targetModule] = {};
+        }
+        newAssignments[set.targetModule][set.targetPosition] = {
+          value: fullAssignment.value,
+          selectedVariation: fullAssignment.selectedVariation,
+        };
+      } else {
+        activeAssignments.map((active) => {
+          const fullAssignment = allAssignments.find(
+            (aa) => aa.value.assignmentID === active.id
+          );
+
+          if (!newAssignments[active.module]) {
+            newAssignments[active.module] = {};
+          }
+          newAssignments[set.targetModule][set.targetPosition] = {
+            value: fullAssignment.value,
+            selectedVariation: fullAssignment.selectedVariation,
+          };
         });
       }
 
@@ -493,6 +540,20 @@ export default function SetCreator() {
 
     // update the set
     handleSet("assignments", allAssignments);
+
+    const assignmentsDictTemp: SetAssignmentWithCheckDictionary = {};
+
+    allAssignments.forEach((a) => {
+      if (!assignmentsDictTemp[a.selectedModule]) {
+        assignmentsDictTemp[a.selectedModule] = {};
+      }
+      assignmentsDictTemp[a.selectedModule][a.selectedPosition] = {
+        value: a.value,
+        selectedVariation: a.selectedVariation,
+      };
+    });
+
+    setAllAssignmentsDict(assignmentsDictTemp);
   }, [allAssignments]);
 
   useEffect(() => {
