@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node -r esm ./otherScripts/initCSS.js && electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make",
+    "make": "node -r esm ./otherScripts/initCSS.js && electron-forge make",
     "publish": "electron-forge publish",
     "visualize-renderer": "npx vite-bundle-visualizer -i index.html -t \"treemap\""
   },
