@@ -56,19 +56,20 @@ img {
   max-width: 100%;
 }
 
+/* DO NOT EDIT THE NAMES FOR CONTAINERS*/
+/* ------- */
 .container {
-  width: 18cm;
   margin-top: 0.5cm;
 }
 
 .code-background {
   background: #eee;
-  width: 18cm;
   margin-top: 0.5cm;
 }
 .code-inner-container {
   margin-left: 6px;
 }
+/* ------- */
 
 pre code.hljs {
   overflow-x: auto;
