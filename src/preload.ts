@@ -130,6 +130,10 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("getATV2Config", assigID),
   saveCacheFiles: (fileList: DropZoneFile[]) =>
     ipcRenderer.invoke("saveCacheFiles", fileList),
+
+  onAddCSSWidth: (callback: Function) =>
+    ipcRenderer.on("addCSSWidth", (_event, value) => callback(value)),
+  cssValue: (value: string) => ipcRenderer.send("cssValue", value),
 });
 
 contextBridge.exposeInMainWorld("envVars", {

@@ -105,3 +105,4 @@ export const coursePath = new CurrentPath();
 export const globalSettings = new Settings();
 export const cgInstance = new CodeGradeLoginState();
 export const workerID = new WorkerWindowGlobal();
+export const mainWindowID = new WorkerWindowGlobal();

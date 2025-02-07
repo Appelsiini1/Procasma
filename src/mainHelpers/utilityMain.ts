@@ -51,3 +51,12 @@ export function appQuitHelper() {
 export function createSHAhash(content: string) {
   return createHash("sha256").update(content).digest("hex");
 }
+
+export function addCSSWidthMain(css: string, workerId: number) {
+  const worker = BrowserWindow.fromId(workerId);
+
+  if (!worker) {
+    return;
+  }
+  worker.webContents.send("addCSSWidth", css);
+}

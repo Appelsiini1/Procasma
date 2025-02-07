@@ -28,3 +28,6 @@
 
 // Loads the app UI entrypoint
 import "./index";
+import { addCSSWidth } from "./rendererHelpers/utilityRenderer";
+
+window.api.onAddCSSWidth((value: string) => addCSSWidth(value));

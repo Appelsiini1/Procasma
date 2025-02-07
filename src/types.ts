@@ -379,6 +379,10 @@ export type ContextBridgeAPI = {
 
   // Other file system related
   saveCacheFiles: (fileList: DropZoneFile[]) => IpcResult;
+
+  // CSS
+  onAddCSSWidth: (callback: Function) => null;
+  cssValue: (value: string) => null;
 };
 
 export type ContextBridgeEnvVars = {

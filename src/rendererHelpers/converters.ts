@@ -67,3 +67,13 @@ export function ForceToString(input: any) {
   const convert = String(input);
   return convert && convert != "null" ? convert : "";
 }
+
+export function cssToString(sheet: CSSStyleSheet): string {
+  let cssString = "";
+
+  for (const rule of sheet.cssRules) {
+    cssString += String(rule.cssText);
+  }
+
+  return cssString;
+}

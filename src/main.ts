@@ -8,7 +8,7 @@ import { initialize } from "./mainHelpers/programInit";
 import log from "electron-log";
 import { registerHandles } from "./mainHelpers/ipcHelpers";
 import { appQuitHelper } from "./mainHelpers/utilityMain";
-import { workerID } from "./globalsMain";
+import { mainWindowID, workerID } from "./globalsMain";
 import started from "electron-squirrel-startup";
 import { devmodeString } from "./DEVMODE";
 
@@ -45,6 +45,7 @@ const createWindows = () => {
       path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
     );
   }
+  mainWindowID.id = mainWindow.id;
 
   // Worker window
   const workerWindow = new BrowserWindow({
