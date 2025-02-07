@@ -179,6 +179,7 @@ export interface SetData {
   targetModule: number;
   targetPosition: number;
   replaceExisting: boolean;
+  showLevels: boolean;
 }
 
 export interface ExportSetAssignmentData {

@@ -109,6 +109,7 @@ export const defaultSet: SetData = {
   targetModule: null,
   targetPosition: null,
   replaceExisting: false,
+  showLevels: true,
 };
 
 export const genericModule: ModuleData = {

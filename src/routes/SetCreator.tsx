@@ -1067,6 +1067,24 @@ export default function SetCreator() {
                   />
                 </td>
               </tr>
+
+              <tr key="asShowLevels">
+                <td style={{ width: "25%" }}>
+                  <Typography level="h4">
+                    {parseUICode("ui_show_levels")}
+                  </Typography>
+                </td>
+                <td>
+                  <SwitchComp
+                    checked={
+                      set?.showLevels === undefined ? false : set?.showLevels
+                    }
+                    setChecked={(value: boolean) =>
+                      handleSet("showLevels", value)
+                    }
+                  />
+                </td>
+              </tr>
             </tbody>
           </Table>
         </>

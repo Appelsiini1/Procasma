@@ -264,6 +264,10 @@
     "FI": "Luento",
     "ENG": "Lecture"
   },
+  "ui_show_levels": {
+    "FI": "Näytä tasot viedyissä tehtävissä",
+    "ENG": "Show levels in exported assignments"
+  },
   "ui_show_edit": {
     "FI": "Näytä / Muokkaa",
     "ENG": "Show / Edit"
