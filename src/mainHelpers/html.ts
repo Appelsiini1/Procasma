@@ -36,11 +36,16 @@ import {
   saveSetModuleFS,
   setUsedIn,
 } from "./fileOperations";
-import { css as papercolorLight } from "../../resource/cssImports/papercolor-light";
 import { platform } from "node:process";
 import { genericModule } from "../defaultObjects";
 import { highlightCode, parseLanguage } from "./highlighters";
 import juice from "juice";
+import { cssToString } from "./convertersMain";
+
+// CSS imports
+// These will be made before the program is run using a script, so they may not be present
+// when opening the project from Git
+import papercolorlight from "../../resource/cssImports/papercolor-light";
 
 const converter = new showdown.Converter(ShowdownOptions);
 
@@ -197,7 +202,7 @@ export async function exportSetFS(
           .sort((a, b) => sortAssignments(a, b));
 
         let moduleString = "";
-        const css = papercolorLight;
+        const css = cssToString(papercolorlight);
 
         const mainHeader =
           convertedSet?.visibleHeader === "" || !convertedSet?.visibleHeader
@@ -361,7 +366,7 @@ export async function exportProjectFS(
 
   async function _exportProjectLevelFS(levelID: string, isLastLevel: boolean) {
     let moduleString = "";
-    const css = papercolorLight;
+    const css = cssToString(papercolorlight);
 
     const mainHeader = formatMainHeaderProject(
       projectInput.variations[levelID].levelName
@@ -444,7 +449,6 @@ export async function exportProjectFS(
       log.info("HTML created.");
       const inlineHTML = juice(html);
       const inlineSolutionHTML = juice(solutionHtml);
-      log.debug(projectInput.format);
 
       await saveSetModuleFS(
         inlineHTML,
