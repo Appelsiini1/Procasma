@@ -1106,7 +1106,6 @@ export function handleAddOrUpdateSetFS(
     if (!name || name.length < 1) {
       throw new Error("ui_add_set_name");
     }
-    log.debug(set);
 
     const setsPath = path.join(coursePath, "sets.json");
     let oldSets: ExportSetData[] = handleReadFileFS(setsPath, true);
