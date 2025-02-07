@@ -447,7 +447,7 @@ export default function AssignmentBrowse() {
                   sx={{ marginTop: "2rem" }}
                 />
               ) : (
-                <List>{assignments}</List>
+                <List sx={{ width: "100%" }}>{assignments}</List>
               )}
             </Stack>
           </Stack>

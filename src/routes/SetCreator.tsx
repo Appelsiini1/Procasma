@@ -55,6 +55,16 @@ interface LegalMove {
   position: number;
 }
 
+function findHighestPending(assignments: SetAssignmentWithCheck[]) {
+  return assignments.reduce((highest, a) => {
+    if (a.selectedModule === -2 && a.selectedPosition > highest) {
+      return a.selectedPosition;
+    } else {
+      return highest;
+    }
+  }, 0);
+}
+
 export default function SetCreator() {
   const {
     activePath,
@@ -373,8 +383,10 @@ export default function SetCreator() {
    * desired modules/positions. In occupied cases put in the pending module.
    */
   function handleInsertActiveAssignments() {
-    setAllAssignments((prevAssignments) => {
-      let newAssignments: SetAssignmentWithCheck[] = deepCopy(prevAssignments);
+    const assignmentsInSetModule = allModules.find((m) => m.id === set.module);
+
+    setAllAssignments(() => {
+      let newAssignments: SetAssignmentWithCheck[] = deepCopy(allAssignments);
 
       if (activeAssignments.length === 1) {
         const assignmentToUpdate = newAssignments.find(
@@ -384,33 +396,40 @@ export default function SetCreator() {
 
         assignmentToUpdate.selectedModule = set.targetModule;
         assignmentToUpdate.selectedPosition = set.targetPosition;
-      } else {
-        let nextPosition = 1;
-        activeAssignments.map((active) => {
-          // Check for a conflicting assignment
-          const activePosition = parseInt(
-            active.position.length > 0 ? active.position[0] : "1"
-          );
-          const conflictingAssignment = allAssignments.findIndex(
-            (newAssignment) =>
-              newAssignment.selectedModule === active.module &&
-              newAssignment.selectedPosition === activePosition
-          );
 
-          // Update the assignment to be inserted
-          const assignmentToUpdate = newAssignments.find(
-            (newAssignment) => newAssignment.value.assignmentID === active.id
-          );
-          if (conflictingAssignment > -1) {
-            assignmentToUpdate.selectedModule = -2;
-            assignmentToUpdate.selectedPosition = nextPosition;
-            nextPosition++;
-          } else {
-            assignmentToUpdate.selectedModule = active.module;
-            assignmentToUpdate.selectedPosition = activePosition;
-          }
-        });
+        return newAssignments;
       }
+
+      let nextPosition = findHighestPending(allAssignments) + 1;
+      activeAssignments.map((active) => {
+        // Check for a conflicting assignment
+        const activePosition = parseInt(
+          active.position.length > 0 ? active.position[0] : "1"
+        );
+        const activeModule = set.fullCourse ? active.module : set.module;
+        const conflictingAssignment = newAssignments.findIndex(
+          (a) =>
+            a.selectedModule === activeModule &&
+            a.selectedPosition === activePosition
+        );
+
+        // Update the assignment to be inserted
+        const assignmentToUpdate = newAssignments.find(
+          (newAssignment) => newAssignment.value.assignmentID === active.id
+        );
+
+        if (
+          conflictingAssignment > -1 ||
+          activePosition > assignmentsInSetModule?.assignments
+        ) {
+          assignmentToUpdate.selectedModule = -2;
+          assignmentToUpdate.selectedPosition = nextPosition;
+          nextPosition++;
+        } else {
+          assignmentToUpdate.selectedModule = activeModule;
+          assignmentToUpdate.selectedPosition = activePosition;
+        }
+      });
 
       return newAssignments;
     });
@@ -425,12 +444,6 @@ export default function SetCreator() {
     getModules();
     handleHeaderPageName("ui_create_new_set");
 
-    if (activeAssignments) {
-      handleInsertActiveAssignments();
-      handleSet("targetModule", null);
-      handleSet("targetPosition", null);
-      handleActiveAssignments(undefined);
-    }
     // else if (activeAssignments && setFromBrowse) {
     //   const newSet = set;
     //   for (const tempAssignment of activeAssignments) {
@@ -447,6 +460,17 @@ export default function SetCreator() {
     //   handleActiveAssignments(null);
     // }
   }, []);
+
+  useEffect(() => {
+    if (allModules.length > 0) {
+      if (activeAssignments) {
+        handleInsertActiveAssignments();
+        handleSet("targetModule", null);
+        handleSet("targetPosition", null);
+        handleActiveAssignments(undefined);
+      }
+    }
+  }, [allModules]);
 
   // Update the selected assignments counter
   useEffect(() => {
@@ -706,6 +730,7 @@ export default function SetCreator() {
               overflowX: "hidden",
               backgroundColor: "var(--content-background)",
               padding: "8px",
+              paddingRight: "12px",
               border: "2px solid var(--border-color)",
             }}
           >
@@ -715,7 +740,7 @@ export default function SetCreator() {
         <Grid xs={anyPending ? 6 : 2}>
           <Box
             sx={{
-              marginLeft: "12px",
+              marginLeft: "16px",
               maxHeight: "60vh",
               overflowX: "hidden",
               padding: "8px",
