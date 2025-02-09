@@ -24,12 +24,7 @@ export default function SearchBar({
   optionLabel: string;
   searchFunction: (value: string) => void;
 }) {
-  const [text, setText] = useState(null);
-
-  function handleText(value: string) {
-    setText(value);
-    //searchFunction(value);
-  }
+  const [text, setText] = useState("");
 
   return (
     <>
@@ -38,14 +33,14 @@ export default function SearchBar({
         justifyContent="flex-start"
         alignItems="center"
         spacing={2}
-        sx={{ width: "100%" }}
+        sx={{ width: "100%", marginY: "1rem" }}
       >
         <Typography level="h4">{title}</Typography>
         <div style={{ width: "100%" }}>
           <InputField
             fieldKey="caSearchBar"
             placeholder="..."
-            onChange={(value: string) => handleText(value)}
+            onChange={(value: string) => setText(value)}
           />
         </div>
         <ButtonComp

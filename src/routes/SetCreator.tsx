@@ -78,6 +78,8 @@ export default function SetCreator() {
     handleSelectAssignment,
     genericModuleAssignmentCount,
     handleGenericModuleAssignmentCount,
+    previousPath,
+    handlePreviousPath,
   }: {
     activePath: string;
     activeSet: SetData;
@@ -91,6 +93,8 @@ export default function SetCreator() {
     handleSelectAssignment: (value: boolean) => void;
     genericModuleAssignmentCount: number;
     handleGenericModuleAssignmentCount: (value: number) => void;
+    previousPath: string;
+    handlePreviousPath: (value: string) => void;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [set, handleSet] = useSet(activeSet ?? deepCopy(defaultSet));
@@ -307,24 +311,17 @@ export default function SetCreator() {
   }
 
   variations = (
-    <Stack
-      direction="column"
-      justifyContent="center"
-      alignItems="flex-start"
-      spacing={2}
-    >
-      <Box minHeight="4rem" width="100%">
-        <List>
-          {assignmentVariations
-            ? generateChecklistVariation(
-                assignmentVariations,
-                selectedAssignments[0]?.assignmentID,
-                handleSetAssignmentAttribute
-              )
-            : null}
-        </List>
-      </Box>
-    </Stack>
+    <Box width="100%">
+      <List>
+        {assignmentVariations
+          ? generateChecklistVariation(
+              assignmentVariations,
+              selectedAssignments[0]?.assignmentID,
+              handleSetAssignmentAttribute
+            )
+          : null}
+      </List>
+    </Box>
   );
 
   function getPrevOrNextAssignments(isPrev: boolean): SetAssignmentWithCheck[] {
@@ -358,7 +355,7 @@ export default function SetCreator() {
           minHeight="1rem"
           width="100%"
           sx={{
-            border: "2px solid lightgrey",
+            border: "1px solid lightgrey",
             borderRadius: "0.5rem",
           }}
         >
@@ -569,11 +566,15 @@ export default function SetCreator() {
 
   // Navigates to the assignment browse page by listening to activeAssignments
   useEffect(() => {
-    if (activeAssignments && navigateToBrowse) {
+    if (
+      activeAssignments &&
+      previousPath === "/setCreator" &&
+      navigateToBrowse
+    ) {
       setNavigateToBrowse(false);
       navigate("/AssignmentBrowse");
     }
-  }, [activeAssignments, navigateToBrowse]);
+  }, [activeAssignments, previousPath, navigateToBrowse]);
 
   // checks if target module and position are set before priming
   // activeAssignments for navigation to the browse page
@@ -586,6 +587,7 @@ export default function SetCreator() {
       ) {
         handleActiveSet(set);
         handleActiveAssignments([]);
+        handlePreviousPath("/setCreator");
       }
     } catch (err) {
       handleSnackbar({ error: parseUICode(err.message) });
@@ -621,6 +623,36 @@ export default function SetCreator() {
       setNavigateToBrowse(true);
     }
 
+    const variationWindow = () => {
+      if (!showVarations) {
+        return <></>;
+      }
+      return (
+        <>
+          {selectedAssignments[0]?.previous?.length > 0 ? (
+            <>
+              <Typography level="h4">
+                {`${parseUICode("ui_prev_part")}`}
+              </Typography>
+              {prevOrNextAssignmentsWindow(true)}
+            </>
+          ) : null}
+          <Typography level="h4">
+            {`${parseUICode("ui_variations")}`}
+          </Typography>
+          {variations}
+          {selectedAssignments[0]?.next?.length > 0 ? (
+            <>
+              <Typography level="h4">
+                {`${parseUICode("ui_next_part")}`}
+              </Typography>
+              {prevOrNextAssignmentsWindow(false)}
+            </>
+          ) : null}
+        </>
+      );
+    };
+
     assignments = generateChecklistSetAssignment(
       allAssignments.filter((a) => a.selectedModule === moduleId),
       setAllAssignments,
@@ -630,73 +662,35 @@ export default function SetCreator() {
       handleOpenAssignment,
       handleDeleteAssignment,
       handleTargetPosition,
+      variationWindow,
       moduleId === -2 ? true : false
     );
 
     return (
-      <div key={moduleId}>
+      <Box key={moduleId} sx={{ marginRight: "8px" }}>
         <Typography level="h4">{moduleName}</Typography>
-        <Tooltip
-          variant="outlined"
-          open={showVarations}
-          placement="bottom"
-          title={
-            <>
-              <Box
-                sx={{
-                  paddingLeft: "4px",
-                  paddingRight: "8px",
-                  minWidth: "300px",
-                }}
-              >
-                {selectedAssignments[0]?.previous?.length > 0 ? (
-                  <>
-                    <Typography level="h4">
-                      {`${parseUICode("ui_prev_part")}`}
-                    </Typography>
-                    {prevOrNextAssignmentsWindow(true)}
-                    <div className="emptySpace1" />
-                  </>
-                ) : null}
-                <Typography level="h4">
-                  {`${parseUICode("ui_variations")}`}
-                </Typography>
-                {variations}
-                <div className="emptySpace1" />
-                {selectedAssignments[0]?.next?.length > 0 ? (
-                  <>
-                    <Typography level="h4">
-                      {`${parseUICode("ui_next_part")}`}
-                    </Typography>
-                    {prevOrNextAssignmentsWindow(false)}
-                  </>
-                ) : null}
-              </Box>
-            </>
-          }
+        <Box
+          minHeight="4rem"
+          width="100%"
+          sx={{
+            border: "1px solid lightgrey",
+            borderRadius: "0.5rem",
+            backgroundColor: "var(--background)",
+            boxShadow: "sm",
+          }}
         >
-          <Box
-            minHeight="4rem"
-            width="100%"
+          <List
             sx={{
-              border: "2px solid lightgrey",
-              borderRadius: "0.5rem",
-              backgroundColor: "var(--background)",
+              "--ListItem-minHeight": "3rem",
+              overflow: "auto",
             }}
           >
-            <List
-              sx={{
-                "--ListItem-minHeight": "3rem",
-                overflow: "auto",
-              }}
-            >
-              {assignments}
-            </List>
-          </Box>
-        </Tooltip>
+            {assignments}
+          </List>
+        </Box>
 
         <div className="emptySpace1" />
-      </div>
+      </Box>
     );
   }
 
@@ -723,19 +717,25 @@ export default function SetCreator() {
     return (
       <>
         <Grid xs={anyPending ? 6 : 10}>
-          <Box
+          <Stack
+            height="40rem"
+            maxHeight="60vh"
             width="100%"
             sx={{
-              maxHeight: "60vh",
-              overflowX: "hidden",
+              paddingLeft: "8px",
+              border: "1px solid lightgrey",
+              borderRadius: "0.5rem",
               backgroundColor: "var(--content-background)",
-              padding: "8px",
-              paddingRight: "12px",
-              border: "2px solid var(--border-color)",
+              overflowX: "hidden",
             }}
+            direction="column"
+            justifyContent="start"
+            alignItems="start"
           >
-            <List>{allToDisplay.slice(1)}</List>
-          </Box>
+            <List sx={{ width: "calc(100% - 8px)", overflowX: "hidden" }}>
+              {allToDisplay.slice(1)}
+            </List>
+          </Stack>
         </Grid>
         <Grid xs={anyPending ? 6 : 2}>
           <Box

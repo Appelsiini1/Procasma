@@ -42,6 +42,7 @@ import {
 import { globalSettings } from "../globalsUI";
 import SwitchComp from "../components/SwitchComp";
 import log from "electron-log/renderer";
+import SpecialButton from "../components/SpecialButton";
 
 export default function AssignmentInput() {
   const {
@@ -322,13 +323,7 @@ export default function AssignmentInput() {
           >
             {parseUICode("ui_save")}
           </ButtonComp>
-          <ButtonComp
-            buttonType="normal"
-            onClick={() => navigate(-1)}
-            ariaLabel={parseUICode("ui_aria_cancel")}
-          >
-            {parseUICode("ui_cancel")}
-          </ButtonComp>
+          <SpecialButton buttonType="cancel" />
           {DEVMODE ? (
             <>
               <ButtonComp
@@ -553,7 +548,7 @@ export default function AssignmentInput() {
                     minHeight="4rem"
                     width="100%"
                     sx={{
-                      border: "2px solid lightgrey",
+                      border: "1px solid lightgrey",
                       borderRadius: "0.5rem",
                     }}
                   >

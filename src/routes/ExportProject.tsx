@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { DEVMODE, dividerSX } from "../constantsUI";
 import {
   Card,
@@ -34,11 +34,15 @@ export default function ExportProject() {
     handleActiveAssignments,
     activeCourse,
     activePath,
+    previousPath,
+    handlePreviousPath,
   }: {
     activeAssignments: CodeAssignmentDatabase[];
     handleActiveAssignments: (value: CodeAssignmentDatabase[]) => void;
     activeCourse: CourseData;
     activePath: string;
+    previousPath: string;
+    handlePreviousPath: (value: string) => void;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [assignment, handleAssignment] = useState<CodeAssignmentDatabase>(null);
@@ -85,6 +89,7 @@ export default function ExportProject() {
   async function handleNavigateToBrowse() {
     try {
       handleActiveAssignments([]);
+      handlePreviousPath("/exportProject");
       setNavigateToBrowse(true);
     } catch (err) {
       handleSnackbar({ error: parseUICode(err.message) });
@@ -93,11 +98,15 @@ export default function ExportProject() {
 
   // Navigates to the assignment browse page by listening to activeAssignments
   useEffect(() => {
-    if (typeof activeAssignments !== "undefined" && navigateToBrowse) {
+    if (
+      typeof activeAssignments !== "undefined" &&
+      previousPath === "/exportProject" &&
+      navigateToBrowse
+    ) {
       setNavigateToBrowse(false);
       navigate("/AssignmentBrowse");
     }
-  }, [activeAssignments, navigateToBrowse]);
+  }, [activeAssignments, previousPath, navigateToBrowse]);
 
   async function exportProject() {
     let snackbarSeverity = "success";

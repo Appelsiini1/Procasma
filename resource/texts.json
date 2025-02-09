@@ -356,6 +356,10 @@
     "FI": "Sijainnit",
     "ENG": "Positions"
   },
+  "ui_positioning": {
+    "FI": "Sijoitus",
+    "ENG": "Positioning"
+  },
   "ui_levels": {
     "FI": "Tasot",
     "ENG": "Levels"
