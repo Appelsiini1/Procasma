@@ -2,6 +2,7 @@ import { useLoaderData, useNavigate } from "react-router";
 import { dividerSX, DEVMODE } from "../constantsUI";
 import {
   Box,
+  Chip,
   Divider,
   Grid,
   List,
@@ -170,7 +171,7 @@ export default function SetCreator() {
 
       const pendingAssignmentModule: ModuleData = {
         id: -2,
-        name: parseUICode("ui_pending_assignments"),
+        name: parseUICode("ui_pending"),
         letters: false,
         assignments: 1,
         subjects: null,
@@ -716,7 +717,7 @@ export default function SetCreator() {
     const anyPending = allAssignments.some((a) => a.selectedModule === -2);
     return (
       <>
-        <Grid xs={anyPending ? 6 : 10}>
+        <Grid xs={anyPending ? 6 : 9}>
           <Stack
             height="40rem"
             maxHeight="60vh"
@@ -732,22 +733,32 @@ export default function SetCreator() {
             justifyContent="start"
             alignItems="start"
           >
-            <List sx={{ width: "calc(100% - 8px)", overflowX: "hidden" }}>
+            <List sx={{ width: "calc(100% - 8px)", overflowY: "scroll" }}>
               {allToDisplay.slice(1)}
             </List>
           </Stack>
         </Grid>
-        <Grid xs={anyPending ? 6 : 2}>
-          <Box
+        <Grid xs={anyPending ? 6 : 3}>
+          <Stack
+            height="40rem"
+            maxHeight="60vh"
+            width="100%"
             sx={{
-              marginLeft: "16px",
-              maxHeight: "60vh",
+              marginLeft: "8px",
+              paddingLeft: "8px",
+              border: "1px solid lightgrey",
+              borderRadius: "0.5rem",
+              backgroundColor: "var(--content-background)",
               overflowX: "hidden",
-              padding: "8px",
             }}
+            direction="column"
+            justifyContent="start"
+            alignItems="start"
           >
-            {allToDisplay.slice(0, 1)}
-          </Box>
+            <List sx={{ width: "calc(100% - 8px)", overflowY: "scroll" }}>
+              {allToDisplay.slice(0, 1)}
+            </List>
+          </Stack>
         </Grid>
       </>
     );
@@ -780,15 +791,23 @@ export default function SetCreator() {
       const assignment = a.value;
       const variation = a.selectedVariation;
 
-      let title = assignment.title;
-      title += variation
-        ? ` - ${parseUICode("ui_variation")} ${variation}`
-        : "";
-
       return (
         <tr key={assignment.assignmentID}>
-          <td style={{ width: "25%" }}>
-            <Typography level="h4">{title}</Typography>
+          <td style={{ width: "40%" }}>
+            <Stack
+              direction="row"
+              gap={2}
+              sx={{ justifyContent: "space-between", alignItems: "center" }}
+            >
+              <Typography level="body-md">{assignment.title}</Typography>
+              <Chip>
+                <HelpText text={`${parseUICode("ui_variation")} ${variation}`}>
+                  <Typography level="body-md" sx={{ fontWeight: "bold" }}>
+                    {variation}
+                  </Typography>
+                </HelpText>
+              </Chip>
+            </Stack>
           </td>
           <td>
             <InputField
@@ -1139,7 +1158,6 @@ export default function SetCreator() {
           </Typography>
           {set.exportCGConfigs ? (
             <>
-              {" "}
               <div className="emptySpace1" />
               <Typography level="h4">
                 {`${parseUICode("ui_module")} ${ForceToString(

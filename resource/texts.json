@@ -320,6 +320,10 @@
     "FI": "Odottavat tehtävät",
     "ENG": "Pending assignments"
   },
+  "ui_pending": {
+    "FI": "Odottavat",
+    "ENG": "Pending"
+  },
   "help_expanding_unassigned": {
     "FI": "Tämä laajeneva osa puuttuu vielä tehtäväsarjasta.",
     "ENG": "This expanding part is still missing from the set."

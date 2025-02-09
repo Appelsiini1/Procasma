@@ -124,7 +124,7 @@ export default function Browser({
             {waitingForResults ? (
               <ListSkeleton />
             ) : (
-              <List sx={{ width: "calc(100% - 8px)", overflow: "auto" }}>
+              <List sx={{ width: "calc(100% - 8px)", overflowY: "scroll" }}>
                 {results}
               </List>
             )}
@@ -156,7 +156,7 @@ export default function Browser({
             {waitingForFilters ? (
               <ListSkeletonSmall />
             ) : (
-              <List sx={{ width: "calc(100% - 8px)", overflow: "auto" }}>
+              <List sx={{ width: "calc(100% - 8px)", overflowY: "scroll" }}>
                 {filters.map((filter, index) => {
                   return (
                     <ListItem nested key={index}>
