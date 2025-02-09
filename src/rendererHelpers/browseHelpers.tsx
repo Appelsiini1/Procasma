@@ -449,9 +449,7 @@ export function generateChecklistSetAssignment(
                       buttonType="delete"
                       onClick={() => handleDeleteAssignment()}
                       ariaLabel={parseUICode("ui_delete")}
-                    >
-                      {parseUICode("ui_delete")}
-                    </ButtonComp>
+                    />
                     <ButtonComp
                       buttonType="normal"
                       onClick={() => handleOpenAssignment()}
