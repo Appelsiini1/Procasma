@@ -41,9 +41,10 @@ export default function VariationsGroup({
           sx={{
             backgroundColor: "var(--content-background)",
             padding: "0.5rem",
-            border: "2px solid lightgrey",
+            border: "1px solid lightgrey",
             borderRadius: "0.2rem",
             height: "fit-content",
+            boxShadow: "sm",
           }}
         >
           <Stack
@@ -126,7 +127,7 @@ export default function VariationsGroup({
           sx={{
             backgroundColor: "var(--content-background)",
             padding: "0.5rem",
-            border: "2px solid lightgrey",
+            border: "1px solid lightgrey",
             borderRadius: "0.2rem",
             height: "fit-content",
             minHeight: "10rem",

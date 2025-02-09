@@ -38,9 +38,10 @@ export default function ExampleRunsGroup({
           sx={{
             backgroundColor: "var(--content-background-inner)",
             padding: "0.5rem",
-            border: "2px solid lightgrey",
+            border: "1px solid lightgrey",
             borderRadius: "0.2rem",
             height: "fit-content",
+            boxShadow: "sm",
           }}
         >
           <Stack
@@ -109,11 +110,12 @@ export default function ExampleRunsGroup({
           sx={{
             backgroundColor: "var(--content-background-inner)",
             padding: "0.5rem",
-            border: "2px solid lightgrey",
+            border: "1px solid lightgrey",
             borderRadius: "0.2rem",
             height: "fit-content",
             minHeight: "10rem",
             width: "100%",
+            boxShadow: "md",
           }}
         >
           {exampleRuns[openRun] ? (

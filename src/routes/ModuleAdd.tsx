@@ -18,6 +18,7 @@ import {
   titleCellWidth,
   DEVMODE,
 } from "../constantsUI";
+import SpecialButton from "../components/SpecialButton";
 
 export default function ModuleAdd() {
   const {
@@ -245,13 +246,7 @@ export default function ModuleAdd() {
             {parseUICode("ui_save")}
           </ButtonComp>
 
-          <ButtonComp
-            buttonType="normal"
-            onClick={() => navigate(-1)}
-            ariaLabel={parseUICode("ui_aria_cancel")}
-          >
-            {parseUICode("ui_cancel")}
-          </ButtonComp>
+          <SpecialButton buttonType="cancel" />
 
           {DEVMODE ? (
             <ButtonComp

@@ -1,8 +1,7 @@
 import { useNavigate } from "react-router";
-import { Box, List, Stack, Typography } from "@mui/joy";
+import { Stack } from "@mui/joy";
 import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
-import SearchBar from "../components/SearchBar";
 import {
   CourseData,
   SetAlgoAssignmentData,
@@ -24,6 +23,8 @@ import {
   exportManySetsToDisk,
   importSetData,
 } from "../rendererHelpers/setHelpers";
+import Browser from "../components/Browser";
+import SpecialButton from "../components/SpecialButton";
 
 export default function SetBrowse() {
   const {
@@ -40,35 +41,26 @@ export default function SetBrowse() {
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [allSets, setAllSets] = useState<Array<SetWithCheck>>([]);
   const [selectedSets, setSelectedSets] = useState<Array<SetData>>([]);
+
+  const [requestRefreshBrowser, setRequestRefreshBrowser] = useState(true);
+
   const [navigateToSet, setNavigateToSet] = useState(false);
   const [numSelected, setNumSelected] = useState(0);
   const navigate = useNavigate();
   let sets: Array<React.JSX.Element> = null;
 
-  async function refreshSets() {
-    try {
-      if (!activePath) {
-        return;
-      }
+  async function getSets() {
+    const setsResult = await handleIPCResult(() =>
+      window.api.getSetsFS(activePath)
+    );
 
-      const setsResult = await handleIPCResult(() =>
-        window.api.getSetsFS(activePath)
-      );
+    const setsWithCheck: SetWithCheck[] = wrapWithCheck(setsResult);
 
-      const setsWithCheck: SetWithCheck[] = wrapWithCheck(setsResult);
-
-      // update sets
-      setAllSets(setsWithCheck);
-    } catch (err) {
-      handleSnackbar({ error: parseUICode(err.message) });
-    }
+    // update sets
+    setAllSets(setsWithCheck);
   }
 
   useEffect(() => {
-    if (!activePath) {
-      return;
-    }
-    refreshSets();
     handleHeaderPageName("ui_set_browser");
     handleActiveSet(null);
   }, []);
@@ -84,7 +76,7 @@ export default function SetBrowse() {
         )
       );
 
-      refreshSets(); // get the remaining sets
+      setRequestRefreshBrowser(true); // get the remaining sets
     } catch (err) {
       snackbarText = err.message;
       snackbarSeverity = "error";
@@ -157,19 +149,12 @@ export default function SetBrowse() {
 
   return (
     <>
-      <div className="emptySpace1" />
-      <SearchBar
-        autoFillOptions={[]}
-        optionLabel={"name"}
-        searchFunction={() => console.log("search")}
-      ></SearchBar>
-
-      <div className="emptySpace1" />
       <Stack
         direction="row"
         justifyContent="flex-start"
         alignItems="center"
         spacing={2}
+        sx={{ marginTop: "1rem" }}
       >
         <ButtonComp
           buttonType="normal"
@@ -200,38 +185,21 @@ export default function SetBrowse() {
         </ButtonComp>
       </Stack>
 
-      <div className="emptySpace2" />
+      {activePath ? (
+        <Browser
+          results={sets}
+          filters={[]}
+          getResultsFunc={() => getSets()}
+          getFiltersFunc={undefined}
+          resultDependencies={[]}
+          requestRefreshBrowser={requestRefreshBrowser}
+          setRequestRefreshBrowser={setRequestRefreshBrowser}
+        ></Browser>
+      ) : (
+        ""
+      )}
 
-      <Stack
-        direction="column"
-        justifyContent="center"
-        alignItems="flex-start"
-        spacing={2}
-        sx={{ width: "100%" }}
-      >
-        <Typography level="h3">{parseUICode("ui_assignment_sets")}</Typography>
-
-        <Box
-          height="30rem"
-          width="100%"
-          sx={{
-            border: "2px solid lightgrey",
-            borderRadius: "0.5rem",
-          }}
-          overflow={"auto"}
-        >
-          <List>{sets}</List>
-        </Box>
-      </Stack>
-
-      <div className="emptySpace1" />
-      <ButtonComp
-        buttonType="normal"
-        onClick={() => navigate(-1)}
-        ariaLabel={parseUICode("ui_aria_cancel")}
-      >
-        {parseUICode("ui_close")}
-      </ButtonComp>
+      <SpecialButton sx={{ marginTop: "1rem" }} buttonType="cancel" />
     </>
   );
 }

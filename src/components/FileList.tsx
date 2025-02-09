@@ -149,7 +149,7 @@ export default function FileList({
 
   return (
     <>
-      <Sheet sx={{ border: "2px solid lightgrey", borderRadius: "8px" }}>
+      <Sheet sx={{ border: "1px solid lightgrey", borderRadius: "8px" }}>
         <Stack
           direction="row"
           justifyContent="flex-start"

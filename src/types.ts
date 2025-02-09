@@ -263,11 +263,6 @@ export interface ImportAssignment {
   assignmentData: CodeAssignmentData;
 }
 
-export interface pathStack {
-  previousPath: string;
-  currentPath: string;
-}
-
 export interface CodeGradeLogin {
   username: string;
   password: string;

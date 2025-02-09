@@ -26,6 +26,7 @@ import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
 import { globalSettings } from "../globalsUI";
+import SpecialButton from "../components/SpecialButton";
 
 export default function ProjectWorkInput() {
   const {
@@ -102,13 +103,7 @@ export default function ProjectWorkInput() {
           >
             {parseUICode("ui_save")}
           </ButtonComp>
-          <ButtonComp
-            buttonType="normal"
-            onClick={() => navigate(-1)}
-            ariaLabel={parseUICode("ui_aria_cancel")}
-          >
-            {parseUICode("ui_cancel")}
-          </ButtonComp>
+          <SpecialButton buttonType="cancel" />
           {DEVMODE ? (
             <>
               <ButtonComp
