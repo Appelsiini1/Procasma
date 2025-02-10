@@ -1,15 +1,14 @@
 {
   "name": "procasma",
   "productName": "Procasma",
-  "version": "1.7.16",
+  "version": "1.8.0",
   "description": "Dynamic Assignment Manager",
   "main": ".vite/build/main.js",
   "scripts": {
-    "start": "electron-forge start",
+    "start": "node -r esm ./otherScripts/initCSS.js && electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make",
+    "make": "node -r esm ./otherScripts/initCSS.js && electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx .",
     "visualize-renderer": "npx vite-bundle-visualizer -i index.html -t \"treemap\""
   },
   "devDependencies": {

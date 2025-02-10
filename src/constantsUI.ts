@@ -41,3 +41,4 @@ export const smallDividerSX = {
 };
 export const DEVMODE = window.envVars.DEVMODE;
 export const COURSE_PERIODS = 4;
+export const CSSContainerWidth = "18cm";

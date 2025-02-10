@@ -25,7 +25,7 @@ import {
   fileFolderSeparator,
   ShowdownOptions,
 } from "../constants";
-import { coursePath, globalSettings } from "../globalsMain";
+import { coursePath, globalSettings, mainWindowID } from "../globalsMain";
 import { getModulesDB } from "./databaseOperations";
 import { createMainFunctionHandler } from "./ipcHelpers";
 import {
@@ -36,14 +36,22 @@ import {
   saveSetModuleFS,
   setUsedIn,
 } from "./fileOperations";
-import { css as papercolorLight } from "../../resource/cssImports/papercolor-light";
 import { platform } from "node:process";
 import { genericModule } from "../defaultObjects";
 import { highlightCode, parseLanguage } from "./highlighters";
 import juice from "juice";
+import { ipcMain } from "electron";
+import { addCSSWidthMain } from "./utilityMain";
 
+// CSS imports
+// These will be made before the program is run using a script, so they may not be present
+// when opening the project from Git
+import papercolorlight from "../../resource/cssImports/papercolor-light";
+
+// Showdown
 const converter = new showdown.Converter(ShowdownOptions);
 
+// Regex patterns
 const regexParentheses = /(?<=\\\().+?(?=\\\))/gs;
 const regexBrackets = /(?<=\\\[).+?(?=\\\])/gs;
 const regexImage = /(?<![\\`])!\[.*?\]\((\S*?)(?:\s*".*?")?(?:\s*=.*?)?\)/gm;
@@ -169,47 +177,64 @@ export async function exportSetFS(
   try {
     const convertedSet = setToFullData(setInput);
 
-    // get all course modules
-    const selectedModules = setInput.assignments.map((a) => a.selectedModule);
-    const uniqueModules = [...new Set(selectedModules)];
+    // CSS
+    new Promise((resolve, reject) => {
+      if (setInput.format == "pdf") {
+        addCSSWidthMain(papercolorlight, mainWindowID.id);
+        ipcMain.on("cssValue", (_event, value) => {
+          if (!value) {
+            reject("No proper value for CSS received.");
+          }
+          log.debug("Final CSS: ", value);
+          resolve(value);
+        });
+      } else {
+        resolve(papercolorlight);
+      }
+    }).then(async (css) => {
+      // get all course modules
+      const selectedModules = setInput.assignments.map((a) => a.selectedModule);
+      const uniqueModules = [...new Set(selectedModules)];
 
-    const modulesResult = await createMainFunctionHandler(() =>
-      getModulesDB(coursePath.path, uniqueModules)
-    );
-    if (modulesResult.errorMessage) {
-      throw new Error(modulesResult.errorMessage);
-    }
-    const modules: ModuleData[] = modulesResult.content;
+      const modulesResult = await createMainFunctionHandler(() =>
+        getModulesDB(coursePath.path, uniqueModules)
+      );
+      if (modulesResult.errorMessage) {
+        throw new Error(modulesResult.errorMessage);
+      }
+      const modules: ModuleData[] = modulesResult.content;
 
-    // convert assignments to full
-    const fullAssignments = assignmentToFullData(setInput.assignments);
+      // convert assignments to full
+      const fullAssignments = assignmentToFullData(setInput.assignments);
 
-    if (fullAssignments[0].selectedModule === -3) {
-      modules.push({ ...genericModule, name: parseUICodeMain("assignments") });
-    }
+      if (fullAssignments[0].selectedModule === -3) {
+        modules.push({
+          ...genericModule,
+          name: parseUICodeMain("assignments"),
+        });
+      }
 
-    // loop through modules
-    await Promise.all(
-      modules.map(async (module) => {
-        // get assignments where selectedModule is correct
-        const moduleAssignments = fullAssignments
-          .filter((a) => a.selectedModule === module.id)
-          .sort((a, b) => sortAssignments(a, b));
+      // loop through modules
+      await Promise.all(
+        modules.map(async (module) => {
+          // get assignments where selectedModule is correct
+          const moduleAssignments = fullAssignments
+            .filter((a) => a.selectedModule === module.id)
+            .sort((a, b) => sortAssignments(a, b));
 
-        let moduleString = "";
-        const css = papercolorLight;
+          let moduleString = "";
 
-        const mainHeader =
-          convertedSet?.visibleHeader === "" || !convertedSet?.visibleHeader
-            ? formatMainHeader(
-                module.id,
-                coursedata.moduleType,
-                coursedata.modules
-              )
-            : convertedSet.visibleHeader;
+          const mainHeader =
+            convertedSet?.visibleHeader === "" || !convertedSet?.visibleHeader
+              ? formatMainHeader(
+                  module.id,
+                  coursedata.moduleType,
+                  coursedata.modules
+                )
+              : convertedSet.visibleHeader;
 
-        // HTML Base
-        let html = `<!DOCTYPE html>
+          // HTML Base
+          let html = `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -218,7 +243,7 @@ export async function exportSetFS(
     <style>${css}</style>
   </head>
   <body>`;
-        let solutionHtml = `<!DOCTYPE html>
+          let solutionHtml = `<!DOCTYPE html>
 <html>
   <head>
     <meta http-equiv="Content-Security-Policy" content="script-src 'none'" />
@@ -228,38 +253,19 @@ export async function exportSetFS(
   </head>
   <body>`;
 
-        // Main page header
-        html += `<h1>${mainHeader}</h1>`;
-        solutionHtml += `<h1>${mainHeader} ${parseUICodeMain(
-          "answers"
-        ).toUpperCase()}</h1>`;
-
-        // Starting instructions
-        const startingInstructions = generateStart(
-          module.subjects,
-          module.instructions
-        );
-        html += startingInstructions;
-        solutionHtml += startingInstructions;
-
-        // Module string for PDF footer
-        const modulePadding =
-          coursedata.modules > 9
-            ? module.id.toString().padStart(2, "0")
-            : module.id.toString();
-        switch (coursedata.moduleType) {
-          case "lecture":
-            moduleString += parseUICodeMain("ui_lecture") + ` ${modulePadding}`;
-            break;
-          case "module":
-            moduleString += parseUICodeMain("ui_module") + ` ${modulePadding}`;
-            break;
-          case "week":
-            moduleString += parseUICodeMain("ui_week") + ` ${modulePadding}`;
-            break;
-          default:
-            break;
-        }
+          // Main page header
+          html += `<h1>${mainHeader}</h1>`;
+          solutionHtml += `<h1>${mainHeader} ${parseUICodeMain(
+            "answers"
+          ).toUpperCase()}</h1>`;
+          
+          // Starting instructions
+          const startingInstructions = generateStart(
+            module.subjects,
+            module.instructions
+          );
+          html += startingInstructions;
+          solutionHtml += startingInstructions;
 
         // Table of contents
         if (setInput.assignments.length > 1) {
@@ -271,6 +277,27 @@ export async function exportSetFS(
           html += toc;
           solutionHtml += toc;
         }
+          
+          // Module string for PDF footer
+          const modulePadding =
+            coursedata.modules > 9
+              ? module.id.toString().padStart(2, "0")
+              : module.id.toString();
+          switch (coursedata.moduleType) {
+            case "lecture":
+              moduleString +=
+                parseUICodeMain("ui_lecture") + ` ${modulePadding}`;
+              break;
+            case "module":
+              moduleString +=
+                parseUICodeMain("ui_module") + ` ${modulePadding}`;
+              break;
+            case "week":
+              moduleString += parseUICodeMain("ui_week") + ` ${modulePadding}`;
+              break;
+            default:
+              break;
+          }
 
         // loop through assignments
         moduleAssignments.sort(
@@ -298,48 +325,72 @@ export async function exportSetFS(
             true,
             false,
             setInput.showLevels
-          );
-        });
 
-        // End body
-        html += `</body>
+          // loop through assignments
+          moduleAssignments.sort(
+            (a, b) => a.selectedPosition - b.selectedPosition
+          );
+          moduleAssignments.forEach((assignment, index) => {
+            // Assignments
+            const meta = { assignmentIndex: index, courseData: coursedata };
+            html += generateBlock(
+              meta,
+              assignment,
+              assignment.variation,
+              assignment.variatioId,
+              coursedata.modules,
+              false
+            );
+            solutionHtml += generateBlock(
+              meta,
+              assignment,
+              assignment.variation,
+              assignment.variatioId,
+              coursedata.modules,
+              true
+            );
+          });
+
+          // End body
+          html += `</body>
 </html>`;
-        solutionHtml += `</body>
+          solutionHtml += `</body>
 </html>`;
-        log.info("HTML created.");
+          log.info("HTML created.");
 
-        const inlineHTML = juice(html);
-        const inlineSolutionHTML = juice(solutionHtml);
+          const inlineHTML = juice(html);
+          const inlineSolutionHTML = juice(solutionHtml);
 
-        await saveSetModuleFS(
-          inlineHTML,
-          inlineSolutionHTML,
-          mainHeader,
-          convertedSet.format,
-          coursedata,
-          savePath,
-          convertedSet.replaceExisting,
-          moduleString
-        );
-        const filename = mainHeader.replace(" ", "");
-
-        const filesPath = path.join(savePath, filename);
-        copyExportFilesFS(moduleAssignments, filesPath);
-
-        convertedSet.assignmentArray.forEach((setAssignment) => {
-          const filePath = path.join(
-            coursePath.path,
-            setAssignment.folder,
-            setAssignment.assignmentID + ".json"
+          await saveSetModuleFS(
+            inlineHTML,
+            inlineSolutionHTML,
+            mainHeader,
+            convertedSet.format,
+            coursedata,
+            savePath,
+            convertedSet.replaceExisting,
+            moduleString
           );
-          setUsedIn(
-            filePath,
-            setAssignment.variatioId,
-            `${convertedSet.year}/${convertedSet.period}`
-          );
-        });
-      })
-    );
+          const filename = mainHeader.replace(" ", "");
+
+          const filesPath = path.join(savePath, filename);
+          copyExportFilesFS(moduleAssignments, filesPath);
+
+          convertedSet.assignmentArray.forEach((setAssignment) => {
+            const filePath = path.join(
+              coursePath.path,
+              setAssignment.folder,
+              setAssignment.assignmentID + ".json"
+            );
+            setUsedIn(
+              filePath,
+              setAssignment.variatioId,
+              `${convertedSet.year}/${convertedSet.period}`
+            );
+          });
+        })
+      );
+    });
   } catch (err) {
     log.error("Error in exportSetFS():", err.message);
     let newErr = "";
@@ -371,7 +422,7 @@ export async function exportProjectFS(
 
   async function _exportProjectLevelFS(levelID: string, isLastLevel: boolean) {
     let moduleString = "";
-    const css = papercolorLight;
+    const css = "";
 
     const mainHeader = formatMainHeaderProject(
       projectInput.variations[levelID].levelName
@@ -454,7 +505,6 @@ export async function exportProjectFS(
       log.info("HTML created.");
       const inlineHTML = juice(html);
       const inlineSolutionHTML = juice(solutionHtml);
-      log.debug(projectInput.format);
 
       await saveSetModuleFS(
         inlineHTML,
