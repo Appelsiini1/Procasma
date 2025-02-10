@@ -264,6 +264,10 @@
     "FI": "Luento",
     "ENG": "Lecture"
   },
+  "ui_show_levels": {
+    "FI": "Näytä tasot viedyissä tehtävissä",
+    "ENG": "Show levels in exported assignments"
+  },
   "ui_show_edit": {
     "FI": "Näytä / Muokkaa",
     "ENG": "Show / Edit"
@@ -316,6 +320,10 @@
     "FI": "Odottavat tehtävät",
     "ENG": "Pending assignments"
   },
+  "ui_pending": {
+    "FI": "Odottavat",
+    "ENG": "Pending"
+  },
   "help_expanding_unassigned": {
     "FI": "Tämä laajeneva osa puuttuu vielä tehtäväsarjasta.",
     "ENG": "This expanding part is still missing from the set."
@@ -351,6 +359,10 @@
   "ui_positions": {
     "FI": "Sijainnit",
     "ENG": "Positions"
+  },
+  "ui_positioning": {
+    "FI": "Sijoitus",
+    "ENG": "Positioning"
   },
   "ui_levels": {
     "FI": "Tasot",

@@ -5,7 +5,6 @@ import {
   CodeAssignmentDatabase,
   CourseData,
   ModuleData,
-  pathStack,
   SetData,
 } from "../types";
 
@@ -81,11 +80,7 @@ export const ActiveObjectProvider = ({ children }: { children: any }) => {
     useState<number>(null);
   const [tempAssignment, setTempAssignment] =
     useState<CodeAssignmentData>(undefined);
-  //const [previousRoute, setPreviousRoute] = useState<string>(null);
-  const [pathStack, setPathStack] = useState<pathStack>({
-    previousPath: "/",
-    currentPath: "/",
-  });
+  const [previousPath, setPreviousPath] = useState<string>(undefined);
 
   function handleActiveCourse(value: CourseData) {
     setActiveCourse(value);
@@ -119,11 +114,8 @@ export const ActiveObjectProvider = ({ children }: { children: any }) => {
   function handleTempAssignment(value: CodeAssignmentData) {
     setTempAssignment(value);
   }
-  function handlePathStackNewPath(newPath: string) {
-    setPathStack((prevState) => ({
-      previousPath: prevState.currentPath,
-      currentPath: newPath,
-    }));
+  function handlePreviousPath(value: string) {
+    setPreviousPath(value);
   }
 
   return (
@@ -148,8 +140,8 @@ export const ActiveObjectProvider = ({ children }: { children: any }) => {
           handleGenericModuleAssignmentCount,
           tempAssignment,
           handleTempAssignment,
-          previousPath: pathStack.previousPath,
-          handlePathStackNewPath,
+          previousPath,
+          handlePreviousPath,
         }}
       >
         {children}

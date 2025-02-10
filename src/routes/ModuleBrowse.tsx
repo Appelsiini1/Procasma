@@ -1,13 +1,5 @@
 import { useNavigate } from "react-router";
-import {
-  Box,
-  Grid,
-  List,
-  ListItem,
-  ListSubheader,
-  Stack,
-  Typography,
-} from "@mui/joy";
+import { Stack } from "@mui/joy";
 import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import {
@@ -22,11 +14,14 @@ import {
   generateFilterList,
   handleUpdateUniqueTags,
   setSelectedViaChecked,
+  wrapWithCheck,
 } from "../rendererHelpers/browseHelpers";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { parseUICode } from "../rendererHelpers/translation";
 import { ActiveObjectContext, UIContext } from "../components/Context";
 import HelpText from "../components/HelpText";
+import Browser from "../components/Browser";
+import SpecialButton from "../components/SpecialButton";
 
 export interface ModuleWithCheck extends WithCheckWrapper {
   value: ModuleDatabase;
@@ -49,52 +44,30 @@ export default function ModuleBrowse() {
   const [selectedModules, setSelectedModules] = useState<Array<ModuleData>>([]);
   const [navigateToModule, setNavigateToModule] = useState(false);
   const [numSelected, setNumSelected] = useState(0);
-  const [uniqueTags, setUniqueTags] = useState<Array<filterState>>([]);
+  const [uniqueTags, setUniqueTags] = useState<Array<filterState>>(undefined);
+  const resultDependencies = [uniqueTags];
+  const [requestRefreshBrowser, setRequestRefreshBrowser] = useState(true);
 
   const navigate = useNavigate();
   let modules: Array<React.JSX.Element> = null;
   let tags: Array<React.JSX.Element> = null;
 
-  const refreshModules = async () => {
-    try {
-      if (!activePath) {
-        return;
-      }
+  async function getFilteredModules() {
+    const filters = {
+      tags: uniqueTags.filter((t) => t.isChecked).map((f) => f.value),
+    };
 
-      const checkedTags: string[] = [];
-      uniqueTags.forEach((element) => {
-        if (element.isChecked) {
-          checkedTags.push(element.value);
-        }
-      });
+    const moduleResults: ModuleDatabase[] = await handleIPCResult(() =>
+      window.api.getFilteredModulesDB(activePath, filters)
+    );
 
-      const filters = {
-        tags: checkedTags,
-      };
+    // wrap the fetched modules to store checked state
+    const modulesWithCheck = wrapWithCheck(moduleResults) as ModuleWithCheck[];
 
-      let moduleResults: ModuleDatabase[] = [];
+    setCourseModules(modulesWithCheck);
+  }
 
-      moduleResults = await handleIPCResult(() =>
-        window.api.getFilteredModulesDB(activePath, filters)
-      );
-
-      // wrap the fetched modules to store checked state
-      const modulesWithCheck = moduleResults.map((module) => {
-        const ModuleCheck: ModuleWithCheck = {
-          isChecked: false,
-          value: module,
-        };
-
-        return ModuleCheck;
-      });
-
-      setCourseModules(modulesWithCheck);
-    } catch (err) {
-      handleSnackbar({ error: parseUICode(err.message) });
-    }
-  };
-
-  async function updateFilters() {
+  async function getFilters() {
     const tagsResult: TagDatabase[] = await handleIPCResult(() =>
       window.api.getModuleTagsDB(activePath)
     );
@@ -104,11 +77,6 @@ export default function ModuleBrowse() {
 
   // Get the course assignments on page load
   useEffect(() => {
-    if (!activePath) {
-      return;
-    }
-    refreshModules();
-    updateFilters();
     handleHeaderPageName("ui_module_browser");
   }, []);
 
@@ -123,8 +91,7 @@ export default function ModuleBrowse() {
         )
       );
 
-      refreshModules(); // get the remaining modules
-      updateFilters(); // and filters
+      setRequestRefreshBrowser(true); // and filters
     } catch (err) {
       snackbarText = err.message;
       snackbarSeverity = "error";
@@ -138,10 +105,6 @@ export default function ModuleBrowse() {
 
     setNumSelected(numChecked);
   }, [courseModules]);
-
-  useEffect(() => {
-    refreshModules();
-  }, [uniqueTags]);
 
   modules = generateChecklist(
     courseModules,
@@ -174,8 +137,7 @@ export default function ModuleBrowse() {
       );
 
       snackbarText = result;
-      refreshModules(); // get the remaining modules
-      updateFilters(); // and filters
+      setRequestRefreshBrowser(true); // and filters
     } catch (err) {
       snackbarText = err.message;
       snackbarSeverity = "error";
@@ -185,12 +147,12 @@ export default function ModuleBrowse() {
 
   return (
     <>
-      <div className="emptySpace1" />
       <Stack
         direction="row"
         justifyContent="flex-start"
         alignItems="center"
         spacing={2}
+        sx={{ marginTop: "1rem" }}
       >
         <ButtonComp
           buttonType="normal"
@@ -226,76 +188,21 @@ export default function ModuleBrowse() {
         </HelpText>
       </Stack>
 
-      <div className="emptySpace2" />
-      <Grid
-        container
-        spacing={2}
-        direction="row"
-        justifyContent="flex-start"
-        alignItems="stretch"
-        sx={{ minWidth: "100%" }}
-      >
-        <Grid xs={8}>
-          <Stack
-            direction="column"
-            justifyContent="center"
-            alignItems="flex-start"
-            spacing={2}
-          >
-            <Typography level="h3">{parseUICode("assignments")}</Typography>
+      {activePath ? (
+        <Browser
+          results={modules}
+          filters={[{ name: parseUICode("ui_tags"), element: tags }]}
+          getResultsFunc={() => getFilteredModules()}
+          getFiltersFunc={() => getFilters()}
+          resultDependencies={resultDependencies}
+          requestRefreshBrowser={requestRefreshBrowser}
+          setRequestRefreshBrowser={setRequestRefreshBrowser}
+        ></Browser>
+      ) : (
+        ""
+      )}
 
-            <Box
-              height="40rem"
-              maxHeight="50vh"
-              width="100%"
-              sx={{
-                border: "2px solid lightgrey",
-                borderRadius: "0.2rem",
-              }}
-              overflow={"auto"}
-            >
-              <List>{modules}</List>
-            </Box>
-          </Stack>
-        </Grid>
-        <Grid xs={4}>
-          <Stack
-            direction="column"
-            justifyContent="center"
-            alignItems="flex-start"
-            spacing={2}
-          >
-            <Typography level="h3">{parseUICode("ui_filter")}</Typography>
-
-            <Box
-              height="40rem"
-              maxHeight="50vh"
-              width="100%"
-              sx={{
-                border: "2px solid lightgrey",
-                borderRadius: "0.2rem",
-              }}
-              overflow={"auto"}
-            >
-              <List>
-                <ListItem nested>
-                  <ListSubheader>{parseUICode("ui_tags")}</ListSubheader>
-                  <List>{tags}</List>
-                </ListItem>
-              </List>
-            </Box>
-          </Stack>
-        </Grid>
-      </Grid>
-
-      <div className="emptySpace1" />
-      <ButtonComp
-        buttonType="normal"
-        onClick={() => navigate(-1)}
-        ariaLabel={parseUICode("ui_aria_cancel")}
-      >
-        {parseUICode("ui_cancel")}
-      </ButtonComp>
+      <SpecialButton sx={{ marginTop: "1rem" }} buttonType="cancel" />
     </>
   );
 }

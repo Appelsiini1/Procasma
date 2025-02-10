@@ -179,6 +179,7 @@ export interface SetData {
   targetModule: number;
   targetPosition: number;
   replaceExisting: boolean;
+  showLevels: boolean;
 }
 
 export interface ExportSetAssignmentData {
@@ -260,11 +261,6 @@ export interface PDFHtmlInput {
 export interface ImportAssignment {
   originalFolder: string;
   assignmentData: CodeAssignmentData;
-}
-
-export interface pathStack {
-  previousPath: string;
-  currentPath: string;
 }
 
 export interface CodeGradeLogin {

@@ -1,4 +1,15 @@
-import { Checkbox, ListItem, ListItemButton, Typography } from "@mui/joy";
+import {
+  Box,
+  Card,
+  Checkbox,
+  Chip,
+  Divider,
+  ListDivider,
+  ListItem,
+  ListItemButton,
+  Stack,
+  Typography,
+} from "@mui/joy";
 import HistoryIcon from "@mui/icons-material/History";
 import ExpandIcon from "@mui/icons-material/Expand";
 import PendingIcon from "@mui/icons-material/Pending";
@@ -7,7 +18,6 @@ import {
   CodeAssignmentData,
   CodeAssignmentDatabase,
   ModuleData,
-  ModuleDatabase,
   SetAlgoAssignmentData,
   SetAssignmentWithCheck,
   SetVariation,
@@ -98,30 +108,27 @@ export function handleCheckArray(
   singleCheckOnly?: boolean
 ) {
   setter((prevState) => {
-    if (singleCheckOnly) {
-      const newState = prevState.filter((filter) => {
-        if (filter.value === value) {
-          filter.isChecked = check;
-        } else {
-          filter.isChecked = false;
-        }
-        return filter;
-      });
-      return newState;
-    }
+    const newState = [...prevState];
+    const index = newState.findIndex((filter) => filter.value === value);
 
-    const newState = prevState.filter((filter) => {
-      if (filter.value === value) {
-        filter.isChecked = check;
+    if (index !== -1) {
+      if (singleCheckOnly) {
+        newState.forEach((filter) => (filter.isChecked = false));
       }
-      return filter;
-    });
+      newState[index].isChecked = check;
+    }
 
     return newState;
   });
 }
 
-const UsedInBadnessIcon = ({ badness }: { badness: number }) => {
+const UsedInBadnessIcon = ({
+  children,
+  badness,
+}: {
+  children?: React.ReactNode;
+  badness: number;
+}) => {
   let safeBadness = 0;
   if (badness >= 0 && badness <= 1) {
     safeBadness = badness;
@@ -130,13 +137,30 @@ const UsedInBadnessIcon = ({ badness }: { badness: number }) => {
 
   // Convert the badness value to a channel value (0-255)
   const badValue = Math.round(clampedBadness * 255);
-  const color = `rgb(${badValue}, ${255 - badValue}, 0)`;
+  const colorWithOpacity = (opacity: number) =>
+    `rgba(${badValue}, ${255 - badValue}, 0, ${opacity})`;
+  const color = colorWithOpacity(1.0);
+
   return (
-    <HelpText text={parseUICode("help_badness")}>
-      <HistoryIcon style={{ color }}>
-        {/* Your icon content here */}
-      </HistoryIcon>
-    </HelpText>
+    <Chip
+      sx={{
+        backgroundColor: colorWithOpacity(0.2),
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: "4px",
+        }}
+      >
+        {children}
+        <HelpText text={parseUICode("help_badness")}>
+          <HistoryIcon style={{ color }}></HistoryIcon>
+        </HelpText>
+      </Box>
+    </Chip>
   );
 };
 
@@ -237,7 +261,9 @@ export function generateChecklist(
               }
               onDoubleClick={() => handleOpen(item?.value?.id)}
             >
-              {titleOrName}
+              <Typography level="body-md" sx={{ fontWeight: "normal" }}>
+                {titleOrName}
+              </Typography>
               {item.value.isExpanding === "1" ? (
                 <HelpText text={parseUICode("ui_exp_assignment")}>
                   <ExpandIcon />
@@ -259,6 +285,7 @@ export function generateChecklistSetAssignment(
   handleOpenAssignment: () => void,
   handleDeleteAssignment: () => void,
   handleTargetPosition: (position: number) => void,
+  variationElement: () => JSX.Element,
   isPendingModule?: boolean
 ) {
   return items
@@ -315,32 +342,8 @@ export function generateChecklistSetAssignment(
             );
           }
           const item = items[index];
-
-          let title = "";
-          const position = item?.selectedPosition;
           const variation = item?.selectedVariation;
-          const module = item?.selectedModule;
-
           const assignment: SetAlgoAssignmentData = item.value;
-          if (!isPendingModule) {
-            let lectureLetter: string = null;
-            if (module !== -3) {
-              lectureLetter = `${getModuleLetter(
-                currentCourse.moduleType
-              )}${module}`;
-            } else {
-              lectureLetter = "";
-            }
-            title += `${lectureLetter}${parseUICode(
-              "assignment_letter"
-            )}${position} - `;
-          }
-
-          title += assignment?.title;
-
-          title += variation
-            ? ` - ${parseUICode("ui_variation")} ${variation}`
-            : "";
 
           const badness =
             items[index]?.value?.variations?.[variation]?.usedInBadness;
@@ -349,12 +352,32 @@ export function generateChecklistSetAssignment(
             assignment?.previous?.length > 0 || assignment?.next?.length > 0;
 
           return (
-            <ListItem
+            <Box
               key={listIndex}
-              startAction={
-                <Checkbox
-                  checked={item.isChecked}
-                  onChange={() =>
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "start",
+                justifyContent: "center",
+              }}
+            >
+              <ListItem
+                startAction={
+                  isPendingModule ? (
+                    ""
+                  ) : (
+                    <Chip>
+                      <Typography level="title-md">
+                        {`${parseUICode("assignment_letter")}${listIndex}`}
+                      </Typography>
+                    </Chip>
+                  )
+                }
+                sx={{ width: "100%" }}
+              >
+                <ListItemButton
+                  selected={item.isChecked}
+                  onClick={() =>
                     handleCheckArray(
                       item.value,
                       !item.isChecked,
@@ -362,31 +385,71 @@ export function generateChecklistSetAssignment(
                       true
                     )
                   }
-                ></Checkbox>
-              }
-            >
-              <ListItemButton
-                selected={item.isChecked}
-                onClick={() =>
-                  handleCheckArray(item.value, !item.isChecked, setItems, true)
-                }
-              >
-                {title}
-                <UsedInBadnessIcon badness={badness}></UsedInBadnessIcon>
-                {isExpanding ? (
-                  <HelpText text={parseUICode("ui_exp_assignment")}>
-                    <ExpandIcon color={"primary"} />
-                  </HelpText>
-                ) : null}
-                {item.isChecked ? (
-                  <>
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    overflow: "auto",
+                  }}
+                >
+                  <Typography
+                    level="body-md"
+                    sx={{ fontWeight: "normal", marginLeft: "4px" }}
+                  >
+                    {assignment?.title}
+                  </Typography>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    {isExpanding ? (
+                      <HelpText text={parseUICode("ui_exp_assignment")}>
+                        <ExpandIcon color={"primary"} />
+                      </HelpText>
+                    ) : null}
+
+                    <UsedInBadnessIcon badness={badness}>
+                      <HelpText
+                        text={`${parseUICode("ui_variation")} ${variation}`}
+                      >
+                        <Typography level="body-md" sx={{ fontWeight: "bold" }}>
+                          {variation}
+                        </Typography>
+                      </HelpText>
+                    </UsedInBadnessIcon>
+                  </Box>
+                </ListItemButton>
+              </ListItem>
+              {item.isChecked ? (
+                <Card
+                  sx={{
+                    margin: "8px",
+                    marginBottom: "16px",
+                    padding: "8px",
+                    overflow: "auto",
+                    width: "fit-content",
+                    maxWidth: "calc(100% - 36px)",
+                    backgroundColor: "var(--content-background-inner)",
+                    boxShadow: "sm",
+                  }}
+                >
+                  <Stack
+                    gap={1}
+                    direction="row"
+                    sx={{
+                      alignItems: "center",
+                      justifyContent: "start",
+                    }}
+                  >
                     <ButtonComp
                       buttonType="delete"
                       onClick={() => handleDeleteAssignment()}
                       ariaLabel={parseUICode("ui_delete")}
-                    >
-                      {parseUICode("ui_delete")}
-                    </ButtonComp>
+                    />
                     <ButtonComp
                       buttonType="normal"
                       onClick={() => handleOpenAssignment()}
@@ -394,10 +457,42 @@ export function generateChecklistSetAssignment(
                     >
                       {parseUICode("ui_show")}
                     </ButtonComp>
-                  </>
-                ) : null}
-              </ListItemButton>
-            </ListItem>
+                  </Stack>
+                  <Typography level="h4">
+                    {`${parseUICode("ui_positioning")}`}
+                  </Typography>
+                  <Stack gap={1}>
+                    <Stack
+                      gap={1}
+                      direction="row"
+                      sx={{
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginLeft: "8px",
+                      }}
+                    >
+                      <Typography level="body-md">
+                        {`${parseUICode("ui_module")}`}
+                      </Typography>
+                      <Typography level="body-md" sx={{ fontWeight: "bold" }}>
+                        {item.value.module}
+                      </Typography>
+                      <Divider orientation="vertical" />
+                      <Typography level="body-md">
+                        {`${parseUICode("ui_positions")}`}
+                      </Typography>
+                      <Typography level="body-md" sx={{ fontWeight: "bold" }}>
+                        {item.value.position.join(", ")}
+                      </Typography>
+                    </Stack>
+
+                    {variationElement()}
+                  </Stack>
+                </Card>
+              ) : (
+                ""
+              )}
+            </Box>
           );
         })
     : null;
@@ -430,7 +525,9 @@ export function generateChecklistExpandingAssignment(
               onClick={() => moveAssignmentIntoPending(item.value.assignmentID)}
               disabled={!notYetAllocated}
             >
-              {item.value.title}
+              <Typography level="body-md" sx={{ fontWeight: "normal" }}>
+                {item.value.title}
+              </Typography>
               {notYetAllocated ? (
                 <HelpText text={parseUICode("help_expanding_unassigned")}>
                   <PendingIcon
@@ -463,34 +560,50 @@ export function generateChecklistVariation(
   ) => void
 ) {
   return items
-    ? Object.keys(items).map((key) => {
+    ? Object.keys(items).map((key, index, array) => {
         const usedIn = items[key]?.usedIn.join(", ");
         const badness = items[key]?.usedInBadness;
         return (
-          <ListItem key={key}>
-            <ListItemButton
-              selected={false}
-              onClick={() =>
-                handleSetAssignmentAttribute(
-                  assignmentId,
-                  ["selectedVariation"],
-                  [key]
-                )
-              }
-            >
-              {key}
-              {usedIn ? (
-                <Typography sx={{ opacity: "0.5" }} level="body-md">
-                  {` - ${usedIn}`}
-                </Typography>
-              ) : (
-                ""
-              )}
-              {badness ? (
-                <UsedInBadnessIcon badness={badness}></UsedInBadnessIcon>
-              ) : null}
-            </ListItemButton>
-          </ListItem>
+          <div key={key}>
+            <ListItem>
+              <ListItemButton
+                selected={false}
+                onClick={() =>
+                  handleSetAssignmentAttribute(
+                    assignmentId,
+                    ["selectedVariation"],
+                    [key]
+                  )
+                }
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    width: "100%",
+                  }}
+                >
+                  {badness ? (
+                    <UsedInBadnessIcon badness={badness}>
+                      <HelpText text={`${parseUICode("ui_variation")} ${key}`}>
+                        <Typography level="body-md" sx={{ fontWeight: "bold" }}>
+                          {key}
+                        </Typography>
+                      </HelpText>
+                    </UsedInBadnessIcon>
+                  ) : null}
+                  {usedIn ? (
+                    <Typography sx={{ opacity: "0.5" }} level="body-md">
+                      {usedIn}
+                    </Typography>
+                  ) : (
+                    ""
+                  )}
+                </Box>
+              </ListItemButton>
+            </ListItem>
+            {index < array.length - 1 && <ListDivider />}
+          </div>
         );
       })
     : null;
@@ -576,9 +689,11 @@ export function generateFilterList(
                 handleCheckArray(unique.value, !unique.isChecked, setUniques)
               }
             >
-              {parseUICodes
-                ? parseUICode(`ui_${String(unique.value)}`)
-                : String(unique.value)}
+              <Typography level="body-md" sx={{ fontWeight: "normal" }}>
+                {parseUICodes
+                  ? parseUICode(`ui_${String(unique.value)}`)
+                  : String(unique.value)}
+              </Typography>
             </ListItemButton>
           </ListItem>
         );

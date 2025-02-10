@@ -2,6 +2,7 @@ import { useLoaderData, useNavigate } from "react-router";
 import { dividerSX, DEVMODE } from "../constantsUI";
 import {
   Box,
+  Chip,
   Divider,
   Grid,
   List,
@@ -55,6 +56,16 @@ interface LegalMove {
   position: number;
 }
 
+function findHighestPending(assignments: SetAssignmentWithCheck[]) {
+  return assignments.reduce((highest, a) => {
+    if (a.selectedModule === -2 && a.selectedPosition > highest) {
+      return a.selectedPosition;
+    } else {
+      return highest;
+    }
+  }, 0);
+}
+
 export default function SetCreator() {
   const {
     activePath,
@@ -68,6 +79,8 @@ export default function SetCreator() {
     handleSelectAssignment,
     genericModuleAssignmentCount,
     handleGenericModuleAssignmentCount,
+    previousPath,
+    handlePreviousPath,
   }: {
     activePath: string;
     activeSet: SetData;
@@ -81,6 +94,8 @@ export default function SetCreator() {
     handleSelectAssignment: (value: boolean) => void;
     genericModuleAssignmentCount: number;
     handleGenericModuleAssignmentCount: (value: number) => void;
+    previousPath: string;
+    handlePreviousPath: (value: string) => void;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [set, handleSet] = useSet(activeSet ?? deepCopy(defaultSet));
@@ -156,7 +171,7 @@ export default function SetCreator() {
 
       const pendingAssignmentModule: ModuleData = {
         id: -2,
-        name: parseUICode("ui_pending_assignments"),
+        name: parseUICode("ui_pending"),
         letters: false,
         assignments: 1,
         subjects: null,
@@ -297,24 +312,17 @@ export default function SetCreator() {
   }
 
   variations = (
-    <Stack
-      direction="column"
-      justifyContent="center"
-      alignItems="flex-start"
-      spacing={2}
-    >
-      <Box minHeight="4rem" width="100%">
-        <List>
-          {assignmentVariations
-            ? generateChecklistVariation(
-                assignmentVariations,
-                selectedAssignments[0]?.assignmentID,
-                handleSetAssignmentAttribute
-              )
-            : null}
-        </List>
-      </Box>
-    </Stack>
+    <Box width="100%">
+      <List>
+        {assignmentVariations
+          ? generateChecklistVariation(
+              assignmentVariations,
+              selectedAssignments[0]?.assignmentID,
+              handleSetAssignmentAttribute
+            )
+          : null}
+      </List>
+    </Box>
   );
 
   function getPrevOrNextAssignments(isPrev: boolean): SetAssignmentWithCheck[] {
@@ -348,7 +356,7 @@ export default function SetCreator() {
           minHeight="1rem"
           width="100%"
           sx={{
-            border: "2px solid lightgrey",
+            border: "1px solid lightgrey",
             borderRadius: "0.5rem",
           }}
         >
@@ -373,8 +381,10 @@ export default function SetCreator() {
    * desired modules/positions. In occupied cases put in the pending module.
    */
   function handleInsertActiveAssignments() {
-    setAllAssignments((prevAssignments) => {
-      let newAssignments: SetAssignmentWithCheck[] = deepCopy(prevAssignments);
+    const assignmentsInSetModule = allModules.find((m) => m.id === set.module);
+
+    setAllAssignments(() => {
+      let newAssignments: SetAssignmentWithCheck[] = deepCopy(allAssignments);
 
       if (activeAssignments.length === 1) {
         const assignmentToUpdate = newAssignments.find(
@@ -384,33 +394,40 @@ export default function SetCreator() {
 
         assignmentToUpdate.selectedModule = set.targetModule;
         assignmentToUpdate.selectedPosition = set.targetPosition;
-      } else {
-        let nextPosition = 1;
-        activeAssignments.map((active) => {
-          // Check for a conflicting assignment
-          const activePosition = parseInt(
-            active.position.length > 0 ? active.position[0] : "1"
-          );
-          const conflictingAssignment = allAssignments.findIndex(
-            (newAssignment) =>
-              newAssignment.selectedModule === active.module &&
-              newAssignment.selectedPosition === activePosition
-          );
 
-          // Update the assignment to be inserted
-          const assignmentToUpdate = newAssignments.find(
-            (newAssignment) => newAssignment.value.assignmentID === active.id
-          );
-          if (conflictingAssignment > -1) {
-            assignmentToUpdate.selectedModule = -2;
-            assignmentToUpdate.selectedPosition = nextPosition;
-            nextPosition++;
-          } else {
-            assignmentToUpdate.selectedModule = active.module;
-            assignmentToUpdate.selectedPosition = activePosition;
-          }
-        });
+        return newAssignments;
       }
+
+      let nextPosition = findHighestPending(allAssignments) + 1;
+      activeAssignments.map((active) => {
+        // Check for a conflicting assignment
+        const activePosition = parseInt(
+          active.position.length > 0 ? active.position[0] : "1"
+        );
+        const activeModule = set.fullCourse ? active.module : set.module;
+        const conflictingAssignment = newAssignments.findIndex(
+          (a) =>
+            a.selectedModule === activeModule &&
+            a.selectedPosition === activePosition
+        );
+
+        // Update the assignment to be inserted
+        const assignmentToUpdate = newAssignments.find(
+          (newAssignment) => newAssignment.value.assignmentID === active.id
+        );
+
+        if (
+          conflictingAssignment > -1 ||
+          activePosition > assignmentsInSetModule?.assignments
+        ) {
+          assignmentToUpdate.selectedModule = -2;
+          assignmentToUpdate.selectedPosition = nextPosition;
+          nextPosition++;
+        } else {
+          assignmentToUpdate.selectedModule = activeModule;
+          assignmentToUpdate.selectedPosition = activePosition;
+        }
+      });
 
       return newAssignments;
     });
@@ -425,12 +442,6 @@ export default function SetCreator() {
     getModules();
     handleHeaderPageName("ui_create_new_set");
 
-    if (activeAssignments) {
-      handleInsertActiveAssignments();
-      handleSet("targetModule", null);
-      handleSet("targetPosition", null);
-      handleActiveAssignments(undefined);
-    }
     // else if (activeAssignments && setFromBrowse) {
     //   const newSet = set;
     //   for (const tempAssignment of activeAssignments) {
@@ -447,6 +458,17 @@ export default function SetCreator() {
     //   handleActiveAssignments(null);
     // }
   }, []);
+
+  useEffect(() => {
+    if (allModules.length > 0) {
+      if (activeAssignments) {
+        handleInsertActiveAssignments();
+        handleSet("targetModule", null);
+        handleSet("targetPosition", null);
+        handleActiveAssignments(undefined);
+      }
+    }
+  }, [allModules]);
 
   // Update the selected assignments counter
   useEffect(() => {
@@ -545,11 +567,15 @@ export default function SetCreator() {
 
   // Navigates to the assignment browse page by listening to activeAssignments
   useEffect(() => {
-    if (activeAssignments && navigateToBrowse) {
+    if (
+      activeAssignments &&
+      previousPath === "/setCreator" &&
+      navigateToBrowse
+    ) {
       setNavigateToBrowse(false);
       navigate("/AssignmentBrowse");
     }
-  }, [activeAssignments, navigateToBrowse]);
+  }, [activeAssignments, previousPath, navigateToBrowse]);
 
   // checks if target module and position are set before priming
   // activeAssignments for navigation to the browse page
@@ -562,6 +588,7 @@ export default function SetCreator() {
       ) {
         handleActiveSet(set);
         handleActiveAssignments([]);
+        handlePreviousPath("/setCreator");
       }
     } catch (err) {
       handleSnackbar({ error: parseUICode(err.message) });
@@ -597,6 +624,36 @@ export default function SetCreator() {
       setNavigateToBrowse(true);
     }
 
+    const variationWindow = () => {
+      if (!showVarations) {
+        return <></>;
+      }
+      return (
+        <>
+          {selectedAssignments[0]?.previous?.length > 0 ? (
+            <>
+              <Typography level="h4">
+                {`${parseUICode("ui_prev_part")}`}
+              </Typography>
+              {prevOrNextAssignmentsWindow(true)}
+            </>
+          ) : null}
+          <Typography level="h4">
+            {`${parseUICode("ui_variations")}`}
+          </Typography>
+          {variations}
+          {selectedAssignments[0]?.next?.length > 0 ? (
+            <>
+              <Typography level="h4">
+                {`${parseUICode("ui_next_part")}`}
+              </Typography>
+              {prevOrNextAssignmentsWindow(false)}
+            </>
+          ) : null}
+        </>
+      );
+    };
+
     assignments = generateChecklistSetAssignment(
       allAssignments.filter((a) => a.selectedModule === moduleId),
       setAllAssignments,
@@ -606,73 +663,35 @@ export default function SetCreator() {
       handleOpenAssignment,
       handleDeleteAssignment,
       handleTargetPosition,
+      variationWindow,
       moduleId === -2 ? true : false
     );
 
     return (
-      <div key={moduleId}>
+      <Box key={moduleId} sx={{ marginRight: "8px" }}>
         <Typography level="h4">{moduleName}</Typography>
-        <Tooltip
-          variant="outlined"
-          open={showVarations}
-          placement="bottom"
-          title={
-            <>
-              <Box
-                sx={{
-                  paddingLeft: "4px",
-                  paddingRight: "8px",
-                  minWidth: "300px",
-                }}
-              >
-                {selectedAssignments[0]?.previous?.length > 0 ? (
-                  <>
-                    <Typography level="h4">
-                      {`${parseUICode("ui_prev_part")}`}
-                    </Typography>
-                    {prevOrNextAssignmentsWindow(true)}
-                    <div className="emptySpace1" />
-                  </>
-                ) : null}
-                <Typography level="h4">
-                  {`${parseUICode("ui_variations")}`}
-                </Typography>
-                {variations}
-                <div className="emptySpace1" />
-                {selectedAssignments[0]?.next?.length > 0 ? (
-                  <>
-                    <Typography level="h4">
-                      {`${parseUICode("ui_next_part")}`}
-                    </Typography>
-                    {prevOrNextAssignmentsWindow(false)}
-                  </>
-                ) : null}
-              </Box>
-            </>
-          }
+        <Box
+          minHeight="4rem"
+          width="100%"
+          sx={{
+            border: "1px solid lightgrey",
+            borderRadius: "0.5rem",
+            backgroundColor: "var(--background)",
+            boxShadow: "sm",
+          }}
         >
-          <Box
-            minHeight="4rem"
-            width="100%"
+          <List
             sx={{
-              border: "2px solid lightgrey",
-              borderRadius: "0.5rem",
-              backgroundColor: "var(--background)",
+              "--ListItem-minHeight": "3rem",
+              overflow: "auto",
             }}
           >
-            <List
-              sx={{
-                "--ListItem-minHeight": "3rem",
-                overflow: "auto",
-              }}
-            >
-              {assignments}
-            </List>
-          </Box>
-        </Tooltip>
+            {assignments}
+          </List>
+        </Box>
 
         <div className="emptySpace1" />
-      </div>
+      </Box>
     );
   }
 
@@ -698,31 +717,48 @@ export default function SetCreator() {
     const anyPending = allAssignments.some((a) => a.selectedModule === -2);
     return (
       <>
-        <Grid xs={anyPending ? 6 : 10}>
-          <Box
+        <Grid xs={anyPending ? 6 : 9}>
+          <Stack
+            height="40rem"
+            maxHeight="60vh"
             width="100%"
             sx={{
-              maxHeight: "60vh",
-              overflowX: "hidden",
+              paddingLeft: "8px",
+              border: "1px solid lightgrey",
+              borderRadius: "0.5rem",
               backgroundColor: "var(--content-background)",
-              padding: "8px",
-              border: "2px solid var(--border-color)",
-            }}
-          >
-            <List>{allToDisplay.slice(1)}</List>
-          </Box>
-        </Grid>
-        <Grid xs={anyPending ? 6 : 2}>
-          <Box
-            sx={{
-              marginLeft: "12px",
-              maxHeight: "60vh",
               overflowX: "hidden",
-              padding: "8px",
             }}
+            direction="column"
+            justifyContent="start"
+            alignItems="start"
           >
-            {allToDisplay.slice(0, 1)}
-          </Box>
+            <List sx={{ width: "calc(100% - 8px)", overflowY: "scroll" }}>
+              {allToDisplay.slice(1)}
+            </List>
+          </Stack>
+        </Grid>
+        <Grid xs={anyPending ? 6 : 3}>
+          <Stack
+            height="40rem"
+            maxHeight="60vh"
+            width="100%"
+            sx={{
+              marginLeft: "8px",
+              paddingLeft: "8px",
+              border: "1px solid lightgrey",
+              borderRadius: "0.5rem",
+              backgroundColor: "var(--content-background)",
+              overflowX: "hidden",
+            }}
+            direction="column"
+            justifyContent="start"
+            alignItems="start"
+          >
+            <List sx={{ width: "calc(100% - 8px)", overflowY: "scroll" }}>
+              {allToDisplay.slice(0, 1)}
+            </List>
+          </Stack>
         </Grid>
       </>
     );
@@ -755,15 +791,23 @@ export default function SetCreator() {
       const assignment = a.value;
       const variation = a.selectedVariation;
 
-      let title = assignment.title;
-      title += variation
-        ? ` - ${parseUICode("ui_variation")} ${variation}`
-        : "";
-
       return (
         <tr key={assignment.assignmentID}>
-          <td style={{ width: "25%" }}>
-            <Typography level="h4">{title}</Typography>
+          <td style={{ width: "40%" }}>
+            <Stack
+              direction="row"
+              gap={2}
+              sx={{ justifyContent: "space-between", alignItems: "center" }}
+            >
+              <Typography level="body-md">{assignment.title}</Typography>
+              <Chip>
+                <HelpText text={`${parseUICode("ui_variation")} ${variation}`}>
+                  <Typography level="body-md" sx={{ fontWeight: "bold" }}>
+                    {variation}
+                  </Typography>
+                </HelpText>
+              </Chip>
+            </Stack>
           </td>
           <td>
             <InputField
@@ -1042,6 +1086,24 @@ export default function SetCreator() {
                   />
                 </td>
               </tr>
+
+              <tr key="asShowLevels">
+                <td style={{ width: "25%" }}>
+                  <Typography level="h4">
+                    {parseUICode("ui_show_levels")}
+                  </Typography>
+                </td>
+                <td>
+                  <SwitchComp
+                    checked={
+                      set?.showLevels === undefined ? false : set?.showLevels
+                    }
+                    setChecked={(value: boolean) =>
+                      handleSet("showLevels", value)
+                    }
+                  />
+                </td>
+              </tr>
             </tbody>
           </Table>
         </>
@@ -1096,7 +1158,6 @@ export default function SetCreator() {
           </Typography>
           {set.exportCGConfigs ? (
             <>
-              {" "}
               <div className="emptySpace1" />
               <Typography level="h4">
                 {`${parseUICode("ui_module")} ${ForceToString(

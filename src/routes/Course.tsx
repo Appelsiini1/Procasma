@@ -28,6 +28,7 @@ import { parseUICode } from "../rendererHelpers/translation";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
 import { deepCopy } from "../rendererHelpers/utilityRenderer";
+import SpecialButton from "../components/SpecialButton";
 
 export default function Course() {
   const {
@@ -438,13 +439,7 @@ export default function Course() {
           >
             {parseUICode("ui_save")}
           </ButtonComp>
-          <ButtonComp
-            buttonType="normal"
-            onClick={() => navigate(-1)}
-            ariaLabel={parseUICode("ui_aria_cancel")}
-          >
-            {parseUICode("ui_cancel")}
-          </ButtonComp>
+          <SpecialButton buttonType="cancel" />
           {DEVMODE ? (
             <ButtonComp
               buttonType="debug"

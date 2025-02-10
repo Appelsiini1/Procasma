@@ -258,7 +258,7 @@ export async function exportSetFS(
           solutionHtml += `<h1>${mainHeader} ${parseUICodeMain(
             "answers"
           ).toUpperCase()}</h1>`;
-
+          
           // Starting instructions
           const startingInstructions = generateStart(
             module.subjects,
@@ -267,6 +267,17 @@ export async function exportSetFS(
           html += startingInstructions;
           solutionHtml += startingInstructions;
 
+        // Table of contents
+        if (setInput.assignments.length > 1) {
+          const toc = generateToC(
+            coursedata,
+            moduleAssignments,
+            setInput.showLevels
+          );
+          html += toc;
+          solutionHtml += toc;
+        }
+          
           // Module string for PDF footer
           const modulePadding =
             coursedata.modules > 9
@@ -288,10 +299,32 @@ export async function exportSetFS(
               break;
           }
 
-          // Table of contents
-          const toc = generateToC(coursedata, moduleAssignments);
-          html += toc;
-          solutionHtml += toc;
+        // loop through assignments
+        moduleAssignments.sort(
+          (a, b) => a.selectedPosition - b.selectedPosition
+        );
+        moduleAssignments.forEach((assignment, index) => {
+          // Assignments
+          const meta = { assignmentIndex: index, courseData: coursedata };
+          html += generateBlock(
+            meta,
+            assignment,
+            assignment.variation,
+            assignment.variatioId,
+            coursedata.modules,
+            false,
+            false,
+            setInput.showLevels
+          );
+          solutionHtml += generateBlock(
+            meta,
+            assignment,
+            assignment.variation,
+            assignment.variatioId,
+            coursedata.modules,
+            true,
+            false,
+            setInput.showLevels
 
           // loop through assignments
           moduleAssignments.sort(
@@ -848,7 +881,7 @@ function formatTitle(
   meta: AssignmentInput,
   assignment: CodeAssignmentSelectionData,
   numberOfModules: number,
-  toc = false
+  toc: boolean = false
 ) {
   let title = ``;
   let moduleString = assignment.selectedModule.toString();
@@ -950,7 +983,8 @@ function generateBlock(
   variationID: string,
   numberOfModules: number,
   includeAnswer: boolean,
-  isProject: boolean = false
+  isProject: boolean = false,
+  showLevels: boolean = true
 ): string {
   let block = `<div>
     `;
@@ -963,7 +997,7 @@ function generateBlock(
     block += `${title}`;
 
     // Assignment level
-    if (assignment.level != null) {
+    if (assignment.level != null && showLevels) {
       block += `<i>${parseUICodeMain("ui_assignment_level")}: ${
         meta.courseData.levels[assignment.level].fullName
       }</i>`;
@@ -1077,7 +1111,8 @@ function generateExampleRun(
  */
 function generateToC(
   courseData: CourseData,
-  assignments: CodeAssignmentSelectionData[]
+  assignments: CodeAssignmentSelectionData[],
+  showLevels: boolean = true
 ): string {
   let hasExtraCredit = false;
   try {
@@ -1092,7 +1127,7 @@ function generateToC(
         },
         assignment,
         courseData.modules,
-        true
+        showLevels
       )}`;
       block += `</a></h3>`;
       if (assignment.extraCredit) hasExtraCredit = true;
