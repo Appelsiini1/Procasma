@@ -191,50 +191,53 @@ export async function exportSetFS(
       } else {
         resolve(papercolorlight);
       }
-    }).then(async (css) => {
-      // get all course modules
-      const selectedModules = setInput.assignments.map((a) => a.selectedModule);
-      const uniqueModules = [...new Set(selectedModules)];
+    })
+      .then(async (css) => {
+        // get all course modules
+        const selectedModules = setInput.assignments.map(
+          (a) => a.selectedModule
+        );
+        const uniqueModules = [...new Set(selectedModules)];
 
-      const modulesResult = await createMainFunctionHandler(() =>
-        getModulesDB(coursePath.path, uniqueModules)
-      );
-      if (modulesResult.errorMessage) {
-        throw new Error(modulesResult.errorMessage);
-      }
-      const modules: ModuleData[] = modulesResult.content;
+        const modulesResult = await createMainFunctionHandler(() =>
+          getModulesDB(coursePath.path, uniqueModules)
+        );
+        if (modulesResult.errorMessage) {
+          throw new Error(modulesResult.errorMessage);
+        }
+        const modules: ModuleData[] = modulesResult.content;
 
-      // convert assignments to full
-      const fullAssignments = assignmentToFullData(setInput.assignments);
+        // convert assignments to full
+        const fullAssignments = assignmentToFullData(setInput.assignments);
 
-      if (fullAssignments[0].selectedModule === -3) {
-        modules.push({
-          ...genericModule,
-          name: parseUICodeMain("assignments"),
-        });
-      }
+        if (fullAssignments[0].selectedModule === -3) {
+          modules.push({
+            ...genericModule,
+            name: parseUICodeMain("assignments"),
+          });
+        }
 
-      // loop through modules
-      await Promise.all(
-        modules.map(async (module) => {
-          // get assignments where selectedModule is correct
-          const moduleAssignments = fullAssignments
-            .filter((a) => a.selectedModule === module.id)
-            .sort((a, b) => sortAssignments(a, b));
+        // loop through modules
+        await Promise.all(
+          modules.map(async (module) => {
+            // get assignments where selectedModule is correct
+            const moduleAssignments = fullAssignments
+              .filter((a) => a.selectedModule === module.id)
+              .sort((a, b) => sortAssignments(a, b));
 
-          let moduleString = "";
+            let moduleString = "";
 
-          const mainHeader =
-            convertedSet?.visibleHeader === "" || !convertedSet?.visibleHeader
-              ? formatMainHeader(
-                  module.id,
-                  coursedata.moduleType,
-                  coursedata.modules
-                )
-              : convertedSet.visibleHeader;
+            const mainHeader =
+              convertedSet?.visibleHeader === "" || !convertedSet?.visibleHeader
+                ? formatMainHeader(
+                    module.id,
+                    coursedata.moduleType,
+                    coursedata.modules
+                  )
+                : convertedSet.visibleHeader;
 
-          // HTML Base
-          let html = `<!DOCTYPE html>
+            // HTML Base
+            let html = `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -243,7 +246,7 @@ export async function exportSetFS(
     <style>${css}</style>
   </head>
   <body>`;
-          let solutionHtml = `<!DOCTYPE html>
+            let solutionHtml = `<!DOCTYPE html>
 <html>
   <head>
     <meta http-equiv="Content-Security-Policy" content="script-src 'none'" />
@@ -253,111 +256,113 @@ export async function exportSetFS(
   </head>
   <body>`;
 
-          // Main page header
-          html += `<h1>${mainHeader}</h1>`;
-          solutionHtml += `<h1>${mainHeader} ${parseUICodeMain(
-            "answers"
-          ).toUpperCase()}</h1>`;
+            // Main page header
+            html += `<h1>${mainHeader}</h1>`;
+            solutionHtml += `<h1>${mainHeader} ${parseUICodeMain(
+              "answers"
+            ).toUpperCase()}</h1>`;
 
-          // Starting instructions
-          const startingInstructions = generateStart(
-            module.subjects,
-            module.instructions
-          );
-          html += startingInstructions;
-          solutionHtml += startingInstructions;
-
-          // Module string for PDF footer
-          const modulePadding =
-            coursedata.modules > 9
-              ? module.id.toString().padStart(2, "0")
-              : module.id.toString();
-          switch (coursedata.moduleType) {
-            case "lecture":
-              moduleString +=
-                parseUICodeMain("ui_lecture") + ` ${modulePadding}`;
-              break;
-            case "module":
-              moduleString +=
-                parseUICodeMain("ui_module") + ` ${modulePadding}`;
-              break;
-            case "week":
-              moduleString += parseUICodeMain("ui_week") + ` ${modulePadding}`;
-              break;
-            default:
-              break;
-          }
-
-          // Table of contents
-          const toc = generateToC(coursedata, moduleAssignments);
-          html += toc;
-          solutionHtml += toc;
-
-          // loop through assignments
-          moduleAssignments.sort(
-            (a, b) => a.selectedPosition - b.selectedPosition
-          );
-          moduleAssignments.forEach((assignment, index) => {
-            // Assignments
-            const meta = { assignmentIndex: index, courseData: coursedata };
-            html += generateBlock(
-              meta,
-              assignment,
-              assignment.variation,
-              assignment.variatioId,
-              coursedata.modules,
-              false
+            // Starting instructions
+            const startingInstructions = generateStart(
+              module.subjects,
+              module.instructions
             );
-            solutionHtml += generateBlock(
-              meta,
-              assignment,
-              assignment.variation,
-              assignment.variatioId,
-              coursedata.modules,
-              true
-            );
-          });
+            html += startingInstructions;
+            solutionHtml += startingInstructions;
 
-          // End body
-          html += `</body>
+            // Module string for PDF footer
+            const modulePadding =
+              coursedata.modules > 9
+                ? module.id.toString().padStart(2, "0")
+                : module.id.toString();
+            switch (coursedata.moduleType) {
+              case "lecture":
+                moduleString +=
+                  parseUICodeMain("ui_lecture") + ` ${modulePadding}`;
+                break;
+              case "module":
+                moduleString +=
+                  parseUICodeMain("ui_module") + ` ${modulePadding}`;
+                break;
+              case "week":
+                moduleString +=
+                  parseUICodeMain("ui_week") + ` ${modulePadding}`;
+                break;
+              default:
+                break;
+            }
+
+            // Table of contents
+            const toc = generateToC(coursedata, moduleAssignments);
+            html += toc;
+            solutionHtml += toc;
+
+            // loop through assignments
+            moduleAssignments.sort(
+              (a, b) => a.selectedPosition - b.selectedPosition
+            );
+            moduleAssignments.forEach((assignment, index) => {
+              // Assignments
+              const meta = { assignmentIndex: index, courseData: coursedata };
+              html += generateBlock(
+                meta,
+                assignment,
+                assignment.variation,
+                assignment.variatioId,
+                coursedata.modules,
+                false
+              );
+              solutionHtml += generateBlock(
+                meta,
+                assignment,
+                assignment.variation,
+                assignment.variatioId,
+                coursedata.modules,
+                true
+              );
+            });
+
+            // End body
+            html += `</body>
 </html>`;
-          solutionHtml += `</body>
+            solutionHtml += `</body>
 </html>`;
-          log.info("HTML created.");
+            log.info("HTML created.");
 
-          const inlineHTML = juice(html);
-          const inlineSolutionHTML = juice(solutionHtml);
+            const inlineHTML = juice(html);
+            const inlineSolutionHTML = juice(solutionHtml);
 
-          await saveSetModuleFS(
-            inlineHTML,
-            inlineSolutionHTML,
-            mainHeader,
-            convertedSet.format,
-            coursedata,
-            savePath,
-            convertedSet.replaceExisting,
-            moduleString
-          );
-          const filename = mainHeader.replace(" ", "");
-
-          const filesPath = path.join(savePath, filename);
-          copyExportFilesFS(moduleAssignments, filesPath);
-
-          convertedSet.assignmentArray.forEach((setAssignment) => {
-            const filePath = path.join(
-              coursePath.path,
-              setAssignment.folder,
-              setAssignment.assignmentID + ".json"
+            await saveSetModuleFS(
+              inlineHTML,
+              inlineSolutionHTML,
+              mainHeader,
+              convertedSet.format,
+              coursedata,
+              savePath,
+              convertedSet.replaceExisting,
+              moduleString
             );
-            setUsedIn(
-              filePath,
-              setAssignment.variatioId,
-              `${convertedSet.year}/${convertedSet.period}`
-            );
-          });
-        })
-      );
-    });
+            const filename = mainHeader.replace(" ", "");
+
+            const filesPath = path.join(savePath, filename);
+            copyExportFilesFS(moduleAssignments, filesPath);
+
+            convertedSet.assignmentArray.forEach((setAssignment) => {
+              const filePath = path.join(
+                coursePath.path,
+                setAssignment.folder,
+                setAssignment.assignmentID + ".json"
+              );
+              setUsedIn(
+                filePath,
+                setAssignment.variatioId,
+                `${convertedSet.year}/${convertedSet.period}`
+              );
+            });
+          })
+        );
+      })
+      .catch((err) => {});
   } catch (err) {
     log.error("Error in exportSetFS():", err.message);
     let newErr = "";
