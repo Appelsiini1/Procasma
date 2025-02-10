@@ -48,7 +48,6 @@ const smallWarning = {
   "&:hover": { backgroundColor: "#f7283d", color: "#ffffff" },
   padding: "0.1em 1.2em",
   fontSize: "1em",
-  minWidth: "0px",
   boxShadow: buttonShadow,
   //height: "100%",
 } as const;

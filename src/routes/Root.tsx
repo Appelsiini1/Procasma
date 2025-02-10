@@ -60,7 +60,7 @@ export default function Root() {
   const [version, setVersion] = useState("");
   const [recentCourses, setRecentCourses] = useState<RecentCourse[]>([]);
 
-  const refreshAssignmentsInIndex = async () => {
+  async function refreshAssignmentsInIndex() {
     try {
       const count = await handleIPCResult(() =>
         window.api.getAssignmentCountDB(activePath)
@@ -70,9 +70,9 @@ export default function Root() {
     } catch (err) {
       handleSnackbar({ error: parseUICode(err.message) });
     }
-  };
+  }
 
-  const getRecentCourses = async () => {
+  async function getRecentCourses() {
     try {
       const recentCourses = await handleIPCResult(() =>
         window.api.getRecentCoursesFS()
@@ -81,29 +81,31 @@ export default function Root() {
     } catch (err) {
       handleSnackbar({ error: parseUICode(err.message) });
     }
-  };
+  }
 
-  useEffect(() => {
-    //refreshTitle();
-    handleHeaderPageName("ui_main");
-    handleHeaderCourseID(activeCourse?.id);
-    handleHeaderCourseTitle(activeCourse?.title);
-  }, []);
-
-  useEffect(() => {
-    async function getVersion() {
+  async function getVersion() {
+    try {
       const versionTemp = await handleIPCResult(() =>
         window.api.getAppVersion()
       );
       setVersion(versionTemp);
+    } catch (err) {
+      handleSnackbar({ error: parseUICode(err.message) });
     }
+  }
+
+  useEffect(() => {
+    handleHeaderPageName("ui_main");
     getVersion();
     getRecentCourses();
   }, []);
+
   // update the assignments in index count
   useEffect(() => {
     if (activePath) {
       refreshAssignmentsInIndex();
+      handleHeaderCourseID(activeCourse?.id);
+      handleHeaderCourseTitle(activeCourse?.title);
     }
   }, [activePath]);
 
@@ -192,14 +194,10 @@ export default function Root() {
   }
 
   function checkModuleDisabled() {
-    if (activeCourse) {
-      if (activeCourse !== null && activeCourse.moduleType !== null) {
-        return false;
-      }
-      return true;
-    } else {
-      return true;
+    if (activeCourse !== null && activeCourse.moduleType !== null) {
+      return false;
     }
+    return true;
   }
 
   return (

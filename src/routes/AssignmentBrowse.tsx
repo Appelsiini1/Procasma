@@ -1,14 +1,5 @@
 import { useNavigate } from "react-router";
-import {
-  Box,
-  Grid,
-  List,
-  ListSubheader,
-  ListItem,
-  Stack,
-  Typography,
-  CircularProgress,
-} from "@mui/joy";
+import { Stack } from "@mui/joy";
 import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
 import SearchBar from "../components/SearchBar";
@@ -35,6 +26,8 @@ import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
 import HelpText from "../components/HelpText";
 import { DEVMODE } from "../constantsUI";
+import Browser from "../components/Browser";
+import SpecialButton from "../components/SpecialButton";
 
 export default function AssignmentBrowse() {
   const {
@@ -67,13 +60,15 @@ export default function AssignmentBrowse() {
   const [allSelected, setAllSelected] = useState(false);
   const [navigateToAssignment, setNavigateToAssignment] = useState(false);
   const [navigateBack, setNavigateBack] = useState(false);
-  const [waitingForAssignments, setWaitingForAssignments] = useState(false);
 
   const [numSelected, setNumSelected] = useState(0);
-  const [uniqueTags, setUniqueTags] = useState<Array<filterState>>([]);
-  const [uniqueModules, setUniqueModules] = useState<Array<filterState>>([]);
-  const [uniqueTypes, setUniqueTypes] = useState<Array<filterState>>([]);
+  const [uniqueTags, setUniqueTags] = useState<Array<filterState>>(undefined);
+  const [uniqueModules, setUniqueModules] =
+    useState<Array<filterState>>(undefined);
+  const [uniqueTypes, setUniqueTypes] = useState<Array<filterState>>(undefined);
   const [search, setSearch] = useState<string>("");
+  const resultDependencies = [uniqueTags, uniqueModules, uniqueTypes, search];
+  const [requestRefreshBrowser, setRequestRefreshBrowser] = useState(true);
 
   const navigate = useNavigate();
   let assignments: Array<React.JSX.Element> = null;
@@ -81,82 +76,39 @@ export default function AssignmentBrowse() {
   let tags: Array<React.JSX.Element> = null;
   let types: Array<React.JSX.Element> = null;
 
-  const refreshAssignments = async () => {
-    try {
-      if (!activePath) {
-        return;
-      }
+  async function getFilteredAssignments() {
+    // Map out the string values of the checked filters
+    const filters = {
+      tags: uniqueTags.filter((u) => u.isChecked).map((f) => f.value),
+      module: uniqueModules.filter((u) => u.isChecked).map((f) => f.value),
+      type: uniqueTypes.filter((u) => u.isChecked).map((f) => f.value),
+      title: search,
+    };
 
-      const checkedTags: string[] = [];
-      const checkedModules: string[] = [];
-      const checkedTypes: string[] = [];
+    const assignmentsResult: CodeAssignmentDatabase[] = await handleIPCResult(
+      () => window.api.getFilteredAssignmentsDB(activePath, filters)
+    );
 
-      uniqueTags.forEach((element) => {
-        if (element.isChecked) {
-          checkedTags.push(element.value);
-        }
-      });
-      uniqueModules.forEach((element) => {
-        if (element.isChecked) {
-          checkedModules.push(element.value);
-        }
-      });
-      uniqueTypes.forEach((element) => {
-        if (element.isChecked) {
-          checkedTypes.push(element.value);
-        }
-      });
-      uniqueTypes.forEach((element) => {
-        if (element.isChecked) {
-          checkedTypes.push(element.value);
-        }
-      });
+    // wrap the fetched assignments to store checked state
+    const assignentsWithCheck: AssignmentWithCheck[] =
+      wrapWithCheck(assignmentsResult);
 
-      const filters = {
-        tags: checkedTags,
-        module: checkedModules,
-        type: checkedTypes,
-        title: search,
-      };
-
-      let assignmentsResult: CodeAssignmentDatabase[] = [];
-
-      setWaitingForAssignments(true);
-      assignmentsResult = await handleIPCResult(() =>
-        window.api.getFilteredAssignmentsDB(activePath, filters)
-      );
-
-      // wrap the fetched assignments to store checked state
-      const assignentsWithCheck: AssignmentWithCheck[] =
-        wrapWithCheck(assignmentsResult);
-
-      // update assignments and filters
-      setCourseAssignments(assignentsWithCheck);
-    } catch (err) {
-      handleSnackbar({ error: parseUICode(err.message) });
-    }
-  };
-
-  function handleSearch(value: string) {
-    setSearch(value);
+    // update assignments and filters
+    setCourseAssignments(assignentsWithCheck);
   }
 
-  async function updateFilters() {
+  async function getFilters() {
     const tagsResult: TagDatabase[] = await handleIPCResult(() =>
       window.api.getAssignmentTagsDB(activePath)
     );
-
     handleUpdateUniqueTags(tagsResult, setUniqueTags);
-
     const modulesResult: ModuleDatabase[] = await handleIPCResult(() =>
       window.api.getModulesDB(activePath)
     );
-
     handleUpdateFilter(
       modulesResult.map((m) => m.name),
       setUniqueModules
     );
-
     if (previousPath === "/exportProject") {
       handleUpdateFilter(["finalWork"], setUniqueTypes, true);
     } else if (previousPath === "/setCreator") {
@@ -166,18 +118,13 @@ export default function AssignmentBrowse() {
     }
   }
 
-  // Get the filters
-  async function onPageLoad() {
-    if (!activePath) {
-      return;
-    }
-    await updateFilters();
-    await handleHeaderPageName("ui_assignment_browser");
+  function handleSearch(value: string) {
+    setSearch(value);
   }
 
   useEffect(() => {
-    onPageLoad();
-  }, [previousPath]);
+    handleHeaderPageName("ui_assignment_browser");
+  }, []);
 
   async function handleDeleteSelected() {
     let snackbarSeverity = "success";
@@ -190,8 +137,7 @@ export default function AssignmentBrowse() {
         )
       );
 
-      refreshAssignments(); // get the remaining assignments
-      updateFilters(); // and filters
+      setRequestRefreshBrowser(true); // and filters
     } catch (err) {
       snackbarText = err.message;
       snackbarSeverity = "error";
@@ -207,13 +153,7 @@ export default function AssignmentBrowse() {
     );
 
     setNumSelected(numChecked);
-
-    setWaitingForAssignments(false);
   }, [courseAssignments]);
-
-  useEffect(() => {
-    refreshAssignments();
-  }, [uniqueTags, uniqueModules, uniqueTypes, search]);
 
   assignments = generateChecklist(
     courseAssignments,
@@ -290,8 +230,7 @@ export default function AssignmentBrowse() {
       );
 
       snackbarText = importResult;
-      refreshAssignments(); // get the assignments
-      updateFilters(); // and filters
+      setRequestRefreshBrowser(true); // and filters
     } catch (err) {
       snackbarText = err.message;
       snackbarSeverity = "error";
@@ -324,21 +263,18 @@ export default function AssignmentBrowse() {
 
   return (
     <>
-      <div className="emptySpace1" />
       <SearchBar
         autoFillOptions={courseAssignments}
         optionLabel={"title"}
         searchFunction={handleSearch}
-      ></SearchBar>
+      />
 
-      <div className="emptySpace1" />
-
-      <div className="emptySpace1" />
       <Stack
         direction="row"
         justifyContent="flex-start"
         alignItems="center"
         spacing={2}
+        sx={{ marginTop: "1rem" }}
       >
         <ButtonComp
           buttonType="normal"
@@ -409,101 +345,31 @@ export default function AssignmentBrowse() {
         )}
       </Stack>
 
-      <div className="emptySpace2" />
-      <Grid
-        container
-        spacing={2}
-        direction="row"
-        justifyContent="flex-start"
-        alignItems="stretch"
-        sx={{ minWidth: "100%" }}
-      >
-        <Grid xs={8}>
-          <Stack
-            direction="column"
-            justifyContent="center"
-            alignItems="flex-start"
-            spacing={2}
-          >
-            <Typography level="h3">{parseUICode("assignments")}</Typography>
+      {activePath ? (
+        <Browser
+          results={assignments}
+          filters={[
+            { name: parseUICode("ui_types"), element: types },
+            { name: parseUICode("ui_tags"), element: tags },
+            { name: parseUICode("ui_modules"), element: modules },
+          ]}
+          getResultsFunc={() => getFilteredAssignments()}
+          getFiltersFunc={() => getFilters()}
+          resultDependencies={resultDependencies}
+          requestRefreshBrowser={requestRefreshBrowser}
+          setRequestRefreshBrowser={setRequestRefreshBrowser}
+        ></Browser>
+      ) : (
+        ""
+      )}
 
-            <Stack
-              height="40rem"
-              maxHeight="50vh"
-              width="100%"
-              sx={{
-                border: "2px solid lightgrey",
-                borderRadius: "0.2rem",
-              }}
-              overflow={"auto"}
-              direction="column"
-              justifyContent="start"
-              alignItems="center"
-            >
-              {waitingForAssignments ? (
-                <CircularProgress
-                  color="neutral"
-                  variant="solid"
-                  sx={{ marginTop: "2rem" }}
-                />
-              ) : (
-                <List>{assignments}</List>
-              )}
-            </Stack>
-          </Stack>
-        </Grid>
-        <Grid xs={4}>
-          <Stack
-            direction="column"
-            justifyContent="center"
-            alignItems="flex-start"
-            spacing={2}
-          >
-            <Typography level="h3">{parseUICode("ui_filter")}</Typography>
-
-            <Box
-              height="40rem"
-              maxHeight="50vh"
-              width="100%"
-              sx={{
-                border: "2px solid lightgrey",
-                borderRadius: "0.2rem",
-              }}
-              overflow={"auto"}
-            >
-              <List>
-                <ListItem nested>
-                  <ListSubheader>{parseUICode("ui_types")}</ListSubheader>
-                  <List>{types}</List>
-                </ListItem>
-                <ListItem nested>
-                  <ListSubheader>{parseUICode("ui_tags")}</ListSubheader>
-                  <List>{tags}</List>
-                </ListItem>
-                <ListItem nested>
-                  <ListSubheader>{parseUICode("ui_modules")}</ListSubheader>
-                  <List>{modules}</List>
-                </ListItem>
-              </List>
-            </Box>
-          </Stack>
-        </Grid>
-      </Grid>
-
-      <div className="emptySpace1" />
       <Stack
         direction="row"
         justifyContent="flex-start"
         alignItems="center"
         spacing={2}
       >
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => navigate(-1)}
-          ariaLabel={parseUICode("ui_aria_cancel")}
-        >
-          {parseUICode("ui_cancel")}
-        </ButtonComp>
+        <SpecialButton buttonType="cancel" />
         {DEVMODE ? (
           <ButtonComp
             buttonType="debug"

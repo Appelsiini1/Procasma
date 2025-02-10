@@ -28,12 +28,12 @@ export const supportedModuleTypes = [
 export const buttonShadow = "1px 1px 3px 1px rgb(0 0 0 / 20%)";
 export const spacingSX = { marginBottom: "1rem" };
 export const dividerSX = {
-  padding: ".1rem",
+  padding: "1px",
   margin: "2rem",
   bgcolor: dividerColor,
 };
 export const smallDividerSX = {
-  padding: ".1rem",
+  padding: "1px",
   margin: "2rem",
   bgcolor: dividerColor,
   marginLeft: "7rem",

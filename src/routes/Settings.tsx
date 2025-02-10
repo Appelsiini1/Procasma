@@ -18,6 +18,7 @@ import {
 } from "../constantsUI";
 import HelpText from "../components/HelpText";
 import log from "electron-log/renderer";
+import SpecialButton from "../components/SpecialButton";
 
 export default function Settings() {
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
@@ -220,13 +221,7 @@ export default function Settings() {
         >
           {parseUICode("ui_save")}
         </ButtonComp>
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => navigate(-1)}
-          ariaLabel={parseUICode("ui_aria_cancel")}
-        >
-          {parseUICode("ui_cancel")}
-        </ButtonComp>
+        <SpecialButton buttonType="cancel" />
       </Stack>
     </>
   );
