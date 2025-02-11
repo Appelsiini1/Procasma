@@ -30,8 +30,7 @@ export default function VariationsGroup({
   const [openVariation, setOpenVariation] = useState<string>("");
   return (
     <>
-      <div className="emptySpace2" />
-      <Typography level="h2" sx={{ marginBottom: "0.5rem" }}>
+      <Typography level="h2">
         {useLevelsInstead
           ? parseUICode("ui_levels")
           : parseUICode("ui_variations")}

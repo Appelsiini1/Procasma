@@ -43,8 +43,8 @@ export default function Browser({
 }: BrowserProps) {
   const { handleSnackbar } = useContext(UIContext);
   const filtersExist = typeof getFiltersFunc === "undefined" ? false : true;
-  const [waitingForResults, setWaitingForResults] = useState(true);
-  const [waitingForFilters, setWaitingForFilters] = useState(filtersExist);
+  const [waitingForResults, setWaitingForResults] = useState(false);
+  const [waitingForFilters, setWaitingForFilters] = useState(false);
 
   async function getResults() {
     setWaitingForResults(true);
@@ -97,7 +97,7 @@ export default function Browser({
       direction="row"
       justifyContent="flex-start"
       alignItems="stretch"
-      sx={{ minWidth: "100%", marginY: "1rem" }}
+      sx={{ minWidth: "100%" }}
     >
       <Grid xs={8}>
         <Stack

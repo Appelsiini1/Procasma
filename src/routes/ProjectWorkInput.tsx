@@ -1,12 +1,10 @@
 import { useLoaderData, useNavigate } from "react-router";
 import {
-  DEVMODE,
-  dividerColor,
   pageTableMaxWidth,
   pageTableMinWidth,
   titleCellWidth,
 } from "../constantsUI";
-import { Divider, Grid, Stack, Table, Typography } from "@mui/joy";
+import { Grid, Stack, Table, Typography } from "@mui/joy";
 import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
 import NumberInput from "../components/NumberInput";
@@ -27,6 +25,7 @@ import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
 import { globalSettings } from "../globalsUI";
 import SpecialButton from "../components/SpecialButton";
+import DebugButtonStack from "../components/DebugButtonStack";
 
 export default function ProjectWorkInput() {
   const {
@@ -104,26 +103,7 @@ export default function ProjectWorkInput() {
             {parseUICode("ui_save")}
           </ButtonComp>
           <SpecialButton buttonType="cancel" />
-          {DEVMODE ? (
-            <>
-              <ButtonComp
-                buttonType="debug"
-                onClick={() => console.log(assignment)}
-                ariaLabel={"debug"}
-              >
-                log assignment state
-              </ButtonComp>
-              <ButtonComp
-                buttonType="debug"
-                onClick={() => console.log(activeAssignment)}
-                ariaLabel={"debug"}
-              >
-                log active assignment
-              </ButtonComp>
-            </>
-          ) : (
-            ""
-          )}
+          <DebugButtonStack items={{ assignment, activeAssignment }} />
         </Stack>
       </>
     );

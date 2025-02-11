@@ -33,7 +33,7 @@ export default function SearchBar({
         justifyContent="flex-start"
         alignItems="center"
         spacing={2}
-        sx={{ width: "100%", marginY: "1rem" }}
+        sx={{ width: "100%" }}
       >
         <Typography level="h4">{title}</Typography>
         <div style={{ width: "100%" }}>

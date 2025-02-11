@@ -6,7 +6,6 @@ import {
   pageTableMaxWidth,
   pageTableMinWidth,
   titleCellWidth,
-  DEVMODE,
 } from "../constantsUI";
 import { globalSettings, language } from "../globalsUI";
 import { Grid, IconButton, Stack, Table, Typography } from "@mui/joy";
@@ -29,6 +28,7 @@ import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import { ActiveObjectContext, UIContext } from "../components/Context";
 import { deepCopy } from "../rendererHelpers/utilityRenderer";
 import SpecialButton from "../components/SpecialButton";
+import DebugButtonStack from "../components/DebugButtonStack";
 
 export default function Course() {
   const {
@@ -440,17 +440,7 @@ export default function Course() {
             {parseUICode("ui_save")}
           </ButtonComp>
           <SpecialButton buttonType="cancel" />
-          {DEVMODE ? (
-            <ButtonComp
-              buttonType="debug"
-              onClick={() => console.log(course)}
-              ariaLabel={" debug "}
-            >
-              log course state
-            </ButtonComp>
-          ) : (
-            ""
-          )}
+          <DebugButtonStack items={{ course }} />
         </Stack>
       </div>
     </>

@@ -149,57 +149,58 @@ export default function SetBrowse() {
 
   return (
     <>
-      <Stack
-        direction="row"
-        justifyContent="flex-start"
-        alignItems="center"
-        spacing={2}
-        sx={{ marginTop: "1rem" }}
-      >
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => handleOpenSet()}
-          ariaLabel={parseUICode("ui_aria_modify_sets")}
-          disabled={numSelected === 1 ? false : true}
+      <Stack gap={2}>
+        <Stack
+          direction="row"
+          justifyContent="flex-start"
+          alignItems="center"
+          spacing={2}
         >
-          {parseUICode("ui_modify")}
-        </ButtonComp>
-        <ButtonComp
-          confirmationModal={true}
-          modalText={`${parseUICode("ui_delete")} 
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => handleOpenSet()}
+            ariaLabel={parseUICode("ui_aria_modify_sets")}
+            disabled={numSelected === 1 ? false : true}
+          >
+            {parseUICode("ui_modify")}
+          </ButtonComp>
+          <ButtonComp
+            confirmationModal={true}
+            modalText={`${parseUICode("ui_delete")} 
             ${numSelected}`}
-          buttonType="delete"
-          onClick={() => handleDeleteSelected()}
-          ariaLabel={parseUICode("ui_aria_delete_sets")}
-          disabled={numSelected > 0 ? false : true}
-        >
-          {`${parseUICode("ui_delete")} ${numSelected}`}
-        </ButtonComp>
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => handleExportSet()}
-          ariaLabel={parseUICode("ui_aria_export_sets")}
-          disabled={numSelected > 0 ? false : true}
-        >
-          {parseUICode("ui_export")}
-        </ButtonComp>
+            buttonType="delete"
+            onClick={() => handleDeleteSelected()}
+            ariaLabel={parseUICode("ui_aria_delete_sets")}
+            disabled={numSelected > 0 ? false : true}
+          >
+            {`${parseUICode("ui_delete")} ${numSelected}`}
+          </ButtonComp>
+          <ButtonComp
+            buttonType="normal"
+            onClick={() => handleExportSet()}
+            ariaLabel={parseUICode("ui_aria_export_sets")}
+            disabled={numSelected > 0 ? false : true}
+          >
+            {parseUICode("ui_export")}
+          </ButtonComp>
+        </Stack>
+
+        {activePath ? (
+          <Browser
+            results={sets}
+            filters={[]}
+            getResultsFunc={() => getSets()}
+            getFiltersFunc={undefined}
+            resultDependencies={[]}
+            requestRefreshBrowser={requestRefreshBrowser}
+            setRequestRefreshBrowser={setRequestRefreshBrowser}
+          ></Browser>
+        ) : (
+          ""
+        )}
+
+        <SpecialButton buttonType="cancel" />
       </Stack>
-
-      {activePath ? (
-        <Browser
-          results={sets}
-          filters={[]}
-          getResultsFunc={() => getSets()}
-          getFiltersFunc={undefined}
-          resultDependencies={[]}
-          requestRefreshBrowser={requestRefreshBrowser}
-          setRequestRefreshBrowser={setRequestRefreshBrowser}
-        ></Browser>
-      ) : (
-        ""
-      )}
-
-      <SpecialButton sx={{ marginTop: "1rem" }} buttonType="cancel" />
     </>
   );
 }

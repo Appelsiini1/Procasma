@@ -372,6 +372,10 @@
     "FI": "Valittu",
     "ENG": "Selected"
   },
+  "ui_select_assignments": {
+    "FI": "Valitse tehtäviä",
+    "ENG": "Select assignments"
+  },
   "ui_move_here": {
     "FI": "Siirrä tähän",
     "ENG": "Move here"
