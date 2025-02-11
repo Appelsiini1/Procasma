@@ -147,62 +147,61 @@ export default function ModuleBrowse() {
 
   return (
     <>
-      <Stack
-        direction="row"
-        justifyContent="flex-start"
-        alignItems="center"
-        spacing={2}
-        sx={{ marginTop: "1rem" }}
-      >
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => {
-            handleOpenModule();
-          }}
-          ariaLabel={parseUICode("ui_aria_show_edit")}
-          disabled={numSelected === 1 ? false : true}
+      <Stack gap={2}>
+        <Stack
+          direction="row"
+          justifyContent="flex-start"
+          alignItems="center"
+          spacing={2}
         >
-          {parseUICode("ui_show_edit")}
-        </ButtonComp>
-        <ButtonComp
-          confirmationModal={true}
-          modalText={`${parseUICode("ui_delete")} 
-            ${numSelected}`}
-          buttonType="delete"
-          onClick={() => handleDeleteSelected()}
-          ariaLabel={parseUICode("ui_remove_selected_modules")}
-          disabled={numSelected > 0 ? false : true}
-        >
-          {`${parseUICode("ui_delete")} ${numSelected}`}
-        </ButtonComp>
-        <HelpText text={parseUICode("help_generate_modules")}>
           <ButtonComp
-            buttonType="algorithm"
+            buttonType="normal"
             onClick={() => {
-              autoGenerateModules();
+              handleOpenModule();
             }}
-            ariaLabel={parseUICode("ui_generate_modules")}
+            ariaLabel={parseUICode("ui_aria_show_edit")}
+            disabled={numSelected === 1 ? false : true}
           >
-            {parseUICode("ui_generate_modules")}
+            {parseUICode("ui_show_edit")}
           </ButtonComp>
-        </HelpText>
+          <ButtonComp
+            confirmationModal={true}
+            modalText={`${parseUICode("ui_delete")} 
+            ${numSelected}`}
+            buttonType="delete"
+            onClick={() => handleDeleteSelected()}
+            ariaLabel={parseUICode("ui_remove_selected_modules")}
+            disabled={numSelected > 0 ? false : true}
+          >
+            {`${parseUICode("ui_delete")} ${numSelected}`}
+          </ButtonComp>
+          <HelpText text={parseUICode("help_generate_modules")}>
+            <ButtonComp
+              buttonType="algorithm"
+              onClick={() => {
+                autoGenerateModules();
+              }}
+              ariaLabel={parseUICode("ui_generate_modules")}
+            >
+              {parseUICode("ui_generate_modules")}
+            </ButtonComp>
+          </HelpText>
+        </Stack>
+        {activePath ? (
+          <Browser
+            results={modules}
+            filters={[{ name: parseUICode("ui_tags"), element: tags }]}
+            getResultsFunc={() => getFilteredModules()}
+            getFiltersFunc={() => getFilters()}
+            resultDependencies={resultDependencies}
+            requestRefreshBrowser={requestRefreshBrowser}
+            setRequestRefreshBrowser={setRequestRefreshBrowser}
+          ></Browser>
+        ) : (
+          ""
+        )}
+        <SpecialButton buttonType="cancel" />
       </Stack>
-
-      {activePath ? (
-        <Browser
-          results={modules}
-          filters={[{ name: parseUICode("ui_tags"), element: tags }]}
-          getResultsFunc={() => getFilteredModules()}
-          getFiltersFunc={() => getFilters()}
-          resultDependencies={resultDependencies}
-          requestRefreshBrowser={requestRefreshBrowser}
-          setRequestRefreshBrowser={setRequestRefreshBrowser}
-        ></Browser>
-      ) : (
-        ""
-      )}
-
-      <SpecialButton sx={{ marginTop: "1rem" }} buttonType="cancel" />
     </>
   );
 }

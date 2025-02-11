@@ -1,24 +1,23 @@
-import texts from "../../resource/texts.json";
-import { globalSettings, language } from "../globalsUI";
-import { useNavigate } from "react-router";
 import { Grid, Stack, Table, Typography } from "@mui/joy";
-import ButtonComp from "../components/ButtonComp";
-import Dropdown from "../components/Dropdown";
-import { SettingsType, SupportedLanguages } from "../types";
 import { useContext, useEffect, useState } from "react";
-import { handleIPCResult } from "../rendererHelpers/errorHelpers";
-import { parseUICode } from "../rendererHelpers/translation";
+import { useNavigate } from "react-router";
+import texts from "../../resource/texts.json";
+import ButtonComp from "../components/ButtonComp";
 import { UIContext } from "../components/Context";
-import SwitchComp from "../components/SwitchComp";
+import Dropdown from "../components/Dropdown";
+import HelpText from "../components/HelpText";
 import NumberInput from "../components/NumberInput";
+import SpecialButton from "../components/SpecialButton";
+import SwitchComp from "../components/SwitchComp";
 import {
   pageTableMaxWidth,
   pageTableMinWidth,
   titleCellWidth,
 } from "../constantsUI";
-import HelpText from "../components/HelpText";
-import log from "electron-log/renderer";
-import SpecialButton from "../components/SpecialButton";
+import { globalSettings, language } from "../globalsUI";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import { parseUICode } from "../rendererHelpers/translation";
+import { SettingsType, SupportedLanguages } from "../types";
 
 export default function Settings() {
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);

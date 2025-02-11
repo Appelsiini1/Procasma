@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import { DEVMODE, dividerSX } from "../constantsUI";
+import { dividerSX } from "../constantsUI";
 import {
   Card,
   CardContent,
@@ -10,7 +10,6 @@ import {
   Table,
   Typography,
 } from "@mui/joy";
-import InputField from "../components/InputField";
 import Dropdown from "../components/Dropdown";
 import { useContext, useEffect, useState } from "react";
 import ButtonComp from "../components/ButtonComp";
@@ -27,26 +26,22 @@ import { ForceToString } from "../rendererHelpers/converters";
 import { handleIPCResult } from "../rendererHelpers/errorHelpers";
 import HelpText from "../components/HelpText";
 import SwitchComp from "../components/SwitchComp";
+import AssignmentSelect from "../components/AssignmentSelect";
+import DebugButtonStack from "../components/DebugButtonStack";
 
 export default function ExportProject() {
   const {
-    activeAssignments,
-    handleActiveAssignments,
     activeCourse,
     activePath,
-    previousPath,
-    handlePreviousPath,
   }: {
-    activeAssignments: CodeAssignmentDatabase[];
-    handleActiveAssignments: (value: CodeAssignmentDatabase[]) => void;
     activeCourse: CourseData;
     activePath: string;
-    previousPath: string;
-    handlePreviousPath: (value: string) => void;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [assignment, handleAssignment] = useState<CodeAssignmentDatabase>(null);
-  const [navigateToBrowse, setNavigateToBrowse] = useState(false);
+  const [browserAssignments, setBrowserAssignments] =
+    useState<CodeAssignmentDatabase[]>(undefined);
+
   const navigate = useNavigate();
   const [stepperState, setStepperState] = useState<number>(0);
   const [replaceExisting, setReplaceExisting] = useState<boolean>(false);
@@ -76,37 +71,17 @@ export default function ExportProject() {
     handleHeaderPageName("ui_export_project");
   }, []);
 
-  useEffect(() => {
-    // use the assignment chose in the browser
-    if (activeAssignments) {
-      if (activeAssignments[0]) {
-        handleAssignment(activeAssignments[0]);
-        handleActiveAssignments(undefined);
-      }
-    }
-  }, []);
-
-  async function handleNavigateToBrowse() {
-    try {
-      handleActiveAssignments([]);
-      handlePreviousPath("/exportProject");
-      setNavigateToBrowse(true);
-    } catch (err) {
-      handleSnackbar({ error: parseUICode(err.message) });
-    }
+  function handleBrowserAssignments(value: CodeAssignmentDatabase[]) {
+    setBrowserAssignments(value);
   }
 
-  // Navigates to the assignment browse page by listening to activeAssignments
   useEffect(() => {
-    if (
-      typeof activeAssignments !== "undefined" &&
-      previousPath === "/exportProject" &&
-      navigateToBrowse
-    ) {
-      setNavigateToBrowse(false);
-      navigate("/AssignmentBrowse");
+    // use the assignment chose in the browser
+    if (browserAssignments?.length > 0) {
+      handleAssignment(browserAssignments[0]);
+      handleBrowserAssignments(undefined);
     }
-  }, [activeAssignments, previousPath, navigateToBrowse]);
+  }, [browserAssignments]);
 
   async function exportProject() {
     let snackbarSeverity = "success";
@@ -155,7 +130,7 @@ export default function ExportProject() {
           <div className="emptySpace1" />
           <ButtonComp
             buttonType="normal"
-            onClick={() => handleNavigateToBrowse()}
+            onClick={() => setBrowserAssignments([])}
             ariaLabel={parseUICode("ui_aria_choose_project")}
           >
             {parseUICode("ui_select")}
@@ -181,9 +156,7 @@ export default function ExportProject() {
                   buttonType="delete"
                   onClick={() => handleAssignment(null)}
                   ariaLabel={parseUICode("ui_aria_delete_level")}
-                >
-                  {" "}
-                </ButtonComp>
+                />
               </Stack>
             </>
           ) : (
@@ -340,20 +313,14 @@ export default function ExportProject() {
         ) : (
           ""
         )}
-        {DEVMODE ? (
-          <>
-            <ButtonComp
-              buttonType="debug"
-              onClick={() => console.log(assignment)}
-              ariaLabel={"debug"}
-            >
-              log assignment state
-            </ButtonComp>
-          </>
-        ) : (
-          ""
-        )}
+        <DebugButtonStack items={{ assignment }} />
       </Stack>
+      <AssignmentSelect
+        useAsModalSelect={true}
+        parentAssignments={browserAssignments}
+        handleParentAssignments={handleBrowserAssignments}
+        typeFilters={["finalWork"]}
+      />
     </>
   );
 }

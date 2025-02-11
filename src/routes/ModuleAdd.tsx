@@ -1,24 +1,24 @@
-import { useLoaderData, useNavigate } from "react-router";
 import { Grid, Stack, Table, Typography } from "@mui/joy";
+import { useContext, useEffect } from "react";
+import { useLoaderData, useNavigate } from "react-router";
+import ButtonComp from "../components/ButtonComp";
+import { ActiveObjectContext, UIContext } from "../components/Context";
+import DebugButtonStack from "../components/DebugButtonStack";
+import HelpText from "../components/HelpText";
 import InputField from "../components/InputField";
 import NumberInput from "../components/NumberInput";
-import HelpText from "../components/HelpText";
-import ButtonComp from "../components/ButtonComp";
-import { ModuleData } from "../types";
-import { useModule } from "../rendererHelpers/assignmentHelpers";
-import { defaultModule } from "../defaultObjects";
-import { splitStringToArray } from "../rendererHelpers/converters";
-import { parseUICode } from "../rendererHelpers/translation";
-import { useContext, useEffect } from "react";
-import { handleIPCResult } from "../rendererHelpers/errorHelpers";
-import { ActiveObjectContext, UIContext } from "../components/Context";
+import SpecialButton from "../components/SpecialButton";
 import {
   pageTableMaxWidth,
   pageTableMinWidth,
   titleCellWidth,
-  DEVMODE,
 } from "../constantsUI";
-import SpecialButton from "../components/SpecialButton";
+import { defaultModule } from "../defaultObjects";
+import { useModule } from "../rendererHelpers/assignmentHelpers";
+import { splitStringToArray } from "../rendererHelpers/converters";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import { parseUICode } from "../rendererHelpers/translation";
+import { ModuleData } from "../types";
 
 export default function ModuleAdd() {
   const {
@@ -247,18 +247,7 @@ export default function ModuleAdd() {
           </ButtonComp>
 
           <SpecialButton buttonType="cancel" />
-
-          {DEVMODE ? (
-            <ButtonComp
-              buttonType="debug"
-              onClick={() => console.log(module)}
-              ariaLabel={" debug "}
-            >
-              log module state
-            </ButtonComp>
-          ) : (
-            ""
-          )}
+          <DebugButtonStack items={{ module }} />
         </Stack>
       </div>
     </>

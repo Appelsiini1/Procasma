@@ -1,8 +1,7 @@
-import { IconButton, Input, Textarea } from "@mui/joy";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import { IconButton, Input, Textarea } from "@mui/joy";
 import React, { useEffect, useState } from "react";
-import log from "electron-log/renderer";
 
 type ButtonProps = {
   isLarge?: boolean;

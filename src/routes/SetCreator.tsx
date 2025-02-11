@@ -1,5 +1,3 @@
-import { useLoaderData, useNavigate } from "react-router";
-import { dividerSX, DEVMODE } from "../constantsUI";
 import {
   Box,
   Chip,
@@ -8,16 +6,40 @@ import {
   List,
   Stack,
   Table,
-  Tooltip,
   Typography,
 } from "@mui/joy";
-import InputField from "../components/InputField";
-import Dropdown from "../components/Dropdown";
 import { useContext, useEffect, useState } from "react";
-import NumberInput from "../components/NumberInput";
+import { useLoaderData, useNavigate } from "react-router";
+import AssignmentEdit from "../components/AssignmentEdit";
+import AssignmentSelect from "../components/AssignmentSelect";
 import ButtonComp from "../components/ButtonComp";
-import SwitchComp from "../components/SwitchComp";
+import { ActiveObjectContext, UIContext } from "../components/Context";
+import DebugButtonStack from "../components/DebugButtonStack";
+import Dropdown from "../components/Dropdown";
+import HelpText from "../components/HelpText";
+import InputField from "../components/InputField";
+import NumberInput from "../components/NumberInput";
 import StepperComp from "../components/StepperComp";
+import SwitchComp from "../components/SwitchComp";
+import { dividerSX } from "../constantsUI";
+import { defaultSet, genericModule } from "../defaultObjects";
+import { useSet } from "../rendererHelpers/assignmentHelpers";
+import {
+  generateChecklistExpandingAssignment,
+  generateChecklistSetAssignment,
+  generateChecklistVariation,
+  setSelectedViaChecked,
+  wrapWithCheckAndVariation,
+} from "../rendererHelpers/browseHelpers";
+import { ForceToString } from "../rendererHelpers/converters";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import {
+  calculateBadnesses,
+  exportSetData,
+  exportSetToDisk,
+} from "../rendererHelpers/setHelpers";
+import { parseUICode } from "../rendererHelpers/translation";
+import { deepCopy } from "../rendererHelpers/utilityRenderer";
 import {
   CodeAssignmentData,
   CodeAssignmentDatabase,
@@ -29,27 +51,6 @@ import {
   SetData,
   SetVariation,
 } from "../types";
-import { parseUICode } from "../rendererHelpers/translation";
-import { handleIPCResult } from "../rendererHelpers/errorHelpers";
-import { useSet } from "../rendererHelpers/assignmentHelpers";
-import { deepCopy } from "../rendererHelpers/utilityRenderer";
-import { defaultSet, genericModule } from "../defaultObjects";
-import { ForceToString } from "../rendererHelpers/converters";
-import {
-  generateChecklistExpandingAssignment,
-  generateChecklistSetAssignment,
-  generateChecklistVariation,
-  setSelectedViaChecked,
-  wrapWithCheckAndVariation,
-} from "../rendererHelpers/browseHelpers";
-import { ActiveObjectContext, UIContext } from "../components/Context";
-import {
-  calculateBadnesses,
-  exportSetData,
-  exportSetToDisk,
-} from "../rendererHelpers/setHelpers";
-import log from "electron-log/renderer";
-import HelpText from "../components/HelpText";
 
 interface LegalMove {
   module: number;
@@ -71,31 +72,16 @@ export default function SetCreator() {
     activePath,
     activeSet,
     handleActiveSet,
-    activeAssignment,
-    handleActiveAssignment,
-    activeAssignments,
-    handleActiveAssignments,
     activeCourse,
-    handleSelectAssignment,
     genericModuleAssignmentCount,
     handleGenericModuleAssignmentCount,
-    previousPath,
-    handlePreviousPath,
   }: {
     activePath: string;
     activeSet: SetData;
     handleActiveSet: (value: SetData) => void;
-    activeAssignment: CodeAssignmentData;
-    handleActiveAssignment: (value: CodeAssignmentData) => void;
-    activeAssignments: CodeAssignmentDatabase[];
-    handleActiveAssignments: (value: CodeAssignmentDatabase[]) => void;
     activeCourse: CourseData;
-    selectAssignment: boolean;
-    handleSelectAssignment: (value: boolean) => void;
     genericModuleAssignmentCount: number;
     handleGenericModuleAssignmentCount: (value: number) => void;
-    previousPath: string;
-    handlePreviousPath: (value: string) => void;
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [set, handleSet] = useSet(activeSet ?? deepCopy(defaultSet));
@@ -103,12 +89,17 @@ export default function SetCreator() {
     Array<SetAssignmentWithCheck>
   >(set.assignments);
 
+  const [browserAssignments, setBrowserAssignments] =
+    useState<CodeAssignmentDatabase[]>(undefined);
+  const [assignmentToEdit, setAssignmentToEdit] =
+    useState<CodeAssignmentData>(undefined);
+
   const pageType = useLoaderData();
   const navigate = useNavigate();
   let pageTitle: string = null;
   const [stepperState, setStepperState] = useState<number>(
     activeSet
-      ? pageType === "manage" && !activeAssignment && !activeAssignments
+      ? pageType === "manage" && !assignmentToEdit && !browserAssignments
         ? 1
         : 2
       : 0
@@ -126,8 +117,6 @@ export default function SetCreator() {
   >([]);
 
   const [selectedModule, setSelectedModule] = useState<number>(0);
-  const [navigateToAssignment, setNavigateToAssignment] = useState(false);
-  const [navigateToBrowse, setNavigateToBrowse] = useState(false);
   const [numSelected, setNumSelected] = useState(0);
   const [assignmentVariations, setAssignmentVariations] = useState<{
     [key: string]: SetVariation;
@@ -158,6 +147,14 @@ export default function SetCreator() {
     const yearNow = new Date().getFullYear();
     if (pageType === "new") handleSet("year", yearNow);
   }, []);
+
+  function handleBrowserAssignments(value: CodeAssignmentDatabase[]) {
+    setBrowserAssignments(value);
+  }
+
+  function handleAssignmentToEdit(value: CodeAssignmentData) {
+    setAssignmentToEdit(value);
+  }
 
   async function getModules() {
     try {
@@ -296,8 +293,7 @@ export default function SetCreator() {
         )
       );
 
-      handleActiveAssignment(assignmentsResult[0]);
-      setNavigateToAssignment(true);
+      handleAssignmentToEdit(assignmentsResult[0]);
     } catch (err) {
       handleSnackbar({ error: parseUICode(err.message) });
     }
@@ -380,16 +376,16 @@ export default function SetCreator() {
    * If there are multiple active assignments, try to put them in the
    * desired modules/positions. In occupied cases put in the pending module.
    */
-  function handleInsertActiveAssignments() {
+  function handleInsertBrowserAssignments() {
     const assignmentsInSetModule = allModules.find((m) => m.id === set.module);
 
     setAllAssignments(() => {
-      let newAssignments: SetAssignmentWithCheck[] = deepCopy(allAssignments);
+      const newAssignments: SetAssignmentWithCheck[] = deepCopy(allAssignments);
 
-      if (activeAssignments.length === 1) {
+      if (browserAssignments.length === 1) {
         const assignmentToUpdate = newAssignments.find(
           (newAssignment) =>
-            newAssignment.value.assignmentID === activeAssignments[0].id
+            newAssignment.value.assignmentID === browserAssignments[0].id
         );
 
         assignmentToUpdate.selectedModule = set.targetModule;
@@ -399,7 +395,7 @@ export default function SetCreator() {
       }
 
       let nextPosition = findHighestPending(allAssignments) + 1;
-      activeAssignments.map((active) => {
+      browserAssignments.map((active) => {
         // Check for a conflicting assignment
         const activePosition = parseInt(
           active.position.length > 0 ? active.position[0] : "1"
@@ -442,9 +438,9 @@ export default function SetCreator() {
     getModules();
     handleHeaderPageName("ui_create_new_set");
 
-    // else if (activeAssignments && setFromBrowse) {
+    // else if (browserAssignments && setFromBrowse) {
     //   const newSet = set;
-    //   for (const tempAssignment of activeAssignments) {
+    //   for (const tempAssignment of browserAssignments) {
     //     const foundAssignment = allAssignments.find((value) => {
     //       if (tempAssignment.id === value.value.assignmentID) {
     //         return true;
@@ -455,20 +451,20 @@ export default function SetCreator() {
     //     foundAssignment.selectedModule = -2;
     //     newSet.assignments.push(foundAssignment);
     //   }
-    //   handleActiveAssignments(null);
+    //   handleBrowserAssignments(null);
     // }
   }, []);
 
   useEffect(() => {
-    if (allModules.length > 0) {
-      if (activeAssignments) {
-        handleInsertActiveAssignments();
-        handleSet("targetModule", null);
-        handleSet("targetPosition", null);
-        handleActiveAssignments(undefined);
-      }
+    //if (allModules.length > 0) {
+    if (browserAssignments?.length > 0) {
+      handleInsertBrowserAssignments();
+      handleSet("targetModule", null);
+      handleSet("targetPosition", null);
+      handleBrowserAssignments(undefined);
     }
-  }, [allModules]);
+    //}
+  }, [/*allModules*/ browserAssignments]);
 
   // Update the selected assignments counter
   useEffect(() => {
@@ -553,48 +549,6 @@ export default function SetCreator() {
     }
   }, [selectedAssignments]);
 
-  // Navigates to an assignment page by listening to the active assignment.
-  useEffect(() => {
-    if (activeAssignment && navigateToAssignment && activeSet) {
-      setNavigateToAssignment(false);
-
-      const activeAssignmentType: string = activeAssignment.assignmentType;
-      if (activeAssignmentType === "assignment") {
-        navigate("/inputCodeAssignment");
-      }
-    }
-  }, [activeAssignment, navigateToAssignment]);
-
-  // Navigates to the assignment browse page by listening to activeAssignments
-  useEffect(() => {
-    if (
-      activeAssignments &&
-      previousPath === "/setCreator" &&
-      navigateToBrowse
-    ) {
-      setNavigateToBrowse(false);
-      navigate("/AssignmentBrowse");
-    }
-  }, [activeAssignments, previousPath, navigateToBrowse]);
-
-  // checks if target module and position are set before priming
-  // activeAssignments for navigation to the browse page
-  useEffect(() => {
-    try {
-      if (
-        typeof set.targetModule === "number" &&
-        typeof set.targetPosition === "number" &&
-        navigateToBrowse
-      ) {
-        handleActiveSet(set);
-        handleActiveAssignments([]);
-        handlePreviousPath("/setCreator");
-      }
-    } catch (err) {
-      handleSnackbar({ error: parseUICode(err.message) });
-    }
-  }, [set.targetModule, set.targetPosition, navigateToBrowse]);
-
   function moduleWindow(
     moduleName: string,
     moduleId: number,
@@ -620,8 +574,7 @@ export default function SetCreator() {
     function handleTargetPosition(position: number) {
       handleSet("targetModule", moduleId);
       handleSet("targetPosition", position);
-      handleSelectAssignment(true);
-      setNavigateToBrowse(true);
+      setBrowserAssignments([]);
     }
 
     const variationWindow = () => {
@@ -876,375 +829,300 @@ export default function SetCreator() {
 
   return (
     <>
-      <StepperComp
-        stepperState={stepperState}
-        headings={stepHeadings}
-      ></StepperComp>
+      <Stack gap={2}>
+        <StepperComp stepperState={stepperState} headings={stepHeadings} />
 
-      <div className="emptySpace2" />
-      {stepperState === 0 ? (
-        <>
-          <Typography level="h1">
-            {parseUICode("ui_module_selection")}
-          </Typography>
-          <Table borderAxis="none">
-            <tbody>
-              <tr key="caFullCourse">
-                <td style={{ width: "25%" }}>
-                  <Typography level="h4">
-                    {parseUICode("ui_full_course")}
-                  </Typography>
-                </td>
-                <td>
-                  <SwitchComp
-                    checked={set.fullCourse}
-                    setChecked={(value: boolean) =>
-                      handleSet("fullCourse", value)
-                    }
-                  />
-                </td>
-              </tr>
+        {stepperState === 0 ? (
+          <>
+            <Typography level="h1">
+              {parseUICode("ui_module_selection")}
+            </Typography>
+            <Table borderAxis="none">
+              <tbody>
+                <tr key="caFullCourse">
+                  <td style={{ width: "25%" }}>
+                    <Typography level="h4">
+                      {parseUICode("ui_full_course")}
+                    </Typography>
+                  </td>
+                  <td>
+                    <SwitchComp
+                      checked={set.fullCourse}
+                      setChecked={(value: boolean) =>
+                        handleSet("fullCourse", value)
+                      }
+                    />
+                  </td>
+                </tr>
 
-              <tr key="caModule">
-                <td>
-                  <Typography level="h4">{parseUICode("ui_module")}</Typography>
-                </td>
-                <td>
-                  <Dropdown
-                    name="caModuleInput"
-                    options={modulesWithoutPending}
-                    labelKey="name"
-                    defaultValue={ForceToString(set?.module)}
-                    disabled={
-                      set.fullCourse || (allModules.length === 1 ? true : false)
-                    }
-                    onChange={(value: string) => {
-                      handleSet(
-                        "module",
-                        allModules.find((m) => m.name === value)?.id
-                      );
-                    }}
-                  ></Dropdown>
-                </td>
-              </tr>
-            </tbody>
-          </Table>
-        </>
-      ) : (
-        ""
-      )}
-
-      {stepperState === 1 ? (
-        <>
-          <Typography level="h1">{parseUICode("ui_set_details")}</Typography>
-          <Typography
-            level="body-lg"
-            fontStyle={"italic"}
-            textColor={"red"}
-            sx={{ marginTop: "1em" }}
-          >
-            {"* " + parseUICode("ui_required_field")}
-          </Typography>
-          <Table borderAxis="none">
-            <tbody>
-              <tr key="asSetName">
-                <td style={{ width: "25%" }}>
-                  <Typography level="h4">
-                    {parseUICode("ui_set_name") + " *"}
-                  </Typography>
-                </td>
-                <td>
-                  <InputField
-                    fieldKey="asSetNameInput"
-                    defaultValue={ForceToString(set?.name)}
-                    onChange={(value: string) => handleSet("name", value, true)}
-                  />
-                </td>
-              </tr>
-
-              <tr key="asVisibleHeader">
-                <td style={{ width: "25%" }}>
-                  <Typography level="h4">
-                    {parseUICode("ui_custom_header")}
-                  </Typography>
-                </td>
-                <td>
-                  <InputField
-                    fieldKey="asVisibleHeaderInput"
-                    defaultValue={ForceToString(set?.visibleHeader)}
-                    onChange={(value: string) =>
-                      handleSet("visibleHeader", value, true)
-                    }
-                  />
-                </td>
-              </tr>
-
-              <tr key="asYear">
-                <td>
-                  <Typography level="h4">{parseUICode("ui_year")}</Typography>
-                </td>
-                <td>
-                  <NumberInput
-                    disabled={false}
-                    value={Number(set?.year)}
-                    onChange={(value: number) => handleSet("year", value)}
-                  ></NumberInput>
-                </td>
-              </tr>
-
-              <tr key="asPeriod">
-                <td>
-                  <Typography level="h4">
-                    {parseUICode("ui_study_period")}
-                  </Typography>
-                </td>
-                <td>
-                  <NumberInput
-                    disabled={false}
-                    value={Number(set?.period)}
-                    onChange={(value: number) => handleSet("period", value)}
-                  ></NumberInput>
-                </td>
-              </tr>
-
-              <tr key="asExportSet">
-                <td style={{ width: "25%" }}>
-                  <Typography level="h4">
-                    {parseUICode("ui_export_set")}
-                  </Typography>
-                </td>
-                <td>
-                  <SwitchComp
-                    checked={set?.export}
-                    setChecked={(value: boolean) => handleSet("export", value)}
-                  />
-                </td>
-              </tr>
-
-              <tr key="asFormat">
-                <td>
-                  <Typography level="h4">
-                    {parseUICode("ui_format") + " *"}
-                  </Typography>
-                </td>
-                <td>
-                  <Dropdown
-                    name="asModuleInput"
-                    options={formats}
-                    labelKey="name"
-                    defaultValue={ForceToString(set?.format)}
-                    onChange={(value: string) => handleSet("format", value)}
-                  ></Dropdown>
-                </td>
-              </tr>
-
-              <tr key="asExportCodeGrade">
-                <td style={{ width: "25%" }}>
-                  <Typography level="h4">
-                    {parseUICode("ui_export_codegrade_config")}
-                  </Typography>
-                </td>
-                <td>
-                  <SwitchComp
-                    checked={set?.exportCGConfigs}
-                    setChecked={(value: boolean) =>
-                      handleSet("exportCGConfigs", value)
-                    }
-                  />
-                </td>
-              </tr>
-
-              <tr key="asReplaceExisting">
-                <td style={{ width: "25%" }}>
-                  <Grid
-                    container
-                    direction="row"
-                    justifyContent="flex-start"
-                    alignItems="center"
-                    spacing={1}
-                  >
-                    <Grid xs={10}>
-                      <Typography level="h4">
-                        {parseUICode("ui_replace_existing")}
-                      </Typography>
-                    </Grid>
-                    <Grid xs={2}>
-                      <HelpText text={parseUICode("help_replace_existing")} />
-                    </Grid>
-                  </Grid>
-                </td>
-                <td>
-                  <SwitchComp
-                    checked={
-                      set?.replaceExisting === undefined
-                        ? false
-                        : set?.replaceExisting
-                    }
-                    setChecked={(value: boolean) =>
-                      handleSet("replaceExisting", value)
-                    }
-                  />
-                </td>
-              </tr>
-
-              <tr key="asShowLevels">
-                <td style={{ width: "25%" }}>
-                  <Typography level="h4">
-                    {parseUICode("ui_show_levels")}
-                  </Typography>
-                </td>
-                <td>
-                  <SwitchComp
-                    checked={
-                      set?.showLevels === undefined ? false : set?.showLevels
-                    }
-                    setChecked={(value: boolean) =>
-                      handleSet("showLevels", value)
-                    }
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </Table>
-        </>
-      ) : (
-        ""
-      )}
-
-      {stepperState === 2 ? (
-        <>
-          <Stack
-            direction="row"
-            justifyContent="flex-start"
-            alignItems="center"
-            spacing={2}
-          >
-            <Typography level="h1">{parseUICode("ui_choose_tasks")}</Typography>
-          </Stack>
-
-          <Grid
-            container
-            direction="row"
-            justifyContent="flex-start"
-            alignItems="flex-start"
-            spacing={1}
-            sx={{ paddingRight: "16px" }}
-          >
-            {moduleWindows()}
-          </Grid>
-
-          {hasGenericModule ? (
-            <ButtonComp
-              buttonType="normal"
-              onClick={() => handleAddAssignment()}
-              ariaLabel={parseUICode("ui_add_assignment")}
-            >
-              {parseUICode("ui_add_assignment")}
-            </ButtonComp>
-          ) : (
-            ""
-          )}
-        </>
-      ) : (
-        ""
-      )}
-
-      {stepperState === 3 ? (
-        <>
-          <Typography level="h1">
-            {set.exportCGConfigs
-              ? parseUICode("ui_codegrade_autotest")
-              : parseUICode("ui_save_and_export_set")}
-          </Typography>
-          {set.exportCGConfigs ? (
-            <>
-              <div className="emptySpace1" />
-              <Typography level="h4">
-                {`${parseUICode("ui_module")} ${ForceToString(
-                  set.module
-                )} - CodeGrade ${parseUICode("ui_assignment")} ${parseUICode(
-                  "ui_ids"
-                )}`}
-              </Typography>
-              <Table borderAxis="none">
-                <tbody>{finalPageAssignments()}</tbody>
-              </Table>
-              <Divider sx={dividerSX} role="presentation" />
-            </>
-          ) : (
-            ""
-          )}
-        </>
-      ) : (
-        ""
-      )}
-
-      <div className="emptySpace2" style={{ marginTop: "auto" }} />
-      <Stack
-        direction="row"
-        justifyContent="flex-start"
-        alignItems="center"
-        spacing={2}
-      >
-        <ButtonComp
-          buttonType="normal"
-          onClick={() => navigate(-1)}
-          ariaLabel={parseUICode("ui_aria_close")}
-        >
-          {parseUICode("ui_close")}
-        </ButtonComp>
-
-        {stepperState > 0 ? (
-          <ButtonComp
-            buttonType="normal"
-            onClick={() => handleStepperState(-1)}
-            ariaLabel={parseUICode("ui_aria_nav_previous")}
-          >
-            {parseUICode("ui_previous")}
-          </ButtonComp>
+                <tr key="caModule">
+                  <td>
+                    <Typography level="h4">
+                      {parseUICode("ui_module")}
+                    </Typography>
+                  </td>
+                  <td>
+                    <Dropdown
+                      name="caModuleInput"
+                      options={modulesWithoutPending}
+                      labelKey="name"
+                      defaultValue={ForceToString(set?.module)}
+                      disabled={
+                        set.fullCourse ||
+                        (allModules.length === 1 ? true : false)
+                      }
+                      onChange={(value: string) => {
+                        handleSet(
+                          "module",
+                          allModules.find((m) => m.name === value)?.id
+                        );
+                      }}
+                    ></Dropdown>
+                  </td>
+                </tr>
+              </tbody>
+            </Table>
+          </>
         ) : (
           ""
         )}
 
-        {stepperState < 3 ? (
-          <ButtonComp
-            buttonType="normal"
-            onClick={() => handleNext()}
-            ariaLabel={parseUICode("ui_aria_nav_next")}
-          >
-            {parseUICode("ui_next")}
-          </ButtonComp>
+        {stepperState === 1 ? (
+          <>
+            <Typography level="h1">{parseUICode("ui_set_details")}</Typography>
+            <Typography level="body-lg" fontStyle={"italic"} textColor={"red"}>
+              {"* " + parseUICode("ui_required_field")}
+            </Typography>
+            <Table borderAxis="none">
+              <tbody>
+                <tr key="asSetName">
+                  <td style={{ width: "25%" }}>
+                    <Typography level="h4">
+                      {parseUICode("ui_set_name") + " *"}
+                    </Typography>
+                  </td>
+                  <td>
+                    <InputField
+                      fieldKey="asSetNameInput"
+                      defaultValue={ForceToString(set?.name)}
+                      onChange={(value: string) =>
+                        handleSet("name", value, true)
+                      }
+                    />
+                  </td>
+                </tr>
+
+                <tr key="asVisibleHeader">
+                  <td style={{ width: "25%" }}>
+                    <Typography level="h4">
+                      {parseUICode("ui_custom_header")}
+                    </Typography>
+                  </td>
+                  <td>
+                    <InputField
+                      fieldKey="asVisibleHeaderInput"
+                      defaultValue={ForceToString(set?.visibleHeader)}
+                      onChange={(value: string) =>
+                        handleSet("visibleHeader", value, true)
+                      }
+                    />
+                  </td>
+                </tr>
+
+                <tr key="asYear">
+                  <td>
+                    <Typography level="h4">{parseUICode("ui_year")}</Typography>
+                  </td>
+                  <td>
+                    <NumberInput
+                      disabled={false}
+                      value={Number(set?.year)}
+                      onChange={(value: number) => handleSet("year", value)}
+                    ></NumberInput>
+                  </td>
+                </tr>
+
+                <tr key="asPeriod">
+                  <td>
+                    <Typography level="h4">
+                      {parseUICode("ui_study_period")}
+                    </Typography>
+                  </td>
+                  <td>
+                    <NumberInput
+                      disabled={false}
+                      value={Number(set?.period)}
+                      onChange={(value: number) => handleSet("period", value)}
+                    ></NumberInput>
+                  </td>
+                </tr>
+
+                <tr key="asExportSet">
+                  <td style={{ width: "25%" }}>
+                    <Typography level="h4">
+                      {parseUICode("ui_export_set")}
+                    </Typography>
+                  </td>
+                  <td>
+                    <SwitchComp
+                      checked={set?.export}
+                      setChecked={(value: boolean) =>
+                        handleSet("export", value)
+                      }
+                    />
+                  </td>
+                </tr>
+
+                <tr key="asFormat">
+                  <td>
+                    <Typography level="h4">
+                      {parseUICode("ui_format") + " *"}
+                    </Typography>
+                  </td>
+                  <td>
+                    <Dropdown
+                      name="asModuleInput"
+                      options={formats}
+                      labelKey="name"
+                      defaultValue={ForceToString(set?.format)}
+                      onChange={(value: string) => handleSet("format", value)}
+                    ></Dropdown>
+                  </td>
+                </tr>
+
+                <tr key="asExportCodeGrade">
+                  <td style={{ width: "25%" }}>
+                    <Typography level="h4">
+                      {parseUICode("ui_export_codegrade_config")}
+                    </Typography>
+                  </td>
+                  <td>
+                    <SwitchComp
+                      checked={set?.exportCGConfigs}
+                      setChecked={(value: boolean) =>
+                        handleSet("exportCGConfigs", value)
+                      }
+                    />
+                  </td>
+                </tr>
+
+                <tr key="asReplaceExisting">
+                  <td style={{ width: "25%" }}>
+                    <Grid
+                      container
+                      direction="row"
+                      justifyContent="flex-start"
+                      alignItems="center"
+                      spacing={1}
+                    >
+                      <Grid xs={10}>
+                        <Typography level="h4">
+                          {parseUICode("ui_replace_existing")}
+                        </Typography>
+                      </Grid>
+                      <Grid xs={2}>
+                        <HelpText text={parseUICode("help_replace_existing")} />
+                      </Grid>
+                    </Grid>
+                  </td>
+                  <td>
+                    <SwitchComp
+                      checked={
+                        set?.replaceExisting === undefined
+                          ? false
+                          : set?.replaceExisting
+                      }
+                      setChecked={(value: boolean) =>
+                        handleSet("replaceExisting", value)
+                      }
+                    />
+                  </td>
+                </tr>
+
+                <tr key="asShowLevels">
+                  <td style={{ width: "25%" }}>
+                    <Typography level="h4">
+                      {parseUICode("ui_show_levels")}
+                    </Typography>
+                  </td>
+                  <td>
+                    <SwitchComp
+                      checked={
+                        set?.showLevels === undefined ? false : set?.showLevels
+                      }
+                      setChecked={(value: boolean) =>
+                        handleSet("showLevels", value)
+                      }
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </Table>
+          </>
+        ) : (
+          ""
+        )}
+
+        {stepperState === 2 ? (
+          <>
+            <Typography level="h1">{parseUICode("ui_choose_tasks")}</Typography>
+
+            <Grid
+              container
+              direction="row"
+              justifyContent="flex-start"
+              alignItems="flex-start"
+              spacing={1}
+              sx={{ paddingRight: "16px" }}
+            >
+              {moduleWindows()}
+            </Grid>
+
+            {hasGenericModule ? (
+              <ButtonComp
+                buttonType="normal"
+                onClick={() => handleAddAssignment()}
+                ariaLabel={parseUICode("ui_add_assignment")}
+              >
+                {parseUICode("ui_add_assignment")}
+              </ButtonComp>
+            ) : (
+              ""
+            )}
+          </>
         ) : (
           ""
         )}
 
         {stepperState === 3 ? (
           <>
-            <ButtonComp
-              buttonType="normal"
-              onClick={() => {
-                saveSet();
-                navigate("/");
-              }}
-              ariaLabel={parseUICode("ui_save")}
-            >
-              {parseUICode("ui_save")}
-            </ButtonComp>
-            {/*<ButtonComp
-              buttonType="normal"
-              onClick={() => console.log("export CG configs")}
-              ariaLabel={parseUICode("ui_aria_export_cg_configs")}
-              disabled={true}
-            >
-              {parseUICode("ui_export")}
-            </ButtonComp>*/}
+            <Typography level="h1">
+              {set.exportCGConfigs
+                ? parseUICode("ui_codegrade_autotest")
+                : parseUICode("ui_save_and_export_set")}
+            </Typography>
+            {set.exportCGConfigs ? (
+              <>
+                <Typography level="h4">
+                  {`${parseUICode("ui_module")} ${ForceToString(
+                    set.module
+                  )} - CodeGrade ${parseUICode("ui_assignment")} ${parseUICode(
+                    "ui_ids"
+                  )}`}
+                </Typography>
+                <Table borderAxis="none">
+                  <tbody>{finalPageAssignments()}</tbody>
+                </Table>
+                <Divider sx={dividerSX} role="presentation" />
+              </>
+            ) : (
+              ""
+            )}
           </>
         ) : (
           ""
         )}
-      </Stack>
-      <div className="emptySpace2" style={{ marginTop: "auto" }} />
-      {DEVMODE ? (
+
         <Stack
           direction="row"
           justifyContent="flex-start"
@@ -1252,36 +1130,82 @@ export default function SetCreator() {
           spacing={2}
         >
           <ButtonComp
-            buttonType="debug"
-            onClick={() => log.debug(allAssignments)}
-            ariaLabel={" debug "}
+            buttonType="normal"
+            onClick={() => navigate(-1)}
+            ariaLabel={parseUICode("ui_aria_close")}
           >
-            log allAssignments
+            {parseUICode("ui_close")}
           </ButtonComp>
-          <ButtonComp
-            buttonType="debug"
-            onClick={() => log.debug(set)}
-            ariaLabel={" debug "}
-          >
-            log set
-          </ButtonComp>
-          <ButtonComp
-            buttonType="debug"
-            onClick={() => log.debug(activeSet)}
-            ariaLabel={" debug "}
-          >
-            log activeSet
-          </ButtonComp>
-          <ButtonComp
-            buttonType="debug"
-            onClick={() => log.debug(allModules)}
-            ariaLabel={" debug "}
-          >
-            log allModules
-          </ButtonComp>
+
+          {stepperState > 0 ? (
+            <ButtonComp
+              buttonType="normal"
+              onClick={() => handleStepperState(-1)}
+              ariaLabel={parseUICode("ui_aria_nav_previous")}
+            >
+              {parseUICode("ui_previous")}
+            </ButtonComp>
+          ) : (
+            ""
+          )}
+
+          {stepperState < 3 ? (
+            <ButtonComp
+              buttonType="normal"
+              onClick={() => handleNext()}
+              ariaLabel={parseUICode("ui_aria_nav_next")}
+            >
+              {parseUICode("ui_next")}
+            </ButtonComp>
+          ) : (
+            ""
+          )}
+
+          {stepperState === 3 ? (
+            <>
+              <ButtonComp
+                buttonType="normal"
+                onClick={() => {
+                  saveSet();
+                  navigate("/");
+                }}
+                ariaLabel={parseUICode("ui_save")}
+              >
+                {parseUICode("ui_save")}
+              </ButtonComp>
+              {/*<ButtonComp
+              buttonType="normal"
+              onClick={() => console.log("export CG configs")}
+              ariaLabel={parseUICode("ui_aria_export_cg_configs")}
+              disabled={true}
+            >
+              {parseUICode("ui_export")}
+            </ButtonComp>*/}
+            </>
+          ) : (
+            ""
+          )}
         </Stack>
+
+        <DebugButtonStack
+          items={{ allAssignments, set, activeSet, allModules }}
+        />
+      </Stack>
+
+      <AssignmentSelect
+        useAsModalSelect={true}
+        parentAssignments={browserAssignments}
+        handleParentAssignments={handleBrowserAssignments}
+        typeFilters={["assignment"]}
+      />
+      {typeof assignmentToEdit !== "undefined" ? (
+        <AssignmentEdit
+          useAsModalSelect={true}
+          parentAssignment={assignmentToEdit}
+          handleParentAssignment={handleAssignmentToEdit}
+        />
       ) : (
-        ""
+        <></>
       )}
     </>
   );

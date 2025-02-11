@@ -1,3 +1,5 @@
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import InfoIcon from "@mui/icons-material/Info";
 import {
   Alert,
   CircularProgress,
@@ -6,24 +8,21 @@ import {
   Table,
   Typography,
 } from "@mui/joy";
-import { parseUICode } from "../rendererHelpers/translation";
 import { useContext, useEffect, useState } from "react";
-import Dropdown from "../components/Dropdown";
-import { handleIPCResult } from "../rendererHelpers/errorHelpers";
-import log from "electron-log/renderer";
+import ButtonComp from "../components/ButtonComp";
 import { UIContext } from "../components/Context";
+import Dropdown from "../components/Dropdown";
 import InputField from "../components/InputField";
+import SwitchComp from "../components/SwitchComp";
 import {
   pageTableMaxWidth,
   pageTableMinWidth,
   titleCellWidth,
 } from "../constantsUI";
-import { CodeGradeLogin, CodeGradeTenant } from "../types";
-import ButtonComp from "../components/ButtonComp";
 import { capitalizeFirstLetter } from "../rendererHelpers/capitalize";
-import SwitchComp from "../components/SwitchComp";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import InfoIcon from "@mui/icons-material/Info";
+import { handleIPCResult } from "../rendererHelpers/errorHelpers";
+import { parseUICode } from "../rendererHelpers/translation";
+import { CodeGradeLogin, CodeGradeTenant } from "../types";
 
 export default function CodeGradeSettings() {
   const { handleSnackbar } = useContext(UIContext);
