@@ -258,7 +258,7 @@ export async function exportSetFS(
           solutionHtml += `<h1>${mainHeader} ${parseUICodeMain(
             "answers"
           ).toUpperCase()}</h1>`;
-          
+
           // Starting instructions
           const startingInstructions = generateStart(
             module.subjects,
@@ -267,17 +267,17 @@ export async function exportSetFS(
           html += startingInstructions;
           solutionHtml += startingInstructions;
 
-        // Table of contents
-        if (setInput.assignments.length > 1) {
-          const toc = generateToC(
-            coursedata,
-            moduleAssignments,
-            setInput.showLevels
-          );
-          html += toc;
-          solutionHtml += toc;
-        }
-          
+          // Table of contents
+          if (setInput.assignments.length > 1) {
+            const toc = generateToC(
+              coursedata,
+              moduleAssignments,
+              setInput.showLevels
+            );
+            html += toc;
+            solutionHtml += toc;
+          }
+
           // Module string for PDF footer
           const modulePadding =
             coursedata.modules > 9
@@ -299,95 +299,99 @@ export async function exportSetFS(
               break;
           }
 
-        // loop through assignments
-        moduleAssignments.sort(
-          (a, b) => a.selectedPosition - b.selectedPosition
-        );
-        moduleAssignments.forEach((assignment, index) => {
-          // Assignments
-          const meta = { assignmentIndex: index, courseData: coursedata };
-          html += generateBlock(
-            meta,
-            assignment,
-            assignment.variation,
-            assignment.variatioId,
-            coursedata.modules,
-            false,
-            false,
-            setInput.showLevels
-          );
-          solutionHtml += generateBlock(
-            meta,
-            assignment,
-            assignment.variation,
-            assignment.variatioId,
-            coursedata.modules,
-            true,
-            false,
-            setInput.showLevels
-
           // loop through assignments
           moduleAssignments.sort(
             (a, b) => a.selectedPosition - b.selectedPosition
           );
-          moduleAssignments.forEach((assignment, index) => {
-            // Assignments
-            const meta = { assignmentIndex: index, courseData: coursedata };
-            html += generateBlock(
-              meta,
-              assignment,
-              assignment.variation,
-              assignment.variatioId,
-              coursedata.modules,
-              false
-            );
-            solutionHtml += generateBlock(
-              meta,
-              assignment,
-              assignment.variation,
-              assignment.variatioId,
-              coursedata.modules,
-              true
-            );
-          });
+          await Promise.all(
+            moduleAssignments.map(async (assignment, index) => {
+              // Assignments
+              const meta = { assignmentIndex: index, courseData: coursedata };
+              html += generateBlock(
+                meta,
+                assignment,
+                assignment.variation,
+                assignment.variatioId,
+                coursedata.modules,
+                false,
+                false,
+                setInput.showLevels
+              );
+              solutionHtml += generateBlock(
+                meta,
+                assignment,
+                assignment.variation,
+                assignment.variatioId,
+                coursedata.modules,
+                true,
+                false,
+                setInput.showLevels
+              );
 
-          // End body
-          html += `</body>
+              // loop through assignments
+              moduleAssignments.sort(
+                (a, b) => a.selectedPosition - b.selectedPosition
+              );
+              moduleAssignments.forEach((assignment, index) => {
+                // Assignments
+                const meta = { assignmentIndex: index, courseData: coursedata };
+                html += generateBlock(
+                  meta,
+                  assignment,
+                  assignment.variation,
+                  assignment.variatioId,
+                  coursedata.modules,
+                  false
+                );
+                solutionHtml += generateBlock(
+                  meta,
+                  assignment,
+                  assignment.variation,
+                  assignment.variatioId,
+                  coursedata.modules,
+                  true
+                );
+              });
+
+              // End body
+              html += `</body>
 </html>`;
-          solutionHtml += `</body>
+              solutionHtml += `</body>
 </html>`;
-          log.info("HTML created.");
+              log.info("HTML created.");
 
-          const inlineHTML = juice(html);
-          const inlineSolutionHTML = juice(solutionHtml);
+              const inlineHTML = juice(html);
+              const inlineSolutionHTML = juice(solutionHtml);
 
-          await saveSetModuleFS(
-            inlineHTML,
-            inlineSolutionHTML,
-            mainHeader,
-            convertedSet.format,
-            coursedata,
-            savePath,
-            convertedSet.replaceExisting,
-            moduleString
+              await saveSetModuleFS(
+                inlineHTML,
+                inlineSolutionHTML,
+                mainHeader,
+                convertedSet.format,
+                coursedata,
+                savePath,
+                convertedSet.replaceExisting,
+                moduleString
+              );
+              const filename = mainHeader.replace(" ", "");
+
+              const filesPath = path.join(savePath, filename);
+              copyExportFilesFS(moduleAssignments, filesPath);
+
+              convertedSet.assignmentArray.forEach((setAssignment) => {
+                const filePath = path.join(
+                  coursePath.path,
+                  setAssignment.folder,
+                  setAssignment.assignmentID + ".json"
+                );
+                setUsedIn(
+                  filePath,
+                  setAssignment.variatioId,
+                  `${convertedSet.year}/${convertedSet.period}`
+                );
+              });
+            })
           );
-          const filename = mainHeader.replace(" ", "");
-
-          const filesPath = path.join(savePath, filename);
-          copyExportFilesFS(moduleAssignments, filesPath);
-
-          convertedSet.assignmentArray.forEach((setAssignment) => {
-            const filePath = path.join(
-              coursePath.path,
-              setAssignment.folder,
-              setAssignment.assignmentID + ".json"
-            );
-            setUsedIn(
-              filePath,
-              setAssignment.variatioId,
-              `${convertedSet.year}/${convertedSet.period}`
-            );
-          });
         })
       );
     });
