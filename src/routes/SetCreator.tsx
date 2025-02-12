@@ -85,6 +85,7 @@ export default function SetCreator() {
   } = useContext(ActiveObjectContext);
   const { handleHeaderPageName, handleSnackbar } = useContext(UIContext);
   const [set, handleSet] = useSet(activeSet ?? deepCopy(defaultSet));
+  const [exportOnSave, setExportOnSave] = useState(false);
   const [allAssignments, setAllAssignments] = useState<
     Array<SetAssignmentWithCheck>
   >(set.assignments);
@@ -237,7 +238,7 @@ export default function SetCreator() {
         await handleIPCResult(() =>
           window.api.addOrUpdateSetFS(activePath, exportedSet)
         );
-        if (exportedSet.export) {
+        if (exportOnSave) {
           const result = await exportSetToDisk(exportedSet, activeCourse);
           snackbarText = result.snackbarText;
           snackbarSeverity = result.snackbarSeverity;
@@ -965,10 +966,8 @@ export default function SetCreator() {
                   </td>
                   <td>
                     <SwitchComp
-                      checked={set?.export}
-                      setChecked={(value: boolean) =>
-                        handleSet("export", value)
-                      }
+                      checked={exportOnSave}
+                      setChecked={(value: boolean) => setExportOnSave(value)}
                     />
                   </td>
                 </tr>

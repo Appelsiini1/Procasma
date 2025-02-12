@@ -102,7 +102,6 @@ export const defaultSet: SetData = {
   visibleHeader: "",
   year: 2024,
   period: 0,
-  export: false,
   format: null,
   exportCGConfigs: true,
   assignments: [],

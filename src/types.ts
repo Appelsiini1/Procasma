@@ -172,7 +172,6 @@ export interface SetData {
   visibleHeader: string;
   year: number;
   period: number;
-  export: boolean;
   format: FormatType;
   exportCGConfigs: boolean;
   assignments: SetAssignmentWithCheck[];
